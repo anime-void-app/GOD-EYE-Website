@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>GOD EYE — OSINT INTELLIGENCE</title>
+<link rel="icon" href="assets/god-eye.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body class="intro-active">
+
+<!-- ═══════════ ИКОНКИ (SVG-спрайт) ═══════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 12 12 4l9 8"/><path d="M12 4v4"/><circle cx="12" cy="14" r="3"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></symbol>
+  <symbol id="i-org" viewBox="0 0 24 24"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></symbol>
+  <symbol id="i-geo" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m3 17 5-5 4 4 3-3 6 6"/></symbol>
+  <symbol id="i-graph" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="m7.3 11 9.4-4.8M7.3 13l9.4 4.8"/></symbol>
+  <symbol id="i-source" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></symbol>
+  <symbol id="i-tools" viewBox="0 0 24 24"><path d="M14.5 4.5a4 4 0 0 0 5 5L12 17l-3-3z"/><path d="m9 14-5 5 1 1 5-5"/></symbol>
+  <symbol id="i-report" viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><path d="M3 4h18v4H3z"/><path d="M5 8v12h14V8M10 12h4"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v6H4V6h6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6M4 20h16"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V8M6 13l6-6 6 6M4 4h16"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-vault" viewBox="0 0 24 24"><path d="M12 2 4 7v10l8 5 8-5V7z"/><path d="M12 22V12M4 7l8 5 8-5"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-cmd" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+</svg>
+
+<!-- ═══════════ ФОН ═══════════ -->
+<div id="bg" aria-hidden="true"><div class="bg-grid"></div><div class="bg-spot"></div><div class="bg-grain"></div><div class="bg-vignette"></div></div>
+
+<!-- ═══════════ ЗАСТАВКА ═══════════ -->
+<div id="intro" class="hidden" aria-label="Заставка GOD EYE">
+  <div class="lid lid-top"></div>
+  <div class="lid lid-bottom"></div>
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-text">
+    <h1 class="intro-title" id="intro-title" aria-label="GOD EYE"></h1>
+    <div class="intro-rule" id="intro-rule"></div>
+    <div class="intro-sub" id="intro-sub">OSINT · INTELLIGENCE · SYSTEM</div>
+    <div class="intro-boot" id="intro-boot"></div>
+    <button class="intro-enter" id="intro-enter">Войти в систему</button>
+  </div>
+  <button class="intro-skip" id="intro-skip">ПРОПУСТИТЬ · ESC</button>
+</div>
+
+<!-- ═══════════ ПРИЛОЖЕНИЕ ═══════════ -->
+<div id="app" class="app-pre">
+  <aside id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="bm-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f4f7"/><stop offset="1" stop-color="#6c6c78"/></linearGradient>
+          <radialGradient id="bm-i"><stop offset=".25" stop-color="#ffffff"/><stop offset=".7" stop-color="#9c9ca7"/><stop offset="1" stop-color="#2a2a30"/></radialGradient>
+          <radialGradient id="bm-p"><stop offset="0" stop-color="#ff3030"/><stop offset=".5" stop-color="#7a0000"/><stop offset="1" stop-color="#000"/></radialGradient>
+        </defs>
+        <circle class="ring-a" cx="60" cy="60" r="56" fill="none" stroke="#c6c6ce" stroke-opacity=".35" stroke-dasharray="2 4"/>
+        <circle class="ring-b" cx="60" cy="60" r="50" fill="none" stroke="#e2232e" stroke-opacity=".7" stroke-dasharray="18 10 4 10"/>
+        <polygon points="60,14 99.8,83 20.2,83" fill="#0b0b0d" stroke="url(#bm-s)" stroke-width="2.2"/>
+        <g class="lid">
+          <path d="M37 62 C45 50 75 50 83 62 C75 72 45 72 37 62Z" fill="#141418" stroke="#d8d8de" stroke-width="1.6"/>
+          <circle cx="60" cy="62" r="9" fill="url(#bm-i)"/>
+          <circle class="pupil-glow" cx="60" cy="62" r="4.2" fill="url(#bm-p)"/>
+          <circle cx="57" cy="59" r="1.6" fill="#fff" opacity=".7"/>
+        </g>
+      </svg>
+      <div>
+        <div class="brand-name">GOD EYE</div>
+        <div class="brand-sub">OSINT INTELLIGENCE</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <div class="nav-group">ОБЗОР</div>
+      <a href="#/dashboard" data-view="dashboard"><span class="nv-idx">00</span><svg class="ic"><use href="#i-dash"/></svg>Командный центр</a>
+      <a href="#/search" data-view="search"><span class="nv-idx">S</span><svg class="ic"><use href="#i-search"/></svg>Поиск<span class="nv-count">⌕</span></a>
+      <div class="nav-group">РАЗВЕДКА</div>
+      <a href="#/people" data-view="people"><span class="nv-idx">01</span><svg class="ic"><use href="#i-person"/></svg>Персоны<span class="nv-count" data-count="person"></span></a>
+      <a href="#/organizations" data-view="organizations"><span class="nv-idx">02</span><svg class="ic"><use href="#i-org"/></svg>Организации<span class="nv-count" data-count="org"></span></a>
+      <a href="#/geolocation" data-view="geolocation"><span class="nv-idx">03</span><svg class="ic"><use href="#i-geo"/></svg>Геолокация<span class="nv-count" data-count="geo"></span></a>
+      <a href="#/images" data-view="images"><span class="nv-idx">04</span><svg class="ic"><use href="#i-image"/></svg>Изображения<span class="nv-count" data-count="image"></span></a>
+      <div class="nav-group">АНАЛИЗ</div>
+      <a href="#/sources" data-view="sources"><span class="nv-idx">05</span><svg class="ic"><use href="#i-source"/></svg>Источники<span class="nv-count" data-count="source"></span></a>
+      <a href="#/connections" data-view="connections"><span class="nv-idx">06</span><svg class="ic"><use href="#i-graph"/></svg>Связи<span class="nv-count" data-count="links"></span></a>
+      <a href="#/reports" data-view="reports"><span class="nv-idx">07</span><svg class="ic"><use href="#i-report"/></svg>Исследования<span class="nv-count" data-count="report"></span></a>
+      <a href="#/tools" data-view="tools"><span class="nv-idx">T</span><svg class="ic"><use href="#i-tools"/></svg>Инструменты</a>
+      <div class="nav-group">СИСТЕМА</div>
+      <a href="#/archive" data-view="archive"><span class="nv-idx">09</span><svg class="ic"><use href="#i-archive"/></svg>Архив</a>
+      <a href="#/settings" data-view="settings"><span class="nv-idx">⚙</span><svg class="ic"><use href="#i-settings"/></svg>Настройки</a>
+    </nav>
+
+    <div class="side-foot">
+      <div class="row"><span><span class="dot"></span>ОКО АКТИВНО</span><b id="sf-records">0</b></div>
+      <div class="row"><span><span class="dot off" id="sf-vault-dot"></span>OBSIDIAN</span><b id="sf-vault">не подключён</b></div>
+      <div class="row" style="margin-top:6px"><span>v<span id="sf-ver"></span> · ЛОКАЛЬНО</span><span id="sf-store"></span></div>
+    </div>
+  </aside>
+
+  <div id="main">
+    <header id="topbar">
+      <button class="burger" id="burger" aria-label="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <div class="crumbs" id="crumbs">GOD EYE</div>
+      <button class="cmd-trigger" id="cmd-trigger"><svg class="ic ic-sm"><use href="#i-search"/></svg><span class="lbl">Поиск по системе и командам…</span><span class="kbd">CTRL K</span></button>
+      <div class="top-meta">
+        <span class="tm-hide">ОПЕРАТОР <b data-callsign>ОПЕРАТОР</b></span>
+        <span class="tm-hide">UTC <b id="clock-utc">--:--:--</b></span>
+        <span>LOCAL <b id="clock-local">--:--</b></span>
+      </div>
+    </header>
+
+    <main id="views">
+
+      <!-- ═════ 00 DASHBOARD ═════ -->
+      <section class="view" data-view="dashboard" data-idx="00" data-en="DASHBOARD">
+        <div class="hero panel rv" style="--i:0">
+          <div class="hero-eye">
+            <canvas id="hero-eye" aria-label="Анимированное всевидящее око. Нажмите, чтобы запустить импульс."></canvas>
+            <div class="hud hud-tl"><span class="live">● OCULUS ACTIVE</span><br><span id="hud-gaze">GAZE +0.00 · +0.00</span></div>
+            <div class="hud hud-tr">SIGNAL <b id="hud-signal">99.2%</b><br>ПРИВАТНЫЙ КОНТУР</div>
+            <div class="hud hud-bl">ЗАПИСЕЙ <b id="hud-records">0</b><br>СВЯЗЕЙ <b id="hud-links">0</b></div>
+            <div class="hud hud-br"><b id="hud-time">00:00:00</b> UTC<br>нажмите на око</div>
+            <div class="hud-frame"></div>
+          </div>
+          <div class="hero-side">
+            <div class="eyebrow">ДОБРО ПОЖАЛОВАТЬ, <span data-callsign>ОПЕРАТОР</span></div>
+            <div class="hero-title">GOD EYE</div>
+            <p class="hero-lead">Личная система анализа открытых источников. Введите цель — домен, никнейм, IP, ссылку, координаты, организацию или любой текст. Око распознает тип и подберёт инструменты.</p>
+            <form class="omni" id="omni-dash" autocomplete="off">
+              <svg class="ic"><use href="#i-target"/></svg>
+              <input name="q" placeholder="example.com · @username · 59.9390, 30.3158 · «текст»" aria-label="Цель поиска">
+              <span class="omni-type">АВТО</span>
+              <button class="btn btn-primary" type="submit">Скан</button>
+            </form>
+            <div class="chips" id="dash-examples"></div>
+            <div class="quick">
+              <button class="btn" data-new="person"><svg class="ic ic-sm"><use href="#i-person"/></svg>Персона</button>
+              <button class="btn" data-new="org"><svg class="ic ic-sm"><use href="#i-org"/></svg>Организация</button>
+              <button class="btn" data-new="source"><svg class="ic ic-sm"><use href="#i-source"/></svg>Источник</button>
+              <button class="btn" data-new="geo"><svg class="ic ic-sm"><use href="#i-geo"/></svg>Локация</button>
+              <button class="btn" data-go="images"><svg class="ic ic-sm"><use href="#i-image"/></svg>Анализ фото</button>
+              <button class="btn" data-new="report"><svg class="ic ic-sm"><use href="#i-report"/></svg>Исследование</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats" id="dash-stats"></div>
+
+        <div class="dash-grid">
+          <div class="panel rv" style="--i:3">
+            <div class="panel-h">Последние исследования<span class="ph-right"><a href="#/reports">ВСЕ →</a></span></div>
+            <div class="feed" id="dash-recent"></div>
+          </div>
+          <div class="panel rv" style="--i:4">
+            <div class="panel-h">Граф связей<span class="ph-right"><a href="#/connections">ОТКРЫТЬ →</a></span></div>
+            <canvas id="dash-graph"></canvas>
+          </div>
+          <div class="panel rv" style="--i:5">
+            <div class="panel-h">Статус системы</div>
+            <div class="status-list" id="dash-status"></div>
+          </div>
+          <div class="panel rv span-2" style="--i:6">
+            <div class="panel-h">Сетка достоверности<small>шкала Адмиралтейства: надёжность источника × достоверность сведений</small></div>
+            <div class="matrix" id="dash-matrix"></div>
+          </div>
+          <div class="panel rv" style="--i:7">
+            <div class="panel-h">Журнал активности<span class="ph-right"><a href="#/archive">АРХИВ →</a></span></div>
+            <div class="feed" id="dash-activity"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════ SEARCH ═════ -->
+      <section class="view" data-view="search" data-idx="S" data-en="SEARCH">
+        <div class="vh">
+          <div>
+            <div class="vh-idx">§ S · CENTRAL SEARCH</div>
+            <h2 class="vh-title">SEARCH<small>Центр поиска по открытым источникам</small></h2>
+            <p class="vh-desc">Одна строка — десятки инструментов. Тип цели определяется автоматически, его можно сменить вручную. «Живая разведка» делает прямые запросы к открытым API (DNS, RDAP, Wayback, Wikipedia, GitHub и др.) прямо из браузера.</p>
+          </div>
+        </div>
+        <form class="omni omni-xl" id="omni-search" autocomplete="off">
+          <svg class="ic"><use href="#i-target"/></svg>
+          <input name="q" id="search-q" placeholder="Введите цель поиска…" aria-label="Цель поиска">
+          <span class="omni-type" id="search-type-chip">АВТО</span>
+          <button class="btn btn-primary" type="submit">Скан</button>
+        </form>
+        <div class="type-tabs" id="type-tabs"></div>
+        <div class="search-layout">
+          <div class="search-main">
+            <div class="panel" id="live-panel">
+              <div class="panel-h">Живая разведка<small id="live-sub">введите цель и нажмите «Скан»</small><span class="ph-right"><button class="btn btn-sm" id="live-save" disabled>Сохранить цель как источник</button></span></div>
+              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов. Для текста — Wikipedia и Wikidata, для домена — DNS, RDAP, сертификаты и архив, для IP — RDAP и PTR, для координат — обратное геокодирование.</div></div>
+            </div>
+            <div class="engines-bar">
+              <span class="sel" id="eng-sel">ВЫБРАНО: 0</span>
+              <button class="btn btn-sm" id="eng-all">Выбрать все</button>
+              <button class="btn btn-sm" id="eng-none">Снять выбор</button>
+              <button class="btn btn-sm" id="eng-copy"><svg class="ic ic-sm"><use href="#i-copy"/></svg>Копировать ссылки</button>
+              <button class="btn btn-sm btn-primary" id="eng-open"><svg class="ic ic-sm"><use href="#i-ext"/></svg>Открыть выбранные</button>
+            </div>
+            <div id="engines"></div>
+          </div>
+          <aside class="search-side">
+            <div class="panel">
+              <div class="panel-h">Конструктор операторов<small>Google Dorks</small></div>
+              <div class="stack" id="dork">
+                <label class="field"><span>Все эти слова</span><input class="input" data-d="all" placeholder="отчёт пресс-релиз"></label>
+                <label class="field"><span>Точная фраза</span><input class="input" data-d="exact" placeholder="Северный Маяк"></label>
+                <div class="form-grid">
+                  <label class="field"><span>Любое из (ИЛИ)</span><input class="input" data-d="any" placeholder="пресс, новости"></label>
+                  <label class="field"><span>Исключить</span><input class="input" data-d="none" placeholder="вакансия"></label>
+                  <label class="field"><span>site:</span><input class="input" data-d="site" placeholder="example.com"></label>
+                  <label class="field"><span>filetype:</span><select class="select" data-d="filetype"><option value="">любой</option><option>pdf</option><option>doc</option><option>docx</option><option>xls</option><option>xlsx</option><option>ppt</option><option>pptx</option><option>csv</option><option>txt</option></select></label>
+                  <label class="field"><span>intitle:</span><input class="input" data-d="intitle" placeholder="годовой отчёт"></label>
+                  <label class="field"><span>inurl:</span><input class="input" data-d="inurl" placeholder="press"></label>
+                  <label class="field"><span>после (after:)</span><input class="input" type="date" data-d="after"></label>
+                  <label class="field"><span>до (before:)</span><input class="input" type="date" data-d="before"></label>
+                </div>
+                <div class="chips" id="dork-presets"></div>
+                <div class="dork-out" id="dork-out">—</div>
+                <div class="row">
+                  <button class="btn btn-sm btn-primary" data-dork="google">Google</button>
+                  <button class="btn btn-sm" data-dork="bing">Bing</button>
+                  <button class="btn btn-sm" data-dork="ddg">DuckDuckGo</button>
+                  <button class="btn btn-sm" data-dork="yandex">Яндекс</button>
+                  <button class="btn btn-sm btn-ghost" data-dork="copy" title="Копировать"><svg class="ic ic-sm"><use href="#i-copy"/></svg></button>
+                  <button class="btn btn-sm btn-ghost" data-dork="clear" title="Очистить"><svg class="ic ic-sm"><use href="#i-x"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Сохранённые цели<span class="ph-right"><button class="btn btn-sm btn-ghost" id="save-query" title="Сохранить текущую цель"><svg class="ic ic-sm"><use href="#i-star"/></svg></button></span></div>
+              <div class="hist" id="search-saved"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">История<span class="ph-right"><a href="#" id="hist-clear">ОЧИСТИТЬ</a></span></div>
+              <div class="hist" id="search-history"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ═════ СУЩНОСТИ: генерируются из схем (js/entities.js) ═════ -->
+      <section class="view" data-view="people" data-entity="person" data-idx="01" data-en="PEOPLE"></section>
+      <section class="view" data-view="organizations" data-entity="org" data-idx="02" data-en="ORGANIZATIONS"></section>
+      <section class="view" data-view="geolocation" data-entity="geo" data-idx="03" data-en="GEOLOCATION"></section>
+      <section class="view" data-view="images" data-entity="image" data-idx="04" data-en="IMAGES"></section>
+      <section class="view" data-view="sources" data-entity="source" data-idx="05" data-en="SOURCES"></section>
+      <section class="view" data-view="reports" data-entity="report" data-idx="07" data-en="RESEARCH"></section>
+
+      <!-- ═════ 06 CONNECTIONS ═════ -->
+      <section class="view" data-view="connections" data-idx="06" data-en="CONNECTIONS">
+        <div class="vh">
+          <div>
+            <div class="vh-idx">§ 06 · LINK ANALYSIS</div>
+            <h2 class="vh-title">CONNECTIONS<small>Граф связей между материалами</small></h2>
+            <p class="vh-desc">Все записи системы — узлы графа. Связи появляются из явных связей, полей «Организация» и «Связанные записи», а также из [[вики-ссылок]] импортированных заметок Obsidian. Перетаскивайте узлы, колесо — масштаб, двойной клик — карточка.</p>
+          </div>
+          <div class="vh-actions">
+            <button class="btn btn-primary" id="link-new"><svg class="ic ic-sm"><use href="#i-link"/></svg>Новая связь</button>
+            <button class="btn" id="graph-png"><svg class="ic ic-sm"><use href="#i-down"/></svg>Снимок PNG</button>
+          </div>
+        </div>
+        <div class="graph-layout">
+          <div class="graph-box" id="graph-box">
+            <canvas id="graph-canvas"></canvas>
+            <div class="graph-tools">
+              <input class="input" id="graph-find" placeholder="Найти узел…">
+              <button class="btn btn-sm" id="graph-fit">Вписать</button>
+              <button class="btn btn-sm" id="graph-shake">Перестроить</button>
+              <label class="btn btn-sm check" style="gap:6px"><input type="checkbox" id="graph-iso" checked>Одиночные</label>
+            </div>
+            <div class="graph-legend" id="graph-legend"></div>
+            <div class="graph-hint">ПЕРЕТАЩИТЬ · КОЛЕСО · ДВОЙНОЙ КЛИК</div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-h">Узел</div>
+              <div id="graph-info" class="muted" style="font-size:13px">Выберите узел на графе, чтобы увидеть его связи.</div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Явные связи<span class="ph-right"><span class="badge" id="links-count">0</span></span></div>
+              <div class="link-list" id="links-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════ TOOLS ═════ -->
+      <section class="view" data-view="tools" data-idx="T" data-en="TOOLS">
+        <div class="vh">
+          <div>
+            <div class="vh-idx">§ T · TOOLKIT</div>
+            <h2 class="vh-title">TOOLS<small>Лаборатория и каталог инструментов</small></h2>
+            <p class="vh-desc">Встроенные инструменты работают полностью локально — данные никуда не отправляются. Каталог — проверенные внешние сервисы OSINT с описаниями; отмечайте избранное звёздочкой.</p>
+          </div>
+        </div>
+        <div class="tabs" id="lab-tabs">
+          <button data-tab="extract" class="on">Извлечение</button>
+          <button data-tab="hash">Хеши</button>
+          <button data-tab="codec">Кодировщик</button>
+          <button data-tab="time">Время и ID</button>
+          <button data-tab="url">Анализ URL</button>
+          <button data-tab="coords">Координаты</button>
+          <button data-tab="catalog">Каталог</button>
+        </div>
+
+        <div class="tab-pane on" data-pane="extract">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Текст для анализа<small>вставьте статью, пост, письмо, HTML</small></div>
+              <textarea class="textarea mono" id="ex-in" style="min-height:320px" placeholder="Вставьте сюда любой текст. Система извлечёт ссылки, домены, email, IP, хэштеги, упоминания, координаты и даты."></textarea>
+              <div class="row" style="margin-top:10px"><button class="btn btn-primary" id="ex-run">Извлечь сущности</button><button class="btn" id="ex-clear">Очистить</button><span class="muted mono" style="font-size:11px;margin-left:auto" id="ex-stat"></span></div>
+            </div>
+            <div class="panel"><div class="panel-h">Найдено</div><div id="ex-out" class="muted" style="font-size:13px">Результаты появятся здесь. Каждую находку можно отправить в поиск или сохранить как источник.</div></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="hash">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Хеш текста</div>
+              <textarea class="textarea mono" id="hash-in" placeholder="Текст…"></textarea>
+              <div class="hash-out" id="hash-text-out" style="margin-top:12px"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Хеш файла<small>для фиксации целостности доказательств</small></div>
+              <label class="drop" style="min-height:140px"><input type="file" id="hash-file"><div><svg class="ic"><use href="#i-hash"/></svg><b>Выберите файл</b><div class="muted" style="font-size:12px">файл не покидает компьютер</div></div></label>
+              <div class="hash-out" id="hash-file-out" style="margin-top:12px"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="codec">
+          <div class="panel">
+            <div class="panel-h">Кодировщик / декодер</div>
+            <div class="lab-grid">
+              <textarea class="textarea mono" id="codec-in" style="min-height:200px" placeholder="Входные данные…"></textarea>
+              <textarea class="textarea mono" id="codec-out" style="min-height:200px" placeholder="Результат…" readonly></textarea>
+            </div>
+            <div class="chips" style="margin-top:12px" id="codec-ops"></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="time">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Конвертер времени</div>
+              <label class="field"><span>Unix-время (сек/мс) или дата</span><input class="input mono" id="time-in" placeholder="1732406400 · 2026-11-24 12:00 · now"></label>
+              <dl class="kv" id="time-out" style="margin-top:14px"></dl>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Snowflake ID → время<small>X/Twitter, Discord</small></div>
+              <label class="field"><span>ID поста / сообщения</span><input class="input mono" id="snow-in" placeholder="1584567890123456789"></label>
+              <dl class="kv" id="snow-out" style="margin-top:14px"></dl>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="url">
+          <div class="panel">
+            <div class="panel-h">Разбор ссылки<small>параметры, трекеры, чистая ссылка</small></div>
+            <input class="input mono" id="url-in" placeholder="https://example.com/page?utm_source=x&id=42#top">
+            <div id="url-out" style="margin-top:14px"></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="coords">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Конвертер координат<small>DD ↔ DMS</small></div>
+              <label class="field"><span>Координаты в любом формате</span><input class="input mono" id="co-in" placeholder="59.9390, 30.3158  или  59°56'20.4&quot;N 30°18'56.9&quot;E"></label>
+              <div id="co-out" style="margin-top:14px"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Расстояние и азимут</div>
+              <div class="stack">
+                <label class="field"><span>Точка A</span><input class="input mono" id="dist-a" placeholder="55.7539, 37.6208"></label>
+                <label class="field"><span>Точка B</span><input class="input mono" id="dist-b" placeholder="59.9390, 30.3158"></label>
+              </div>
+              <dl class="kv" id="dist-out" style="margin-top:14px"></dl>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="catalog">
+          <div class="toolbar">
+            <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="cat-q" placeholder="Фильтр инструментов…"></label>
+            <div class="chips" id="cat-cats"></div>
+          </div>
+          <div class="tool-grid" id="cat-grid"></div>
+        </div>
+      </section>
+
+      <!-- ═════ 09 ARCHIVE ═════ -->
+      <section class="view" data-view="archive" data-idx="09" data-en="ARCHIVE">
+        <div class="vh">
+          <div>
+            <div class="vh-idx">§ 09 · STORAGE</div>
+            <h2 class="vh-title">ARCHIVE<small>Все записи, резервные копии, экспорт</small></h2>
+            <p class="vh-desc">Единый реестр всех материалов. Поддерживаются операторы поиска: <span class="mono">type:person</span>, <span class="mono">tag:демо</span>, <span class="mono">rel:A</span>, <span class="mono">cred:1</span>, <span class="mono">"точная фраза"</span>, <span class="mono">-исключить</span>.</p>
+          </div>
+          <div class="vh-actions">
+            <button class="btn" id="ar-import"><svg class="ic ic-sm"><use href="#i-up"/></svg>Импорт JSON</button>
+            <button class="btn" id="ar-csv"><svg class="ic ic-sm"><use href="#i-down"/></svg>CSV</button>
+            <button class="btn" id="ar-json"><svg class="ic ic-sm"><use href="#i-down"/></svg>Резервная копия</button>
+            <button class="btn btn-primary" id="ar-obsidian"><svg class="ic ic-sm"><use href="#i-vault"/></svg>Экспорт в Obsidian</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="ar-q" placeholder="Поиск: слова, type:org, tag:…, rel:A, -исключить"></label>
+          <select class="select" id="ar-type"><option value="">Все типы</option></select>
+          <input class="input" type="date" id="ar-from" style="width:auto" title="С даты">
+          <input class="input" type="date" id="ar-to" style="width:auto" title="По дату">
+          <button class="btn btn-sm btn-danger" id="ar-del" disabled><svg class="ic ic-sm"><use href="#i-trash"/></svg>Удалить выбранные</button>
+          <span class="count" id="ar-count"></span>
+        </div>
+        <div class="tbl-wrap"><table class="tbl" id="ar-table"></table></div>
+        <div class="two-col" style="margin-top:16px">
+          <div class="panel"><div class="panel-h">Полный журнал<span class="ph-right"><a href="#" id="log-clear">ОЧИСТИТЬ</a></span></div><div class="feed" id="ar-log" style="max-height:360px;overflow:auto"></div></div>
+          <div class="panel"><div class="panel-h">Хранилище</div><div class="status-list" id="ar-storage"></div>
+            <div class="row" style="margin-top:16px"><button class="btn btn-sm" id="ar-demo">Загрузить демо-данные</button><button class="btn btn-sm btn-danger" id="ar-wipe">Очистить всё</button></div></div>
+        </div>
+      </section>
+
+      <!-- ═════ SETTINGS ═════ -->
+      <section class="view" data-view="settings" data-idx="⚙" data-en="SETTINGS">
+        <div class="vh">
+          <div>
+            <div class="vh-idx">§ ⚙ · CONFIGURATION</div>
+            <h2 class="vh-title">SETTINGS<small>Настройки системы</small></h2>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-h">Оператор</div>
+              <div class="set-row"><div class="l"><b>Позывной</b><span>Показывается в шапке, на заставке и в отчётах.</span></div><input class="input" id="set-callsign" maxlength="24" placeholder="ОПЕРАТОР"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Визуальные эффекты</div>
+              <div class="set-row"><div class="l"><b>Заставка при запуске</b><span>Кинематографичное появление ока.</span></div>
+                <select class="select" id="set-intro"><option value="session">Один раз за сеанс</option><option value="always">При каждом открытии</option><option value="off">Выключена</option></select></div>
+              <div class="set-row"><div class="l"><b>Качество анимации ока</b><span>«Облегчённое» снижает нагрузку на слабых компьютерах. Система сама понизит качество, если увидит просадку кадров.</span></div>
+                <select class="select" id="set-quality"><option value="full">Максимальное</option><option value="lite">Облегчённое</option><option value="min">Минимальное</option></select></div>
+              <div class="set-row"><div class="l"><b>Око следит за курсором</b><span>Иначе — свободные движения зрачка.</span></div><label class="switch"><input type="checkbox" id="set-follow"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Интерактивная сетка фона</b><span>Подсветка сетки вокруг курсора.</span></div><label class="switch"><input type="checkbox" id="set-spot"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Минимум движения</b><span>Отключает анимации интерфейса (для чувствительных к движению).</span></div><label class="switch"><input type="checkbox" id="set-motion"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Посмотреть заставку</b><span>Запустить её прямо сейчас.</span></div><button class="btn" id="set-replay">Запустить</button></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Приватность</div>
+              <div class="set-row"><div class="l"><b>Режим демонстрации экрана</b><span>Названия записей размываются, пока на них не навести курсор.</span></div><label class="switch"><input type="checkbox" id="set-secure"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Живая разведка</b><span>Разрешить прямые запросы к открытым API (DNS, RDAP, Wikipedia…). При выключении сайт работает полностью офлайн, кроме карт и шрифтов.</span></div><label class="switch"><input type="checkbox" id="set-live"><i></i></label></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-h">Хранилище Obsidian</div>
+              <p class="muted" style="font-size:13px;margin-bottom:12px">Подключите папку хранилища <b style="color:#fff">GOD EYE</b>, чтобы читать заметки как записи и записывать записи сайта как заметки. Работает в Chrome и Edge. В других браузерах используйте импорт папки и экспорт ZIP.</p>
+              <div class="status-list" id="vault-status" style="margin-bottom:14px"></div>
+              <div class="row">
+                <button class="btn btn-primary" id="vault-connect"><svg class="ic ic-sm"><use href="#i-vault"/></svg>Подключить хранилище</button>
+                <button class="btn" id="vault-pull" disabled>Импорт из хранилища</button>
+                <button class="btn" id="vault-push" disabled>Записать в хранилище</button>
+              </div>
+              <div class="row" style="margin-top:8px">
+                <label class="btn btn-sm" style="position:relative">Импорт папки (любой браузер)<input type="file" id="vault-files" webkitdirectory multiple style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+                <button class="btn btn-sm" id="vault-zip">Скачать ZIP для Obsidian</button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">О системе</div>
+              <dl class="kv" style="font-size:12.5px">
+                <dt>Система</dt><dd>GOD EYE — OSINT Intelligence</dd>
+                <dt>Версия</dt><dd id="about-ver"></dd>
+                <dt>Данные</dt><dd>Хранятся только в этом браузере (localStorage). Делайте резервные копии в «Архиве».</dd>
+                <dt>Назначение</dt><dd>Законный анализ общедоступной информации. Не используйте систему для слежки за частными лицами, взлома, обхода авторизации и публикации чувствительных персональных данных.</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════ ОВЕРЛЕИ ═══════════ -->
+<div class="scrim" id="scrim"></div>
+<aside id="drawer" aria-label="Карточка записи"></aside>
+<div id="modal-root"></div>
+<div id="palette" role="dialog" aria-label="Командная палитра">
+  <div class="pal">
+    <div class="pal-in"><svg class="ic"><use href="#i-search"/></svg><input id="pal-q" placeholder="Найти запись, раздел или команду…" autocomplete="off"><span class="kbd">ESC</span></div>
+    <div class="pal-list" id="pal-list"></div>
+    <div class="pal-foot"><span>↑↓ выбор</span><span>ENTER открыть</span><span>type: tag: rel: — фильтры</span></div>
+  </div>
+</div>
+<div id="toasts"></div>
+<input type="file" id="json-file" accept=".json,application/json" class="hidden">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/core.js?v=3"></script>
+<script src="js/catalog.js?v=3"></script>
+<script src="js/eye.js?v=3"></script>
+<script src="js/entities.js?v=3"></script>
+<script src="js/search.js?v=3"></script>
+<script src="js/lab.js?v=3"></script>
+<script src="js/media.js?v=3"></script>
+<script src="js/graph.js?v=3"></script>
+<script src="js/vault.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+</body>
+</html>
