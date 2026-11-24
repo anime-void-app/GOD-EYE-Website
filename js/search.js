@@ -158,12 +158,12 @@ S.render = () => {
   const hasQ = !!S.q.trim();
   box.innerHTML = Object.entries(groups).map(([g, es]) => `
     <div class="eng-group"><div class="eng-group-h">${esc(g)} · ${es.length}<button data-grp="${esc(g)}">выбрать группу</button></div>
-    <div class="engines">${es.map(e => {
+    <div class="engines">${es.map((e, idx) => {
       const url = hasQ ? S.linkFor(e, S.q) : '';
       const internal = !!e.internal || url.startsWith('#');
       const isFav = fav.has(e.n);
       const flags = `${e.login ? '<span class="eng-tag" title="Сервис часто требует вход">LOGIN</span>' : ''}${e.manual ? '<span class="eng-tag copy" title="При клике цель копируется в буфер — вставьте Ctrl+V">COPY</span>' : ''}`;
-      return `<div class="eng ${!internal && S.selected.has(e.k) ? 'sel-on' : ''}" data-k="${e.k}" data-ext="${internal ? '0' : '1'}" data-manual="${e.manual ? '1' : '0'}">
+      return `<div class="eng ${!internal && S.selected.has(e.k) ? 'sel-on' : ''}" style="--i:${Math.min(idx, 14)}" data-k="${e.k}" data-ext="${internal ? '0' : '1'}" data-manual="${e.manual ? '1' : '0'}">
         ${internal ? '<span class="eng-pin" title="Переход внутри GOD EYE">↳</span>' : `<label class="check"><input type="checkbox" ${S.selected.has(e.k) ? 'checked' : ''}></label>`}
         <div style="min-width:0">
           <div class="eng-n">${esc(e.n)} ${flags}</div>
@@ -247,13 +247,29 @@ S.renderSide = () => {
 };
 
 /* ─────────── Помощники «Живой разведки» ─────────── */
-const card = (title, id, canRetry = true) => `<div class="live-card" id="lc-${id}"><div class="live-card-h"><span>${esc(title)}</span><span class="st"><span class="spinner"></span></span>${canRetry ? `<button class="live-retry" data-retry="${id}" title="Повторить запрос (без кэша)">↻</button>` : ''}</div><div class="live-card-b scanline">Запрос…</div></div>`;
+const card = (title, id, canRetry = true, idx = 0) => `<div class="live-card" id="lc-${id}" data-loading="1" style="--i:${Math.min(idx, 10)}"><div class="live-card-h"><span>${esc(title)}</span><span class="st"><span class="spinner"></span></span>${canRetry ? `<button class="live-retry" data-retry="${id}" title="Повторить запрос (без кэша)">↻</button>` : ''}</div><div class="live-card-b scanline">Запрос…</div></div>`;
 const done = (id, html, ok = true, status) => {
   const el = $('#lc-' + id); if (!el) return;
+  el.removeAttribute('data-loading');
+  el.classList.toggle('is-ok', ok);
+  el.classList.toggle('is-err', !ok);
   const st = el.querySelector('.st');
   st.className = 'st ' + (ok ? 'ok' : 'err');
   st.textContent = status || (ok ? 'OK' : 'НЕДОСТУПНО');
   const b = el.querySelector('.live-card-b'); b.classList.remove('scanline'); b.innerHTML = html;
+};
+const apiUrl = url => {
+  const px = (GE.settings.apiKeys && GE.settings.apiKeys.proxy || '').trim();
+  return px ? px.replace(/\/+$/, '') + '/' + url : url;
+};
+const fetchAPI = async (url, headers = {}, ms = 10000) => {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctl.signal, referrerPolicy: 'no-referrer', headers });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
 };
 const kv = pairs => `<dl class="kv">${pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>`;
 const kvMd = pairs => pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v]) => `- **${k}:** ${String(v).replace(/<[^>]+>/g, '')}`).join('\n');
@@ -343,11 +359,33 @@ S.live = (forceRefresh = false) => {
     return { html: kv(pairs), md: kvMd(pairs) };
   }, null, { cacheable: false });
 
-  if (type === 'phone') job('Нормализация номера (офлайн)', async () => {
-    const digits = q.replace(/\D/g, '');
-    const cc = digits.startsWith('7') ? 'Россия / Казахстан (+7)' : digits.startsWith('375') ? 'Беларусь (+375)' : digits.startsWith('380') ? 'Украина (+380)' : digits.startsWith('48') ? 'Польша (+48)' : digits.startsWith('1') ? 'США / Канада (+1)' : digits.startsWith('44') ? 'Великобритания (+44)' : digits.startsWith('49') ? 'Германия (+49)' : 'Международный (+' + digits.slice(0, 3) + '…)';
-    const pairs = [['Формат E.164', '+' + digits], ['Цифр', digits.length], ['Регион по коду', cc]];
-    return { html: kv(pairs) + '<div class="dim" style="margin-top:8px;font-size:11px">GOD EYE ищет только открытые публичные упоминания номера (организации, объявления).</div>', md: kvMd(pairs) };
+  if (type === 'phone') job('Разбор номера · E.164 и план нумерации (офлайн)', async () => {
+    const p = GE.analyzePhone(q);
+    if (!p) return { html: '<div class="muted">Не удалось разобрать номер.</div>', md: '' };
+    const pairs = [
+      ['Формат E.164', p.e164],
+      ['Страна / код', `${p.country}${p.cc ? ' (+' + p.cc + ')' : ''} · ${p.iso}`],
+      ['Тип номера', p.kind],
+      ['Базовый оператор (DEF)', p.operator || '—'],
+      ['Длина / валидность', `${p.digits.length} цифр · ${p.validLen ? 'корректная длина' : 'нестандартная длина'}`]
+    ];
+    const fmts = `<div class="phone-fmts"><div class="dim" style="font-size:11px;margin:10px 0 6px">Варианты формата для поиска (нажмите, чтобы скопировать):</div><div class="chips">${p.formats.map(f => `<button class="chip" data-copy-val="${esc(f)}" title="Копировать">${esc(f)}</button>`).join('')}</div></div>`;
+    const note = `<div class="dim" style="margin-top:8px;font-size:11px">${p.operator ? 'Оператор определён по открытому плану нумерации Россвязи/ФАС; фактический оператор мог измениться при переносе номера (MNP). ' : ''}GOD EYE анализирует только открытые справочники и публичные упоминания.</div>`;
+    return {
+      html: kv(pairs) + fmts + note,
+      md: kvMd(pairs) + '\n- Форматы: ' + p.formats.map(f => `\`${f}\``).join(', ')
+    };
+  }, null, { cacheable: false });
+
+  if (type === 'transport') job('Классификация борта / судна (офлайн)', async () => {
+    const tr = GE.detectTransportKind(q);
+    const pairs = [['Идентификатор', tr.val], ['Тип', tr.label]];
+    const links = tr.kind === 'imo' || tr.kind === 'mmsi'
+      ? `<div class="row" style="margin-top:8px">${link('https://www.marinetraffic.com/en/ais/index/search/all?keyword=' + E(tr.val), 'MarineTraffic')} · ${link('https://www.vesselfinder.com/vessels?name=' + E(tr.val), 'VesselFinder')}</div>`
+      : tr.kind === 'norad'
+        ? `<div class="row" style="margin-top:8px">${link('https://www.n2yo.com/satellite/?s=' + E(tr.val), 'Орбита на N2YO')} · ${link('https://celestrak.org/satcat/table-satcat.php?CATNR=' + E(tr.val), 'CelesTrak')}</div>`
+        : '';
+    return { html: kv(pairs) + links, md: kvMd(pairs) };
   }, null, { cacheable: false });
 
   // 2. Поиск совпадений в локальной базе GOD EYE
@@ -453,8 +491,95 @@ S.live = (forceRefresh = false) => {
           md: names.length ? `- Найдено уникальных имён: **${names.length}**\n` + names.slice(0, 30).map(n => `  - \`${n}\``).join('\n') : '- Сертификатов не найдено'
         };
       }, `https://crt.sh/?q=${E('%.' + d)}`);
+
+      job('Репутация · AlienVault OTX', async () => {
+        const key = (GE.settings.apiKeys && GE.settings.apiKeys.otx || '').trim();
+        const hdr = key ? { 'X-OTX-API-KEY': key } : {};
+        const r = await fetchAPI(`https://otx.alienvault.com/api/v1/indicators/domain/${E(d)}/general`, hdr, 10000);
+        const pi = r.pulse_info || {};
+        const pulses = (pi.pulses || []).slice(0, 6);
+        const tags = GE.uniq(pulses.flatMap(p => p.tags || [])).slice(0, 12);
+        const pairs = [
+          ['Импульсов угроз (OTX)', pi.count ?? 0],
+          ['Alexa / рейтинг', r.alexa || '—'],
+          ['Валидация', (r.validation || []).map(v => v.name).join(', ')],
+          ['Теги', tags.join(', ')],
+          ['Карточка OTX', link(`https://otx.alienvault.com/indicator/domain/${E(d)}`, 'открыть в AlienVault'), 1]
+        ];
+        const pHtml = pulses.length ? `<div class="link-list" style="margin-top:8px">${pulses.map(p => `<a class="link-i" target="_blank" rel="noopener" href="https://otx.alienvault.com/pulse/${esc(p.id)}"><span class="rel">OTX</span><span>${esc(p.name)}</span></a>`).join('')}</div>` : '';
+        return { html: kv(pairs) + pHtml, md: kvMd([['Импульсов OTX', pi.count ?? 0], ['Теги', tags.join(', ')]]) };
+      }, `https://otx.alienvault.com/indicator/domain/${E(d)}`);
+
+      if (GE.settings.apiKeys && (GE.settings.apiKeys.urlscan || GE.settings.apiKeys.proxy)) {
+        job('Сканы сайта · URLScan.io API', async () => {
+          const key = (GE.settings.apiKeys.urlscan || '').trim();
+          const hdr = key ? { 'API-Key': key } : {};
+          const r = await fetchAPI(apiUrl(`https://urlscan.io/api/v1/search/?q=${E('domain:' + d)}&size=5`), hdr, 10000);
+          const list = r.results || [];
+          if (!list.length) return { html: '<div class="muted">Публичных сканов не найдено.</div>', md: '- URLScan: сканов нет' };
+          const html = `<div class="link-list">${list.map(it => {
+            const p = it.page || {}, t = it.task || {};
+            const meta = [p.ip, p.server, p.status && ('HTTP ' + p.status), t.time && GE.fmtDate(t.time, false)].filter(Boolean).join(' · ');
+            return `<a class="link-i" target="_blank" rel="noopener" href="${esc(it.result || '#')}"><span class="rel">SCAN</span><span><b style="color:#fff;font-weight:500">${esc(p.title || t.url || d)}</b><br><span class="dim" style="font-size:11px">${esc(meta)}</span></span></a>`;
+          }).join('')}</div>`;
+          return { html, md: list.map(it => `- [${it.page?.title || it.task?.url}](${it.result}) (${it.page?.ip || '—'})`).join('\n') };
+        }, `https://urlscan.io/domain/${E(d)}`);
+      }
     }
   } else if (type === 'ip') {
+    job('Порты, сервисы и CVE · Shodan InternetDB', async () => {
+      const r = await GE.fetchJSON(`https://internetdb.shodan.io/${E(q)}`, 10000);
+      if (r.detail) return { html: '<div class="muted">Открытых портов в Shodan InternetDB не зафиксировано.</div>', md: '- Shodan InternetDB: данных нет' };
+      const ports = r.ports || [], hosts = r.hostnames || [], vulns = r.vulns || [], cpes = r.cpes || [], tags = r.tags || [];
+      const pairs = [
+        ['Открытые порты', ports.length ? ports.map(p => `<span class="eng-tag">${esc(p)}</span>`).join(' ') : 'не обнаружены', 1],
+        ['Хостнеймы', hosts.length ? hosts.slice(0, 12).map(h => pivot(h, 'domain')).join(' ') : '', 1],
+        ['CPE / ПО', cpes.slice(0, 6).join(', ')],
+        ['Теги', tags.join(', ')],
+        ['Потенциальные CVE', vulns.length ? vulns.slice(0, 14).map(v => pivot(v, 'cve')).join(' ') + (vulns.length > 14 ? ` <span class="dim">+${vulns.length - 14}</span>` : '') : 'не зафиксированы', 1]
+      ];
+      return {
+        html: kv(pairs),
+        md: kvMd([['Порты (InternetDB)', ports.join(', ') || 'нет'], ['Хостнеймы', hosts.slice(0, 10).join(', ')], ['CVE', vulns.slice(0, 10).join(', ') || 'нет']])
+      };
+    }, `https://www.shodan.io/host/${E(q)}`);
+
+    if (GE.settings.apiKeys && GE.settings.apiKeys.shodan) {
+      job('Детальные баннеры · Shodan API', async () => {
+        const key = GE.settings.apiKeys.shodan.trim();
+        const r = await GE.fetchJSON(`https://api.shodan.io/shodan/host/${E(q)}?key=${E(key)}`, 12000);
+        const svcs = (r.data || []).slice(0, 8);
+        const pairs = [
+          ['Организация', r.org], ['ISP', r.isp], ['ОС', r.os], ['ASN', r.asn ? pivot(r.asn, 'asn') : '', 1],
+          ['Последний скан', r.last_update && GE.fmtDate(r.last_update)]
+        ];
+        const sHtml = svcs.length ? `<div class="link-list" style="margin-top:8px">${svcs.map(s => `<div class="link-i"><span class="rel">${esc(s.port)}/${esc(s.transport || 'tcp')}</span><span><b style="color:#fff;font-weight:500">${esc(s.product || s._shodan?.module || 'service')} ${esc(s.version || '')}</b><br><span class="dim" style="font-size:11px">${esc(String(s.data || '').replace(/\s+/g, ' ').slice(0, 110))}</span></span></div>`).join('')}</div>` : '';
+        return {
+          html: kv(pairs) + sHtml,
+          md: kvMd([['Shodan Org', r.org], ['OS', r.os], ['Сервисы', svcs.map(s => `${s.port}/${s.product || s._shodan?.module || ''}`).join(', ')]])
+        };
+      }, `https://www.shodan.io/host/${E(q)}`);
+    }
+
+    job('Репутация · AlienVault OTX', async () => {
+      const key = (GE.settings.apiKeys && GE.settings.apiKeys.otx || '').trim();
+      const hdr = key ? { 'X-OTX-API-KEY': key } : {};
+      const kind = q.includes(':') ? 'IPv6' : 'IPv4';
+      const r = await fetchAPI(`https://otx.alienvault.com/api/v1/indicators/${kind}/${E(q)}/general`, hdr, 10000);
+      const pi = r.pulse_info || {};
+      const pulses = (pi.pulses || []).slice(0, 6);
+      const tags = GE.uniq(pulses.flatMap(p => p.tags || [])).slice(0, 12);
+      const pairs = [
+        ['Импульсов угроз (OTX)', pi.count ?? 0],
+        ['Репутация', r.reputation ?? 0],
+        ['Страна', r.country_name],
+        ['ASN', r.asn ? pivot(String(r.asn).split(' ')[0], 'asn') : '', 1],
+        ['Теги', tags.join(', ')],
+        ['Карточка OTX', link(`https://otx.alienvault.com/indicator/ip/${E(q)}`, 'открыть в AlienVault'), 1]
+      ];
+      const pHtml = pulses.length ? `<div class="link-list" style="margin-top:8px">${pulses.map(p => `<a class="link-i" target="_blank" rel="noopener" href="https://otx.alienvault.com/pulse/${esc(p.id)}"><span class="rel">OTX</span><span>${esc(p.name)}</span></a>`).join('')}</div>` : '';
+      return { html: kv(pairs) + pHtml, md: kvMd([['Импульсов OTX', pi.count ?? 0], ['Репутация', r.reputation ?? 0], ['Теги', tags.join(', ')]]) };
+    }, `https://otx.alienvault.com/indicator/ip/${E(q)}`);
     job('Сеть и геолокация · ipwho.is', async () => {
       const r = await GE.fetchJSON(`https://ipwho.is/${E(q)}`);
       if (r.success === false) throw new Error(r.message || 'ошибка');
@@ -696,6 +821,82 @@ S.live = (forceRefresh = false) => {
       const md = list.map(it => `- **${it.attributes?.entity?.legalName?.name || it.id}** · LEI \`${it.id}\` (${it.attributes?.entity?.jurisdiction || '—'})`).join('\n');
       return { html, md };
     }, `https://search.gleif.org/#/search/simpleSearch=${E(q)}`);
+  } else if (type === 'transport') {
+    const tr = GE.detectTransportKind(q);
+    if (tr.kind === 'icao24' || tr.kind === 'reg') {
+      job('Реестр воздушных судов · HexDB', async () => {
+        let hex = tr.kind === 'icao24' ? tr.val : '';
+        if (!hex) {
+          const ctl = await fetch(`https://hexdb.io/reg-hex?reg=${E(tr.val)}`, { referrerPolicy: 'no-referrer' });
+          if (!ctl.ok) throw new Error('борт не найден в открытом реестре');
+          hex = (await ctl.text()).trim();
+          if (!/^[0-9A-F]{6}$/i.test(hex)) throw new Error('ICAO24 не найден');
+        }
+        const a = await GE.fetchJSON(`https://hexdb.io/api/v1/aircraft/${E(hex)}`, 10000);
+        const owner = a.RegisteredOwners || '';
+        const pairs = [
+          ['ICAO24 (Mode-S)', a.ModeS || hex],
+          ['Регистрация', a.Registration || tr.val],
+          ['Производитель', a.Manufacturer],
+          ['Модель / тип', [a.Type, a.ICAOTypeCode && `(${a.ICAOTypeCode})`].filter(Boolean).join(' ')],
+          ['Владелец / оператор', owner ? pivot(owner, 'org') : '', 1],
+          ['Код оператора (ICAO)', a.OperatorFlagCode],
+          ['Трекер ADS-B', link(`https://globe.adsbexchange.com/?icao=${E((a.ModeS || hex).toLowerCase())}`, 'открыть на ADS-B Exchange'), 1]
+        ];
+        return {
+          html: kv(pairs),
+          md: kvMd([['ICAO24', a.ModeS || hex], ['Регистрация', a.Registration], ['Модель', `${a.Manufacturer || ''} ${a.Type || ''}`.trim()], ['Оператор', owner]])
+        };
+      }, `https://www.planespotters.net/search?q=${E(tr.val)}`);
+    } else if (tr.kind === 'callsign') {
+      job('Маршрут рейса и аэропорты · HexDB', async () => {
+        const r = await GE.fetchJSON(`https://hexdb.io/api/v1/route/icao/${E(tr.val)}`, 10000);
+        const route = String(r.route || '');
+        const codes = route.split('-').filter(Boolean);
+        const aps = await Promise.all(codes.map(c => GE.fetchJSON(`https://hexdb.io/api/v1/airport/icao/${E(c)}`, 8000).catch(() => null)));
+        const apRows = codes.map((c, i) => {
+          const ap = aps[i];
+          if (!ap || !ap.airport) return [i === 0 ? 'Вылет' : 'Прилёт / точка', c];
+          const coords = ap.latitude != null ? `${Number(ap.latitude).toFixed(4)}, ${Number(ap.longitude).toFixed(4)}` : '';
+          return [
+            i === 0 ? 'Вылет' : (i === codes.length - 1 ? 'Прилёт' : 'Промежуточный'),
+            `${esc(ap.airport)} (${esc(ap.iata || c)} / ${esc(ap.country_code || '')})${coords ? ' ' + pivot(coords, 'coords') : ''}`,
+            1
+          ];
+        });
+        const pairs = [['Рейс / позывной', r.flight || tr.val], ['Маршрут (ICAO)', route], ...apRows];
+        return {
+          html: kv(pairs),
+          md: kvMd([['Рейс', r.flight || tr.val], ['Маршрут', route], ...aps.filter(Boolean).map(a => ['Аэропорт', `${a.airport} (${a.icao}, ${a.country_code})`])])
+        };
+      }, `https://www.flightaware.com/live/flight/${E(tr.val)}`);
+    }
+  } else if (type === 'hash') {
+    if (GE.settings.apiKeys && GE.settings.apiKeys.otx) {
+      job('Индикатор файла · AlienVault OTX API', async () => {
+        const r = await fetchAPI(`https://otx.alienvault.com/api/v1/indicators/file/${E(q)}/general`, { 'X-OTX-API-KEY': GE.settings.apiKeys.otx.trim() }, 10000);
+        const pi = r.pulse_info || {};
+        const pulses = (pi.pulses || []).slice(0, 6);
+        const pairs = [['Импульсов угроз', pi.count ?? 0], ['Карточка OTX', link(`https://otx.alienvault.com/indicator/file/${E(q)}`, 'открыть в AlienVault'), 1]];
+        const pHtml = pulses.length ? `<div class="link-list" style="margin-top:8px">${pulses.map(p => `<a class="link-i" target="_blank" rel="noopener" href="https://otx.alienvault.com/pulse/${esc(p.id)}"><span class="rel">OTX</span><span>${esc(p.name)}</span></a>`).join('')}</div>` : '';
+        return { html: kv(pairs) + pHtml, md: kvMd([['Импульсов OTX (file)', pi.count ?? 0]]) };
+      }, `https://otx.alienvault.com/indicator/file/${E(q)}`);
+    }
+    if (GE.settings.apiKeys && GE.settings.apiKeys.vt) {
+      job('Анализ файла · VirusTotal API', async () => {
+        const r = await fetchAPI(apiUrl(`https://www.virustotal.com/api/v3/files/${E(q)}`), { 'x-apikey': GE.settings.apiKeys.vt.trim() }, 12000);
+        const a = r.data && r.data.attributes || {};
+        const st = a.last_analysis_stats || {};
+        const pairs = [
+          ['Имя файла', a.meaningful_name || (a.names && a.names[0])],
+          ['Тип', a.type_description],
+          ['Размер', a.size != null ? GE.bytes(a.size) : ''],
+          ['Детекты (malicious / suspicious)', `${st.malicious || 0} / ${st.suspicious || 0} (из ${(st.malicious || 0) + (st.suspicious || 0) + (st.undetected || 0) + (st.harmless || 0)})`],
+          ['VirusTotal', link(`https://www.virustotal.com/gui/file/${E(q)}`, 'открыть отчёт'), 1]
+        ];
+        return { html: kv(pairs), md: kvMd([['VT имя', a.meaningful_name], ['VT детекты', `${st.malicious || 0} malicious`]]) };
+      }, `https://www.virustotal.com/gui/file/${E(q)}`);
+    }
   }
 
   // Wikipedia + Wikidata для текста, организаций и мест (с безопасным esc() для сниппетов!)
@@ -740,7 +941,7 @@ S.live = (forceRefresh = false) => {
   }), null, { cacheable: false });
 
   S.lastScan.order = jobs.map(j => j.title);
-  out.innerHTML = jobs.map(j => card(j.title, id + '-' + j.idx, j.cacheable)).join('');
+  out.innerHTML = jobs.map(j => card(j.title, id + '-' + j.idx, j.cacheable, j.idx)).join('');
 
   const runJob = async (j, bypassCache) => {
     const cid = id + '-' + j.idx;
@@ -756,6 +957,8 @@ S.live = (forceRefresh = false) => {
     }
     const el = $('#lc-' + cid);
     if (bypassCache && el) {
+      el.setAttribute('data-loading', '1');
+      el.classList.remove('is-ok', 'is-err');
       el.querySelector('.st').className = 'st';
       el.querySelector('.st').innerHTML = '<span class="spinner"></span>';
       const b = el.querySelector('.live-card-b'); b.classList.add('scanline'); b.textContent = 'Повторный запрос…';
@@ -778,7 +981,7 @@ S.live = (forceRefresh = false) => {
 
   jobs.forEach(j => runJob(j, forceRefresh));
 
-  // Делегирование кликов внутри результатов (pivot, retry, open record, geo save)
+  // Делегирование кликов внутри результатов (pivot, retry, copy, open record, geo save)
   out.onclick = e => {
     const rt = e.target.closest('[data-retry]');
     if (rt) {
@@ -787,6 +990,7 @@ S.live = (forceRefresh = false) => {
       if (j) runJob(j, true);
       return;
     }
+    const cp = e.target.closest('[data-copy-val]'); if (cp) return GE.copy(cp.dataset.copyVal);
     const o = e.target.closest('[data-open]'); if (o) return GE.openRecord(o.dataset.open);
     const pv = e.target.closest('[data-pivot-q]'); if (pv) return S.setQuery(pv.dataset.pivotQ, pv.dataset.pivotT || 'auto');
     const gs = e.target.closest('[data-geo-save]');

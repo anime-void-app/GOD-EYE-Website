@@ -275,6 +275,7 @@ P.commands = () => [
   { g: 'Действия', icon: 'shield', t: 'Зашифрованный бэкап (.gebackup)', run: () => GE.crypto.exportDialog() },
   { g: 'Действия', icon: 'down', t: 'Резервная копия JSON', run: () => $('#ar-json').click() },
   { g: 'Действия', icon: 'shield', t: 'Защитить хранилище браузера от очистки', run: () => GE.requestPersist() },
+  { g: 'Действия', icon: 'settings', t: 'Настроить API-ключи Live Recon', run: () => { GE.go('settings'); setTimeout(() => $('#panel-api-keys')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); } },
   { g: 'Действия', icon: 'eye', t: 'Запустить заставку', run: () => GE.intro.run(true) },
   { g: 'Действия', icon: 'bolt', t: 'Красный импульс ока', run: () => GE.GodEye.scanAll() },
   { g: 'Действия', icon: 'shield', t: (GE.settings.secure ? 'Выключить' : 'Включить') + ' режим демонстрации экрана', run: () => { GE.settings.secure = !GE.settings.secure; GE.saveSettings(); } },
@@ -349,12 +350,57 @@ function initSettings() {
   if ($('#set-json-backup')) $('#set-json-backup').onclick = () => $('#ar-json').click();
   if ($('#set-import-backup')) $('#set-import-backup').onclick = () => $('#json-file').click();
   if ($('#set-persist')) $('#set-persist').onclick = () => GE.requestPersist();
+  initApiKeys();
   $('#about-ver').textContent = GE.VERSION;
   $('#sf-ver').textContent = GE.VERSION;
   GE.on('settings', applySettings);
   GE.on('storage', renderStorageStatus);
   applySettings();
   renderStorageStatus();
+}
+
+function initApiKeys() {
+  const fields = ['shodan', 'otx', 'urlscan', 'vt', 'proxy'];
+  const keys = GE.settings.apiKeys = Object.assign({ shodan: '', otx: '', urlscan: '', vt: '', proxy: '' }, GE.settings.apiKeys || {});
+  const syncUI = () => {
+    let active = 0;
+    fields.forEach(k => {
+      const inp = $('#key-' + k);
+      if (inp && inp !== document.activeElement) inp.value = keys[k] || '';
+      const has = !!(keys[k] && keys[k].trim());
+      if (has && k !== 'proxy') active++;
+      const badge = $(`[data-api-st="${k}"]`);
+      if (badge) {
+        badge.classList.toggle('on', has);
+        badge.textContent = has ? 'АКТИВЕН' : (k === 'otx' ? 'ПУБЛИЧНЫЙ' : k === 'proxy' ? 'ПРЯМОЙ' : 'НЕТ');
+      }
+    });
+    const cnt = $('#api-count-badge');
+    if (cnt) {
+      cnt.classList.toggle('on', active > 0);
+      cnt.textContent = `${active} АКТИВНО`;
+    }
+  };
+  let revealed = false;
+  if ($('#api-save')) $('#api-save').onclick = () => {
+    fields.forEach(k => { const inp = $('#key-' + k); if (inp) keys[k] = inp.value.trim(); });
+    GE.saveSettings();
+    syncUI();
+    GE.toast('API-ключи сохранены локально в браузере', { type: 'ok' });
+  };
+  if ($('#api-reveal')) $('#api-reveal').onclick = () => {
+    revealed = !revealed;
+    ['shodan', 'otx', 'urlscan', 'vt'].forEach(k => { const inp = $('#key-' + k); if (inp) inp.type = revealed ? 'text' : 'password'; });
+    $('#api-reveal').textContent = revealed ? 'Скрыть' : 'Показать';
+  };
+  if ($('#api-clear')) $('#api-clear').onclick = async () => {
+    if (!await GE.confirm('Удалить все сохранённые API-ключи из этого браузера?')) return;
+    fields.forEach(k => { keys[k] = ''; const inp = $('#key-' + k); if (inp) inp.value = ''; });
+    GE.saveSettings();
+    syncUI();
+    GE.toast('API-ключи очищены');
+  };
+  syncUI();
 }
 
 function renderStorageStatus() {

@@ -28,6 +28,7 @@ GE.QTYPES = {
   regid:    { l: 'ИНН / ОГРН / LEI', ex: '7707083893 · 5493001KJTIIGC8Y1R12' },
   crypto:   { l: 'Криптокошелёк', ex: 'bc1q… · 0x… · T…' },
   cve:      { l: 'CVE', ex: 'CVE-2024-3094' },
+  transport:{ l: 'Борт / Судно', ex: 'RA-89001 · AFL100 · IMO 9811000 · 3C6444' },
   phone:    { l: 'Телефон', ex: '+7 495 000 00 00' },
   hash:     { l: 'Хеш файла', ex: 'sha256 / sha1 / md5' }
 };
@@ -91,6 +92,8 @@ GE.detectType = raw => {
   if (/^[^\s@]+@[^\s@]+\.[a-zа-яё]{2,}$/i.test(q)) return 'email';
   if (/^CVE-\d{4}-\d{4,}$/i.test(q)) return 'cve';
   if (/^AS\d{1,10}$/i.test(q)) return 'asn';
+  if (/^(IMO[\s:-]?\d{7}|MMSI[\s:-]?\d{9}|(NORAD|SAT|CATNR)[\s:-]?\d{4,6})$/i.test(q)) return 'transport';
+  if (/^(RA-\d{5}|RF-\d{5}|EW-\d{3}[A-Z]{2}|VP-[BC][A-Z]{2}|VQ-[BC][A-Z]{2}|EI-[A-Z]{3}|[DFGHIOPST]-[A-Z]{4}|OE-[A-Z]{3}|HB-[A-Z]{3}|PH-[A-Z]{3}|SP-[A-Z]{3}|TC-[A-Z]{3}|A6-[A-Z]{3}|A7-[A-Z]{3}|VH-[A-Z]{3}|C-[FG][A-Z]{3}|B-\d{4}[A-Z]?)$/i.test(q)) return 'transport';
   if (/^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(q)) return 'ip';
   if (isIPv6(q)) return 'ip';
   if (/^-?\d{1,2}(\.\d+)?\s*[,;\s]\s*-?\d{1,3}(\.\d+)?$/.test(q) && GE.parseCoords(q)) return 'coords';
@@ -117,6 +120,7 @@ GE.normQuery = (q, type) => {
   if (type === 'domain') return q.toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
   if (type === 'asn') return 'AS' + q.replace(/^AS/i, '').replace(/\D/g, '');
   if (type === 'cve') return q.toUpperCase();
+  if (type === 'transport') return q.toUpperCase().replace(/\s+/g, ' ');
   if (type === 'regid') return q.replace(/^(ИНН|ОГРН|ОГРНИП|LEI)[:\s#№-]+/i, '').trim().toUpperCase();
   if (type === 'phone') return '+' + q.replace(/\D/g, '');
   if (type === 'coords') { const c = GE.parseCoords(q); return c ? `${c.lat.toFixed(6)},${c.lon.toFixed(6)}` : q; }
@@ -231,9 +235,15 @@ GE.ENGINES = [
   { n: 'ipinfo.io', d: 'ASN, провайдер, геолокация сети', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip'], u: q => 'https://ipinfo.io/' + E(q) },
   { n: 'Shodan Host', d: 'Открытые порты и баннеры', c: 'IP-адрес', fast: 1, login: 1, reg: 'global', t: ['ip'], u: q => 'https://www.shodan.io/host/' + E(q) },
   { n: 'Censys', d: 'Сервисы и сертификаты хоста', c: 'IP-адрес', login: 1, reg: 'global', t: ['ip'], u: q => 'https://search.censys.io/hosts/' + E(q) },
+  { n: 'FOFA', d: 'Поисковик сервисов и интернет-активов', c: 'IP-адрес', login: 1, reg: 'global', t: ['ip', 'domain'], u: q => 'https://en.fofa.info/result?qbase64=' + E(btoa((/^\d+\./.test(q) ? 'ip="' : 'domain="') + q + '"')) },
+  { n: 'ZoomEye', d: 'Сканер открытых портов и баннеров', c: 'IP-адрес', login: 1, reg: 'global', t: ['ip', 'domain'], u: q => 'https://www.zoomeye.ai/searchResult?q=' + E(q) },
   { n: 'AbuseIPDB', d: 'Жалобы на злоупотребления', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip'], u: q => 'https://www.abuseipdb.com/check/' + E(q) },
+  { n: 'AlienVault OTX IP', d: 'Индикаторы угроз и импульсы по IP', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip'], u: q => 'https://otx.alienvault.com/indicator/ip/' + E(q) },
+  { n: 'Pulsedive', d: 'Репутация IP, домена и индикаторов угроз', c: 'IP-адрес', reg: 'global', t: ['ip', 'domain'], u: q => 'https://pulsedive.com/indicator/?ioc=' + E(btoa(q)) },
+  { n: 'ThreatFox (abuse.ch)', d: 'Открытая база IOC / C2-индикаторов', c: 'IP-адрес', reg: 'global', t: ['ip', 'domain', 'hash'], u: q => 'https://threatfox.abuse.ch/browse.php?search=ioc%3A' + E(q) },
   { n: 'VirusTotal IP', d: 'Репутация адреса', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip'], u: q => 'https://www.virustotal.com/gui/ip-address/' + E(q) },
   { n: 'GreyNoise', d: 'Фоновое сканирование интернета', c: 'IP-адрес', reg: 'global', t: ['ip'], u: q => 'https://viz.greynoise.io/ip/' + E(q) },
+  { n: 'bgp.tools', d: 'Детальная BGP-маршрутизация и RPKI', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip', 'asn'], u: q => 'https://bgp.tools/prefix/' + E(q.replace(/^AS/i, 'as')) },
   { n: 'Hurricane Electric BGP', d: 'Маршрутизация, префиксы, ASN', c: 'IP-адрес', reg: 'global', t: ['ip'], u: q => 'https://bgp.he.net/ip/' + E(q) },
   { n: 'RIPEstat', d: 'Данные регионального регистратора', c: 'IP-адрес', fast: 1, reg: 'global', t: ['ip'], u: q => 'https://stat.ripe.net/' + E(q) },
   { n: 'Обратный IP (ViewDNS)', d: 'Какие домены на этом адресе', c: 'IP-адрес', reg: 'global', t: ['ip', 'domain'], u: q => 'https://viewdns.info/reverseip/?host=' + E(q) + '&t=1' },
@@ -257,6 +267,7 @@ GE.ENGINES = [
   { n: 'Сохранить в Wayback', d: 'Создать архивную копию сейчас', c: 'Ссылка и архивы', reg: 'global', t: ['url'], u: q => 'https://web.archive.org/save/' + q },
   { n: 'archive.today', d: 'Независимый архив страниц', c: 'Ссылка и архивы', fast: 1, reg: 'global', t: ['url', 'domain'], u: q => 'https://archive.ph/' + q },
   { n: 'Ghostarchive', d: 'Архив страниц и видео', c: 'Ссылка и архивы', reg: 'global', t: ['url'], u: q => 'https://ghostarchive.org/search?term=' + E(q) },
+  { n: 'CommonCrawl Index', d: 'Открытый веб-архив краулера Common Crawl', c: 'Ссылка и архивы', reg: 'global', t: ['url', 'domain'], u: q => 'https://index.commoncrawl.org/CC-MAIN-2024-51-index?url=' + E(q.replace(/^https?:\/\//, '') + '*') + '&output=json' },
   { n: 'urlscan.io', d: 'Безопасный скан страницы', c: 'Ссылка и архивы', fast: 1, reg: 'global', t: ['url'], u: q => 'https://urlscan.io/search/#' + E('page.url:"' + q + '"') },
   { n: 'VirusTotal URL', d: 'Проверка ссылки', c: 'Ссылка и архивы', fast: 1, reg: 'global', t: ['url'], u: q => 'https://www.virustotal.com/gui/search/' + E(q) },
   { n: 'Кто ссылается', d: 'Google: упоминания адреса страницы', c: 'Ссылка и архивы', reg: 'global', t: ['url'], u: q => G(`"${q.replace(/^https?:\/\//, '')}"`) },
@@ -276,11 +287,15 @@ GE.ENGINES = [
   { n: 'OpenStreetMap', d: 'Открытая карта, объекты и теги', c: 'Карты и спутники', fast: 1, reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://www.openstreetmap.org/?mlat=${a}&mlon=${b}#map=17/${a}/${b}`; } },
   { n: 'Bing Maps (спутник)', d: 'Альтернативные спутниковые снимки', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://www.bing.com/maps?cp=${a}~${b}&lvl=17&style=a`; } },
   { n: 'Mapillary', d: 'Краудсорсинговые уличные снимки', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://www.mapillary.com/app/?lat=${a}&lng=${b}&z=17`; } },
+  { n: 'KartaView', d: 'Открытые уличные панорамы', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://kartaview.org/map/@${a},${b},16z`; } },
   { n: 'Wikimapia', d: 'Подписанные пользователями объекты', c: 'Карты и спутники', reg: 'ru', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://wikimapia.org/#lat=${a}&lon=${b}&z=17`; } },
-  { n: 'Sentinel EO Browser', d: 'Свежие спутниковые снимки Sentinel', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://apps.sentinel-hub.com/eo-browser/?zoom=14&lat=${a}&lng=${b}`; } },
+  { n: 'Copernicus Browser (Sentinel)', d: 'Свежие спутниковые снимки ESA Sentinel-2', c: 'Карты и спутники', fast: 1, reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://browser.dataspace.copernicus.eu/?zoom=14&lat=${a}&lng=${b}`; } },
+  { n: 'NASA FIRMS', d: 'Карта тепловых аномалий и пожаров со спутников', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@${b},${a},12.0z`; } },
+  { n: 'PeakVisor 3D', d: '3D-панорама рельефа и вершин (хроно/геолокация)', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://peakvisor.com/panorama.html?lat=${a}&lng=${b}`; } },
   { n: 'SunCalc', d: 'Положение солнца и тени — время съёмки', c: 'Карты и спутники', fast: 1, reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://www.suncalc.org/#/${a},${b},17/`; } },
   { n: 'Википедия рядом', d: 'Статьи об объектах поблизости', c: 'Карты и спутники', reg: 'ru', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://ru.wikipedia.org/wiki/Special:Nearby#/coord/${a},${b}`; } },
   { n: 'Overpass Turbo', d: 'Запросы к данным OSM вокруг точки', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://overpass-turbo.eu/?C=${a};${b};16`; } },
+  { n: 'OpenRailwayMap', d: 'Железнодорожные пути и станции рядом', c: 'Карты и спутники', reg: 'global', t: ['coords'], u: q => { const [a, b] = LL(q); return `https://www.openrailwaymap.org/?lat=${a}&lon=${b}&zoom=14`; } },
 
   // Места
   { n: 'Google Карты: поиск места', d: 'Найти адрес или объект', c: 'Карты и спутники', fast: 1, reg: 'global', t: ['place'], u: q => 'https://www.google.com/maps/search/' + E(q) },
@@ -293,8 +308,13 @@ GE.ENGINES = [
   { n: 'Rusprofile', d: 'Сводка по компаниям РФ (ИНН, ОГРН, связи)', c: 'Реестры организаций', fast: 1, reg: 'ru', t: ['org', 'regid'], u: q => 'https://www.rusprofile.ru/search?query=' + E(q) },
   { n: 'ГИР БО ФНС', d: 'Бухгалтерская отчётность юрлиц РФ (цель копируется)', c: 'Реестры организаций', manual: 1, reg: 'ru', t: ['org', 'regid'], u: () => 'https://bo.nalog.ru/' },
   { n: 'Госзакупки (ЕИС)', d: 'Контракты и госзакупки РФ', c: 'Реестры организаций', reg: 'ru', t: ['org', 'regid'], u: q => 'https://zakupki.gov.ru/epz/order/extendedsearch/results.html?searchString=' + E(q) },
+  { n: 'КАД Арбитр', d: 'Картотека арбитражных судов РФ (цель копируется)', c: 'Реестры организаций', manual: 1, fast: 1, reg: 'ru', t: ['org', 'regid'], u: () => 'https://kad.arbitr.ru/' },
+  { n: 'Федресурс', d: 'Официальные сообщения юрлиц, банкротства, залоги', c: 'Реестры организаций', reg: 'ru', t: ['org', 'regid'], u: q => 'https://fedresurs.ru/search/entity?code=' + E(q) },
+  { n: 'Роспатент (ФИПС)', d: 'Товарные знаки и патенты РФ', c: 'Реестры организаций', reg: 'ru', t: ['org', 'text'], u: q => 'https://searchplatform.rospatent.gov.ru/patsearch?query=' + E(q) },
+  { n: 'Реестр СМИ РКН', d: 'Публичный реестр зарегистрированных СМИ РФ (цель копируется)', c: 'Реестры организаций', manual: 1, reg: 'ru', t: ['org', 'domain'], u: () => 'https://rkn.gov.ru/activity/mass-media/for-founders/media/' },
   { n: 'Companies House (UK)', d: 'Реестр компаний Великобритании', c: 'Реестры организаций', reg: 'global', t: ['org', 'regid'], u: q => 'https://find-and-update.company-information.service.gov.uk/search?q=' + E(q) },
   { n: 'SEC EDGAR (США)', d: 'Отчётность публичных компаний', c: 'Реестры организаций', reg: 'global', t: ['org'], u: q => 'https://www.sec.gov/cgi-bin/browse-edgar?company=' + E(q) + '&owner=include&action=getcompany' },
+  { n: 'OFAC Sanctions Search', d: 'Официальный санкционный поиск Минфина США (цель копируется)', c: 'Реестры организаций', manual: 1, reg: 'global', t: ['org', 'text'], u: () => 'https://sanctionssearch.ofac.treas.gov/' },
   { n: 'GLEIF LEI', d: 'Глобальные идентификаторы юрлиц', c: 'Реестры организаций', fast: 1, reg: 'global', t: ['org', 'regid'], u: q => 'https://search.gleif.org/#/search/simpleSearch=' + E(q) },
   { n: 'OpenSanctions', d: 'Санкционные списки и PEP', c: 'Реестры организаций', fast: 1, reg: 'global', t: ['org', 'text', 'regid'], u: q => 'https://www.opensanctions.org/search/?q=' + E(q) },
   { n: 'ICIJ Offshore Leaks', d: 'Офшорные структуры из расследований', c: 'Реестры организаций', reg: 'global', t: ['org', 'text'], u: q => 'https://offshoreleaks.icij.org/search?q=' + E(q) },
@@ -316,9 +336,29 @@ GE.ENGINES = [
   { n: 'Exploit-DB', d: 'Публичная база эксплойтов', c: 'Уязвимости (CVE)', reg: 'global', t: ['cve'], u: q => 'https://www.exploit-db.com/search?cve=' + E(q.replace(/^CVE-/i, '')) },
   { n: 'CISA KEV', d: 'Каталог активно эксплуатируемых уязвимостей', c: 'Уязвимости (CVE)', reg: 'global', t: ['cve'], u: q => 'https://www.cisa.gov/known-exploited-vulnerabilities-catalog?search_api_fulltext=' + E(q) },
 
-  // Телефоны (только открытые упоминания организаций / объявлений)
-  { n: 'Google: варианты формата', d: 'Поиск публичных упоминаний номера в разных форматах', c: 'Публичные упоминания телефона', fast: 1, reg: 'global', t: ['phone'], u: q => { const d = q.replace(/\D/g, ''); return G(`"${q}" OR "${d}"`); } },
-  { n: 'Яндекс: публичные упоминания', d: 'Поиск номера на сайтах организаций и в объявлениях', c: 'Публичные упоминания телефона', fast: 1, reg: 'ru', t: ['phone'], u: q => 'https://yandex.ru/search/?text=' + E(`"${q}"`) },
+  // Открытый транспорт: авиация, суда (AIS), спутники
+  { n: 'ADS-B Exchange', d: 'Открытый трекер воздушных судов без фильтрации', c: 'Авиация (ADS-B)', fast: 1, reg: 'global', t: ['transport'], u: q => { const t = GE.detectTransportKind(q); return t.kind === 'icao24' ? 'https://globe.adsbexchange.com/?icao=' + E(t.val.toLowerCase()) : 'https://globe.adsbexchange.com/?reg=' + E(t.val); } },
+  { n: 'Flightradar24', d: 'История полётов и статус борта / рейса', c: 'Авиация (ADS-B)', fast: 1, reg: 'global', t: ['transport'], u: q => 'https://www.flightradar24.com/data/aircraft/' + E(q.replace(/^(IMO|MMSI|NORAD)\s*/i, '').toLowerCase()) },
+  { n: 'FlightAware', d: 'Маршруты и трекинг рейсов по позывному / номеру', c: 'Авиация (ADS-B)', fast: 1, reg: 'global', t: ['transport'], u: q => 'https://www.flightaware.com/live/flight/' + E(q.replace(/\s+/g, '')) },
+  { n: 'Planespotters.net', d: 'Реестр бортов, операторы, фотографии самолётов', c: 'Авиация (ADS-B)', fast: 1, reg: 'global', t: ['transport'], u: q => 'https://www.planespotters.net/search?q=' + E(q) },
+  { n: 'OpenSky Network', d: 'Открытая исследовательская сеть ADS-B', c: 'Авиация (ADS-B)', reg: 'global', t: ['transport'], u: q => 'https://opensky-network.org/network/explorer' },
+  { n: 'RadarBox', d: 'Статус рейсов и бортов в реальном времени', c: 'Авиация (ADS-B)', reg: 'global', t: ['transport'], u: q => 'https://www.airnavradar.com/data/registration/' + E(q) },
+  { n: 'MarineTraffic (AIS)', d: 'Позиции и характеристики морских судов (IMO / MMSI)', c: 'Морские суда и Космос', fast: 1, reg: 'global', t: ['transport'], u: q => { const t = GE.detectTransportKind(q); return 'https://www.marinetraffic.com/en/ais/index/search/all?keyword=' + E(t.val); } },
+  { n: 'VesselFinder', d: 'Открытый AIS-трекинг, порт захода и маршрут', c: 'Морские суда и Космос', fast: 1, reg: 'global', t: ['transport'], u: q => { const t = GE.detectTransportKind(q); return 'https://www.vesselfinder.com/vessels?name=' + E(t.val); } },
+  { n: 'Global Fishing Watch', d: 'Открытая карта морской активности и судов', c: 'Морские суда и Космос', reg: 'global', t: ['transport'], u: () => 'https://globalfishingwatch.org/map' },
+  { n: 'N2YO (Спутники)', d: 'Орбита и пролёты спутника по NORAD ID', c: 'Морские суда и Космос', reg: 'global', t: ['transport'], u: q => { const t = GE.detectTransportKind(q); return /^\d{4,6}$/.test(t.val) ? 'https://www.n2yo.com/satellite/?s=' + E(t.val) : 'https://www.n2yo.com/database/?q=' + E(q); } },
+  { n: 'CelesTrak SATCAT', d: 'Каталог орбитальных объектов NORAD / TLE', c: 'Морские суда и Космос', reg: 'global', t: ['transport'], u: q => { const t = GE.detectTransportKind(q); return 'https://celestrak.org/satcat/table-satcat.php?CATNR=' + E(t.val); } },
+
+  // Телефоны (только легальный OSINT: открытый план нумерации, антиспам-отзывы, публичные упоминания организаций)
+  { n: 'Google: все форматы номера', d: 'OR-поиск публичных упоминаний по основным форматам', c: 'Публичный OSINT телефона', fast: 1, reg: 'global', t: ['phone'], u: q => { const p = GE.analyzePhone(q); const fs = (p ? p.formats : [q]).slice(0, 5); return G(fs.map(f => `"${f}"`).join(' OR ')); } },
+  { n: 'Яндекс: все форматы номера', d: 'Поиск номера на сайтах компаний и в объявлениях', c: 'Публичный OSINT телефона', fast: 1, reg: 'ru', t: ['phone'], u: q => { const p = GE.analyzePhone(q); const fs = (p ? p.formats : [q]).slice(0, 4); return 'https://yandex.ru/search/?text=' + E(fs.map(f => `"${f}"`).join(' | ')); } },
+  { n: 'NeBeriTrubku', d: 'Открытые отзывы и рейтинг спама (РФ)', c: 'Публичный OSINT телефона', fast: 1, reg: 'ru', t: ['phone'], u: q => { const d = q.replace(/\D/g, ''); return 'https://www.neberitrubku.ru/nomer-telefona/' + E(d.length === 11 && d.startsWith('7') ? '8' + d.slice(1) : d); } },
+  { n: 'КтоЗвонит (KtoZvonit)', d: 'Антиспам-отзывы о звонках и организациях', c: 'Публичный OSINT телефона', reg: 'ru', t: ['phone'], u: q => { const d = q.replace(/\D/g, ''); return 'https://kto-zvonit.com.ua/number/' + E(d); } },
+  { n: 'WhoCallsMe', d: 'Международная база жалоб на спам и колл-центры', c: 'Публичный OSINT телефона', reg: 'global', t: ['phone'], u: q => 'https://whocallsme.com/Phone-Number.aspx/' + E(q.replace(/\D/g, '')) },
+  { n: 'Tellows', d: 'Индекс доверия и жалобы пользователей', c: 'Публичный OSINT телефона', reg: 'global', t: ['phone'], u: q => 'https://www.tellows.com/num/' + E(q.replace(/\D/g, '')) },
+  { n: 'Реестр нумерации РФ (Россвязь)', d: 'Официальный план нумерации: оператор и регион DEF (цель копируется)', c: 'Публичный OSINT телефона', manual: 1, fast: 1, reg: 'ru', t: ['phone'], u: () => 'https://opendata.digital.gov.ru/registry/numeric/search' },
+  { n: '2ГИС (организации)', d: 'Принадлежит ли номер публичной компании в 2ГИС', c: 'Публичный OSINT телефона', fast: 1, reg: 'ru', t: ['phone'], u: q => 'https://2gis.ru/search/' + E(q) },
+  { n: 'Яндекс Карты (компании)', d: 'Проверка номера среди публичных организаций', c: 'Публичный OSINT телефона', reg: 'ru', t: ['phone'], u: q => 'https://yandex.ru/maps/?text=' + E(q) },
 
   // Код
   { n: 'GitHub Code', d: 'Поиск по публичному коду', c: 'Код', reg: 'global', t: ['text', 'domain', 'username', 'org', 'cve'], u: q => 'https://github.com/search?type=code&q=' + E(`"${q}"`) },
@@ -327,13 +367,14 @@ GE.ENGINES = [
 
   // Хеши
   { n: 'VirusTotal', d: 'Поиск файла по хешу', c: 'Хеши', fast: 1, reg: 'global', t: ['hash'], u: q => 'https://www.virustotal.com/gui/search/' + E(q) },
+  { n: 'AlienVault OTX File', d: 'Импульсы угроз и индикаторы по хешу', c: 'Хеши', fast: 1, reg: 'global', t: ['hash'], u: q => 'https://otx.alienvault.com/indicator/file/' + E(q) },
   { n: 'MalwareBazaar', d: 'База образцов по хешу', c: 'Хеши', fast: 1, reg: 'global', t: ['hash'], u: q => 'https://bazaar.abuse.ch/browse.php?search=' + E((q.length === 64 ? 'sha256:' : q.length === 40 ? 'sha1:' : 'md5:') + q) }
 ];
 
 /* Примеры для быстрого старта */
 GE.EXAMPLES = [
   ['domain', 'wikipedia.org'], ['username', '@torvalds'], ['coords', '59.9390, 30.3158'],
-  ['ip', '1.1.1.1'], ['asn', 'AS13335'], ['cve', 'CVE-2024-3094'], ['org', 'Wikimedia Foundation']
+  ['ip', '1.1.1.1'], ['transport', 'RA-89001'], ['cve', 'CVE-2024-3094'], ['org', 'Wikimedia Foundation']
 ];
 
 /* Пресеты конструктора операторов */
@@ -395,9 +436,25 @@ GE.TOOLS = [
   { n: 'WhatsMyName', c: 'Профили', d: 'Проверка никнейма на сотнях площадок.', u: 'https://whatsmyname.app' },
   { n: 'TGStat', c: 'Профили', d: 'Каталог и статистика публичных Telegram-каналов.', u: 'https://tgstat.ru' },
   { n: 'Social Searcher', c: 'Профили', d: 'Поиск упоминаний в публичных соцсетях.', u: 'https://www.social-searcher.com' },
-  { n: 'Flightradar24', c: 'Транспорт', d: 'Публичные данные о полётах.', u: 'https://www.flightradar24.com' },
-  { n: 'MarineTraffic', c: 'Транспорт', d: 'Публичные AIS-данные о судах.', u: 'https://www.marinetraffic.com' },
-  { n: 'OpenRailwayMap', c: 'Транспорт', d: 'Железнодорожная инфраструктура.', u: 'https://www.openrailwaymap.org' },
+  { n: 'Flightradar24', c: 'Открытый трекинг', d: 'Публичные данные о полётах (ADS-B).', u: 'https://www.flightradar24.com' },
+  { n: 'ADS-B Exchange', c: 'Открытый трекинг', d: 'Нефильтрованный открытый трекинг воздушных судов.', u: 'https://globe.adsbexchange.com' },
+  { n: 'OpenSky Network', c: 'Открытый трекинг', d: 'Открытая исследовательская сеть ADS-B и API.', u: 'https://opensky-network.org' },
+  { n: 'MarineTraffic', c: 'Открытый трекинг', d: 'Публичные AIS-данные о морских судах.', u: 'https://www.marinetraffic.com' },
+  { n: 'VesselFinder', c: 'Открытый трекинг', d: 'Карта судов, порты и треки AIS.', u: 'https://www.vesselfinder.com' },
+  { n: 'NASA FIRMS', c: 'Открытый трекинг', d: 'Спутниковые тепловые аномалии в реальном времени.', u: 'https://firms.modaps.eosdis.nasa.gov' },
+  { n: 'N2YO', c: 'Открытый трекинг', d: 'Отслеживание спутников на орбите по NORAD ID.', u: 'https://www.n2yo.com' },
+  { n: 'OpenRailwayMap', c: 'Открытый трекинг', d: 'Железнодорожная инфраструктура всего мира.', u: 'https://www.openrailwaymap.org' },
+  { n: 'SpiderFoot', c: 'Локальные программы', d: 'Open-source OSINT-комбайн с веб-интерфейсом (200+ модулей).', u: 'https://github.com/smicallef/spiderfoot' },
+  { n: 'Maltego CE', c: 'Локальные программы', d: 'Построение больших графов связей между сущностями.', u: 'https://www.maltego.com' },
+  { n: 'Sherlock', c: 'Локальные программы', d: 'CLI-поиск публичных профилей по никнейму (400+ сайтов).', u: 'https://github.com/sherlock-project/sherlock' },
+  { n: 'Maigret', c: 'Локальные программы', d: 'Расширенный CLI-поиск никнеймов с отчётами HTML/PDF.', u: 'https://github.com/soxoj/maigret' },
+  { n: 'ExifTool', c: 'Локальные программы', d: 'Глубокое чтение метаданных фото, видео, PDF и документов.', u: 'https://exiftool.org' },
+  { n: 'OWASP Amass', c: 'Локальные программы', d: 'Картирование поддоменов и сетевой инфраструктуры (для авторизованного аудита).', u: 'https://github.com/owasp-amass/amass' },
+  { n: 'Hunchly', c: 'Локальные программы', d: 'Автоматический захват и документирование веб-страниц для расследований.', u: 'https://hunch.ly' },
+  { n: 'КАД Арбитр', c: 'Организации', d: 'Картотека арбитражных дел РФ.', u: 'https://kad.arbitr.ru' },
+  { n: 'Федресурс', c: 'Организации', d: 'Единый федеральный реестр сведений о юрлицах РФ.', u: 'https://fedresurs.ru' },
+  { n: 'AlienVault OTX', c: 'Защита', d: 'Открытая платформа обмена индикаторами угроз (IOC).', u: 'https://otx.alienvault.com' },
+  { n: 'AbuseIPDB', c: 'Защита', d: 'Репутация IP-адресов и жалобы на злоупотребления.', u: 'https://www.abuseipdb.com' },
   { n: 'Have I Been Pwned', c: 'Защита', d: 'Проверка своих адресов на утечки.', u: 'https://haveibeenpwned.com' },
   { n: 'VirusTotal', c: 'Защита', d: 'Проверка файлов и ссылок.', u: 'https://www.virustotal.com' },
   { n: 'CyberChef', c: 'Данные', d: '«Швейцарский нож» преобразования данных.', u: 'https://gchq.github.io/CyberChef/' },

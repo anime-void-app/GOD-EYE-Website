@@ -5,7 +5,7 @@
 'use strict';
 
 const GE = window.GE = window.GE || {};
-GE.VERSION = '2.1.0';
+GE.VERSION = '2.2.0';
 
 /* ─────────── Утилиты ─────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -82,6 +82,7 @@ GE.ss = {
 
 /* ─────────── Настройки ─────────── */
 const lowEnd = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+const _savedSet = GE.ls.get('godeye.settings', {});
 GE.settings = Object.assign({
   callsign: 'ОПЕРАТОР',
   intro: 'session',
@@ -94,8 +95,10 @@ GE.settings = Object.assign({
   catFav: [],
   engFav: [],
   lastBackup: '',
+  apiKeys: { shodan: '', otx: '', urlscan: '', vt: '', proxy: '' },
   view: {}
-}, GE.ls.get('godeye.settings', {}));
+}, _savedSet);
+GE.settings.apiKeys = Object.assign({ shodan: '', otx: '', urlscan: '', vt: '', proxy: '' }, _savedSet.apiKeys || {});
 GE.saveSettings = () => {
   GE.ls.set('godeye.settings', GE.settings);
   if (GE.idb && GE.idb.ready) GE.idb.set('settings', GE.settings).catch(() => {});
@@ -356,7 +359,9 @@ GE.initStorage = async () => {
       GE.idb.get('settings').catch(() => null)
     ]);
     if (savedSettings && typeof savedSettings === 'object') {
+      const mergedKeys = Object.assign({ shodan: '', otx: '', urlscan: '', vt: '', proxy: '' }, GE.settings.apiKeys || {}, savedSettings.apiKeys || {});
       Object.assign(GE.settings, savedSettings);
+      GE.settings.apiKeys = mergedKeys;
       GE.ls.set('godeye.settings', GE.settings);
     }
     const lsDb = GE.ls.get(KEY, null);
@@ -828,6 +833,122 @@ GE.importBackupData = async data => {
   GE.save(true);
   GE.toast('Импорт завершён', { type: 'ok' });
   return true;
+};
+
+/* ─────────── Технический разбор телефона (E.164 / открытый план нумерации) ─────────── */
+const CC_MAP = [
+  ['375', 'Беларусь', 'BY'], ['380', 'Украина', 'UA'], ['374', 'Армения', 'AM'],
+  ['372', 'Эстония', 'EE'], ['371', 'Латвия', 'LV'], ['370', 'Литва', 'LT'],
+  ['373', 'Молдова', 'MD'], ['995', 'Грузия', 'GE'], ['994', 'Азербайджан', 'AZ'],
+  ['998', 'Узбекистан', 'UZ'], ['996', 'Кыргызстан', 'KG'], ['992', 'Таджикистан', 'TJ'],
+  ['993', 'Туркменистан', 'TM'], ['971', 'ОАЭ', 'AE'], ['972', 'Израиль', 'IL'],
+  ['351', 'Португалия', 'PT'], ['358', 'Финляндия', 'FI'], ['353', 'Ирландия', 'IE'],
+  ['357', 'Кипр', 'CY'], ['420', 'Чехия', 'CZ'], ['421', 'Словакия', 'SK'],
+  ['381', 'Сербия', 'RS'], ['382', 'Черногория', 'ME'], ['385', 'Хорватия', 'HR'],
+  ['48', 'Польша', 'PL'], ['49', 'Германия', 'DE'], ['44', 'Великобритания', 'GB'],
+  ['33', 'Франция', 'FR'], ['39', 'Италия', 'IT'], ['34', 'Испания', 'ES'],
+  ['31', 'Нидерланды', 'NL'], ['32', 'Бельгия', 'BE'], ['41', 'Швейцария', 'CH'],
+  ['43', 'Австрия', 'AT'], ['45', 'Дания', 'DK'], ['46', 'Швеция', 'SE'],
+  ['47', 'Норвегия', 'NO'], ['90', 'Турция', 'TR'], ['81', 'Япония', 'JP'],
+  ['82', 'Южная Корея', 'KR'], ['86', 'Китай', 'CN'], ['91', 'Индия', 'IN'],
+  ['61', 'Австралия', 'AU'], ['55', 'Бразилия', 'BR'], ['52', 'Мексика', 'MX'],
+  ['7', 'Россия / Казахстан', 'RU'], ['1', 'США / Канада', 'US']
+];
+// Крупные DEF-диапазоны РФ (открытый план нумерации Россвязи/ФАС; фактический оператор мог смениться по MNP)
+const RU_DEF_OPS = [
+  [/^9(1\d|8\d)/, 'МТС (базовый диапазон DEF)'],
+  [/^9(03|05|06|09|6\d)/, 'Билайн / ВымпелКом (базовый диапазон DEF)'],
+  [/^9(2\d|3\d)/, 'МегаФон (базовый диапазон DEF)'],
+  [/^9(00|01|02|04|08|50|51|52|53|58|77|91|92|93|94|95|96|99)/, 'T2 (Tele2) / MVNO (Йота, Т-Мобайл, СберМобайл)'],
+  [/^999/, 'Yota / МегаФон / MVNO (базовый диапазон DEF)'],
+  [/^80[04]/, 'Бесплатный номер 8-800 (бизнес / горячая линия)'],
+  [/^49[59]/, 'Стационарный — Москва'],
+  [/^812/, 'Стационарный — Санкт-Петербург'],
+  [/^343/, 'Стационарный — Екатеринбург'],
+  [/^383/, 'Стационарный — Новосибирск'],
+  [/^843/, 'Стационарный — Казань'],
+  [/^861/, 'Стационарный — Краснодар'],
+  [/^863/, 'Стационарный — Ростов-на-Дону'],
+  [/^831/, 'Стационарный — Нижний Новгород'],
+  [/^846/, 'Стационарный — Самара'],
+  [/^347/, 'Стационарный — Уфа']
+];
+GE.analyzePhone = raw => {
+  const s = String(raw || '').trim();
+  const hasPlus = s.startsWith('+');
+  let digits = s.replace(/\D/g, '');
+  if (!digits) return null;
+  let ruLocal = false;
+  if (!hasPlus && digits.length === 11 && digits.startsWith('8')) {
+    digits = '7' + digits.slice(1);
+    ruLocal = true;
+  } else if (!hasPlus && digits.length === 10 && /^[3489]/.test(digits)) {
+    digits = '7' + digits;
+    ruLocal = true;
+  }
+  const e164 = '+' + digits;
+  let country = 'Неизвестно', iso = '—', cc = '';
+  for (const [code, name, ciso] of CC_MAP) {
+    if (digits.startsWith(code)) { cc = code; country = name; iso = ciso; break; }
+  }
+  let nsn = cc ? digits.slice(cc.length) : digits;
+  let kind = 'Не определён', operator = '';
+  if (cc === '7' && nsn.length === 10) {
+    if (/^[67]/.test(nsn)) {
+      country = 'Казахстан'; iso = 'KZ';
+      kind = nsn.startsWith('7') ? 'Мобильный (Казахстан)' : 'Стационарный / спец.';
+    } else {
+      country = 'Россия'; iso = 'RU';
+      if (nsn.startsWith('9')) kind = 'Мобильный (DEF ' + nsn.slice(0, 3) + ')';
+      else if (/^80[04]/.test(nsn)) kind = 'Бесплатный (8-800 / 8-804)';
+      else kind = 'Городской / стационарный (ABC ' + nsn.slice(0, 3) + ')';
+      for (const [re, op] of RU_DEF_OPS) {
+        if (re.test(nsn)) { operator = op; break; }
+      }
+    }
+  } else if (cc === '1' && nsn.length === 10) {
+    kind = /^(800|833|844|855|866|877|888)/.test(nsn) ? 'Toll-Free (США/Канада)' : 'NANP (код зоны ' + nsn.slice(0, 3) + ')';
+  }
+  const validLen = digits.length >= 7 && digits.length <= 15;
+  const formats = [];
+  const addF = v => { if (v && !formats.includes(v)) formats.push(v); };
+  addF(e164);
+  if (cc === '7' && nsn.length === 10) {
+    const a = nsn.slice(0, 3), b = nsn.slice(3, 6), c = nsn.slice(6, 8), d = nsn.slice(8, 10);
+    addF(`+7 (${a}) ${b}-${c}-${d}`);
+    addF(`+7 ${a} ${b}-${c}-${d}`);
+    addF(`8 (${a}) ${b}-${c}-${d}`);
+    addF(`8${nsn}`);
+    addF(`8-${a}-${b}-${c}-${d}`);
+    addF(`${a}-${b}-${c}-${d}`);
+    addF(nsn);
+  } else if (cc === '1' && nsn.length === 10) {
+    const a = nsn.slice(0, 3), b = nsn.slice(3, 6), c = nsn.slice(6, 10);
+    addF(`+1 (${a}) ${b}-${c}`);
+    addF(`${a}-${b}-${c}`);
+    addF(`(${a}) ${b}-${c}`);
+  } else if (cc && nsn.length >= 6) {
+    addF(`+${cc} ${nsn}`);
+    addF(digits);
+    addF(nsn);
+  } else {
+    addF(digits);
+  }
+  return { raw: s, digits, e164, cc, nsn, country, iso, kind, operator, validLen, ruLocal, formats };
+};
+
+/* ─────────── Классификация открытого транспорта (авиа / море / спутники) ─────────── */
+GE.detectTransportKind = q => {
+  const s = String(q || '').trim().toUpperCase();
+  if (/^IMO[\s:-]?\d{7}$/.test(s)) return { kind: 'imo', label: 'Судно · IMO', val: s.replace(/\D/g, '') };
+  if (/^MMSI[\s:-]?\d{9}$/.test(s)) return { kind: 'mmsi', label: 'Судно · MMSI', val: s.replace(/\D/g, '') };
+  if (/^(NORAD|SAT|CATNR)[\s:-]?\d{4,6}$/.test(s)) return { kind: 'norad', label: 'Спутник · NORAD', val: s.replace(/\D/g, '') };
+  if (/^[0-9A-F]{6}$/.test(s) && (/[A-F]/.test(s) || /^[0-9A-F]{6}$/.test(s))) return { kind: 'icao24', label: 'Борт · ICAO24 Hex', val: s };
+  if (/^(RA-\d{5}|RF-\d{5}|EW-\d{3}[A-Z]{2}|UP-[A-Z0-9]{4,5}|VP-[BC][A-Z]{2}|VQ-[BC][A-Z]{2}|EI-[A-Z]{3}|[DFGHIOPST]-[A-Z]{4}|OE-[A-Z]{3}|HB-[A-Z]{3}|PH-[A-Z]{3}|SP-[A-Z]{3}|TC-[A-Z]{3}|A6-[A-Z]{3}|A7-[A-Z]{3}|VH-[A-Z]{3}|C-[FG][A-Z]{3}|JA\d{4}[A-Z]?|B-\d{4}[A-Z]?|N[1-9][0-9]{0,4}[A-Z]{0,2})$/.test(s)) {
+    return { kind: 'reg', label: 'Борт · Рег. номер', val: s };
+  }
+  if (/^[A-Z]{2,3}\d{1,4}[A-Z]?$/.test(s)) return { kind: 'callsign', label: 'Рейс / Позывной', val: s };
+  return { kind: 'unknown', label: 'Транспорт / Борт', val: s };
 };
 
 })();

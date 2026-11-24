@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="css/style.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body class="intro-active">
 
@@ -221,7 +221,7 @@
                   <button class="btn btn-sm btn-primary" id="live-save-report" disabled><svg class="ic ic-sm"><use href="#i-report"/></svg>Сохранить отчёт</button>
                 </span>
               </div>
-              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, проверка никнеймов на 7 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены и ASN в результатах кликабельны для pivot-перехода.</div></div>
+              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: Shodan InternetDB, AlienVault OTX, DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, HexDB Aviation (борты и маршруты), E.164/DEF-разбор телефонов, проверка никнеймов на 7 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены, CVE, координаты и ASN кликабельны для pivot-перехода.</div></div>
             </div>
             <div class="engines-bar">
               <input class="input eng-search" id="eng-filter" placeholder="Фильтр движков…">
@@ -499,7 +499,38 @@
             <div class="panel">
               <div class="panel-h">Приватность</div>
               <div class="set-row"><div class="l"><b>Режим демонстрации экрана</b><span>Названия записей размываются, пока на них не навести курсор.</span></div><label class="switch"><input type="checkbox" id="set-secure"><i></i></label></div>
-              <div class="set-row"><div class="l"><b>Живая разведка</b><span>Разрешить прямые запросы к открытым API (DNS, RDAP, Wikipedia…). При выключении сайт работает полностью офлайн, кроме карт и шрифтов.</span></div><label class="switch"><input type="checkbox" id="set-live"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Живая разведка</b><span>Разрешить прямые запросы к открытым API (DNS, RDAP, Shodan InternetDB, OTX, HexDB…). При выключении сайт работает полностью офлайн, кроме карт и шрифтов.</span></div><label class="switch"><input type="checkbox" id="set-live"><i></i></label></div>
+            </div>
+            <div class="panel" id="panel-api-keys">
+              <div class="panel-h">API-ключи Live Recon<small>опционально</small><span class="ph-right"><span class="api-badge" id="api-count-badge">0 АКТИВНО</span></span></div>
+              <p class="muted" style="font-size:12.5px;margin-bottom:12px">Ключи хранятся <b style="color:#fff">только в этом браузере</b> (IndexedDB) и не попадают в экспорт JSON. Базовые источники (Shodan InternetDB, OTX IP/Домен, HexDB, RDAP, DNS, crt.sh) работают и без ключей.</p>
+              <div class="api-grid">
+                <div class="api-row">
+                  <div class="api-h"><span>Shodan API</span><span class="api-badge" data-api-st="shodan">НЕТ</span></div>
+                  <input class="input mono" type="password" autocomplete="off" id="key-shodan" placeholder="Полные баннеры и сервисы по IP">
+                </div>
+                <div class="api-row">
+                  <div class="api-h"><span>AlienVault OTX API</span><span class="api-badge" data-api-st="otx">ПУБЛИЧНЫЙ</span></div>
+                  <input class="input mono" type="password" autocomplete="off" id="key-otx" placeholder="Повышенные лимиты + проверка хешей файлов">
+                </div>
+                <div class="api-row">
+                  <div class="api-h"><span>URLScan.io API</span><span class="api-badge" data-api-st="urlscan">НЕТ</span></div>
+                  <input class="input mono" type="password" autocomplete="off" id="key-urlscan" placeholder="Прямой поиск снимков и сканов доменов">
+                </div>
+                <div class="api-row">
+                  <div class="api-h"><span>VirusTotal API v3</span><span class="api-badge" data-api-st="vt">НЕТ</span></div>
+                  <input class="input mono" type="password" autocomplete="off" id="key-vt" placeholder="Анализ хешей файлов (может требовать прокси из-за CORS)">
+                </div>
+                <div class="api-row">
+                  <div class="api-h"><span>Личный CORS-прокси (опционально)</span><span class="api-badge" data-api-st="proxy">ПРЯМОЙ</span></div>
+                  <input class="input mono" type="url" autocomplete="off" id="key-proxy" placeholder="https://your-worker.example.com (только для URLScan/VT)">
+                </div>
+              </div>
+              <div class="row" style="margin-top:12px">
+                <button class="btn btn-sm btn-primary" id="api-save">Сохранить ключи</button>
+                <button class="btn btn-sm" id="api-reveal">Показать</button>
+                <button class="btn btn-sm btn-danger" id="api-clear">Очистить</button>
+              </div>
             </div>
           </div>
           <div class="stack">
@@ -560,15 +591,15 @@
 <input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="js/core.js?v=4"></script>
-<script src="js/catalog.js?v=4"></script>
-<script src="js/eye.js?v=4"></script>
-<script src="js/entities.js?v=4"></script>
-<script src="js/search.js?v=4"></script>
-<script src="js/lab.js?v=4"></script>
-<script src="js/media.js?v=4"></script>
-<script src="js/graph.js?v=4"></script>
-<script src="js/vault.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/core.js?v=5"></script>
+<script src="js/catalog.js?v=5"></script>
+<script src="js/eye.js?v=5"></script>
+<script src="js/entities.js?v=5"></script>
+<script src="js/search.js?v=5"></script>
+<script src="js/lab.js?v=5"></script>
+<script src="js/media.js?v=5"></script>
+<script src="js/graph.js?v=5"></script>
+<script src="js/vault.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>
