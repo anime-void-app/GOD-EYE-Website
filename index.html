@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body class="intro-active">
 
@@ -201,27 +201,39 @@
           <div>
             <div class="vh-idx">§ S · CENTRAL SEARCH</div>
             <h2 class="vh-title">SEARCH<small>Центр поиска по открытым источникам</small></h2>
-            <p class="vh-desc">Одна строка — десятки инструментов. Тип цели определяется автоматически, его можно сменить вручную. «Живая разведка» делает прямые запросы к открытым API (DNS, RDAP, Wayback, Wikipedia, GitHub и др.) прямо из браузера.</p>
+            <p class="vh-desc">Одна строка — 180+ инструментов, живой HUD-вердикт, пакетный скан до 30 целей, поиск пересечений и мониторинг изменений. Только легальный OSINT по открытым источникам.</p>
           </div>
         </div>
+        <div class="tabs" id="search-mode-tabs">
+          <button class="on" data-smode="single">Одиночный скан</button>
+          <button data-smode="batch">Пакетный скан (Batch)</button>
+          <button data-smode="diff">Пересечение целей (Diff)</button>
+          <button data-smode="watch">Мониторинг <span id="watch-count"></span></button>
+        </div>
+
+        <div class="tab-pane on" data-spane="single">
         <form class="omni omni-xl" id="omni-search" autocomplete="off">
           <svg class="ic"><use href="#i-target"/></svg>
-          <input name="q" id="search-q" placeholder="Введите цель поиска…" aria-label="Цель поиска">
+          <input name="q" id="search-q" placeholder="Введите цель: домен, IP, @ник, телефон, RA-89001, CVE, ИНН, кошелёк…" aria-label="Цель поиска">
           <span class="omni-type" id="search-type-chip">АВТО</span>
           <button class="btn btn-primary" type="submit">Скан</button>
         </form>
         <div class="type-tabs" id="type-tabs"></div>
+        <div class="query-expand hidden" id="query-expand"></div>
         <div class="search-layout">
           <div class="search-main">
             <div class="panel" id="live-panel">
               <div class="panel-h">Живая разведка<small id="live-sub">введите цель и нажмите «Скан»</small>
                 <span class="ph-right live-actions">
                   <button class="btn btn-sm btn-ghost" id="live-refresh" disabled title="Обновить без кэша"><svg class="ic ic-sm"><use href="#i-refresh"/></svg></button>
+                  <button class="btn btn-sm" id="live-watch" disabled title="Отслеживать изменения в Мониторинге">Наблюдать</button>
+                  <button class="btn btn-sm" id="live-to-graph" disabled title="Построить граф связей из найденных узлов"><svg class="ic ic-sm"><use href="#i-graph"/></svg>На граф</button>
                   <button class="btn btn-sm" id="live-save" disabled>Как источник</button>
-                  <button class="btn btn-sm btn-primary" id="live-save-report" disabled><svg class="ic ic-sm"><use href="#i-report"/></svg>Сохранить отчёт</button>
+                  <button class="btn btn-sm btn-primary" id="live-save-report" disabled><svg class="ic ic-sm"><use href="#i-report"/></svg>Отчёт</button>
                 </span>
               </div>
-              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: Shodan InternetDB, AlienVault OTX, DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, HexDB Aviation (борты и маршруты), E.164/DEF-разбор телефонов, проверка никнеймов на 7 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены, CVE, координаты и ASN кликабельны для pivot-перехода.</div></div>
+              <div class="live-hud hidden" id="live-hud"></div>
+              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: Shodan InternetDB, AlienVault OTX, DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, HexDB Aviation (борты и маршруты), E.164/DEF-разбор телефонов, проверка никнеймов на 13 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены, CVE, координаты и ASN кликабельны для pivot-перехода.</div></div>
             </div>
             <div class="engines-bar">
               <input class="input eng-search" id="eng-filter" placeholder="Фильтр движков…">
@@ -279,6 +291,46 @@
               <div class="hist" id="search-history"></div>
             </div>
           </aside>
+        </div>
+        </div>
+
+        <div class="tab-pane" data-spane="batch">
+          <div class="panel">
+            <div class="panel-h">Пакетный скан (Batch Scan)<small>до 30 целей за раз</small><span class="ph-right mono dim" id="batch-prog">0 / 0</span></div>
+            <label class="field"><span>Вставьте список целей (по одной в строке) или произвольный текст/лог — система сама выделит IP, домены, ники, телефоны, ASN и CVE</span>
+              <textarea class="textarea mono" id="batch-in" rows="5" placeholder="wikipedia.org&#10;1.1.1.1&#10;@torvalds&#10;89674108261&#10;CVE-2024-3094"></textarea>
+            </label>
+            <div class="meter" style="margin:10px 0"><i id="batch-bar" style="width:0%"></i></div>
+            <div class="row" style="margin-bottom:14px">
+              <button class="btn btn-primary" id="batch-run">Запустить пакетный скан</button>
+              <button class="btn btn-sm" id="batch-csv" disabled>Экспорт CSV</button>
+              <button class="btn btn-sm" id="batch-save" disabled>Сохранить как отчёт</button>
+            </div>
+            <div id="batch-out"></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-spane="diff">
+          <div class="panel">
+            <div class="panel-h">Пересечение двух целей (Cross-Reference / Diff)<small>поиск общих IP, ASN, NS/MX, портов, CVE и площадок</small></div>
+            <div class="two-col" style="margin-bottom:12px">
+              <label class="field"><span>Цель A</span><input class="input mono" id="diff-a" placeholder="например: wikipedia.org · 1.1.1.1 · @torvalds"></label>
+              <label class="field"><span>Цель B</span><input class="input mono" id="diff-b" placeholder="например: wikimedia.org · 1.0.0.1 · @gvanrossum"></label>
+            </div>
+            <div class="row" style="margin-bottom:14px">
+              <button class="btn btn-primary" id="diff-run">Найти пересечения</button>
+            </div>
+            <div id="diff-out"><div class="muted" style="font-size:12.5px">Сравнивает два домена, два IP или два никнейма через открытые API и подсвечивает общие точки инфраструктуры.</div></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-spane="watch">
+          <div class="panel">
+            <div class="panel-h">Мониторинг изменений (Watchlist)<small>отслеживание DNS, IP, портов, CVE и профилей</small>
+              <span class="ph-right"><button class="btn btn-sm btn-primary" id="watch-check-all">Проверить все цели</button></span>
+            </div>
+            <div id="watch-list"></div>
+          </div>
         </div>
       </section>
 
@@ -451,14 +503,18 @@
           </div>
         </div>
         <div class="toolbar">
-          <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="ar-q" placeholder="Поиск: слова, type:org OR type:person, tag:…, rel:A, -исключить"></label>
+          <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="ar-q" placeholder="Поиск: слова (с исправлением опечаток), type:org OR type:person, tag:…, rel:A, -исключить"></label>
           <select class="select" id="ar-type"><option value="">Все типы</option></select>
           <input class="input" type="date" id="ar-from" style="width:auto" title="С даты">
           <input class="input" type="date" id="ar-to" style="width:auto" title="По дату">
+          <button class="btn btn-sm" id="ar-save-filter" title="Сохранить текущий запрос как фильтр">+ Фильтр</button>
+          <div class="seg"><button class="on" data-armode="table">ТАБЛИЦА</button><button data-armode="timeline">ХРОНОЛОГИЯ</button></div>
           <button class="btn btn-sm btn-danger" id="ar-del" disabled><svg class="ic ic-sm"><use href="#i-trash"/></svg>Удалить выбранные</button>
           <span class="count" id="ar-count"></span>
         </div>
-        <div class="tbl-wrap"><table class="tbl" id="ar-table"></table></div>
+        <div class="chips" id="ar-presets" style="margin:-6px 0 12px"></div>
+        <div class="tbl-wrap" id="ar-table-wrap"><table class="tbl" id="ar-table"></table></div>
+        <div id="ar-timeline" class="hidden"></div>
         <div class="two-col" style="margin-top:16px">
           <div class="panel"><div class="panel-h">Полный журнал<span class="ph-right"><a href="#" id="log-clear">ОЧИСТИТЬ</a></span></div><div class="feed" id="ar-log" style="max-height:360px;overflow:auto"></div></div>
           <div class="panel"><div class="panel-h">Хранилище</div><div class="status-list" id="ar-storage"></div>
@@ -591,15 +647,16 @@
 <input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="js/core.js?v=5"></script>
-<script src="js/catalog.js?v=5"></script>
-<script src="js/eye.js?v=5"></script>
-<script src="js/entities.js?v=5"></script>
-<script src="js/search.js?v=5"></script>
-<script src="js/lab.js?v=5"></script>
-<script src="js/media.js?v=5"></script>
-<script src="js/graph.js?v=5"></script>
-<script src="js/vault.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/core.js?v=6"></script>
+<script src="js/catalog.js?v=6"></script>
+<script src="js/eye.js?v=6"></script>
+<script src="js/entities.js?v=6"></script>
+<script src="js/search.js?v=6"></script>
+<script src="js/pro.js?v=6"></script>
+<script src="js/lab.js?v=6"></script>
+<script src="js/media.js?v=6"></script>
+<script src="js/graph.js?v=6"></script>
+<script src="js/vault.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>
