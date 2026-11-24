@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="css/style.css?v=3">
+<link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body class="intro-active">
 
@@ -116,9 +116,9 @@
     </nav>
 
     <div class="side-foot">
-      <div class="row"><span><span class="dot"></span>ОКО АКТИВНО</span><b id="sf-records">0</b></div>
+      <div class="row"><span><span class="dot" id="sf-save-dot"></span>ОКО АКТИВНО</span><b id="sf-records">0</b></div>
       <div class="row"><span><span class="dot off" id="sf-vault-dot"></span>OBSIDIAN</span><b id="sf-vault">не подключён</b></div>
-      <div class="row" style="margin-top:6px"><span>v<span id="sf-ver"></span> · ЛОКАЛЬНО</span><span id="sf-store"></span></div>
+      <div class="row" style="margin-top:6px"><span>v<span id="sf-ver"></span> · <span id="sf-backend">IDB</span></span><span id="sf-store"></span></div>
     </div>
   </aside>
 
@@ -214,21 +214,31 @@
         <div class="search-layout">
           <div class="search-main">
             <div class="panel" id="live-panel">
-              <div class="panel-h">Живая разведка<small id="live-sub">введите цель и нажмите «Скан»</small><span class="ph-right"><button class="btn btn-sm" id="live-save" disabled>Сохранить цель как источник</button></span></div>
-              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов. Для текста — Wikipedia и Wikidata, для домена — DNS, RDAP, сертификаты и архив, для IP — RDAP и PTR, для координат — обратное геокодирование.</div></div>
+              <div class="panel-h">Живая разведка<small id="live-sub">введите цель и нажмите «Скан»</small>
+                <span class="ph-right live-actions">
+                  <button class="btn btn-sm btn-ghost" id="live-refresh" disabled title="Обновить без кэша"><svg class="ic ic-sm"><use href="#i-refresh"/></svg></button>
+                  <button class="btn btn-sm" id="live-save" disabled>Как источник</button>
+                  <button class="btn btn-sm btn-primary" id="live-save-report" disabled><svg class="ic ic-sm"><use href="#i-report"/></svg>Сохранить отчёт</button>
+                </span>
+              </div>
+              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, проверка никнеймов на 7 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены и ASN в результатах кликабельны для pivot-перехода.</div></div>
             </div>
             <div class="engines-bar">
+              <input class="input eng-search" id="eng-filter" placeholder="Фильтр движков…">
               <span class="sel" id="eng-sel">ВЫБРАНО: 0</span>
-              <button class="btn btn-sm" id="eng-all">Выбрать все</button>
-              <button class="btn btn-sm" id="eng-none">Снять выбор</button>
-              <button class="btn btn-sm" id="eng-copy"><svg class="ic ic-sm"><use href="#i-copy"/></svg>Копировать ссылки</button>
+              <button class="btn btn-sm" id="eng-fast" title="Выбрать ключевые движки">Быстрый чек</button>
+              <button class="btn btn-sm" id="eng-ru" title="Выбрать движки для РФ и СНГ">РФ / СНГ</button>
+              <button class="btn btn-sm" id="eng-fav" title="Выбрать отмеченные звёздочкой">★ Избранные</button>
+              <button class="btn btn-sm" id="eng-all">Все</button>
+              <button class="btn btn-sm" id="eng-none">Снять</button>
+              <button class="btn btn-sm" id="eng-copy"><svg class="ic ic-sm"><use href="#i-copy"/></svg>Копировать</button>
               <button class="btn btn-sm btn-primary" id="eng-open"><svg class="ic ic-sm"><use href="#i-ext"/></svg>Открыть выбранные</button>
             </div>
             <div id="engines"></div>
           </div>
           <aside class="search-side">
             <div class="panel">
-              <div class="panel-h">Конструктор операторов<small>Google Dorks</small></div>
+              <div class="panel-h">Конструктор операторов<small>Dorks</small></div>
               <div class="stack" id="dork">
                 <label class="field"><span>Все эти слова</span><input class="input" data-d="all" placeholder="отчёт пресс-релиз"></label>
                 <label class="field"><span>Точная фраза</span><input class="input" data-d="exact" placeholder="Северный Маяк"></label>
@@ -243,6 +253,12 @@
                   <label class="field"><span>до (before:)</span><input class="input" type="date" data-d="before"></label>
                 </div>
                 <div class="chips" id="dork-presets"></div>
+                <div class="dork-prev">
+                  <span class="dim mono" style="font-size:10px;letter-spacing:.12em">СИНТАКСИС:</span>
+                  <button class="chip on" type="button" data-dork-prev="google">Google</button>
+                  <button class="chip" type="button" data-dork-prev="yandex">Яндекс</button>
+                  <button class="chip" type="button" data-dork-prev="other">Bing / DDG</button>
+                </div>
                 <div class="dork-out" id="dork-out">—</div>
                 <div class="row">
                   <button class="btn btn-sm btn-primary" data-dork="google">Google</button>
@@ -424,17 +440,18 @@
           <div>
             <div class="vh-idx">§ 09 · STORAGE</div>
             <h2 class="vh-title">ARCHIVE<small>Все записи, резервные копии, экспорт</small></h2>
-            <p class="vh-desc">Единый реестр всех материалов. Поддерживаются операторы поиска: <span class="mono">type:person</span>, <span class="mono">tag:демо</span>, <span class="mono">rel:A</span>, <span class="mono">cred:1</span>, <span class="mono">"точная фраза"</span>, <span class="mono">-исключить</span>.</p>
+            <p class="vh-desc">Единый реестр всех материалов. Поддерживаются операторы: <span class="mono">type:person</span>, <span class="mono">tag:демо</span>, <span class="mono">rel:A</span>, <span class="mono">cred:1</span>, <span class="mono">"точная фраза"</span>, <span class="mono">-исключить</span>, <span class="mono">OR</span> / <span class="mono">|</span>.</p>
           </div>
           <div class="vh-actions">
-            <button class="btn" id="ar-import"><svg class="ic ic-sm"><use href="#i-up"/></svg>Импорт JSON</button>
+            <button class="btn" id="ar-import"><svg class="ic ic-sm"><use href="#i-up"/></svg>Импорт (.json / .gebackup)</button>
             <button class="btn" id="ar-csv"><svg class="ic ic-sm"><use href="#i-down"/></svg>CSV</button>
-            <button class="btn" id="ar-json"><svg class="ic ic-sm"><use href="#i-down"/></svg>Резервная копия</button>
-            <button class="btn btn-primary" id="ar-obsidian"><svg class="ic ic-sm"><use href="#i-vault"/></svg>Экспорт в Obsidian</button>
+            <button class="btn" id="ar-json"><svg class="ic ic-sm"><use href="#i-down"/></svg>Бэкап JSON</button>
+            <button class="btn btn-primary" id="ar-enc"><svg class="ic ic-sm"><use href="#i-shield"/></svg>Шифр-бэкап (.gebackup)</button>
+            <button class="btn" id="ar-obsidian"><svg class="ic ic-sm"><use href="#i-vault"/></svg>Obsidian ZIP</button>
           </div>
         </div>
         <div class="toolbar">
-          <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="ar-q" placeholder="Поиск: слова, type:org, tag:…, rel:A, -исключить"></label>
+          <label class="search-field"><svg class="ic ic-sm"><use href="#i-search"/></svg><input class="input" id="ar-q" placeholder="Поиск: слова, type:org OR type:person, tag:…, rel:A, -исключить"></label>
           <select class="select" id="ar-type"><option value="">Все типы</option></select>
           <input class="input" type="date" id="ar-from" style="width:auto" title="С даты">
           <input class="input" type="date" id="ar-to" style="width:auto" title="По дату">
@@ -445,7 +462,12 @@
         <div class="two-col" style="margin-top:16px">
           <div class="panel"><div class="panel-h">Полный журнал<span class="ph-right"><a href="#" id="log-clear">ОЧИСТИТЬ</a></span></div><div class="feed" id="ar-log" style="max-height:360px;overflow:auto"></div></div>
           <div class="panel"><div class="panel-h">Хранилище</div><div class="status-list" id="ar-storage"></div>
-            <div class="row" style="margin-top:16px"><button class="btn btn-sm" id="ar-demo">Загрузить демо-данные</button><button class="btn btn-sm btn-danger" id="ar-wipe">Очистить всё</button></div></div>
+            <div class="row" style="margin-top:16px">
+              <button class="btn btn-sm" id="ar-persist"><svg class="ic ic-sm"><use href="#i-shield"/></svg>Защитить от очистки</button>
+              <button class="btn btn-sm" id="ar-demo">Демо-данные</button>
+              <button class="btn btn-sm btn-danger" id="ar-wipe">Очистить всё</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -496,11 +518,22 @@
               </div>
             </div>
             <div class="panel">
+              <div class="panel-h">Хранилище данных и резервные копии</div>
+              <p class="muted" style="font-size:13px;margin-bottom:12px">Данные сохраняются автоматически в локальной базе <b style="color:#fff">IndexedDB</b> браузера (без лимита 5 МБ). Для переноса и долгосрочного хранения используйте зашифрованный бэкап <span class="mono">.gebackup</span> (AES-256-GCM).</p>
+              <div class="status-list" id="set-storage-status" style="margin-bottom:14px"></div>
+              <div class="row">
+                <button class="btn btn-primary" id="set-enc-backup"><svg class="ic ic-sm"><use href="#i-shield"/></svg>Шифр-бэкап (.gebackup)</button>
+                <button class="btn" id="set-json-backup"><svg class="ic ic-sm"><use href="#i-down"/></svg>JSON</button>
+                <button class="btn" id="set-import-backup"><svg class="ic ic-sm"><use href="#i-up"/></svg>Импорт</button>
+                <button class="btn btn-sm" id="set-persist">Защитить от очистки</button>
+              </div>
+            </div>
+            <div class="panel">
               <div class="panel-h">О системе</div>
               <dl class="kv" style="font-size:12.5px">
                 <dt>Система</dt><dd>GOD EYE — OSINT Intelligence</dd>
                 <dt>Версия</dt><dd id="about-ver"></dd>
-                <dt>Данные</dt><dd>Хранятся только в этом браузере (localStorage). Делайте резервные копии в «Архиве».</dd>
+                <dt>Данные</dt><dd>Хранятся локально в IndexedDB этого браузера (с резервным копированием в JSON / зашифрованный .gebackup AES-256-GCM).</dd>
                 <dt>Назначение</dt><dd>Законный анализ общедоступной информации. Не используйте систему для слежки за частными лицами, взлома, обхода авторизации и публикации чувствительных персональных данных.</dd>
               </dl>
             </div>
@@ -524,18 +557,18 @@
   </div>
 </div>
 <div id="toasts"></div>
-<input type="file" id="json-file" accept=".json,application/json" class="hidden">
+<input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="js/core.js?v=3"></script>
-<script src="js/catalog.js?v=3"></script>
-<script src="js/eye.js?v=3"></script>
-<script src="js/entities.js?v=3"></script>
-<script src="js/search.js?v=3"></script>
-<script src="js/lab.js?v=3"></script>
-<script src="js/media.js?v=3"></script>
-<script src="js/graph.js?v=3"></script>
-<script src="js/vault.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/core.js?v=4"></script>
+<script src="js/catalog.js?v=4"></script>
+<script src="js/eye.js?v=4"></script>
+<script src="js/entities.js?v=4"></script>
+<script src="js/search.js?v=4"></script>
+<script src="js/lab.js?v=4"></script>
+<script src="js/media.js?v=4"></script>
+<script src="js/graph.js?v=4"></script>
+<script src="js/vault.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>

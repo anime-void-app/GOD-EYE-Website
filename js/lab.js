@@ -38,13 +38,16 @@ L.extract = text => {
   for (const m of text.matchAll(/(^|[\s(])#([\p{L}\p{N}_]{2,60})/gu)) add('Хэштеги', '#' + m[2]);
   for (const m of text.matchAll(/(^|[\s(])@([A-Za-z0-9_.]{2,32})\b/g)) add('Упоминания', '@' + m[2]);
   for (const m of text.matchAll(/(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/g)) { const c = GE.parseCoords(m[1] + ',' + m[2]); if (c) add('Координаты', `${c.lat}, ${c.lon}`); }
+  (text.match(/\bCVE-\d{4}-\d{4,}\b/gi) || []).forEach(m => add('CVE', m.toUpperCase()));
+  (text.match(/\bAS\d{2,10}\b/gi) || []).forEach(m => add('ASN', m.toUpperCase()));
+  (text.match(/\b0x[a-f0-9]{40}\b|\bbc1[a-z0-9]{25,62}\b|\bT[1-9A-HJ-NP-Za-km-z]{33}\b/g) || []).forEach(m => add('Криптоадреса', m));
   (text.match(/\b\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?)?\b|\b\d{1,2}[./]\d{1,2}[./]\d{2,4}\b/g) || []).forEach(m => add('Даты', m));
   (text.match(/\b[a-f0-9]{64}\b|\b[a-f0-9]{40}\b|\b[a-f0-9]{32}\b/gi) || []).forEach(m => add('Хеши', m.toLowerCase()));
   const res = {};
   Object.entries(out).forEach(([k, s]) => res[k] = Array.from(s));
   return res;
 };
-const TYPE_OF = { 'Ссылки': 'url', 'Email': 'email', 'IP-адреса': 'ip', 'Домены': 'domain', 'Хэштеги': 'text', 'Упоминания': 'username', 'Координаты': 'coords', 'Хеши': 'hash', 'Даты': 'text' };
+const TYPE_OF = { 'Ссылки': 'url', 'Email': 'email', 'IP-адреса': 'ip', 'Домены': 'domain', 'Хэштеги': 'text', 'Упоминания': 'username', 'Координаты': 'coords', 'Хеши': 'hash', 'Даты': 'text', 'CVE': 'cve', 'ASN': 'asn', 'Криптоадреса': 'crypto' };
 function initExtract() {
   const run = () => {
     const txt = $('#ex-in').value;

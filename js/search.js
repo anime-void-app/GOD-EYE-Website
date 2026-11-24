@@ -1,12 +1,24 @@
 /* ═══════════════════════════════════════════════════════════════
    GOD EYE · search.js — центр поиска: автоопределение цели, движки,
-   «живая разведка» через открытые API, конструктор операторов, история
+   «живая разведка» (CORS API + кэш + pivot + сохранение отчёта),
+   конструктор операторов, история
    ═══════════════════════════════════════════════════════════════ */
 (function () {
 'use strict';
 const GE = window.GE, $ = GE.$, $$ = GE.$$, esc = GE.esc, E = encodeURIComponent;
 
-const S = GE.search = { q: '', type: 'auto', eff: 'text', selected: new Set(), runId: 0 };
+const LIVE_CACHE = new Map(); // key -> { ts, res }
+const CACHE_TTL = 10 * 60 * 1000; // 10 минут
+
+const S = GE.search = {
+  q: '',
+  type: 'auto',
+  eff: 'text',
+  engFilter: '',
+  selected: new Set(),
+  runId: 0,
+  lastScan: null
+};
 
 /* ─────────── Инициализация ─────────── */
 S.init = () => {
@@ -21,13 +33,32 @@ S.init = () => {
   inp.addEventListener('focus', () => GE.heroEye && GE.heroEye.lookAt(inp));
   inp.addEventListener('blur', () => GE.heroEye && GE.heroEye.lookAt(null));
   $('#omni-search').addEventListener('submit', e => { e.preventDefault(); S.q = inp.value.trim(); S.run(true); });
-  $('#eng-all').onclick = () => { $$('#engines .eng').forEach(el => S.selected.add(el.dataset.k)); S.paintSel(); };
+
+  const ef = $('#eng-filter');
+  if (ef) ef.addEventListener('input', GE.debounce(() => { S.engFilter = ef.value.trim().toLowerCase(); S.render(); }, 100));
+
+  $('#eng-all').onclick = () => { $$('#engines .eng[data-ext="1"]').forEach(el => S.selected.add(el.dataset.k)); S.paintSel(); };
   $('#eng-none').onclick = () => { S.selected.clear(); S.paintSel(); };
+  const presetSelect = pred => {
+    S.selected.clear();
+    const visible = S.enginesFor(S.eff).filter(e => !e.internal && pred(e));
+    visible.forEach(e => S.selected.add(e.k));
+    S.paintSel();
+    if (!visible.length) GE.toast('Нет подходящих движков для этого пресета');
+  };
+  if ($('#eng-fast')) $('#eng-fast').onclick = () => presetSelect(e => !!e.fast);
+  if ($('#eng-ru')) $('#eng-ru').onclick = () => presetSelect(e => e.reg === 'ru');
+  if ($('#eng-fav')) $('#eng-fav').onclick = () => {
+    const fav = new Set(GE.settings.engFav || []);
+    presetSelect(e => fav.has(e.n));
+  };
+
   $('#eng-copy').onclick = () => { const l = S.selectedLinks(); if (!l.length) return GE.toast('Выберите движки'); GE.copy(l.map(x => `${x.n}: ${x.url}`).join('\n')); };
   $('#eng-open').onclick = () => {
     const l = S.selectedLinks();
     if (!S.q) return GE.toast('Введите цель поиска', { type: 'err' });
     if (!l.length) return GE.toast('Отметьте движки флажками', { type: 'err' });
+    if (l.some(x => x.manual)) GE.copy(GE.normQuery(S.q, S.eff));
     let blocked = 0;
     l.forEach(x => { const w = window.open(x.url, '_blank', 'noopener'); if (!w) blocked++; });
     GE.log('SEARCH', `Открыто вкладок: ${l.length - blocked} · ${S.q}`);
@@ -39,11 +70,9 @@ S.init = () => {
     S.renderSide(); GE.toast('Цель сохранена');
   };
   $('#hist-clear').onclick = e => { e.preventDefault(); GE.DB.history = []; GE.save(); S.renderSide(); };
-  $('#live-save').onclick = () => {
-    if (!S.q) return;
-    const url = /^https?:/.test(S.q) ? S.q : S.eff === 'domain' ? 'https://' + S.q : '';
-    GE.editRecord('source', null, { title: S.q, url, source_type: S.eff === 'image' ? 'Изображение' : 'Сайт', retrieved: GE.today(), tags: ['поиск'] });
-  };
+  $('#live-save').onclick = () => S.saveAsSource();
+  if ($('#live-save-report')) $('#live-save-report').onclick = () => S.saveAsReport();
+  if ($('#live-refresh')) $('#live-refresh').onclick = () => { if (S.q) S.live(true); };
   S.initDork();
   S.render(); S.renderSide();
 };
@@ -57,10 +86,59 @@ S.setQuery = (q, type = 'auto', run = true) => {
 
 S.effType = () => S.type === 'auto' ? GE.detectType(S.q) : S.type;
 
+/* ─────────── Сохранение результатов «Живой разведки» ─────────── */
+S.buildScanMarkdown = () => {
+  const sc = S.lastScan;
+  if (!sc) return '';
+  const lines = [
+    `## Сводка сканирования GOD EYE`,
+    `- **Цель:** \`${sc.q}\``,
+    `- **Тип:** ${GE.QTYPES[sc.type]?.l || sc.type}`,
+    `- **Дата (UTC):** ${sc.ts.replace('T', ' ').slice(0, 19)} UTC`,
+    ''
+  ];
+  sc.order.forEach(title => {
+    const item = sc.sections.get(title);
+    if (!item || !item.md) return;
+    lines.push(`### ${title}`, item.md.trim(), '');
+  });
+  return lines.join('\n').trim();
+};
+
+S.saveAsSource = () => {
+  if (!S.q) return;
+  const q = GE.normQuery(S.q, S.eff);
+  const url = /^https?:/.test(S.q) ? S.q : S.eff === 'domain' ? 'https://' + q : '';
+  const md = S.buildScanMarkdown();
+  GE.editRecord('source', null, {
+    title: S.q,
+    url,
+    source_type: S.eff === 'image' ? 'Изображение' : S.eff === 'regid' ? 'Реестр' : 'Сайт',
+    retrieved: GE.today(),
+    tags: ['поиск', 'живая-разведка', S.eff],
+    notes: md
+  });
+};
+
+S.saveAsReport = () => {
+  if (!S.q) return;
+  const md = S.buildScanMarkdown();
+  const typeLabel = GE.QTYPES[S.eff]?.l || S.eff;
+  GE.editRecord('report', null, {
+    title: `Разведка: ${S.q}`,
+    report_type: S.eff === 'org' || S.eff === 'regid' ? 'Профиль организации' : S.eff === 'coords' || S.eff === 'place' ? 'Геолокация' : S.eff === 'image' ? 'Проверка изображения' : 'Общее',
+    status: 'В работе',
+    confidence: 'Средняя',
+    objective: `Сбор открытых данных по цели «${S.q}» (${typeLabel}).`,
+    body: md || `Первичная проверка цели \`${S.q}\`.`,
+    tags: ['живая-разведка', S.eff]
+  });
+};
+
 /* ─────────── Движки ─────────── */
 S.enginesFor = type => GE.ENGINES.map((e, i) => Object.assign({ k: 'e' + i }, e)).filter(e => e.t.includes(type));
 S.linkFor = (e, q) => { try { return e.u(GE.normQuery(q, S.eff)); } catch (err) { return ''; } };
-S.selectedLinks = () => S.enginesFor(S.eff).filter(e => S.selected.has(e.k)).map(e => ({ n: e.n, url: S.linkFor(e, S.q) })).filter(x => /^https?:/.test(x.url));
+S.selectedLinks = () => S.enginesFor(S.eff).filter(e => !e.internal && S.selected.has(e.k)).map(e => ({ n: e.n, manual: !!e.manual, url: S.linkFor(e, S.q) })).filter(x => /^https?:/.test(x.url));
 
 S.render = () => {
   S.eff = S.effType();
@@ -68,39 +146,76 @@ S.render = () => {
   const chip = $('#search-type-chip');
   if (chip) chip.textContent = (S.type === 'auto' ? 'АВТО → ' : '') + GE.QTYPES[S.eff].l.toUpperCase();
   const box = $('#engines'); if (!box) return;
-  const list = S.enginesFor(S.eff);
+  const fav = new Set(GE.settings.engFav || []);
+  let list = S.enginesFor(S.eff);
+  if (S.engFilter) {
+    list = list.filter(e => (e.n + ' ' + e.d + ' ' + e.c).toLowerCase().includes(S.engFilter));
+  }
+  // Избранные движки поднимаем наверх внутри своей категории
   const groups = {};
   list.forEach(e => (groups[e.c] = groups[e.c] || []).push(e));
+  Object.values(groups).forEach(arr => arr.sort((a, b) => (fav.has(b.n) ? 1 : 0) - (fav.has(a.n) ? 1 : 0)));
   const hasQ = !!S.q.trim();
   box.innerHTML = Object.entries(groups).map(([g, es]) => `
     <div class="eng-group"><div class="eng-group-h">${esc(g)} · ${es.length}<button data-grp="${esc(g)}">выбрать группу</button></div>
     <div class="engines">${es.map(e => {
       const url = hasQ ? S.linkFor(e, S.q) : '';
-      const internal = url.startsWith('#');
-      return `<div class="eng ${S.selected.has(e.k) ? 'sel-on' : ''}" data-k="${e.k}">
-        <label class="check"><input type="checkbox" ${S.selected.has(e.k) ? 'checked' : ''}></label>
-        <div style="min-width:0"><div class="eng-n">${esc(e.n)}</div><div class="eng-d">${esc(e.d)}</div></div>
-        ${hasQ ? `<a class="go" href="${esc(url)}" ${internal ? '' : 'target="_blank" rel="noopener"'} title="Открыть">${GE.icon('ext')}</a>` : '<span></span>'}
+      const internal = !!e.internal || url.startsWith('#');
+      const isFav = fav.has(e.n);
+      const flags = `${e.login ? '<span class="eng-tag" title="Сервис часто требует вход">LOGIN</span>' : ''}${e.manual ? '<span class="eng-tag copy" title="При клике цель копируется в буфер — вставьте Ctrl+V">COPY</span>' : ''}`;
+      return `<div class="eng ${!internal && S.selected.has(e.k) ? 'sel-on' : ''}" data-k="${e.k}" data-ext="${internal ? '0' : '1'}" data-manual="${e.manual ? '1' : '0'}">
+        ${internal ? '<span class="eng-pin" title="Переход внутри GOD EYE">↳</span>' : `<label class="check"><input type="checkbox" ${S.selected.has(e.k) ? 'checked' : ''}></label>`}
+        <div style="min-width:0">
+          <div class="eng-n">${esc(e.n)} ${flags}</div>
+          <div class="eng-d">${esc(e.d)}</div>
+        </div>
+        <div class="eng-acts">
+          <button class="fav ${isFav ? 'on' : ''}" data-efav="${esc(e.n)}" title="В избранные движки">★</button>
+          ${hasQ ? `<a class="go" href="${esc(url)}" ${internal ? '' : 'target="_blank" rel="noopener"'} title="${e.manual ? 'Открыть и скопировать цель' : 'Открыть'}">${GE.icon(internal ? 'target' : 'ext')}</a>` : ''}
+        </div>
       </div>`;
-    }).join('')}</div></div>`).join('') || '<div class="empty"><p>Для этого типа цели нет внешних движков — используйте «Живую разведку» и лабораторию.</p></div>';
+    }).join('')}</div></div>`).join('') || '<div class="empty"><p>Для этого типа цели или фильтра движки не найдены — используйте «Живую разведку» и лабораторию.</p></div>';
+
   box.querySelectorAll('.eng').forEach(el => {
-    const cb = el.querySelector('input');
-    cb.addEventListener('change', () => { cb.checked ? S.selected.add(el.dataset.k) : S.selected.delete(el.dataset.k); S.paintSel(); });
+    const cb = el.querySelector('input[type=checkbox]');
+    if (cb) cb.addEventListener('change', () => { cb.checked ? S.selected.add(el.dataset.k) : S.selected.delete(el.dataset.k); S.paintSel(); });
     const go = el.querySelector('a.go');
-    if (go) go.addEventListener('click', () => { GE.log('SEARCH', `${el.querySelector('.eng-n').textContent} · ${S.q}`); });
+    if (go) go.addEventListener('click', () => {
+      const name = el.querySelector('.eng-n').childNodes[0].textContent.trim();
+      GE.log('SEARCH', `${name} · ${S.q}`);
+      if (el.dataset.manual === '1' && S.q) {
+        const norm = GE.normQuery(S.q, S.eff);
+        navigator.clipboard?.writeText(norm).catch(() => {});
+        GE.toast(`«${norm}» скопировано — вставьте (Ctrl+V) на странице ${name}`, { timeout: 4500 });
+      }
+    });
   });
+  box.querySelectorAll('[data-efav]').forEach(b => b.addEventListener('click', () => {
+    const set = new Set(GE.settings.engFav || []);
+    set.has(b.dataset.efav) ? set.delete(b.dataset.efav) : set.add(b.dataset.efav);
+    GE.settings.engFav = Array.from(set);
+    GE.saveSettings();
+    S.render();
+  }));
   box.querySelectorAll('[data-grp]').forEach(b => b.addEventListener('click', () => {
-    const els = Array.from(b.closest('.eng-group').querySelectorAll('.eng'));
+    const els = Array.from(b.closest('.eng-group').querySelectorAll('.eng[data-ext="1"]'));
     const all = els.every(el => S.selected.has(el.dataset.k));
     els.forEach(el => all ? S.selected.delete(el.dataset.k) : S.selected.add(el.dataset.k));
     S.paintSel();
   }));
   S.paintSel();
 };
+
 S.paintSel = () => {
-  const ks = new Set($$('#engines .eng').map(el => el.dataset.k));
+  const ks = new Set($$('#engines .eng[data-ext="1"]').map(el => el.dataset.k));
   let n = 0;
-  $$('#engines .eng').forEach(el => { const on = S.selected.has(el.dataset.k); el.classList.toggle('sel-on', on); el.querySelector('input').checked = on; if (on) n++; });
+  $$('#engines .eng[data-ext="1"]').forEach(el => {
+    const on = S.selected.has(el.dataset.k);
+    el.classList.toggle('sel-on', on);
+    const cb = el.querySelector('input[type=checkbox]');
+    if (cb) cb.checked = on;
+    if (on) n++;
+  });
   [...S.selected].forEach(k => { if (!ks.has(k)) S.selected.delete(k); });
   $('#eng-sel').textContent = 'ВЫБРАНО: ' + n;
 };
@@ -117,7 +232,9 @@ S.run = (addHistory) => {
   }
   const sub = $('#live-sub'); if (sub) sub.textContent = `${GE.QTYPES[S.eff].l} · ${S.q}`;
   $('#live-save').disabled = false;
-  S.live();
+  if ($('#live-save-report')) $('#live-save-report').disabled = false;
+  if ($('#live-refresh')) $('#live-refresh').disabled = false;
+  S.live(false);
 };
 
 S.renderSide = () => {
@@ -129,165 +246,592 @@ S.renderSide = () => {
   $$('[data-unsave]').forEach(b => b.onclick = () => { GE.DB.saved = GE.DB.saved.filter(s => s.q !== b.dataset.unsave); GE.save(); S.renderSide(); });
 };
 
-/* ─────────── Живая разведка ─────────── */
-const card = (title, id) => `<div class="live-card" id="lc-${id}"><div class="live-card-h">${esc(title)}<span class="st"><span class="spinner"></span></span></div><div class="live-card-b scanline">Запрос…</div></div>`;
+/* ─────────── Помощники «Живой разведки» ─────────── */
+const card = (title, id, canRetry = true) => `<div class="live-card" id="lc-${id}"><div class="live-card-h"><span>${esc(title)}</span><span class="st"><span class="spinner"></span></span>${canRetry ? `<button class="live-retry" data-retry="${id}" title="Повторить запрос (без кэша)">↻</button>` : ''}</div><div class="live-card-b scanline">Запрос…</div></div>`;
 const done = (id, html, ok = true, status) => {
   const el = $('#lc-' + id); if (!el) return;
-  el.querySelector('.st').className = 'st ' + (ok ? 'ok' : 'err');
-  el.querySelector('.st').textContent = status || (ok ? 'OK' : 'НЕДОСТУПНО');
+  const st = el.querySelector('.st');
+  st.className = 'st ' + (ok ? 'ok' : 'err');
+  st.textContent = status || (ok ? 'OK' : 'НЕДОСТУПНО');
   const b = el.querySelector('.live-card-b'); b.classList.remove('scanline'); b.innerHTML = html;
 };
 const kv = pairs => `<dl class="kv">${pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>`;
-const fail = (url, err) => `<div class="muted">Сервис не ответил из браузера (${esc(err && err.message || 'сеть/CORS')}). Откройте вручную: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//, '').slice(0, 60))}</a></div>`;
+const kvMd = pairs => pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v]) => `- **${k}:** ${String(v).replace(/<[^>]+>/g, '')}`).join('\n');
+const fail = (url, err) => `<div class="muted">Сервис не ответил из браузера (${esc(err && err.message || 'сеть/CORS')}). Откройте вручную: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//, '').slice(0, 64))}</a></div>`;
 const link = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t || u)}</a>`;
+const pivot = (val, type, label) => `<button class="pivot" data-pivot-q="${esc(val)}" data-pivot-t="${esc(type)}" title="Сканировать (${esc(GE.QTYPES[type]?.l || type)})">${esc(label || val)}</button>`;
 
-S.live = () => {
+/* Разбор почтовых / облачных провайдеров по MX, NS, TXT */
+function analyzeDnsIntel(rows, dmarcRecs) {
+  const mx = rows.filter(r => r[0] === 'MX').map(r => r[1].toLowerCase()).join(' ');
+  const ns = rows.filter(r => r[0] === 'NS').map(r => r[1].toLowerCase()).join(' ');
+  const txts = rows.filter(r => r[0] === 'TXT').map(r => r[1].replace(/^"|"$/g, ''));
+  const intel = [];
+  const mailMap = [
+    [/google\.com|googlemail\.com/, 'Google Workspace'], [/yandex\.(net|ru)/, 'Яндекс 360'],
+    [/mail\.ru/, 'VK WorkSpace / Mail.ru'], [/outlook\.com|protection\.outlook/, 'Microsoft 365'],
+    [/protonmail\.ch/, 'Proton Mail'], [/zoho\./, 'Zoho Mail'], [/fastmail\.com/, 'Fastmail'],
+    [/timeweb\./, 'Timeweb'], [/reg\.ru/, 'REG.RU'], [/beget\./, 'Beget'], [/migadu\./, 'Migadu']
+  ];
+  const mailProv = mailMap.find(([re]) => re.test(mx))?.[1];
+  if (mailProv) intel.push(['Почтовый провайдер', mailProv]);
+
+  const dnsMap = [
+    [/cloudflare\.com/, 'Cloudflare'], [/awsdns-/, 'AWS Route 53'], [/googledomains|google\.com/, 'Google Cloud DNS'],
+    [/yandex\.(net|ru)/, 'Яндекс DNS'], [/reg\.ru/, 'REG.RU'], [/selectel\./, 'Selectel'],
+    [/digitalocean\.com/, 'DigitalOcean'], [/hetzner\./, 'Hetzner'], [/nic\.ru/, 'RU-CENTER'], [/beget\./, 'Beget']
+  ];
+  const dnsProv = dnsMap.find(([re]) => re.test(ns))?.[1];
+  if (dnsProv) intel.push(['DNS-хостинг', dnsProv]);
+
+  const spf = txts.find(t => /v=spf1/i.test(t));
+  intel.push(['SPF', spf ? spf : 'не найден']);
+
+  const dmarc = (dmarcRecs || []).find(t => /v=DMARC1/i.test(t));
+  if (dmarc) {
+    const p = (dmarc.match(/\bp=([a-z]+)/i) || [])[1] || '?';
+    intel.push(['DMARC', `политика p=${p} · ${dmarc}`]);
+  } else {
+    intel.push(['DMARC', 'запись _dmarc не найдена']);
+  }
+
+  const verifs = [];
+  txts.forEach(t => {
+    const m = t.match(/^(google-site-verification|yandex-verification|facebook-domain-verification|apple-domain-verification|atlassian-domain-verification|MS|stripe-verification|openai-domain-verification|adobe-idp-site-verification|docusign|github-domain-verification|mailru-verification)=/i);
+    if (m) verifs.push(m[1].replace(/-?(site|domain)?-?verification$/i, ''));
+  });
+  if (verifs.length) intel.push(['Подтверждённые сервисы (TXT)', GE.uniq(verifs).join(', ')]);
+  return intel;
+}
+
+/* ─────────── Живая разведка ─────────── */
+S.live = (forceRefresh = false) => {
   const out = $('#live-out'), type = S.eff, q = GE.normQuery(S.q, type), id = ++S.runId;
   const ok = () => id === S.runId;
   const jobs = [];
-  const job = (title, fn, url) => { jobs.push([title, fn, jobs.length, url]); };
+  const job = (title, fn, url, opts = {}) => { jobs.push({ title, fn, idx: jobs.length, url, cacheable: opts.cacheable !== false }); };
 
-  // офлайн-анализ (без сети)
-  if (type === 'url') job('Разбор ссылки (офлайн)', async () => GE.lab.urlReport(q));
-  if (type === 'hash') job('Тип хеша (офлайн)', async () => kv([['Длина', q.length + ' символов'], ['Алгоритм', { 32: 'MD5', 40: 'SHA-1', 64: 'SHA-256' }[q.length] || 'неизвестен'], ['В базе GOD EYE', GE.db.all().find(r => r.file_hash === q.toLowerCase())?.title || 'нет совпадений']]));
-  if (type === 'coords') job('Координаты (офлайн)', async () => GE.lab.coordReport(q, true));
-  // локальная база
+  S.lastScan = { q: S.q, normQ: q, type, ts: GE.now(), order: [], sections: new Map() };
+
+  // 1. Офлайн-анализ (мгновенно, без сети)
+  if (type === 'url') job('Разбор ссылки (офлайн)', async () => ({
+    html: GE.lab.urlReport(q),
+    md: `- URL: ${q}\n- Хост: ${GE.host(q) || '—'}`
+  }), null, { cacheable: false });
+
+  if (type === 'hash') job('Тип хеша (офлайн)', async () => {
+    const alg = { 32: 'MD5', 40: 'SHA-1', 64: 'SHA-256' }[q.length] || 'неизвестен';
+    const match = GE.db.all().find(r => r.file_hash === q.toLowerCase());
+    const pairs = [['Длина', q.length + ' символов'], ['Алгоритм', alg], ['В базе GOD EYE', match ? match.title : 'нет совпадений']];
+    return { html: kv(pairs), md: kvMd(pairs) };
+  }, null, { cacheable: false });
+
+  if (type === 'coords') job('Координаты (офлайн)', async () => ({
+    html: GE.lab.coordReport(q, true),
+    md: `- Координаты: \`${q}\``
+  }), null, { cacheable: false });
+
+  if (type === 'crypto') job('Анализ криптоадреса (офлайн)', async () => {
+    const net = GE.detectCryptoNet(q) || 'Не определена';
+    const pairs = [['Адрес', q], ['Сеть', net], ['Длина', q.length + ' символов']];
+    return { html: kv(pairs), md: kvMd(pairs) };
+  }, null, { cacheable: false });
+
+  if (type === 'regid') job('Регистрационный номер (офлайн)', async () => {
+    const kind = GE.detectRegIdKind(q) || 'Нестандартный / не прошёл контрольную сумму';
+    const pairs = [['Идентификатор', q], ['Тип (проверка КС)', kind]];
+    return { html: kv(pairs), md: kvMd(pairs) };
+  }, null, { cacheable: false });
+
+  if (type === 'phone') job('Нормализация номера (офлайн)', async () => {
+    const digits = q.replace(/\D/g, '');
+    const cc = digits.startsWith('7') ? 'Россия / Казахстан (+7)' : digits.startsWith('375') ? 'Беларусь (+375)' : digits.startsWith('380') ? 'Украина (+380)' : digits.startsWith('48') ? 'Польша (+48)' : digits.startsWith('1') ? 'США / Канада (+1)' : digits.startsWith('44') ? 'Великобритания (+44)' : digits.startsWith('49') ? 'Германия (+49)' : 'Международный (+' + digits.slice(0, 3) + '…)';
+    const pairs = [['Формат E.164', '+' + digits], ['Цифр', digits.length], ['Регион по коду', cc]];
+    return { html: kv(pairs) + '<div class="dim" style="margin-top:8px;font-size:11px">GOD EYE ищет только открытые публичные упоминания номера (организации, объявления).</div>', md: kvMd(pairs) };
+  }, null, { cacheable: false });
+
+  // 2. Поиск совпадений в локальной базе GOD EYE
   job('Совпадения в базе GOD EYE', async () => {
     const tokens = GE.parseQuery(S.q.replace(/^@/, ''));
     const hits = GE.db.all().filter(r => GE.matchQuery(r, tokens)).slice(0, 8);
-    return hits.length ? `<div class="link-list">${hits.map(r => `<div class="link-i" data-open="${r.id}"><span class="rel">${GE.TYPES[r.type].code}</span><span class="sens">${esc(r.title)}</span><span class="dim" style="margin-left:auto;font-size:11px">${esc(GE.recSub(r).slice(0, 40))}</span></div>`).join('')}</div>` : '<div class="muted">В вашей базе совпадений нет.</div>';
-  });
+    return {
+      html: hits.length ? `<div class="link-list">${hits.map(r => `<div class="link-i" data-open="${r.id}"><span class="rel">${GE.TYPES[r.type].code}</span><span class="sens">${esc(r.title)}</span><span class="dim" style="margin-left:auto;font-size:11px">${esc(GE.recSub(r).slice(0, 40))}</span></div>`).join('')}</div>` : '<div class="muted">В вашей базе совпадений нет.</div>',
+      md: hits.length ? hits.map(r => `- [[${r.title}]] (${GE.TYPES[r.type].label})`).join('\n') : ''
+    };
+  }, null, { cacheable: false });
 
+  // 3. Живые запросы к открытым API
   if (!GE.settings.live) {
-    job('Живая разведка выключена', async () => '<div class="muted">Прямые запросы к API отключены в настройках (раздел «Приватность»). Ниже — ссылки на внешние инструменты.</div>');
+    job('Живая разведка выключена', async () => ({
+      html: '<div class="muted">Прямые запросы к API отключены в настройках (раздел «Приватность»). Ниже — ссылки на внешние инструменты.</div>',
+      md: ''
+    }), null, { cacheable: false });
   } else if (type === 'domain' || type === 'email') {
     const d = type === 'email' ? q.split('@').pop() : q;
-    job('DNS-записи · dns.google', async () => {
+
+    job('DNS + Почта (SPF / DMARC) · dns.google', async () => {
       const types = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME', 'SOA'];
-      const res = await Promise.all(types.map(t => GE.fetchJSON(`https://dns.google/resolve?name=${E(d)}&type=${t}`).catch(() => null)));
+      const [res, dmarcRes] = await Promise.all([
+        Promise.all(types.map(t => GE.fetchJSON(`https://dns.google/resolve?name=${E(d)}&type=${t}`).catch(() => null))),
+        GE.fetchJSON(`https://dns.google/resolve?name=${E('_dmarc.' + d)}&type=TXT`).catch(() => null)
+      ]);
       const rows = [];
       res.forEach((r, i) => { if (r && r.Answer) r.Answer.forEach(a => rows.push([types[i], a.data, a.TTL])); });
       if (!rows.length && res.every(r => !r)) throw new Error('нет ответа');
-      return rows.length ? `<table class="tbl"><thead><tr><th>Тип</th><th>Значение</th><th>TTL</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r[0])}</td><td style="white-space:normal;overflow-wrap:anywhere">${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table>` : '<div class="muted">Записей не найдено — возможно, домен не существует.</div>';
+      const dmarcRecs = (dmarcRes && dmarcRes.Answer || []).map(a => String(a.data || '').replace(/^"|"$/g, ''));
+      const intel = analyzeDnsIntel(rows, dmarcRecs);
+
+      const fmtVal = (t, val) => {
+        if (t === 'A' || t === 'AAAA') return pivot(val, 'ip');
+        if (t === 'NS' || t === 'CNAME') return pivot(val.replace(/\.$/, ''), 'domain');
+        if (t === 'MX') {
+          const m = val.match(/^(\d+\s+)(.+)$/);
+          if (m) return `${esc(m[1])}${pivot(m[2].replace(/\.$/, ''), 'domain')}`;
+        }
+        return esc(val);
+      };
+      const html = (intel.length ? kv(intel) + '<div style="height:10px"></div>' : '') +
+        (rows.length ? `<table class="tbl"><thead><tr><th>Тип</th><th>Значение (кликабельно для pivot)</th><th>TTL</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r[0])}</td><td style="white-space:normal;overflow-wrap:anywhere">${fmtVal(r[0], r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table>`
+          : '<div class="muted">Записей не найдено — возможно, домен не существует.</div>');
+      const md = [kvMd(intel), '', ...rows.map(r => `- \`${r[0]}\` ${r[1]} (TTL ${r[2]})`)].join('\n');
+      return { html, md };
     }, `https://dns.google/query?name=${E(d)}`);
+
+    if (type === 'email') {
+      job('Публичный профиль · Gravatar', async () => {
+        const hash = await GE.sha(new TextEncoder().encode(q.trim().toLowerCase()), 'SHA-256');
+        const avatarUrl = `https://gravatar.com/avatar/${hash}?s=96&d=404`;
+        const profileUrl = `https://gravatar.com/${hash}`;
+        const found = await new Promise(res => {
+          const img = new Image();
+          img.referrerPolicy = 'no-referrer';
+          img.onload = () => res(true);
+          img.onerror = () => res(false);
+          img.src = avatarUrl;
+        });
+        if (!found) return { html: `<div class="muted">Публичного аватара Gravatar для этого адреса не найдено. SHA-256: <code class="mono">${esc(hash.slice(0, 16))}…</code></div>`, md: '- Gravatar: не найден' };
+        return {
+          html: `<div class="row" style="align-items:center;gap:14px"><img src="${esc(avatarUrl)}" alt="" referrerpolicy="no-referrer" style="width:56px;height:56px;border:1px solid var(--line-2)"><div><div><b style="color:#fff">Найден публичный аватар Gravatar</b></div><div class="muted" style="font-size:12px;margin-top:4px">${link(profileUrl, 'Открыть профиль Gravatar')} · SHA-256: <code>${esc(hash.slice(0, 16))}…</code></div></div></div>`,
+          md: `- **Gravatar:** найден публичный профиль (${profileUrl})`
+        };
+      }, `https://gravatar.com/`);
+    }
+
     job('Регистрация · RDAP', async () => {
       const r = await GE.fetchJSON(`https://rdap.org/domain/${E(d)}`, 12000);
       const ev = {}; (r.events || []).forEach(e => ev[e.eventAction] = e.eventDate);
       const reg = (r.entities || []).find(e => (e.roles || []).includes('registrar'));
       const regName = reg && reg.vcardArray ? (reg.vcardArray[1].find(x => x[0] === 'fn') || [])[3] : '';
-      return kv([
+      const nsList = (r.nameservers || []).map(n => n.ldhName).filter(Boolean);
+      const pairs = [
         ['Домен', r.ldhName || d], ['Статус', (r.status || []).join(', ')], ['Регистратор', regName],
         ['Создан', ev.registration && GE.fmtDate(ev.registration)], ['Истекает', ev.expiration && GE.fmtDate(ev.expiration)],
         ['Изменён', ev['last changed'] && GE.fmtDate(ev['last changed'])],
-        ['NS', (r.nameservers || []).map(n => n.ldhName).join(', ')], ['DNSSEC', r.secureDNS ? (r.secureDNS.delegationSigned ? 'да' : 'нет') : '']
-      ]);
+        ['NS', nsList.length ? nsList.map(n => pivot(n, 'domain')).join(' ') : '', 1],
+        ['DNSSEC', r.secureDNS ? (r.secureDNS.delegationSigned ? 'да' : 'нет') : '']
+      ];
+      return { html: kv(pairs), md: kvMd(pairs.map(([k, v]) => [k, k === 'NS' ? nsList.join(', ') : v])) };
     }, `https://lookup.icann.org/en/lookup?name=${E(d)}`);
+
     if (type === 'domain') {
       job('Архив · Wayback Machine', async () => {
         const r = await GE.fetchJSON(`https://archive.org/wayback/available?url=${E(d)}`);
         const s = r.archived_snapshots && r.archived_snapshots.closest;
-        return s ? kv([['Последний снимок', GE.fmtDate(s.timestamp.replace(/^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d).*/, '$1-$2-$3T$4:$5:00Z'))], ['Ссылка', link(s.url, 'открыть снимок'), 1], ['Все снимки', link('https://web.archive.org/web/*/' + d + '*', 'календарь архива'), 1]]) : '<div class="muted">Снимков не найдено.</div>';
+        if (!s) return { html: '<div class="muted">Снимков не найдено.</div>', md: '- Wayback Machine: снимков не найдено' };
+        const ts = GE.fmtDate(s.timestamp.replace(/^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d).*/, '$1-$2-$3T$4:$5:00Z'));
+        return {
+          html: kv([['Последний снимок', ts], ['Ссылка', link(s.url, 'открыть снимок'), 1], ['Все снимки', link('https://web.archive.org/web/*/' + d + '*', 'календарь архива'), 1]]),
+          md: `- **Последний снимок:** ${ts}\n- **Ссылка:** ${s.url}`
+        };
       }, `https://web.archive.org/web/*/${d}`);
+
       job('Поддомены · crt.sh (Certificate Transparency)', async () => {
         const r = await GE.fetchJSON(`https://crt.sh/?q=${E('%.' + d)}&output=json`, 15000);
         const names = GE.uniq(r.flatMap(x => String(x.name_value || '').split('\n')).map(s => s.trim().toLowerCase()).filter(s => s && !s.startsWith('*'))).sort();
-        return names.length ? `<div class="muted" style="margin-bottom:8px">Уникальных имён: ${names.length}</div><div class="chips">${names.slice(0, 120).map(n => `<button class="chip" data-q="${esc(n)}"><span>${esc(n)}</span></button>`).join('')}</div>` : '<div class="muted">Сертификатов не найдено.</div>';
+        return {
+          html: names.length ? `<div class="muted" style="margin-bottom:8px">Уникальных имён: ${names.length} (клик по поддомену — переход в скан)</div><div class="chips">${names.slice(0, 120).map(n => `<button class="chip" data-pivot-q="${esc(n)}" data-pivot-t="domain"><span>${esc(n)}</span></button>`).join('')}</div>` : '<div class="muted">Сертификатов не найдено.</div>',
+          md: names.length ? `- Найдено уникальных имён: **${names.length}**\n` + names.slice(0, 30).map(n => `  - \`${n}\``).join('\n') : '- Сертификатов не найдено'
+        };
       }, `https://crt.sh/?q=${E('%.' + d)}`);
     }
   } else if (type === 'ip') {
     job('Сеть и геолокация · ipwho.is', async () => {
       const r = await GE.fetchJSON(`https://ipwho.is/${E(q)}`);
       if (r.success === false) throw new Error(r.message || 'ошибка');
-      return kv([['IP', r.ip], ['Тип', r.type], ['Страна', [r.country, r.country_code].filter(Boolean).join(' · ')], ['Регион', r.region], ['Город', r.city], ['Провайдер', r.connection && r.connection.isp], ['Организация', r.connection && r.connection.org], ['ASN', r.connection && r.connection.asn && 'AS' + r.connection.asn], ['Координаты сети', r.latitude != null ? `${r.latitude}, ${r.longitude} (приблизительно)` : '']])
-        + '<div class="dim" style="margin-top:8px;font-size:11px">Геолокация IP указывает на сеть провайдера, а не на конкретного человека.</div>';
+      const asn = r.connection && r.connection.asn ? 'AS' + r.connection.asn : '';
+      const coords = r.latitude != null ? `${r.latitude}, ${r.longitude}` : '';
+      const pairs = [
+        ['IP', r.ip], ['Тип', r.type],
+        ['Страна', [r.country, r.country_code].filter(Boolean).join(' · ')],
+        ['Регион', r.region], ['Город', r.city],
+        ['Провайдер', r.connection && r.connection.isp],
+        ['Организация', r.connection && r.connection.org],
+        ['ASN', asn ? pivot(asn, 'asn') : '', 1],
+        ['Координаты сети', coords ? `${pivot(coords, 'coords')} <span class="dim">(приблизительно)</span>` : '', 1]
+      ];
+      return {
+        html: kv(pairs) + '<div class="dim" style="margin-top:8px;font-size:11px">Геолокация IP указывает на сеть провайдера, а не на конкретного человека.</div>',
+        md: kvMd([['IP', r.ip], ['Страна', r.country], ['Город', r.city], ['Провайдер', r.connection?.isp], ['ASN', asn], ['Координаты сети', coords]])
+      };
     }, `https://ipinfo.io/${q}`);
+
+    job('Маршрутизация и Abuse · RIPEstat', async () => {
+      const [net, abuse] = await Promise.all([
+        GE.fetchJSON(`https://stat.ripe.net/data/network-info/data.json?resource=${E(q)}`, 10000),
+        GE.fetchJSON(`https://stat.ripe.net/data/abuse-contact-finder/data.json?resource=${E(q)}`, 10000).catch(() => null)
+      ]);
+      const d = net.data || {};
+      const asns = (d.asns || []).map(a => 'AS' + a);
+      const abuseEmails = (abuse && abuse.data && abuse.data.abuse_contacts) || [];
+      const holder = abuse && abuse.data && abuse.data.holder_info && abuse.data.holder_info.name;
+      const pairs = [
+        ['Префикс (BGP)', d.prefix],
+        ['ASN', asns.length ? asns.map(a => pivot(a, 'asn')).join(' ') : '', 1],
+        ['Владелец блока', holder],
+        ['Abuse-контакт', abuseEmails.length ? abuseEmails.map(m => pivot(m, 'email')).join(' ') : '', 1],
+        ['RIPEstat', link(`https://stat.ripe.net/${q}`, 'открыть полную сводку'), 1]
+      ];
+      return {
+        html: kv(pairs),
+        md: kvMd([['Префикс', d.prefix], ['ASN', asns.join(', ')], ['Владелец', holder], ['Abuse', abuseEmails.join(', ')]])
+      };
+    }, `https://stat.ripe.net/${q}`);
+
     job('Владелец блока · RDAP', async () => {
       const r = await GE.fetchJSON(`https://rdap.org/ip/${E(q)}`, 12000);
-      return kv([['Сеть', r.name], ['Диапазон', [r.startAddress, r.endAddress].filter(Boolean).join(' — ')], ['Страна', r.country], ['Тип', r.type], ['Handle', r.handle]]);
+      const pairs = [['Сеть', r.name], ['Диапазон', [r.startAddress, r.endAddress].filter(Boolean).join(' — ')], ['Страна', r.country], ['Тип', r.type], ['Handle', r.handle]];
+      return { html: kv(pairs), md: kvMd(pairs) };
     }, `https://stat.ripe.net/${q}`);
+
     if (/^\d+\.\d+\.\d+\.\d+$/.test(q)) job('Обратная DNS (PTR)', async () => {
       const r = await GE.fetchJSON(`https://dns.google/resolve?name=${q.split('.').reverse().join('.')}.in-addr.arpa&type=PTR`);
-      return r.Answer ? r.Answer.map(a => `<div>${esc(a.data)}</div>`).join('') : '<div class="muted">PTR-записи нет.</div>';
+      const hosts = (r.Answer || []).map(a => String(a.data || '').replace(/\.$/, '')).filter(Boolean);
+      return {
+        html: hosts.length ? hosts.map(h => `<div>${pivot(h, 'domain')}</div>`).join('') : '<div class="muted">PTR-записи нет.</div>',
+        md: hosts.length ? hosts.map(h => `- PTR: \`${h}\``).join('\n') : '- PTR-записи нет'
+      };
     }, `https://dns.google/query?name=${q}`);
+  } else if (type === 'asn') {
+    const num = q.replace(/^AS/i, '');
+    job('Автономная система · RIPEstat', async () => {
+      const [ov, pref] = await Promise.all([
+        GE.fetchJSON(`https://stat.ripe.net/data/as-overview/data.json?resource=AS${E(num)}`, 10000),
+        GE.fetchJSON(`https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS${E(num)}`, 10000).catch(() => null)
+      ]);
+      const d = ov.data || {};
+      const prefixes = ((pref && pref.data && pref.data.prefixes) || []).map(p => p.prefix);
+      const pairs = [
+        ['ASN', 'AS' + num],
+        ['Владелец', d.holder],
+        ['Блок / RIR', d.block && d.block.desc],
+        ['Анонсируется', d.announced ? 'да' : 'нет'],
+        ['Префиксов', prefixes.length]
+      ];
+      const prefHtml = prefixes.length ? `<div style="margin-top:10px"><div class="dim" style="font-size:11px;margin-bottom:6px">Анонсируемые префиксы (первые ${Math.min(25, prefixes.length)}):</div><div class="chips">${prefixes.slice(0, 25).map(p => `<button class="chip" data-pivot-q="${esc(p.split('/')[0])}" data-pivot-t="ip"><span>${esc(p)}</span></button>`).join('')}</div></div>` : '';
+      return {
+        html: kv(pairs) + prefHtml,
+        md: kvMd(pairs) + (prefixes.length ? '\n- Примеры префиксов: ' + prefixes.slice(0, 10).map(p => `\`${p}\``).join(', ') : '')
+      };
+    }, `https://stat.ripe.net/AS${num}`);
   } else if (type === 'username') {
     job('GitHub · публичный профиль', async () => {
       const ctl = await fetch(`https://api.github.com/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
-      if (ctl.status === 404) return '<div class="muted">Аккаунта с таким именем на GitHub нет.</div>';
+      if (ctl.status === 404) return { html: '<div class="muted">Аккаунта с таким именем на GitHub нет.</div>', md: '- GitHub: не найден' };
       if (!ctl.ok) throw new Error('HTTP ' + ctl.status);
       const r = await ctl.json();
-      return `<div class="row" style="align-items:flex-start;gap:14px;flex-wrap:nowrap">${r.avatar_url ? `<img src="${esc(r.avatar_url)}&s=80" alt="" style="width:56px;height:56px;border:1px solid var(--line-2);filter:grayscale(1)">` : ''}<div class="grow">${kv([['Логин', link(r.html_url, r.login), 1], ['Имя', r.name], ['О себе', r.bio], ['Компания', r.company], ['Сайт', r.blog && link(/^https?:/.test(r.blog) ? r.blog : 'https://' + r.blog, r.blog), 1], ['Репозиториев', r.public_repos], ['Подписчиков', r.followers], ['Создан', GE.fmtDate(r.created_at, false)]])}</div></div>`;
+      const blog = r.blog && (/^https?:/.test(r.blog) ? r.blog : 'https://' + r.blog);
+      const pairs = [
+        ['Логин', link(r.html_url, r.login), 1], ['Имя', r.name], ['О себе', r.bio],
+        ['Компания', r.company], ['Сайт', blog && link(blog, r.blog), 1],
+        ['Репозиториев', r.public_repos], ['Подписчиков', r.followers], ['Создан', GE.fmtDate(r.created_at, false)]
+      ];
+      return {
+        html: `<div class="row" style="align-items:flex-start;gap:14px;flex-wrap:nowrap">${r.avatar_url ? `<img src="${esc(r.avatar_url)}&s=80" alt="" referrerpolicy="no-referrer" style="width:56px;height:56px;border:1px solid var(--line-2);filter:grayscale(1)">` : ''}<div class="grow">${kv(pairs)}</div></div>`,
+        md: kvMd([['GitHub', r.html_url], ['Имя', r.name], ['Bio', r.bio], ['Компания', r.company], ['Сайт', blog], ['Репозиториев', r.public_repos], ['Создан', GE.fmtDate(r.created_at, false)]])
+      };
     }, `https://github.com/${q}`);
-    job('Подсказка', async () => '<div class="muted">Совпадение ника на разных площадках ещё не означает, что это один и тот же человек. Сверяйте аватары, описания и перекрёстные ссылки. Проверку на сотнях площадок делает WhatsMyName (в списке ниже).</div>');
+
+    job('Публичные профили · Live-проверка (6 платформ)', async () => {
+      const checks = [
+        {
+          name: 'GitLab',
+          fn: async () => {
+            const arr = await GE.fetchJSON(`https://gitlab.com/api/v4/users?username=${E(q)}`, 8000);
+            const u = Array.isArray(arr) && arr[0];
+            return u ? { found: true, url: u.web_url, info: u.name || u.username } : { found: false };
+          }
+        },
+        {
+          name: 'Keybase',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://keybase.io/_/api/1.0/user/lookup.json?usernames=${E(q)}`, 8000);
+            const u = r && r.them && r.them[0];
+            if (!u || !u.basics) return { found: false };
+            const proofs = (u.proofs_summary?.all || []).map(p => `${p.proof_type}:${p.nametag}`).slice(0, 4).join(', ');
+            return { found: true, url: `https://keybase.io/${u.basics.username}`, info: proofs || u.profile?.full_name || 'найден' };
+          }
+        },
+        {
+          name: 'Hacker News',
+          fn: async () => {
+            const u = await GE.fetchJSON(`https://hacker-news.firebaseio.com/v0/user/${E(q)}.json`, 8000);
+            return u && u.id ? { found: true, url: `https://news.ycombinator.com/user?id=${E(u.id)}`, info: `karma ${u.karma || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'Dev.to',
+          fn: async () => {
+            const r = await fetch(`https://dev.to/api/users/by_username?url=${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: `https://dev.to/${u.username}`, info: u.name || u.username };
+          }
+        },
+        {
+          name: 'Chess.com',
+          fn: async () => {
+            const r = await fetch(`https://api.chess.com/pub/player/${E(q.toLowerCase())}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: u.url || `https://www.chess.com/member/${E(q)}`, info: [u.title, u.name, u.location].filter(Boolean).join(' · ') || 'найден' };
+          }
+        },
+        {
+          name: 'Lichess',
+          fn: async () => {
+            const r = await fetch(`https://lichess.org/api/user/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: u.url || `https://lichess.org/@/${E(q)}`, info: u.profile?.country || 'найден' };
+          }
+        }
+      ];
+      const results = await Promise.all(checks.map(c => c.fn().then(r => Object.assign({ name: c.name }, r)).catch(e => ({ name: c.name, err: e.message }))));
+      const foundList = results.filter(r => r.found);
+      const html = `<div class="live-grid">${results.map(r => {
+        if (r.found) return `<a class="live-pill hit" target="_blank" rel="noopener" href="${esc(r.url)}"><b>${esc(r.name)}</b><span>${esc(r.info || 'найден')}</span></a>`;
+        if (r.err) return `<div class="live-pill err"><b>${esc(r.name)}</b><span>недоступно</span></div>`;
+        return `<div class="live-pill miss"><b>${esc(r.name)}</b><span>нет</span></div>`;
+      }).join('')}</div><div class="dim" style="margin-top:8px;font-size:11px">Совпадение ника не доказывает, что это один человек — сверяйте аватары, био и перекрёстные ссылки. Полная проверка: WhatsMyName ниже.</div>`;
+      const md = foundList.length ? foundList.map(r => `- **${r.name}:** ${r.url} (${r.info})`).join('\n') : '- На проверенных 6 платформах совпадений не найдено';
+      return { html, md };
+    }, `https://whatsmyname.app/?q=${E(q)}`);
   } else if (type === 'coords') {
     const c = GE.parseCoords(S.q);
     if (c) job('Обратное геокодирование · OpenStreetMap', async () => {
       const r = await GE.fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lon}&accept-language=ru&zoom=18`, 10000);
       const a = r.address || {};
-      return kv([['Адрес', r.display_name], ['Объект', r.name], ['Категория', [r.category, r.type].filter(Boolean).join(' / ')], ['Страна', a.country], ['Город', a.city || a.town || a.village], ['OSM', r.osm_type && link(`https://www.openstreetmap.org/${r.osm_type}/${r.osm_id}`, `${r.osm_type}/${r.osm_id}`), 1]])
-        + `<div class="row" style="margin-top:10px"><button class="btn btn-sm" data-geo-save="${c.lat},${c.lon}" data-name="${esc(r.name || (r.display_name || '').split(',')[0] || 'Точка')}">${GE.icon('geo')}Сохранить как локацию</button></div>`;
+      const osmUrl = r.osm_type ? `https://www.openstreetmap.org/${r.osm_type}/${r.osm_id}` : '';
+      const pairs = [
+        ['Адрес', r.display_name], ['Объект', r.name],
+        ['Категория', [r.category, r.type].filter(Boolean).join(' / ')],
+        ['Страна', a.country], ['Город', a.city || a.town || a.village],
+        ['OSM', osmUrl && link(osmUrl, `${r.osm_type}/${r.osm_id}`), 1]
+      ];
+      return {
+        html: kv(pairs) + `<div class="row" style="margin-top:10px"><button class="btn btn-sm" data-geo-save="${c.lat},${c.lon}" data-name="${esc(r.name || (r.display_name || '').split(',')[0] || 'Точка')}">${GE.icon('geo')}Сохранить как локацию</button></div>`,
+        md: kvMd([['Адрес', r.display_name], ['Объект', r.name], ['Страна', a.country], ['Город', a.city || a.town || a.village], ['OSM', osmUrl]])
+      };
     }, `https://www.openstreetmap.org/?mlat=${c.lat}&mlon=${c.lon}#map=17/${c.lat}/${c.lon}`);
   } else if (type === 'place') {
     job('Геокодирование · OpenStreetMap', async () => {
       const r = await GE.fetchJSON(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=ru&q=${E(q)}`, 10000);
-      return r.length ? `<div class="link-list">${r.map(p => `<div class="link-i" data-coords="${p.lat}, ${p.lon}"><span class="rel">${(+p.lat).toFixed(4)}, ${(+p.lon).toFixed(4)}</span><span>${esc(p.display_name)}</span></div>`).join('')}</div>` : '<div class="muted">Ничего не найдено.</div>';
+      return {
+        html: r.length ? `<div class="link-list">${r.map(p => `<div class="link-i" data-pivot-q="${p.lat}, ${p.lon}" data-pivot-t="coords"><span class="rel">${(+p.lat).toFixed(4)}, ${(+p.lon).toFixed(4)}</span><span>${esc(p.display_name)}</span></div>`).join('')}</div>` : '<div class="muted">Ничего не найдено.</div>',
+        md: r.length ? r.map(p => `- \`${(+p.lat).toFixed(5)}, ${(+p.lon).toFixed(5)}\` — ${p.display_name}`).join('\n') : '- Ничего не найдено'
+      };
     }, `https://www.openstreetmap.org/search?query=${E(q)}`);
+  } else if (type === 'cve') {
+    job('Карточка уязвимости · CIRCL CVE API', async () => {
+      const r = await GE.fetchJSON(`https://cve.circl.lu/api/cve/${E(q)}`, 10000);
+      if (!r || (!r.id && !r.cveMetadata)) return { html: '<div class="muted">Запись CVE не найдена в CIRCL API.</div>', md: '- CIRCL CVE: не найдено' };
+      const cna = r.containers && r.containers.cna;
+      const desc = r.summary || (cna && cna.descriptions && cna.descriptions[0] && cna.descriptions[0].value) || '';
+      const score = r.cvss || (cna && cna.metrics && cna.metrics[0] && (cna.metrics[0].cvssV3_1?.baseScore || cna.metrics[0].cvssV3_0?.baseScore)) || '';
+      const pub = r.Published || r.cveMetadata?.datePublished || '';
+      const refs = (r.references || (cna && cna.references || []).map(x => x.url) || []).slice(0, 6);
+      const pairs = [['CVE', r.id || r.cveMetadata?.cveId || q], ['CVSS', score], ['Опубликовано', pub && GE.fmtDate(pub, false)], ['Описание', desc]];
+      return {
+        html: kv(pairs) + (refs.length ? `<div class="url-list" style="margin-top:8px">${refs.map(u => link(u)).join('')}</div>` : ''),
+        md: kvMd(pairs) + (refs.length ? '\n' + refs.map(u => `- ${u}`).join('\n') : '')
+      };
+    }, `https://nvd.nist.gov/vuln/detail/${E(q)}`);
+  } else if (type === 'crypto' && GE.detectCryptoNet(q) === 'BTC') {
+    job('Bitcoin блокчейн · Mempool.space', async () => {
+      const r = await GE.fetchJSON(`https://mempool.space/api/address/${E(q)}`, 10000);
+      const c = r.chain_stats || {}, m = r.mempool_stats || {};
+      const bal = ((c.funded_txo_sum || 0) - (c.spent_txo_sum || 0) + (m.funded_txo_sum || 0) - (m.spent_txo_sum || 0)) / 1e8;
+      const recv = (c.funded_txo_sum || 0) / 1e8;
+      const spent = (c.spent_txo_sum || 0) / 1e8;
+      const pairs = [
+        ['Баланс', `${bal.toFixed(8)} BTC`],
+        ['Всего получено', `${recv.toFixed(8)} BTC`],
+        ['Всего отправлено', `${spent.toFixed(8)} BTC`],
+        ['Транзакций (подтв. / mempool)', `${c.tx_count || 0} / ${m.tx_count || 0}`],
+        ['Эксплорер', link(`https://mempool.space/address/${E(q)}`, 'mempool.space'), 1]
+      ];
+      return { html: kv(pairs), md: kvMd([['Баланс', `${bal.toFixed(8)} BTC`], ['Получено', `${recv.toFixed(8)} BTC`], ['Транзакций', c.tx_count || 0]]) };
+    }, `https://mempool.space/address/${E(q)}`);
   }
+
+  // GLEIF LEI для организаций и LEI-кодов
+  if (GE.settings.live && (type === 'org' || (type === 'regid' && GE.detectRegIdKind(q) === 'LEI'))) {
+    const isLei = GE.detectRegIdKind(q) === 'LEI';
+    job('Международный реестр юрлиц · GLEIF LEI', async () => {
+      const url = isLei
+        ? `https://api.gleif.org/api/v1/lei-records/${E(q)}`
+        : `https://api.gleif.org/api/v1/lei-records?filter[fulltext]=${E(q)}&page[size]=5`;
+      const r = await GE.fetchJSON(url, 10000);
+      const list = Array.isArray(r.data) ? r.data : (r.data ? [r.data] : []);
+      if (!list.length) return { html: '<div class="muted">В реестре GLEIF LEI совпадений не найдено.</div>', md: '' };
+      const html = `<div class="link-list">${list.map(it => {
+        const a = it.attributes || {}, e = a.entity || {}, hq = e.headquartersAddress || {};
+        const name = e.legalName?.name || it.id;
+        const meta = [e.jurisdiction, hq.city, e.status, it.id].filter(Boolean).join(' · ');
+        return `<a class="link-i" target="_blank" rel="noopener" href="https://search.gleif.org/#/record/${esc(it.id)}"><span class="rel">LEI</span><span><b style="color:#fff;font-weight:500">${esc(name)}</b><br><span class="dim" style="font-size:11.5px">${esc(meta)}</span></span></a>`;
+      }).join('')}</div>`;
+      const md = list.map(it => `- **${it.attributes?.entity?.legalName?.name || it.id}** · LEI \`${it.id}\` (${it.attributes?.entity?.jurisdiction || '—'})`).join('\n');
+      return { html, md };
+    }, `https://search.gleif.org/#/search/simpleSearch=${E(q)}`);
+  }
+
+  // Wikipedia + Wikidata для текста, организаций и мест (с безопасным esc() для сниппетов!)
   if (GE.settings.live && ['text', 'org', 'place'].includes(type)) {
     job('Википедия', async () => {
       const [ru, en] = await Promise.all(['ru', 'en'].map(l => GE.fetchJSON(`https://${l}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${E(q)}&format=json&origin=*&srlimit=4`).catch(() => null)));
       if (!ru && !en) throw new Error('нет ответа');
       const items = [...((ru && ru.query.search) || []).map(x => ['ru', x]), ...((en && en.query.search) || []).map(x => ['en', x])];
-      return items.length ? `<div class="link-list">${items.map(([l, x]) => `<a class="link-i" target="_blank" rel="noopener" href="https://${l}.wikipedia.org/wiki/${E(x.title)}"><span class="rel">${l.toUpperCase()}</span><span><b style="color:#fff;font-weight:500">${esc(x.title)}</b><br><span class="dim" style="font-size:12px">${x.snippet.replace(/<[^>]+>/g, '').slice(0, 140)}…</span></span></a>`).join('')}</div>` : '<div class="muted">Статей не найдено.</div>';
+      const strip = s => esc(String(s || '').replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').slice(0, 140));
+      return {
+        html: items.length ? `<div class="link-list">${items.map(([l, x]) => `<a class="link-i" target="_blank" rel="noopener" href="https://${l}.wikipedia.org/wiki/${E(x.title)}"><span class="rel">${l.toUpperCase()}</span><span><b style="color:#fff;font-weight:500">${esc(x.title)}</b><br><span class="dim" style="font-size:12px">${strip(x.snippet)}…</span></span></a>`).join('')}</div>` : '<div class="muted">Статей не найдено.</div>',
+        md: items.length ? items.map(([l, x]) => `- [${l.toUpperCase()}] [${x.title}](https://${l}.wikipedia.org/wiki/${E(x.title)})`).join('\n') : ''
+      };
     }, `https://ru.wikipedia.org/w/index.php?search=${E(q)}`);
+
     job('Wikidata · сущности', async () => {
       const r = await GE.fetchJSON(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${E(q.replace(/"/g, ''))}&language=ru&uselang=ru&format=json&origin=*&limit=6`);
-      return (r.search || []).length ? `<div class="link-list">${r.search.map(x => `<a class="link-i" target="_blank" rel="noopener" href="https://www.wikidata.org/wiki/${esc(x.id)}"><span class="rel">${esc(x.id)}</span><span>${esc(x.label || '')}${x.description ? ` <span class="dim">— ${esc(x.description)}</span>` : ''}</span></a>`).join('')}</div>` : '<div class="muted">Сущностей не найдено.</div>';
+      const items = r.search || [];
+      return {
+        html: items.length ? `<div class="link-list">${items.map(x => `<a class="link-i" target="_blank" rel="noopener" href="https://www.wikidata.org/wiki/${esc(x.id)}"><span class="rel">${esc(x.id)}</span><span>${esc(x.label || '')}${x.description ? ` <span class="dim">— ${esc(x.description)}</span>` : ''}</span></a>`).join('')}</div>` : '<div class="muted">Сущностей не найдено.</div>',
+        md: items.length ? items.map(x => `- [${x.id}](https://www.wikidata.org/wiki/${x.id}) — ${x.label || ''}${x.description ? ': ' + x.description : ''}`).join('\n') : ''
+      };
     }, `https://www.wikidata.org/w/index.php?search=${E(q)}`);
   }
+
   if (GE.settings.live && type === 'url') {
     job('Архив страницы · Wayback', async () => {
       const r = await GE.fetchJSON(`https://archive.org/wayback/available?url=${E(q)}`);
       const s = r.archived_snapshots && r.archived_snapshots.closest;
-      return (s ? kv([['Ближайший снимок', GE.fmtDate(s.timestamp.replace(/^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d).*/, '$1-$2-$3T$4:$5:00Z'))], ['Ссылка', link(s.url, 'открыть снимок'), 1]]) : '<div class="muted">Страница ещё не архивирована.</div>')
-        + `<div class="row" style="margin-top:10px"><a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="https://web.archive.org/save/${esc(q)}">Архивировать сейчас</a></div>`;
+      const ts = s ? GE.fmtDate(s.timestamp.replace(/^(\d{4})(\d\d)(\d\d)(\d\d)(\d\d).*/, '$1-$2-$3T$4:$5:00Z')) : '';
+      return {
+        html: (s ? kv([['Ближайший снимок', ts], ['Ссылка', link(s.url, 'открыть снимок'), 1]]) : '<div class="muted">Страница ещё не архивирована.</div>')
+          + `<div class="row" style="margin-top:10px"><a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="https://web.archive.org/save/${esc(q)}">Архивировать сейчас</a></div>`,
+        md: s ? `- **Wayback снимок:** ${ts} — ${s.url}` : '- Wayback: не архивировано'
+      };
     }, `https://web.archive.org/web/*/${q}`);
   }
-  if (type === 'image') job('Предпросмотр', async () => `<img src="${esc(GE.safeUrl(q))}" alt="" style="max-height:220px;border:1px solid var(--line)" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('Изображение не загрузилось (защита сайта или неверная ссылка).'))"><div class="muted" style="margin-top:8px;font-size:12px">Для анализа метаданных скачайте файл и откройте его в разделе «Изображения».</div>`);
 
-  out.innerHTML = jobs.map(([t, , k]) => card(t, id + '-' + k)).join('');
-  jobs.forEach(([t, fn, k, url]) => {
-    (async () => {
-      try { const html = await fn(); if (ok()) done(id + '-' + k, html); }
-      catch (err) { if (ok()) done(id + '-' + k, url ? fail(url, err) : `<div class="muted">Ошибка: ${esc(err.message)}</div>`, false); }
-    })();
-  });
-  // делегирование кликов внутри результатов
+  if (type === 'image') job('Предпросмотр', async () => ({
+    html: `<img src="${esc(GE.safeUrl(q))}" alt="" style="max-height:220px;border:1px solid var(--line)" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('Изображение не загрузилось (защита сайта или неверная ссылка).'))"><div class="muted" style="margin-top:8px;font-size:12px">Для анализа метаданных скачайте файл и откройте его в разделе «Изображения».</div>`,
+    md: `- URL изображения: ${q}`
+  }), null, { cacheable: false });
+
+  S.lastScan.order = jobs.map(j => j.title);
+  out.innerHTML = jobs.map(j => card(j.title, id + '-' + j.idx, j.cacheable)).join('');
+
+  const runJob = async (j, bypassCache) => {
+    const cid = id + '-' + j.idx;
+    const cacheKey = `${type}|${q}|${j.title}`;
+    if (j.cacheable && !bypassCache) {
+      const hit = LIVE_CACHE.get(cacheKey);
+      if (hit && (Date.now() - hit.ts) < CACHE_TTL) {
+        if (!ok()) return;
+        S.lastScan.sections.set(j.title, { md: hit.res.md || '', ok: true });
+        done(cid, hit.res.html, true, 'КЭШ');
+        return;
+      }
+    }
+    const el = $('#lc-' + cid);
+    if (bypassCache && el) {
+      el.querySelector('.st').className = 'st';
+      el.querySelector('.st').innerHTML = '<span class="spinner"></span>';
+      const b = el.querySelector('.live-card-b'); b.classList.add('scanline'); b.textContent = 'Повторный запрос…';
+    }
+    try {
+      const raw = await j.fn();
+      const res = typeof raw === 'string' ? { html: raw, md: '' } : raw;
+      if (j.cacheable) LIVE_CACHE.set(cacheKey, { ts: Date.now(), res });
+      if (ok()) {
+        S.lastScan.sections.set(j.title, { md: res.md || '', ok: true });
+        done(cid, res.html, true, 'OK');
+      }
+    } catch (err) {
+      if (ok()) {
+        S.lastScan.sections.set(j.title, { md: '', ok: false });
+        done(cid, j.url ? fail(j.url, err) : `<div class="muted">Ошибка: ${esc(err.message)}</div>`, false);
+      }
+    }
+  };
+
+  jobs.forEach(j => runJob(j, forceRefresh));
+
+  // Делегирование кликов внутри результатов (pivot, retry, open record, geo save)
   out.onclick = e => {
+    const rt = e.target.closest('[data-retry]');
+    if (rt) {
+      const idx = +rt.dataset.retry.split('-').pop();
+      const j = jobs[idx];
+      if (j) runJob(j, true);
+      return;
+    }
     const o = e.target.closest('[data-open]'); if (o) return GE.openRecord(o.dataset.open);
-    const ch = e.target.closest('[data-q]'); if (ch) return S.setQuery(ch.dataset.q, 'domain');
-    const co = e.target.closest('[data-coords]'); if (co) return S.setQuery(co.dataset.coords, 'coords');
+    const pv = e.target.closest('[data-pivot-q]'); if (pv) return S.setQuery(pv.dataset.pivotQ, pv.dataset.pivotT || 'auto');
     const gs = e.target.closest('[data-geo-save]');
-    if (gs) { const [lat, lon] = gs.dataset.geoSave.split(',').map(Number); GE.editRecord('geo', null, { title: gs.dataset.name, lat, lon, retrieved: GE.today(), sources: [`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}`] }); }
+    if (gs) {
+      const [lat, lon] = gs.dataset.geoSave.split(',').map(Number);
+      GE.editRecord('geo', null, { title: gs.dataset.name, lat, lon, retrieved: GE.today(), sources: [`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}`] });
+    }
   };
 };
-/* ─────────── Конструктор операторов ─────────── */
+
+/* ─────────── Конструктор операторов (Google / Яндекс / Bing / DDG) ─────────── */
 S.initDork = () => {
   const root = $('#dork');
+  let previewEngine = 'google';
   const get = () => { const d = {}; $$('[data-d]', root).forEach(el => d[el.dataset.d] = el.value.trim()); return d; };
   const build = (d, engine = 'google') => {
     const p = [];
     if (d.all) p.push(d.all);
     if (d.exact) p.push(`"${d.exact.replace(/"/g, '')}"`);
-    if (d.any) p.push('(' + GE.toList(d.any).map(x => /\s/.test(x) ? `"${x}"` : x).join(' OR ') + ')');
-    if (d.none) GE.toList(d.none).forEach(x => p.push('-' + (/\s/.test(x) ? `"${x}"` : x)));
+    if (d.any) {
+      const parts = GE.toList(d.any).map(x => /\s/.test(x) && !/^\w+:/.test(x) ? `"${x}"` : x);
+      if (parts.length) p.push('(' + parts.join(engine === 'yandex' ? ' | ' : ' OR ') + ')');
+    }
+    if (d.none) GE.toList(d.none).forEach(x => {
+      if (/^site:/i.test(x)) p.push('-' + x);
+      else p.push('-' + (/\s/.test(x) ? `"${x}"` : x));
+    });
     if (d.site) p.push('site:' + d.site.replace(/^https?:\/\//, '').replace(/\/$/, ''));
     if (d.filetype) p.push((engine === 'yandex' ? 'mime:' : 'filetype:') + d.filetype);
     if (d.intitle) p.push((engine === 'yandex' ? 'title:' : 'intitle:') + (/\s/.test(d.intitle) ? `"${d.intitle}"` : d.intitle));
-    if (d.inurl) p.push((engine === 'yandex' ? 'url:*' : 'inurl:') + d.inurl + (engine === 'yandex' ? '*' : ''));
-    if (engine === 'google') { if (d.after) p.push('after:' + d.after); if (d.before) p.push('before:' + d.before); }
+    if (d.inurl) p.push('inurl:' + d.inurl);
+    if (engine === 'google') {
+      if (d.after) p.push('after:' + d.after);
+      if (d.before) p.push('before:' + d.before);
+    } else if (engine === 'yandex') {
+      if (d.after) p.push('date:>' + d.after.replace(/-/g, ''));
+      if (d.before) p.push('date:<' + d.before.replace(/-/g, ''));
+    }
     return p.join(' ');
   };
-  const upd = () => { const s = build(get()); $('#dork-out').textContent = s || '—'; };
+  const upd = () => {
+    const s = build(get(), previewEngine);
+    $('#dork-out').textContent = s || '—';
+    $$('[data-dork-prev]', root).forEach(b => b.classList.toggle('on', b.dataset.dorkPrev === previewEngine));
+  };
   root.addEventListener('input', upd); root.addEventListener('change', upd);
   $('#dork-presets').innerHTML = GE.DORK_PRESETS.map((p, i) => `<button class="chip" data-p="${i}" title="${esc(p.hint || '')}">${esc(p.l)}</button>`).join('');
   $('#dork-presets').addEventListener('click', e => {
@@ -299,14 +843,17 @@ S.initDork = () => {
     upd();
   });
   root.addEventListener('click', e => {
+    const pv = e.target.closest('[data-dork-prev]');
+    if (pv) { previewEngine = pv.dataset.dorkPrev; return upd(); }
     const b = e.target.closest('[data-dork]'); if (!b) return;
     const eng = b.dataset.dork, d = get();
     if (eng === 'clear') { $$('[data-d]', root).forEach(el => el.value = ''); return upd(); }
-    const qs = build(d, eng === 'yandex' ? 'yandex' : eng === 'google' ? 'google' : 'other');
+    const targetEng = eng === 'copy' ? previewEngine : (eng === 'yandex' ? 'yandex' : eng === 'google' ? 'google' : 'other');
+    const qs = build(d, targetEng);
     if (!qs) return GE.toast('Заполните хотя бы одно поле', { type: 'err' });
     if (eng === 'copy') return GE.copy(qs);
     const url = { google: 'https://www.google.com/search?q=', bing: 'https://www.bing.com/search?q=', ddg: 'https://duckduckgo.com/?q=', yandex: 'https://yandex.ru/search/?text=' }[eng] + E(qs);
-    GE.log('DORK', qs); GE.open(url);
+    GE.log('DORK', `[${eng}] ${qs}`); GE.open(url);
   });
   upd();
 };

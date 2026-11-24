@@ -5,7 +5,7 @@
 'use strict';
 
 const GE = window.GE = window.GE || {};
-GE.VERSION = '2.0.0';
+GE.VERSION = '2.1.0';
 
 /* ─────────── Утилиты ─────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -92,9 +92,15 @@ GE.settings = Object.assign({
   secure: false,
   live: true,
   catFav: [],
+  engFav: [],
+  lastBackup: '',
   view: {}
 }, GE.ls.get('godeye.settings', {}));
-GE.saveSettings = () => { GE.ls.set('godeye.settings', GE.settings); GE.emit('settings', GE.settings); };
+GE.saveSettings = () => {
+  GE.ls.set('godeye.settings', GE.settings);
+  if (GE.idb && GE.idb.ready) GE.idb.set('settings', GE.settings).catch(() => {});
+  GE.emit('settings', GE.settings);
+};
 
 /* ─────────── Шкала Адмиралтейства (NATO) ─────────── */
 GE.REL = { A: 'Полностью надёжный', B: 'Обычно надёжный', C: 'Довольно надёжный', D: 'Обычно ненадёжный', E: 'Ненадёжный', F: 'Нельзя оценить' };
@@ -219,16 +225,114 @@ GE.FIELD_LABEL = (type, k) => {
   return f ? f.l.split(' (')[0].split(' —')[0] : k;
 };
 
-/* ─────────── База данных ─────────── */
+/* ─────────── IndexedDB + База данных ─────────── */
 const KEY = 'godeye.v2';
+const IDB_NAME = 'godeye_storage';
+const IDB_STORE = 'kv';
+const LS_MIRROR_LIMIT = 2 * 1024 * 1024; // 2 МБ: зеркалируем в localStorage только пока база компактная
 const empty = () => ({ v: 2, records: [], links: [], activity: [], history: [], saved: [] });
 GE.DB = Object.assign(empty(), GE.ls.get(KEY, {}));
 
+GE.storage = {
+  backend: 'localStorage',
+  bytes: 0,
+  quota: 5 * 1024 * 1024,
+  persisted: false,
+  state: 'saved', // 'saved' | 'saving' | 'error'
+  lastSavedAt: null
+};
+
+GE.idb = {
+  db: null,
+  ready: false,
+  open() {
+    if (this.db) return Promise.resolve(this.db);
+    if (typeof indexedDB === 'undefined') return Promise.reject(new Error('IndexedDB не поддерживается'));
+    return new Promise((res, rej) => {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => { this.db = req.result; this.ready = true; res(this.db); };
+      req.onerror = () => rej(req.error || new Error('Ошибка открытия IndexedDB'));
+    });
+  },
+  async get(k) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const r = tx.objectStore(IDB_STORE).get(k);
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async set(k, v) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(v, k);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error || new Error('Транзакция IndexedDB отменена'));
+    });
+  },
+  async del(k) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).delete(k);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+};
+
+function calcDbBytes() {
+  try {
+    const json = JSON.stringify(GE.DB);
+    GE.storage.bytes = new Blob([json]).size;
+    return { json, size: GE.storage.bytes };
+  } catch (e) {
+    return { json: '', size: GE.storage.bytes || 0 };
+  }
+}
+
+GE.refreshQuota = async () => {
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const est = await navigator.storage.estimate();
+      if (est && est.quota) GE.storage.quota = est.quota;
+    }
+    if (navigator.storage && navigator.storage.persisted) {
+      GE.storage.persisted = await navigator.storage.persisted();
+    }
+  } catch (e) { /* ignore */ }
+  GE.emit('storage', GE.storage);
+};
+
+GE.requestPersist = async () => {
+  if (!navigator.storage || !navigator.storage.persist) {
+    GE.toast('Ваш браузер не поддерживает API защищённого хранилища', { type: 'err' });
+    return false;
+  }
+  try {
+    const ok = await navigator.storage.persist();
+    GE.storage.persisted = ok;
+    GE.emit('storage', GE.storage);
+    GE.toast(ok ? 'Защищённое хранилище включено — браузер не очистит базу автоматически' : 'Браузер не выдал статус защищённого хранилища (добавьте сайт в закладки или повторите позже)', { type: ok ? 'ok' : '' });
+    return ok;
+  } catch (e) {
+    GE.toast('Не удалось запросить защищённое хранилище', { type: 'err' });
+    return false;
+  }
+};
+
 /* Миграция данных из первой версии сайта (ключ godeyeDB) */
-(function migrate() {
-  if (GE.DB.records.length || GE.ls.get('godeye.migrated')) return;
+function migrateV1IfNeeded() {
+  if (GE.DB.records.length || GE.ls.get('godeye.migrated')) return false;
   const old = GE.ls.get('godeyeDB');
-  if (!old) return;
+  if (!old) return false;
   const now = GE.now(), map = {};
   (old.people || []).forEach(p => { const r = { id: GE.uid('per'), type: 'person', title: p.name, aliases: GE.toList(p.alias), notes: p.affiliation ? 'Организация: ' + p.affiliation : '', sources: GE.toList(p.sources), tags: ['v1'], created: now, updated: now }; GE.DB.records.push(r); map[p.name] = r.id; });
   (old.orgs || []).forEach(o => { const r = { id: GE.uid('org'), type: 'org', title: o.name, org_type: o.type, country: o.country, tags: ['v1'], created: now, updated: now }; GE.DB.records.push(r); map[o.name] = r.id; });
@@ -240,17 +344,90 @@ GE.DB = Object.assign(empty(), GE.ls.get(KEY, {}));
   });
   GE.ls.set('godeye.migrated', true);
   if (GE.DB.records.length) setTimeout(() => GE.toast('Данные из первой версии GOD EYE перенесены'), 1500);
-})();
+  return GE.DB.records.length > 0;
+}
 
-let saveT;
-GE.save = () => {
+GE.initStorage = async () => {
+  try {
+    await GE.idb.open();
+    GE.storage.backend = 'indexeddb';
+    const [savedDb, savedSettings] = await Promise.all([
+      GE.idb.get('db').catch(() => null),
+      GE.idb.get('settings').catch(() => null)
+    ]);
+    if (savedSettings && typeof savedSettings === 'object') {
+      Object.assign(GE.settings, savedSettings);
+      GE.ls.set('godeye.settings', GE.settings);
+    }
+    const lsDb = GE.ls.get(KEY, null);
+    if (savedDb && typeof savedDb === 'object' && Array.isArray(savedDb.records)) {
+      GE.DB = Object.assign(empty(), savedDb);
+    } else if (lsDb && Array.isArray(lsDb.records) && (lsDb.records.length || (lsDb.history && lsDb.history.length))) {
+      GE.DB = Object.assign(empty(), lsDb);
+      await GE.idb.set('db', GE.DB);
+      setTimeout(() => GE.toast('База перенесена в IndexedDB (лимит 5 МБ снят)', { type: 'ok', timeout: 5000 }), 1000);
+    } else {
+      if (migrateV1IfNeeded()) await GE.idb.set('db', GE.DB);
+    }
+    await GE.refreshQuota();
+  } catch (err) {
+    console.warn('IndexedDB fallback to localStorage:', err);
+    GE.storage.backend = 'localStorage';
+    GE.storage.quota = 5 * 1024 * 1024;
+    migrateV1IfNeeded();
+  }
+  calcDbBytes();
+  GE.storage.state = 'saved';
+  GE.emit('storage', GE.storage);
+};
+
+let saveT, pendingSave = false;
+async function persistNow() {
+  pendingSave = false;
+  const { json, size } = calcDbBytes();
+  if (GE.storage.backend === 'indexeddb' && GE.idb.ready) {
+    try {
+      await GE.idb.set('db', GE.DB);
+      // Лёгкое зеркало в localStorage только пока база < 2 МБ
+      if (size < LS_MIRROR_LIMIT) {
+        try { localStorage.setItem(KEY, json); } catch (e) { /* не критично при IDB */ }
+      } else {
+        GE.ls.del(KEY);
+      }
+      GE.storage.state = 'saved';
+      GE.storage.lastSavedAt = GE.now();
+      GE.emit('storage', GE.storage);
+      return true;
+    } catch (err) {
+      console.error('IDB save error:', err);
+      GE.storage.state = 'error';
+      GE.emit('storage', GE.storage);
+      GE.toast('Ошибка записи в IndexedDB: ' + (err.message || 'проверьте свободное место'), { type: 'err', timeout: 8000 });
+      return false;
+    }
+  } else {
+    const ok = GE.ls.set(KEY, GE.DB);
+    GE.storage.state = ok ? 'saved' : 'error';
+    if (ok) GE.storage.lastSavedAt = GE.now();
+    GE.emit('storage', GE.storage);
+    if (!ok) GE.toast('Не удалось сохранить: хранилище браузера переполнено. Сделайте резервную копию.', { type: 'err', timeout: 8000 });
+    return ok;
+  }
+}
+
+GE.save = (immediate = false) => {
   clearTimeout(saveT);
-  saveT = setTimeout(() => {
-    if (!GE.ls.set(KEY, GE.DB)) GE.toast('Не удалось сохранить: хранилище браузера переполнено. Удалите крупные изображения или сделайте экспорт.', { type: 'err', timeout: 8000 });
-  }, 120);
+  pendingSave = true;
+  GE.storage.state = 'saving';
+  GE.emit('storage', GE.storage);
+  if (immediate) persistNow();
+  else saveT = setTimeout(persistNow, 140);
   GE.emit('db');
 };
-GE.storageSize = () => { try { return (localStorage.getItem(KEY) || '').length * 2; } catch (e) { return 0; } };
+GE.flushSave = () => { if (pendingSave) { clearTimeout(saveT); persistNow(); } };
+window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') GE.flushSave(); });
+window.addEventListener('pagehide', () => GE.flushSave());
+GE.storageSize = () => GE.storage.bytes || calcDbBytes().size;
 
 GE.log = (tag, msg, ref) => {
   GE.DB.activity.unshift({ t: GE.now(), tag, msg, ref });
@@ -325,19 +502,27 @@ GE.db = {
   }
 };
 
-/* ─────────── Поиск по локальной базе (операторы) ─────────── */
+/* ─────────── Поиск по локальной базе (операторы + OR / |) ─────────── */
 GE.parseQuery = q => {
-  const tokens = [];
+  const branches = [];
+  let cur = [];
   String(q || '').replace(/(-?)(\w+:)?("([^"]*)"|\S+)/g, (m, neg, key, val, quoted) => {
-    tokens.push({ neg: !!neg, key: key ? key.slice(0, -1).toLowerCase() : null, val: (quoted != null ? quoted : val).toLowerCase() });
+    if (!neg && !key && quoted == null && (val === 'OR' || val === '|')) {
+      if (cur.length) { branches.push(cur); cur = []; }
+      return m;
+    }
+    const v = (quoted != null ? quoted : val).toLowerCase();
+    if (v) cur.push({ neg: !!neg, key: key ? key.slice(0, -1).toLowerCase() : null, val: v });
     return m;
   });
-  return tokens.filter(t => t.val);
+  if (cur.length) branches.push(cur);
+  branches._isOrTree = true;
+  return branches;
 };
 const KEY_ALIAS = { tag: 'tags', tags: 'tags', rel: 'reliability', cred: 'credibility', type: 'type', t: 'type', status: 'status', country: 'country', src: 'sources' };
 GE.recText = r => Object.entries(r).filter(([k]) => !['id', 'thumb', 'created', 'updated', '_wikilinks', '_path'].includes(k)).map(([, v]) => Array.isArray(v) ? v.join(' ') : String(v ?? '')).join(' ').toLowerCase()
   + ' ' + (r.affiliation ? (GE.db.get(r.affiliation)?.title || '') : '').toLowerCase();
-GE.matchQuery = (rec, tokens) => tokens.every(t => {
+const matchOneToken = (rec, t) => {
   let hit;
   const k = t.key && KEY_ALIAS[t.key];
   if (t.key && !k) hit = GE.recText(rec).includes(t.key + ':' + t.val);
@@ -347,7 +532,21 @@ GE.matchQuery = (rec, tokens) => tokens.every(t => {
     hit = (Array.isArray(v) ? v.join(' ') : String(v ?? '')).toLowerCase().includes(t.val);
   } else hit = GE.recText(rec).includes(t.val);
   return t.neg ? !hit : hit;
-});
+};
+GE.matchQuery = (rec, tokens) => {
+  if (!tokens || !tokens.length) return true;
+  if (tokens._isOrTree) return tokens.some(branch => branch.every(t => matchOneToken(rec, t)));
+  return tokens.every(t => matchOneToken(rec, t));
+};
+GE.hlMatch = (text, query) => {
+  const s = String(text ?? '');
+  if (!query || !query.trim()) return GE.esc(s);
+  const branches = GE.parseQuery(query);
+  const terms = GE.uniq(branches.flat().filter(t => !t.neg && !t.key && t.val.length >= 2).map(t => t.val)).sort((a, b) => b.length - a.length);
+  if (!terms.length) return GE.esc(s);
+  const re = new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  return s.split(re).map((part, i) => i % 2 === 1 ? `<mark class="hl">${GE.esc(part)}</mark>` : GE.esc(part)).join('');
+};
 /** Нечёткое совпадение для палитры: возвращает балл или -1 */
 GE.fuzzy = (text, q) => {
   text = String(text).toLowerCase(); q = q.toLowerCase();
@@ -455,6 +654,180 @@ GE.sha = async (buf, alg = 'SHA-256') => {
   if (!crypto.subtle) return '';
   const h = await crypto.subtle.digest(alg, buf);
   return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
+/* ─────────── Шифрованный бэкап (AES-GCM 256 + PBKDF2-SHA256) ─────────── */
+const u8ToB64 = u8 => {
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < u8.length; i += chunk) bin += String.fromCharCode(...u8.subarray(i, i + chunk));
+  return btoa(bin);
+};
+const b64ToU8 = b64 => {
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+};
+async function deriveAesKey(password, salt, iterations = 250000) {
+  if (!crypto.subtle) throw new Error('Web Crypto API недоступен (нужен HTTPS или localhost)');
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+GE.crypto = {
+  FORMAT: 'GODEYE-ENC-V1',
+  isEncrypted: obj => !!(obj && obj.format === 'GODEYE-ENC-V1' && obj.ct && obj.salt && obj.iv),
+  async encryptJSON(obj, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const iter = 250000;
+    const key = await deriveAesKey(password, salt, iter);
+    const plain = new TextEncoder().encode(JSON.stringify(obj));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plain));
+    return {
+      format: 'GODEYE-ENC-V1',
+      alg: 'AES-GCM-256',
+      kdf: 'PBKDF2-SHA256',
+      iter,
+      created: GE.now(),
+      version: GE.VERSION,
+      recordsCount: Array.isArray(obj.records) ? obj.records.length : 0,
+      salt: u8ToB64(salt),
+      iv: u8ToB64(iv),
+      ct: u8ToB64(ct)
+    };
+  },
+  async decryptJSON(envelope, password) {
+    if (!GE.crypto.isEncrypted(envelope)) throw new Error('Файл не является зашифрованной копией GOD EYE');
+    const salt = b64ToU8(envelope.salt);
+    const iv = b64ToU8(envelope.iv);
+    const ct = b64ToU8(envelope.ct);
+    const key = await deriveAesKey(password, salt, envelope.iter || 250000);
+    try {
+      const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+      return JSON.parse(new TextDecoder().decode(plain));
+    } catch (e) {
+      throw new Error('Неверный пароль или повреждённый файл');
+    }
+  },
+  exportDialog() {
+    if (!crypto.subtle) return GE.toast('Шифрование недоступно в этом контексте (откройте сайт по HTTPS или localhost)', { type: 'err' });
+    const body = document.createElement('div');
+    body.className = 'stack';
+    body.innerHTML = `
+      <div class="notice silver" style="margin:0">${GE.icon('shield', 'ic')}<div>База (${GE.db.all().length} записей, ${GE.DB.links.length} связей) будет зашифрована локально алгоритмом <b>AES-256-GCM</b> (PBKDF2 · 250 000 итераций). Без пароля восстановить файл невозможно.</div></div>
+      <label class="field"><span>Пароль шифрования (минимум 6 символов)</span><input class="input" type="password" id="enc-p1" autocomplete="new-password" placeholder="Придумайте надёжный пароль…"></label>
+      <label class="field"><span>Повторите пароль</span><input class="input" type="password" id="enc-p2" autocomplete="new-password" placeholder="Повторите пароль…"></label>
+      <div class="muted mono" id="enc-err" style="font-size:12px;color:#ff6b72"></div>`;
+    const m = GE.modal({
+      title: 'Зашифрованная резервная копия', size: 'narrow', body,
+      actions: [
+        { label: 'Отмена' },
+        {
+          label: 'Зашифровать и скачать', primary: true, keep: true,
+          fn: async ({ close, el }) => {
+            const p1 = el.querySelector('#enc-p1').value, p2 = el.querySelector('#enc-p2').value, err = el.querySelector('#enc-err');
+            if (p1.length < 6) { err.textContent = 'Минимум 6 символов'; el.querySelector('#enc-p1').focus(); return; }
+            if (p1 !== p2) { err.textContent = 'Пароли не совпадают'; el.querySelector('#enc-p2').focus(); return; }
+            err.textContent = 'Шифрование…';
+            try {
+              const payload = Object.assign({ exported: GE.now(), version: GE.VERSION }, GE.DB);
+              const enc = await GE.crypto.encryptJSON(payload, p1);
+              GE.download(`GODEYE_ENCRYPTED_${GE.today()}.gebackup`, JSON.stringify(enc, null, 2), 'application/json');
+              GE.settings.lastBackup = GE.now();
+              GE.saveSettings();
+              GE.log('BACKUP', `Создана зашифрованная копия (${GE.db.all().length} записей)`);
+              GE.save();
+              close();
+              GE.toast('Зашифрованная копия .gebackup сохранена', { type: 'ok' });
+            } catch (e) {
+              err.textContent = 'Ошибка: ' + e.message;
+            }
+          }
+        }
+      ]
+    });
+    body.querySelector('#enc-p2').addEventListener('keydown', e => { if (e.key === 'Enter') m.el.querySelector('.btn-primary').click(); });
+  },
+  decryptDialog(envelope) {
+    return new Promise(resolve => {
+      let done = false;
+      const body = document.createElement('div');
+      body.className = 'stack';
+      body.innerHTML = `
+        <div class="notice silver" style="margin:0">${GE.icon('shield', 'ic')}<div>Обнаружен зашифрованный бэкап GOD EYE (${envelope.recordsCount || '?'} записей, создан ${GE.esc(GE.fmtDate(envelope.created))}). Введите пароль для расшифровки.</div></div>
+        <label class="field"><span>Пароль</span><input class="input" type="password" id="dec-p" autocomplete="current-password" placeholder="Пароль от файла .gebackup"></label>
+        <div class="mono" id="dec-err" style="font-size:12px;color:#ff6b72"></div>`;
+      const m = GE.modal({
+        title: 'Расшифровка резервной копии', size: 'narrow', body,
+        onClose: () => { if (!done) resolve(null); },
+        actions: [
+          { label: 'Отмена', fn: () => { done = true; resolve(null); } },
+          {
+            label: 'Расшифровать', primary: true, keep: true,
+            fn: async ({ close, el }) => {
+              const p = el.querySelector('#dec-p').value, err = el.querySelector('#dec-err');
+              if (!p) { err.textContent = 'Введите пароль'; return; }
+              err.textContent = 'Расшифровка…';
+              try {
+                const data = await GE.crypto.decryptJSON(envelope, p);
+                done = true; close(); resolve(data);
+              } catch (e) {
+                err.textContent = e.message;
+                el.querySelector('#dec-p').select();
+              }
+            }
+          }
+        ]
+      });
+      body.querySelector('#dec-p').addEventListener('keydown', e => { if (e.key === 'Enter') m.el.querySelector('.btn-primary').click(); });
+    });
+  }
+};
+
+GE.importBackupData = async data => {
+  if (!data || !Array.isArray(data.records)) throw new Error('это не резервная копия GOD EYE');
+  const mode = await new Promise(res => {
+    let done = false;
+    GE.modal({
+      title: 'Импорт резервной копии', size: 'narrow',
+      body: `<p style="color:var(--silver)">В файле найдено <b>${data.records.length}</b> записей и <b>${(data.links || []).length}</b> связей. Как выполнить импорт?</p>`,
+      onClose: () => { if (!done) res(null); },
+      actions: [
+        { label: 'Отмена', left: true, fn: () => { done = true; res(null); } },
+        { label: 'Заменить всё', danger: true, fn: () => { done = true; res('replace'); } },
+        { label: 'Объединить', primary: true, fn: () => { done = true; res('merge'); } }
+      ]
+    });
+  });
+  if (!mode) return false;
+  if (mode === 'replace') {
+    GE.DB.records = data.records;
+    GE.DB.links = data.links || [];
+    GE.DB.activity = data.activity || [];
+    GE.DB.history = data.history || [];
+    GE.DB.saved = data.saved || [];
+  } else {
+    const ids = new Set(GE.DB.records.map(r => r.id));
+    data.records.forEach(r => { if (!ids.has(r.id)) GE.DB.records.push(r); });
+    const lids = new Set(GE.DB.links.map(l => l.id));
+    (data.links || []).forEach(l => { if (!lids.has(l.id)) GE.DB.links.push(l); });
+    const hq = new Set(GE.DB.history.map(h => h.q));
+    (data.history || []).forEach(h => { if (!hq.has(h.q)) GE.DB.history.push(h); });
+    const sq = new Set(GE.DB.saved.map(s => s.q));
+    (data.saved || []).forEach(s => { if (!sq.has(s.q)) GE.DB.saved.push(s); });
+  }
+  GE.log('IMPORT', `Импорт резервной копии (${mode === 'replace' ? 'замена' : 'объединение'}): ${data.records.length} записей`);
+  GE.save(true);
+  GE.toast('Импорт завершён', { type: 'ok' });
+  return true;
 };
 
 })();

@@ -151,15 +151,16 @@ D.render = () => {
   // журнал
   $('#dash-activity').innerHTML = GE.DB.activity.slice(0, 7).map(a => `<div class="feed-i ${a.ref ? 'link' : ''}" ${a.ref ? `data-open="${a.ref}"` : ''}><span class="k">${esc(a.tag)}</span><span class="m">${esc(a.msg)}</span><span class="t">${esc(GE.ago(a.t))}</span></div>`).join('') || '<div class="feed-i"><span class="k">SYSTEM</span><span class="m">GOD EYE инициализирован. Все модули в строю.</span><span class="t">сейчас</span></div>';
   // статус
-  const size = GE.storageSize(), quota = 5 * 1024 * 1024;
+  const size = GE.storageSize(), quota = GE.storage.quota || 5 * 1024 * 1024;
   const links = GE.db.edges().length;
+  const backendLabel = GE.storage.backend === 'indexeddb' ? 'IndexedDB' : 'localStorage';
   $('#dash-status').innerHTML = `
     <div class="s"><span class="dot"></span>Ядро и око<b>АКТИВНО</b></div>
     <div class="s"><span class="dot ${GE.settings.live ? '' : 'off'}"></span>Живая разведка<b>${GE.settings.live ? 'ВКЛ' : 'ВЫКЛ'}</b></div>
     <div class="s"><span class="dot ${GE.vault.handle && GE.vault.granted ? 'silver' : 'off'}"></span>Obsidian<b>${GE.vault.handle ? esc(GE.vault.handle.name) : 'не подключён'}</b></div>
     <div class="s"><span class="dot silver"></span>Записей / связей<b>${all.length} / ${links}</b></div>
     <div class="s"><span class="dot silver"></span>Поисковых движков<b>${GE.ENGINES.length}</b></div>
-    <div><div class="s"><span class="dot silver"></span>Хранилище браузера<b>${GE.bytes(size)} / ~5 МБ</b></div><div class="meter"><i style="width:${Math.min(100, size / quota * 100).toFixed(1)}%"></i></div></div>`;
+    <div><div class="s"><span class="dot ${GE.storage.persisted ? '' : 'silver'}"></span>Хранилище (${backendLabel})<b>${GE.bytes(size)} / ${GE.bytes(quota)}</b></div><div class="meter"><i style="width:${Math.min(100, size / Math.max(1, quota) * 100).toFixed(2)}%"></i></div></div>`;
   // матрица
   const m = {}; all.forEach(r => { if (r.reliability && r.credibility) { const k = r.reliability + r.credibility; m[k] = (m[k] || 0) + 1; } });
   const max = Math.max(1, ...Object.values(m));
@@ -192,34 +193,37 @@ const A = GE.archive = { sel: new Set(), sort: 'updated', dir: -1 };
 A.init = () => {
   $('#ar-type').innerHTML = '<option value="">Все типы</option>' + GE.TYPE_KEYS.map(t => `<option value="${t}">${esc(GE.TYPES[t].plural)}</option>`).join('');
   ['#ar-q', '#ar-type', '#ar-from', '#ar-to'].forEach(s => $(s).addEventListener('input', GE.debounce(A.render, 100)));
-  $('#ar-json').onclick = () => { GE.download(`GODEYE_BACKUP_${GE.today()}.json`, JSON.stringify(Object.assign({ exported: GE.now(), version: GE.VERSION }, GE.DB), null, 2), 'application/json'); GE.toast('Резервная копия сохранена'); };
+  $('#ar-json').onclick = () => {
+    GE.download(`GODEYE_BACKUP_${GE.today()}.json`, JSON.stringify(Object.assign({ exported: GE.now(), version: GE.VERSION }, GE.DB), null, 2), 'application/json');
+    GE.settings.lastBackup = GE.now();
+    GE.saveSettings();
+    GE.log('BACKUP', `Создана JSON-копия (${GE.db.all().length} записей)`);
+    GE.save();
+    GE.toast('Резервная копия JSON сохранена', { type: 'ok' });
+  };
+  if ($('#ar-enc')) $('#ar-enc').onclick = () => GE.crypto.exportDialog();
   $('#ar-csv').onclick = () => GE.exportCSV(A.list(), `GODEYE_ARCHIVE_${GE.today()}.csv`);
   $('#ar-obsidian').onclick = () => GE.vault.exportZip(A.sel.size ? GE.db.all().filter(r => A.sel.has(r.id)) : GE.db.all());
   $('#ar-import').onclick = () => $('#json-file').click();
   $('#json-file').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
     try {
-      const data = JSON.parse(await GE.readAs(f, 'text'));
-      if (!Array.isArray(data.records)) throw new Error('это не резервная копия GOD EYE');
-      const replace = await GE.confirm(`В файле ${data.records.length} записей. «Заменить» — удалит текущие данные и загрузит копию. «Отмена» — объединит (добавит новые записи).`, { ok: 'Заменить всё' });
-      if (replace) { GE.DB.records = data.records; GE.DB.links = data.links || []; GE.DB.activity = data.activity || []; GE.DB.history = data.history || []; GE.DB.saved = data.saved || []; }
-      else {
-        const ids = new Set(GE.DB.records.map(r => r.id));
-        data.records.forEach(r => { if (!ids.has(r.id)) GE.DB.records.push(r); });
-        const lids = new Set(GE.DB.links.map(l => l.id));
-        (data.links || []).forEach(l => { if (!lids.has(l.id)) GE.DB.links.push(l); });
+      let data = JSON.parse(await GE.readAs(f, 'text'));
+      if (GE.crypto.isEncrypted(data)) {
+        data = await GE.crypto.decryptDialog(data);
+        if (!data) { e.target.value = ''; return; }
       }
-      GE.log('IMPORT', `Импорт резервной копии: ${data.records.length} записей`); GE.save();
-      GE.toast('Импорт завершён');
+      await GE.importBackupData(data);
     } catch (err) { GE.toast('Ошибка импорта: ' + err.message, { type: 'err' }); }
     e.target.value = '';
   });
+  if ($('#ar-persist')) $('#ar-persist').onclick = () => GE.requestPersist();
   $('#ar-del').onclick = () => { GE.deleteRecords(Array.from(A.sel)); A.sel.clear(); };
   $('#ar-demo').onclick = () => GE.loadDemo();
   $('#ar-wipe').onclick = async () => {
     if (!(await GE.confirm('Удалить ВСЕ записи, связи и историю? Действие необратимо. Сначала сделайте резервную копию.', { ok: 'Удалить всё' }))) return;
     Object.assign(GE.DB, { records: [], links: [], activity: [], history: [], saved: [] });
-    GE.log('WIPE', 'Архив очищен'); GE.save(); GE.toast('Архив очищен');
+    GE.log('WIPE', 'Архив очищен'); GE.save(true); GE.toast('Архив очищен');
   };
   $('#log-clear').onclick = e => { e.preventDefault(); GE.DB.activity = []; GE.save(); };
 };
@@ -234,9 +238,10 @@ A.render = () => {
   A.sel.forEach(id => { if (!GE.db.get(id)) A.sel.delete(id); });
   $('#ar-count').textContent = `${list.length} / ${GE.db.all().length}`;
   $('#ar-del').disabled = !A.sel.size;
+  const qRaw = $('#ar-q').value;
   const cols = [['type', 'Тип'], ['title', 'Название'], ['_sub', 'Сведения'], ['_adm', 'Оценка'], ['created', 'Создано'], ['updated', 'Изменено']];
   $('#ar-table').innerHTML = `<thead><tr><th class="chk"><label class="check"><input type="checkbox" id="ar-all" ${list.length && list.every(r => A.sel.has(r.id)) ? 'checked' : ''}></label></th>${cols.map(([k, l]) => `<th data-sort="${k}" class="${A.sort === k ? 'sorted' : ''}">${l}${A.sort === k ? (A.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead>
-    <tbody>${list.map(r => `<tr data-id="${r.id}"><td class="chk"><label class="check"><input type="checkbox" ${A.sel.has(r.id) ? 'checked' : ''}></label></td><td><span class="badge">${GE.TYPES[r.type].code}</span></td><td class="t-title sens">${esc(r.title)}</td><td>${esc(GE.recSub(r)) || '<span class="dim">—</span>'}</td><td>${r.type === 'report' ? '' : GE.admBadge(r)}</td><td>${esc(GE.fmtDate(r.created))}</td><td>${esc(GE.fmtDate(r.updated))}</td></tr>`).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:30px">Ничего не найдено</td></tr>'}</tbody>`;
+    <tbody>${list.map(r => `<tr data-id="${r.id}"><td class="chk"><label class="check"><input type="checkbox" ${A.sel.has(r.id) ? 'checked' : ''}></label></td><td><span class="badge">${GE.TYPES[r.type].code}</span></td><td class="t-title sens">${GE.hlMatch(r.title, qRaw)}</td><td>${GE.hlMatch(GE.recSub(r), qRaw) || '<span class="dim">—</span>'}</td><td>${r.type === 'report' ? '' : GE.admBadge(r)}</td><td>${esc(GE.fmtDate(r.created))}</td><td>${esc(GE.fmtDate(r.updated))}</td></tr>`).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:30px">Ничего не найдено</td></tr>'}</tbody>`;
   $('#ar-table').onclick = e => {
     const th = e.target.closest('[data-sort]');
     if (th) { const k = th.dataset.sort; if (k.startsWith('_')) return; A.dir = A.sort === k ? -A.dir : 1; A.sort = k; return A.render(); }
@@ -246,9 +251,14 @@ A.render = () => {
     GE.openRecord(tr.dataset.id);
   };
   $('#ar-log').innerHTML = GE.DB.activity.map(a => `<div class="feed-i ${a.ref ? 'link' : ''}" ${a.ref ? `data-open="${a.ref}"` : ''}><span class="k">${esc(a.tag)}</span><span class="m">${esc(a.msg)}</span><span class="t">${esc(GE.fmtDate(a.t))}</span></div>`).join('') || '<div class="muted" style="font-size:12.5px">Журнал пуст.</div>';
-  const size = GE.storageSize();
+  const size = GE.storageSize(), quota = GE.storage.quota || 5242880;
   const counts = GE.TYPE_KEYS.map(t => `<div class="s"><span class="dot silver"></span>${esc(GE.TYPES[t].plural)}<b>${GE.db.byType(t).length}</b></div>`).join('');
-  $('#ar-storage').innerHTML = counts + `<div class="s"><span class="dot silver"></span>Явных связей<b>${GE.DB.links.length}</b></div><div><div class="s"><span class="dot"></span>Объём данных<b>${GE.bytes(size)}</b></div><div class="meter"><i style="width:${Math.min(100, size / 5242880 * 100).toFixed(1)}%"></i></div></div>`;
+  $('#ar-storage').innerHTML = counts
+    + `<div class="s"><span class="dot silver"></span>Явных связей<b>${GE.DB.links.length}</b></div>`
+    + `<div class="s"><span class="dot ${GE.storage.backend === 'indexeddb' ? '' : 'silver'}"></span>Движок базы<b>${GE.storage.backend === 'indexeddb' ? 'IndexedDB' : 'localStorage'}</b></div>`
+    + `<div class="s"><span class="dot ${GE.storage.persisted ? '' : 'off'}"></span>Защита от очистки<b>${GE.storage.persisted ? 'ВКЛ' : 'не запрошена'}</b></div>`
+    + `<div class="s"><span class="dot silver"></span>Последний бэкап<b>${GE.settings.lastBackup ? esc(GE.fmtDate(GE.settings.lastBackup)) : 'ещё не делался'}</b></div>`
+    + `<div><div class="s"><span class="dot"></span>Объём данных<b>${GE.bytes(size)} / ${GE.bytes(quota)}</b></div><div class="meter"><i style="width:${Math.min(100, size / Math.max(1, quota) * 100).toFixed(2)}%"></i></div></div>`;
 };
 
 /* ═════════════ Командная палитра ═════════════ */
@@ -262,7 +272,9 @@ P.commands = () => [
   { g: 'Действия', icon: 'image', t: 'Анализ фотографии', run: () => { GE.go('images'); setTimeout(() => $('#img-file') && $('#img-file').click(), 200); } },
   { g: 'Действия', icon: 'vault', t: 'Экспорт в Obsidian (ZIP)', run: () => GE.vault.exportZip() },
   { g: 'Действия', icon: 'vault', t: 'Подключить хранилище Obsidian', run: () => GE.vault.connect() },
+  { g: 'Действия', icon: 'shield', t: 'Зашифрованный бэкап (.gebackup)', run: () => GE.crypto.exportDialog() },
   { g: 'Действия', icon: 'down', t: 'Резервная копия JSON', run: () => $('#ar-json').click() },
+  { g: 'Действия', icon: 'shield', t: 'Защитить хранилище браузера от очистки', run: () => GE.requestPersist() },
   { g: 'Действия', icon: 'eye', t: 'Запустить заставку', run: () => GE.intro.run(true) },
   { g: 'Действия', icon: 'bolt', t: 'Красный импульс ока', run: () => GE.GodEye.scanAll() },
   { g: 'Действия', icon: 'shield', t: (GE.settings.secure ? 'Выключить' : 'Включить') + ' режим демонстрации экрана', run: () => { GE.settings.secure = !GE.settings.secure; GE.saveSettings(); } },
@@ -333,10 +345,33 @@ function initSettings() {
   $('#vault-push').onclick = () => GE.vault.push();
   $('#vault-zip').onclick = () => GE.vault.exportZip();
   $('#vault-files').addEventListener('change', e => { GE.vault.importFiles(e.target.files); e.target.value = ''; });
+  if ($('#set-enc-backup')) $('#set-enc-backup').onclick = () => GE.crypto.exportDialog();
+  if ($('#set-json-backup')) $('#set-json-backup').onclick = () => $('#ar-json').click();
+  if ($('#set-import-backup')) $('#set-import-backup').onclick = () => $('#json-file').click();
+  if ($('#set-persist')) $('#set-persist').onclick = () => GE.requestPersist();
   $('#about-ver').textContent = GE.VERSION;
   $('#sf-ver').textContent = GE.VERSION;
   GE.on('settings', applySettings);
+  GE.on('storage', renderStorageStatus);
   applySettings();
+  renderStorageStatus();
+}
+
+function renderStorageStatus() {
+  const st = GE.storage;
+  const size = GE.storageSize(), quota = st.quota || 5242880;
+  const be = st.backend === 'indexeddb' ? 'IDB' : 'LS';
+  const sfBe = $('#sf-backend'); if (sfBe) sfBe.textContent = st.state === 'saving' ? 'СОХР…' : be;
+  const sfDot = $('#sf-save-dot'); if (sfDot) sfDot.className = 'dot' + (st.state === 'error' ? ' off' : '');
+  const sfStore = $('#sf-store'); if (sfStore) sfStore.textContent = GE.bytes(size);
+  const box = $('#set-storage-status');
+  if (box) {
+    box.innerHTML = `
+      <div class="s"><span class="dot ${st.backend === 'indexeddb' ? '' : 'silver'}"></span>Хранилище<b>${st.backend === 'indexeddb' ? 'IndexedDB (без лимита 5 МБ)' : 'localStorage (резервный режим)'}</b></div>
+      <div class="s"><span class="dot ${st.persisted ? '' : 'off'}"></span>Защита от автоочистки<b>${st.persisted ? 'Включена (Persistent)' : 'Не запрошена'}</b></div>
+      <div class="s"><span class="dot silver"></span>Занято / доступно<b>${GE.bytes(size)} / ${GE.bytes(quota)}</b></div>
+      <div class="s"><span class="dot silver"></span>Последний бэкап<b>${GE.settings.lastBackup ? esc(GE.fmtDate(GE.settings.lastBackup)) : 'ещё не делался'}</b></div>`;
+  }
 }
 
 /* ═════════════ Обновление интерфейса при изменении данных ═════════════ */
@@ -347,6 +382,7 @@ const refreshAll = GE.debounce(() => {
   $('#sf-store').textContent = GE.bytes(GE.storageSize());
   if (GE.currentView === 'dashboard') D.render();
   if (GE.currentView === 'archive') A.render();
+  renderStorageStatus();
   if (GE.currentView === 'connections') GE.conn.refresh();
   else if (GE.conn.g) GE.conn.refresh();
   GE.geo.refresh();
@@ -387,7 +423,8 @@ function initGlobal() {
 }
 
 /* ═════════════ Старт ═════════════ */
-function boot() {
+async function boot() {
+  await GE.initStorage();
   $$('.view[data-entity]').forEach(GE.buildEntityView);
   GE.img.init(); GE.geo.init();
   // повторно отрисовать список изображений и локаций после вставки дополнительных блоков
@@ -403,6 +440,7 @@ function boot() {
   GE.on('db', refreshAll);
   GE.vault.restore();
   refreshAll();
+  renderStorageStatus();
   window.addEventListener('hashchange', route);
   route();
   Intro.run(false).then(() => {
