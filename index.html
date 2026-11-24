@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body class="intro-active">
 
@@ -127,6 +127,29 @@
       <button class="burger" id="burger" aria-label="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
       <div class="crumbs" id="crumbs">GOD EYE</div>
       <button class="cmd-trigger" id="cmd-trigger"><svg class="ic ic-sm"><use href="#i-search"/></svg><span class="lbl">Поиск по системе и командам…</span><span class="kbd">CTRL K</span></button>
+      <div class="audio-ctl" id="audio-ctl">
+        <button class="audio-btn" id="audio-toggle" title="Включить / выключить саундтрек (Alt+M)" aria-label="Саундтрек">
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="audio-lbl" id="audio-lbl">OST OFF</span>
+        </button>
+        <button class="audio-cfg-btn" id="audio-pop-btn" title="Выбор трека и громкости" aria-label="Настройки звука">▾</button>
+        <div class="audio-pop hidden" id="audio-pop">
+          <div class="ap-h"><span>SOUND ENGINE</span><span class="mono" id="ap-state">STANDBY</span></div>
+          <div class="ap-tracks" id="ap-tracks">
+            <button data-track="oculus" class="on"><b>OCULUS DRONE</b><small>Dark Ambient · D-minor</small></button>
+            <button data-track="signal"><b>BLACK SIGNAL</b><small>Tactical Pulse · 88 BPM</small></button>
+            <button data-track="ghost"><b>GHOST TERMINAL</b><small>Cyber-Noir · Sonar</small></button>
+          </div>
+          <div class="ap-sliders">
+            <label><span>OST</span><input type="range" id="ap-ost-vol" min="0" max="100" value="38"><b id="ap-ost-pct">38%</b></label>
+            <label><span>SFX</span><input type="range" id="ap-sfx-vol" min="0" max="100" value="55"><b id="ap-sfx-pct">55%</b></label>
+          </div>
+          <div class="ap-row">
+            <label class="check"><input type="checkbox" id="ap-sfx-on" checked><span>UI-звуки (SFX)</span></label>
+            <button class="btn btn-sm btn-ghost" id="ap-test">Тест SFX</button>
+          </div>
+        </div>
+      </div>
       <div class="top-meta">
         <span class="tm-hide">ОПЕРАТОР <b data-callsign>ОПЕРАТОР</b></span>
         <span class="tm-hide">UTC <b id="clock-utc">--:--:--</b></span>
@@ -553,6 +576,20 @@
               <div class="set-row"><div class="l"><b>Посмотреть заставку</b><span>Запустить её прямо сейчас.</span></div><button class="btn" id="set-replay">Запустить</button></div>
             </div>
             <div class="panel">
+              <div class="panel-h">Звук и саундтрек<small>Web Audio · офлайн</small></div>
+              <div class="set-row"><div class="l"><b>Фоновый саундтрек (OST)</b><span>Генеративный dark-ambient саундтрек. Горячая клавиша: <span class="mono">Alt+M</span>.</span></div><label class="switch"><input type="checkbox" id="set-audio-ost"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Композиция</b><span>Выберите атмосферу под текущую задачу.</span></div>
+                <select class="select" id="set-audio-track">
+                  <option value="oculus">OCULUS DRONE (Dark Ambient)</option>
+                  <option value="signal">BLACK SIGNAL (Tactical Pulse · 88 BPM)</option>
+                  <option value="ghost">GHOST TERMINAL (Cyber-Noir · Sonar)</option>
+                </select>
+              </div>
+              <div class="set-row"><div class="l"><b>Громкость саундтрека</b><span>Плавная регулировка уровня OST.</span></div><input type="range" class="audio-range" id="set-audio-ost-vol" min="0" max="100" value="38"></div>
+              <div class="set-row"><div class="l"><b>Тактильные звуки интерфейса (SFX)</b><span>Щелчки вкладок, сканирование, сигналы находок и тревоги CVE.</span></div><label class="switch"><input type="checkbox" id="set-audio-sfx" checked><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Громкость SFX</b><span>Уровень звуковых откликов интерфейса.</span></div><input type="range" class="audio-range" id="set-audio-sfx-vol" min="0" max="100" value="55"></div>
+            </div>
+            <div class="panel">
               <div class="panel-h">Приватность</div>
               <div class="set-row"><div class="l"><b>Режим демонстрации экрана</b><span>Названия записей размываются, пока на них не навести курсор.</span></div><label class="switch"><input type="checkbox" id="set-secure"><i></i></label></div>
               <div class="set-row"><div class="l"><b>Живая разведка</b><span>Разрешить прямые запросы к открытым API (DNS, RDAP, Shodan InternetDB, OTX, HexDB…). При выключении сайт работает полностью офлайн, кроме карт и шрифтов.</span></div><label class="switch"><input type="checkbox" id="set-live"><i></i></label></div>
@@ -647,16 +684,17 @@
 <input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="js/core.js?v=6"></script>
-<script src="js/catalog.js?v=6"></script>
-<script src="js/eye.js?v=6"></script>
-<script src="js/entities.js?v=6"></script>
-<script src="js/search.js?v=6"></script>
-<script src="js/pro.js?v=6"></script>
-<script src="js/lab.js?v=6"></script>
-<script src="js/media.js?v=6"></script>
-<script src="js/graph.js?v=6"></script>
-<script src="js/vault.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/core.js?v=7"></script>
+<script src="js/catalog.js?v=7"></script>
+<script src="js/audio.js?v=7"></script>
+<script src="js/eye.js?v=7"></script>
+<script src="js/entities.js?v=7"></script>
+<script src="js/search.js?v=7"></script>
+<script src="js/pro.js?v=7"></script>
+<script src="js/lab.js?v=7"></script>
+<script src="js/media.js?v=7"></script>
+<script src="js/graph.js?v=7"></script>
+<script src="js/vault.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

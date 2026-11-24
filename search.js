@@ -174,6 +174,7 @@ S.sendToGraph = () => {
       if (!hasL) { GE.db.link(rootId, nid, n.rel || 'связан с'); createdLinks++; }
     }
   });
+  GE.audio && GE.audio.sfx('graph');
   GE.log('GRAPH', `Авто-граф из скана «${sc.q}»: узлов ${seen.size}, связей +${createdLinks}`);
   GE.save();
   GE.toast(`Добавлено на граф: ${seen.size} узлов`, { type: 'ok' });
@@ -298,6 +299,7 @@ S.paintSel = () => {
 /* ─────────── Запуск поиска ─────────── */
 S.run = (addHistory) => {
   if (!S.q.trim()) return;
+  GE.audio && GE.audio.sfx('scan');
   S.eff = S.effType(); S.render();
   if (addHistory) {
     GE.DB.history = [{ q: S.q, type: S.eff, t: GE.now() }, ...GE.DB.history.filter(h => h.q !== S.q)].slice(0, 60);
@@ -416,6 +418,7 @@ S.live = (forceRefresh = false) => {
   const setHud = (idK, k, v, tone = '') => {
     if (!ok() || v === undefined || v === null || v === '') return;
     S.lastScan.hud.set(idK, { k, v: String(v), tone });
+    if (tone === 'alert' && GE.audio) GE.audio.sfx('alert');
     paintHud();
   };
   const addNode = (label, rel, recType = 'source', extra = {}) => {

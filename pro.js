@@ -357,7 +357,12 @@ PRO.checkWatchItem = async w => {
     w.diffs = diffs;
     w.snap = r.snap || w.snap;
     w.checkedAt = GE.now();
-    if (diffs.length) GE.toast(`Изменения по «${w.q}»: ${diffs[0]}`, { type: 'err', timeout: 5000 });
+    if (diffs.length) {
+      GE.audio && GE.audio.sfx('alert');
+      GE.toast(`Изменения по «${w.q}»: ${diffs[0]}`, { type: 'err', timeout: 5000 });
+    } else {
+      GE.audio && GE.audio.sfx('found');
+    }
   } catch (err) {
     GE.toast(`Ошибка проверки ${w.q}: ${err.message}`, { type: 'err' });
   }

@@ -343,6 +343,10 @@ P.commands = () => [
   { g: 'Действия', icon: 'bolt', t: 'Красный импульс ока', run: () => GE.GodEye.scanAll() },
   { g: 'Действия', icon: 'shield', t: (GE.settings.secure ? 'Выключить' : 'Включить') + ' режим демонстрации экрана', run: () => { GE.settings.secure = !GE.settings.secure; GE.saveSettings(); } },
   { g: 'Действия', icon: 'archive', t: 'Загрузить демо-данные', run: () => GE.loadDemo() },
+  { g: 'Звук', icon: 'spark', t: 'Включить / выключить саундтрек (OST)', sub: 'ALT+M', run: () => GE.audio && GE.audio.toggleOst() },
+  { g: 'Звук', icon: 'spark', t: 'OST: OCULUS DRONE (Dark Ambient)', run: () => GE.audio && GE.audio.startOst('oculus') },
+  { g: 'Звук', icon: 'spark', t: 'OST: BLACK SIGNAL (Tactical Pulse)', run: () => GE.audio && GE.audio.startOst('signal') },
+  { g: 'Звук', icon: 'spark', t: 'OST: GHOST TERMINAL (Cyber-Noir)', run: () => GE.audio && GE.audio.startOst('ghost') },
   ...['extract', 'hash', 'codec', 'time', 'url', 'coords', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
 ];
 P.render = () => {
@@ -403,7 +407,7 @@ function initSettings() {
   $('#set-callsign').addEventListener('input', GE.debounce(e => { s.callsign = e.target.value.trim() || 'ОПЕРАТОР'; GE.saveSettings(); }, 250));
   [['#set-intro', 'intro'], ['#set-quality', 'quality']].forEach(([sel, k]) => $(sel).addEventListener('change', e => { s[k] = e.target.value; GE.saveSettings(); GE.toast('Сохранено'); }));
   [['#set-follow', 'follow'], ['#set-spot', 'spot'], ['#set-motion', 'motion'], ['#set-secure', 'secure'], ['#set-live', 'live']].forEach(([sel, k]) => $(sel).addEventListener('change', e => { s[k] = e.target.checked; GE.saveSettings(); }));
-  $('#set-replay').onclick = () => GE.intro.run(true);
+  $('#set-replay').onclick = () => { GE.audio && GE.audio.sfx('boot'); GE.intro.run(true); };
   $('#vault-connect').onclick = () => GE.vault.connect();
   $('#vault-pull').onclick = () => GE.vault.pull();
   $('#vault-push').onclick = () => GE.vault.push();
@@ -542,6 +546,7 @@ async function boot() {
   GE.lab.init();
   GE.conn.init();
   if (GE.pro) GE.pro.init();
+  if (GE.audio) GE.audio.init();
   D.init();
   A.init();
   P.init();

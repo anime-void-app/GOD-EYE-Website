@@ -97,9 +97,11 @@ GE.settings = Object.assign({
   engUsage: {},
   lastBackup: '',
   apiKeys: { shodan: '', otx: '', urlscan: '', vt: '', proxy: '' },
+  audio: { ost: false, sfx: true, track: 'oculus', ostVol: 38, sfxVol: 55 },
   view: {}
 }, _savedSet);
 GE.settings.apiKeys = Object.assign({ shodan: '', otx: '', urlscan: '', vt: '', proxy: '' }, _savedSet.apiKeys || {});
+GE.settings.audio = Object.assign({ ost: false, sfx: true, track: 'oculus', ostVol: 38, sfxVol: 55 }, _savedSet.audio || {});
 GE.settings.engUsage = Object.assign({}, _savedSet.engUsage || {});
 GE.saveSettings = () => {
   GE.ls.set('godeye.settings', GE.settings);
