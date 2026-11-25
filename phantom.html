@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080809">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>PHANTOM — GOD EYE</title>
+<link rel="icon" href="assets/god-eye.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;--bg:#080809;--panel:#101013;--line:#29292e;--red:#e33b48;--muted:#a4a4ae;--text:#f0eff2;--mono:Consolas,'Courier New',monospace}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 0,#281014 0,transparent 43%),var(--bg);color:var(--text);font:15px/1.6 system-ui,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;color:inherit}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}
+header{border-bottom:1px solid var(--line);padding:16px clamp(16px,5vw,64px);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font:700 14px var(--mono);letter-spacing:.13em;display:flex;align-items:center;gap:10px}.brand img{width:34px;height:34px}.tag{font:11px var(--mono);letter-spacing:.11em;color:var(--muted)}.dot{display:inline-block;width:7px;height:7px;background:#75d3a0;border-radius:50%;margin-right:8px;box-shadow:0 0 12px #75d3a0}
+main{max-width:1190px;margin:auto;padding:34px 22px 60px}.hero{display:grid;grid-template-columns:1fr 280px;gap:25px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:clamp(22px,5vw,48px);background:linear-gradient(115deg,#141416,#0d0d10 65%,#210e12);position:relative;overflow:hidden}.eyebrow,.kicker{font:12px var(--mono);letter-spacing:.16em;color:var(--red)}h1{font:500 clamp(44px,8vw,86px)/1 Georgia,serif;letter-spacing:.035em;margin:16px 0}h2{font-size:18px;margin:0}p{color:var(--muted);margin:8px 0 16px;max-width:720px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{border:1px solid #4b3539;background:#191418;border-radius:5px;padding:10px 15px;min-height:44px;font-size:13px;font-weight:600}.btn:hover{border-color:var(--red);background:#2a171c}.primary{background:#9e202b;border-color:#bd303b}.primary:hover{background:#b72936}.btn:disabled{cursor:default;opacity:.4}.back{font-size:12px;color:var(--muted)}.back:hover{color:white}
+.radar{width:100%;max-width:280px;justify-self:center;filter:drop-shadow(0 0 14px #7d172840)}.sweep{transform-origin:140px 140px;animation:spin 7s linear infinite}.pulse{animation:pulse 2.8s ease-in-out infinite;transform-origin:140px 140px}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.28}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 30px}.metric,.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:20px}.metric strong{font:500 28px var(--mono);display:block;margin:8px 0 2px}.metric small{color:var(--muted);font-size:12px}.section-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:20px 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.panel h2{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:8px}.panel h2 span{font:12px var(--mono);color:var(--red);margin-right:9px}.data{margin:0}.data div{display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,1.15fr);gap:12px;padding:10px 0;border-bottom:1px solid #222226}.data div:last-child{border:none}.data dt{color:var(--muted);font-size:13px}.data dd{margin:0;text-align:right;font:12px/1.55 var(--mono);overflow-wrap:anywhere}.good{color:#85d5a8}.warn{color:#f2b96f}.neutral{color:#babac5}.note{font-size:12px;color:var(--muted);margin:14px 0 0}.status{font:12px var(--mono);color:var(--muted);margin:18px 0}.tips{margin-top:16px}.tips ul{padding-left:20px;margin:12px 0 0;color:#c9c8d0}.tips li{margin:9px 0}footer{border-top:1px solid var(--line);padding:22px;text-align:center;color:var(--muted);font:11px var(--mono);letter-spacing:.06em}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.radar{max-width:180px;grid-row:1}.summary{grid-template-columns:1fr 1fr}.summary .metric:last-child{grid-column:1/-1}.grid{grid-template-columns:1fr}main{padding:22px 14px 40px}.metric,.panel{padding:15px}.data div{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><a class="brand" href="./index.html#/tools"><img src="assets/god-eye.svg" alt="">GOD EYE / PHANTOM</a><span class="tag"><span class="dot"></span>LOCAL MODE</span><a class="back" href="./index.html#/tools">← Инструменты</a></header>
+<main>
+<section class="hero" aria-labelledby="heading">
+<div><div class="eyebrow">§ P / PRIVACY INTELLIGENCE</div><h1 id="heading">PHANTOM</h1><p>Что ваш браузер сообщает веб-сайтам? Исследуйте параметры собственного устройства, доступность API и разрешения — без отправки результатов на сервер.</p>
+<div class="actions"><button class="btn primary" id="scan">Запустить диагностику</button><button class="btn" id="export" disabled>Скачать JSON</button></div><div class="status" id="status" role="status" aria-live="polite">Готов к локальной диагностике.</div></div>
+<svg class="radar" viewBox="0 0 280 280" aria-hidden="true"><defs><radialGradient id="fade"><stop stop-color="#e33b48" stop-opacity=".2"/><stop offset="1" stop-color="#e33b48" stop-opacity="0"/></radialGradient></defs><circle cx="140" cy="140" r="126" fill="url(#fade)" stroke="#51303a"/><g fill="none" stroke="#68404a" stroke-width="1"><circle cx="140" cy="140" r="109" stroke-dasharray="2 7"/><circle cx="140" cy="140" r="87"/><circle cx="140" cy="140" r="55"/><path d="M14 140H266M140 14V266M51 51L229 229M229 51L51 229" opacity=".5"/></g><g class="sweep"><path d="M140 140L140 14A126 126 0 0 1 229 51Z" fill="#e33b48" opacity=".1"/><path d="M140 140L229 51" stroke="#e33b48" stroke-width="1.5"/></g><path d="M68 140Q140 70 212 140Q140 210 68 140Z" stroke="#e33b48" stroke-width="2" fill="#130c10"/><circle cx="140" cy="140" r="30" fill="none" stroke="#e33b48" stroke-dasharray="3 4"/><circle class="pulse" cx="140" cy="140" r="19" fill="#e33b48" opacity=".7"/><circle cx="140" cy="140" r="7" fill="#ffc5c9"/><g fill="#e33b48"><circle cx="193" cy="82" r="3"/><circle cx="83" cy="190" r="2"/><circle cx="213" cy="182" r="2"/></g></svg>
+</section>
+<section class="summary" aria-label="Сводка">
+<div class="metric"><span class="kicker">01 / DATA</span><strong id="total">—</strong><small>Параметров проверено</small></div>
+<div class="metric"><span class="kicker">02 / ACCESS</span><strong id="granted">—</strong><small>Разрешений выдано этому сайту</small></div>
+<div class="metric"><span class="kicker">03 / NETWORK</span><strong class="good">LOCAL</strong><small>Нет внешних API и отправки отчёта</small></div>
+</section>
+<div class="section-head"><h2>Технический профиль</h2><span class="tag">ON-DEVICE ANALYSIS</span></div>
+<div class="grid">
+<section class="panel"><h2><span>01</span>Браузер</h2><dl class="data" id="browser"><div><dt>Состояние</dt><dd>Ожидание</dd></div></dl></section>
+<section class="panel"><h2><span>02</span>Устройство</h2><dl class="data" id="device"><div><dt>Состояние</dt><dd>Ожидание</dd></div></dl></section>
+<section class="panel"><h2><span>03</span>Разрешения сайта</h2><dl class="data" id="permissions"><div><dt>Состояние</dt><dd>Ожидание</dd></div></dl><p class="note">Проверяется только статус разрешений текущего сайта. Камера, микрофон и координаты не запрашиваются.</p></section>
+<section class="panel"><h2><span>04</span>Защита и API</h2><dl class="data" id="security"><div><dt>Состояние</dt><dd>Ожидание</dd></div></dl><p class="note">Доступность API не означает, что оно было использовано. Отсутствие сигнала не доказывает наличие защиты.</p></section>
+</div>
+<section class="panel tips"><h2><span>05</span>Как уменьшить цифровой след</h2><ul><li>Отключайте ненужные разрешения в настройках сайта.</li><li>Используйте встроенную защиту от трекинга и регулярно обновляйте браузер.</li><li>Скачанный отчёт содержит параметры вашего устройства — не публикуйте его без проверки.</li></ul><p class="note">Это образовательная диагностика, а не оценка анонимности: IP, WebRTC-адреса, Canvas-отпечатки и уникальность устройства не проверяются.</p></section>
+</main>
+<footer>GOD EYE // PHANTOM v1.0 · NO EXTERNAL REQUESTS BY THE LAB</footer>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+const unknown='Недоступно';
+const field=(name,value,tone='')=>({name,value:value===undefined||value===null||value===''?unknown:String(value),tone});
+const yesno=v=>v===true?'Да':v===false?'Нет':unknown;
+let last=null;
+function read(fn){try{return fn()}catch{return undefined}}
+function render(id,fields){
+  const root=el(id);root.replaceChildren();
+  for(const f of fields){const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=f.name;dd.textContent=f.value;if(f.tone)dd.className=f.tone;row.append(dt,dd);root.append(row)}
+}
+async function permission(name,label){
+  if(!navigator.permissions?.query)return field(label,'API недоступен','neutral');
+  try{const result=await navigator.permissions.query({name});const states={granted:'Разрешено',denied:'Запрещено',prompt:'По запросу'};return {...field(label,states[result.state]||unknown,result.state==='granted'?'warn':result.state==='denied'?'good':'neutral'),state:result.state}}catch{return field(label,'Не поддерживается','neutral')}
+}
+async function scan(){
+  const button=el('scan');button.disabled=true;el('export').disabled=true;last=null;el('status').textContent='Проверка локальных параметров…';
+  try{
+    const browser=[field('User-Agent',navigator.userAgent),field('Язык',navigator.language),field('Часовой пояс',read(()=>Intl.DateTimeFormat().resolvedOptions().timeZone)),field('Cookie API',yesno(navigator.cookieEnabled)),field('Do Not Track',navigator.doNotTrack),field('Global Privacy Control',yesno(navigator.globalPrivacyControl))];
+    const device=[field('Платформа',navigator.userAgentData?.platform||navigator.platform),field('Экран',screen.width+' × '+screen.height),field('Окно',innerWidth+' × '+innerHeight),field('Плотность пикселей',devicePixelRatio),field('Логические потоки',navigator.hardwareConcurrency),field('Память, ГБ (оценка)',navigator.deviceMemory),field('Сенсорные точки',navigator.maxTouchPoints)];
+    const permissions=await Promise.all([permission('geolocation','Геолокация'),permission('camera','Камера'),permission('microphone','Микрофон'),permission('notifications','Уведомления')]);
+    const security=[field('Безопасный контекст',yesno(isSecureContext),isSecureContext?'good':'warn'),field('Web Crypto API',yesno(!!globalThis.crypto?.subtle)),field('WebRTC API',yesno(typeof RTCPeerConnection!=='undefined')),field('Service Worker API',yesno('serviceWorker' in navigator)),field('Clipboard API',yesno(!!navigator.clipboard))];
+    const sections={browser,device,permissions,security};Object.entries(sections).forEach(([id,fields])=>render(id,fields));
+    el('total').textContent=Object.values(sections).reduce((sum,fields)=>sum+fields.length,0);
+    const known=permissions.filter(f=>f.state);el('granted').textContent=known.length?known.filter(f=>f.state==='granted').length+' / '+known.length:'—';
+    last={module:'PHANTOM',version:'1.0',generatedAt:new Date().toISOString(),sections};el('export').disabled=false;el('status').textContent='Диагностика завершена. Данные остаются в этой вкладке.';
+  }catch(error){el('status').textContent='Не удалось завершить диагностику. Попробуйте снова.'}
+  finally{button.disabled=false}
+}
+el('scan').addEventListener('click',scan);
+el('export').addEventListener('click',()=>{
+  if(!last)return;const url=URL.createObjectURL(new Blob([JSON.stringify(last,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download='phantom-report.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+</script>
+</body>
+</html>
