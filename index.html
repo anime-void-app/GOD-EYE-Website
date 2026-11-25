@@ -480,6 +480,7 @@ button.chip:hover, a.chip:hover { border-color: rgba(226,35,46,0.6); color: #fff
 
 .empty { padding: 56px 20px; text-align: center; border: 1px dashed var(--line-2); color: var(--muted); }
 .empty svg { width: 64px; height: 64px; margin: 0 auto 14px; opacity: 0.7; }
+.empty .btn svg { width: 16px; height: 16px; margin: 0; opacity: 1; }
 .empty h4 { font: 500 15px/1.3 var(--f-display); letter-spacing: 0.18em; color: var(--silver); margin-bottom: 8px; }
 .empty p { max-width: 420px; margin: 0 auto 18px; font-size: 13px; }
 
@@ -869,10 +870,21 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
 }
 
 /* Дела — детективное оформление карточек */
-.view[data-entity="case"] .card{border-left:2px solid var(--crimson-3)}
-.view[data-entity="case"] .card::before{content:'ДЕЛО';position:absolute;top:8px;right:8px;font:600 9px/1 var(--f-mono);letter-spacing:.18em;color:rgba(226,35,46,.55);border:1px solid rgba(226,35,46,.4);padding:3px 5px;transform:rotate(3deg)}
-.view[data-entity="case"] .card{position:relative}
-.view[data-entity="case"] .card-type{color:var(--crimson-3)}
+.view[data-entity="case"] .card{border-left:2px solid var(--crimson-3);padding-top:18px;background:linear-gradient(180deg,rgba(19,14,15,.95),rgba(9,9,11,.96))}
+.view[data-entity="case"] .card::before{content:attr(data-stamp);position:absolute;top:10px;right:10px;max-width:52%;font:600 9px/1 var(--f-mono);letter-spacing:.18em;color:rgba(226,35,46,.75);border:1.5px solid rgba(226,35,46,.5);padding:3px 6px;transform:rotate(3deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 0 1px rgba(226,35,46,.14);pointer-events:none}
+.view[data-entity="case"] .card-type{color:var(--crimson-3);padding-right:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.view[data-entity="case"] .card[data-tone=solved]{border-left-color:var(--silver)}
+.view[data-entity="case"] .card[data-tone=solved]::before{color:var(--white);border-color:rgba(243,243,245,.7);box-shadow:0 0 12px rgba(243,243,245,.14)}
+.view[data-entity="case"] .card[data-tone=closed]{border-left-color:var(--dim)}
+.view[data-entity="case"] .card[data-tone=closed]::before{color:var(--dim);border-color:var(--line-3);box-shadow:none}
+.view[data-entity="case"] .card[data-tone=secret]{border-left-color:var(--crimson)}
+.view[data-entity="case"] .card[data-tone=secret]::before{color:#ffd9db;background:rgba(139,0,0,.55);border-color:var(--crimson-3)}
+.view[data-entity="case"] .card[data-tone=hot]::before{color:#ff6b72;border-color:var(--crimson-3);animation:geBadgePulse 2.4s ease-in-out infinite}
+.view[data-entity="case"] .card[data-tone=cold]{border-left-color:var(--silver-2)}
+.view[data-entity="case"] .card[data-tone=cold]::before{color:var(--silver-2);border-color:rgba(165,165,175,.5);box-shadow:none}
+.card-prog{height:2px;margin-top:12px;background:var(--line-2)}
+.card-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--crimson-2),var(--crimson-3));box-shadow:0 0 8px var(--glow)}
+.case-stats{margin-bottom:14px}
 /* Доска улик */
 #board{position:fixed;inset:0;z-index:300;display:none;background:#241409;overflow:hidden}
 #board.on{display:block}
@@ -890,14 +902,109 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
 .bcard.case{background:#3a0d0d;color:#f5e9d8;border:1px solid #8a1a1a;box-shadow:0 0 28px rgba(160,0,0,.45)}
 .bcard.case .bcode{color:#e0a0a0}
 .bcard.note{background:#ffe9a8;transform:rotate(-2deg)}
-.hint{display:block;padding:7px 10px;margin:4px 0;border:1px solid var(--line-2);border-radius:4px;color:var(--silver);font-size:12.5px;text-decoration:none}
-.hint b{color:var(--crimson-3);font-weight:600}
-.hint:hover{border-color:var(--crimson-3);color:var(--white)}
-.timeline{position:relative;margin:4px 0 6px 6px;padding-left:16px;border-left:1px solid rgba(226,35,46,.35)}
-.tl-i{position:relative;padding:0 0 12px 12px}
-.tl-i::before{content:'';position:absolute;left:-21px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--crimson-3);box-shadow:0 0 8px rgba(226,35,46,.65)}
-.tl-date{font:600 10px/1 var(--f-mono);letter-spacing:.12em;color:var(--crimson-3);margin-bottom:3px;text-transform:uppercase}
-.tl-text{font:400 12.5px/1.5 var(--f-body);color:var(--silver)}
+.dhint{display:block;padding:8px 11px;margin:4px 0;border:1px solid var(--line-2);color:var(--silver);font-size:12.5px;text-decoration:none;transition:border-color .2s,color .2s,background .2s}
+.dhint b{color:var(--crimson-3);font-weight:600}
+.dhint:hover{border-color:var(--crimson-3);color:var(--white);background:var(--crimson-soft)}
+
+/* Дела — окно создания */
+.form-grid.g6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.form-grid.g6 .sp2{grid-column:span 2}
+.form-grid.g6 .sp3{grid-column:span 3}
+.form-grid.g6 .sp4{grid-column:span 4}
+.form-grid.g6 .sp6{grid-column:1/-1}
+.form-sep{grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-top:12px;font:600 10.5px/1 var(--f-mono);letter-spacing:.26em;color:var(--crimson-3);text-transform:uppercase}
+.form-sep::before{content:'';width:18px;height:1px;background:var(--crimson-3);box-shadow:0 0 8px var(--glow)}
+.form-sep::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+.form-sep:first-child{margin-top:0}
+.case-quick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 18px}
+.case-quick>span{font:500 10px/1 var(--f-mono);letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-right:4px}
+
+/* Дела — карточка-досье */
+#drawer.case{width:min(700px,100vw)}
+.stage{display:flex;gap:4px}
+.stg{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 2px 8px;border:1px solid var(--line);background:rgba(255,255,255,.015);color:var(--dim);cursor:pointer;font:500 9.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;transition:border-color .2s,color .2s,background .2s,box-shadow .2s}
+.stg i{font-style:normal;width:20px;height:20px;border:1px solid var(--line-3);border-radius:50%;display:grid;place-items:center;font:600 10px/1 var(--f-mono);color:var(--muted)}
+.stg span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.stg:hover{border-color:var(--line-3);color:var(--silver)}
+.stg.done{color:var(--silver-2);border-color:var(--line-2)}
+.stg.done i{background:var(--silver-2);color:#050505;border-color:var(--silver-2)}
+.stg.on{color:#fff;border-color:var(--crimson-3);background:var(--crimson-soft);box-shadow:0 0 16px -4px var(--glow)}
+.stg.on i{background:var(--crimson-2);border-color:var(--crimson-3);color:#fff}
+.case-prog{border:1px solid var(--line-2);background:rgba(255,255,255,.02);padding:12px 14px;margin-bottom:22px}
+.cp-top{display:flex;justify-content:space-between;gap:10px;font:500 10px/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.cp-top b{color:var(--white);font-weight:500}
+.cp-bar{height:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.cp-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--crimson),var(--crimson-3));box-shadow:0 0 10px var(--glow);transition:width .5s var(--ease)}
+.cp-row{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font:400 10.5px/1 var(--f-mono);color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.cp-row b{color:var(--silver);font-weight:500;margin-left:3px}
+.gauges{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.gauges span{display:block;font:500 9.5px/1 var(--f-mono);letter-spacing:.16em;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.gauges em{display:block;margin-top:5px;font:400 11.5px/1 var(--f-body);font-style:normal;color:var(--silver-2)}
+.pips{display:flex;gap:3px}
+.pips i{width:16px;height:5px;background:rgba(255,255,255,.09)}
+.pips i.on{background:var(--crimson-3);box-shadow:0 0 6px var(--glow)}
+.mmo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mmo-i{border:1px solid var(--line-2);padding:10px 11px;background:rgba(255,255,255,.02)}
+.mmo-i b{display:block;font:600 9.5px/1 var(--f-mono);letter-spacing:.2em;color:var(--crimson-3);text-transform:uppercase;margin-bottom:7px}
+.mmo-i p{font-size:12.5px;line-height:1.5;color:var(--silver)}
+.mmo-i.gap{border-style:dashed}
+.mmo-i.gap p{color:var(--dim);font-style:italic}
+.rost{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.rost-i{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border:1px solid var(--line-2);border-left:2px solid var(--line-3);background:rgba(255,255,255,.02)}
+.rost-i b{font:500 13px/1.3 var(--f-body);color:var(--white)}
+.rost-i span{font:500 9.5px/1.3 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--silver-2)}
+.rost-i em{font:400 11.5px/1.4 var(--f-body);font-style:normal;color:var(--muted)}
+.rost-i.sus{border-left-color:var(--crimson-3);background:rgba(139,0,0,.1)}
+.rost-i.sus span{color:#ff6b72}
+.rost-i.vic{border-left-color:var(--white)}
+.rost-i.vic span{color:var(--white)}
+.rost-i.wit{border-left-color:var(--silver-2)}
+.rost-i.exp{border-left-color:var(--dim)}
+.rost-i.lnk{cursor:pointer}
+.rost-i.lnk:hover{border-color:var(--line-3)}
+.case-tl{position:relative;margin:4px 0 6px 6px;padding-left:18px;border-left:1px solid rgba(226,35,46,.35)}
+.ctl-i{position:relative;padding:0 0 13px 4px}
+.ctl-i::before{content:'';position:absolute;left:-24px;top:4px;width:9px;height:9px;border-radius:50%;background:#0a0a0c;border:2px solid var(--crimson-3);box-shadow:0 0 8px rgba(226,35,46,.55)}
+.ctl-date{font:600 10px/1 var(--f-mono);letter-spacing:.12em;color:var(--crimson-3);margin-bottom:4px;text-transform:uppercase}
+.ctl-text{font:400 13px/1.5 var(--f-body);color:var(--silver)}
+.ev{display:grid;gap:5px}
+.ev-i{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border:1px solid var(--line);background:rgba(255,255,255,.015);font-size:12.5px;color:var(--silver);overflow-wrap:anywhere}
+.ev-i b{flex:none;font:600 10px/1 var(--f-mono);letter-spacing:.12em;color:#0a0a0c;background:var(--silver);padding:3px 5px}
+.ev-i a,.chk a{color:#fff;border-bottom:1px solid rgba(226,35,46,.6)}
+.chk-list{display:grid;gap:4px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);background:rgba(255,255,255,.015);font-size:13px;color:var(--silver);cursor:pointer;transition:border-color .2s,background .2s;outline:none;user-select:none;overflow-wrap:anywhere}
+.chk:hover{border-color:var(--line-3);background:rgba(255,255,255,.035)}
+.chk:focus-visible{border-color:var(--crimson-3);box-shadow:0 0 0 3px rgba(179,18,27,.18)}
+.chk i{flex:none;width:15px;height:15px;margin-top:2px;border:1px solid var(--line-3);position:relative;background:rgba(0,0,0,.4)}
+.chk.done i{background:var(--crimson-2);border-color:var(--crimson-3)}
+.chk.done i::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.chk.done span{color:var(--dim);text-decoration:line-through;text-decoration-color:rgba(226,35,46,.6)}
+.chk.plain{cursor:default}
+.chk.plain:hover{border-color:var(--line);background:rgba(255,255,255,.015)}
+.chk.plain i{width:7px;height:7px;margin:7px 4px 0;border-radius:50%;border-color:var(--crimson-3);background:var(--crimson-3);opacity:.7}
+.qa{display:grid;gap:5px}
+.qa-i{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);background:rgba(255,255,255,.015);font-size:13px;color:var(--silver)}
+.qa-i b{flex:none;width:18px;height:18px;display:grid;place-items:center;font:700 11px/1 var(--f-mono);border:1px solid var(--line-3);color:var(--silver-2);border-radius:50%}
+.qa-i.c{border-color:rgba(226,35,46,.25);background:rgba(139,0,0,.07)}
+.qa-i.c b{border-color:var(--crimson-3);color:#ff6b72}
+.outcome{display:inline-block;margin:2px 0 14px;padding:9px 16px;border:2px solid var(--crimson-3);color:var(--crimson-3);font:700 14px/1 var(--f-display);letter-spacing:.22em;text-transform:uppercase;transform:rotate(-2.5deg);box-shadow:inset 0 0 0 1px rgba(226,35,46,.2)}
+.outcome.fresh{animation:geStampIn .55s var(--ease-snap) both}
+.outcome.solved{border-color:var(--white);color:var(--white);box-shadow:0 0 18px rgba(243,243,245,.15)}
+.outcome.closed{border-color:var(--dim);color:var(--silver-2);box-shadow:none}
+.outcome.cold{border-color:var(--silver-2);color:var(--silver-2);box-shadow:none}
+.outcome.fake{color:#ff6b72;background:rgba(139,0,0,.18)}
+@keyframes geStampIn{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}60%{opacity:1;transform:scale(.94) rotate(-2.5deg)}100%{opacity:1;transform:scale(1) rotate(-2.5deg)}}
+@media (max-width:960px){
+  .form-grid.g6 .sp2{grid-column:span 3}
+  .form-grid.g6 .sp3,.form-grid.g6 .sp4{grid-column:1/-1}
+}
+@media (max-width:720px){
+  .form-grid.g6{grid-template-columns:1fr!important}
+  .form-grid.g6 .sp2,.form-grid.g6 .sp3,.form-grid.g6 .sp4,.form-grid.g6 .sp6{grid-column:1/-1!important}
+  .mmo{grid-template-columns:1fr}
+  .stg span{display:none}
+  #drawer.case{width:100vw}
+}
 </style>
 </head>
 <body class="intro-active">
@@ -1709,6 +1816,29 @@ const SRC_F = { k: 'sources', l: 'Публичные источники — по
 const TAGS_F = { k: 'tags', l: 'Теги (через запятую)', t: 'tags' };
 const NOTES_F = { k: 'notes', l: 'Заметки', t: 'textarea', full: 1 };
 
+/* Дела: справочники (старые значения сохранены, чтобы прежние записи оставались валидными) */
+GE.CASE_GROUPS = [
+  { g: 'Люди и безопасность', tpl: 'people', o: ['Пропажа', 'Убийство', 'Подозрительная смерть', 'Похищение', 'Серия преступлений'] },
+  { g: 'Имущество и финансы', tpl: 'money', o: ['Кража', 'Ограбление', 'Мошенничество', 'Финансовая схема / пирамида', 'Отмывание денег', 'Коррупция', 'Подделка документов / контрафакт', 'Страховое мошенничество', 'Поджог', 'Хищение произведений искусства', 'Корпоративное расследование', 'Фирма-однодневка'] },
+  { g: 'Цифровые следы', tpl: 'digital', o: ['Киберинцидент', 'Утечка данных (публичный инцидент)', 'Фишинг / социальная инженерия', 'Сайт-двойник / фальшивый бренд', 'Криптовалютный след', 'Дезинформация / фейк', 'Бот-сети / координированная активность', 'Цифровая подделка (фото, видео, аудио)'] },
+  { g: 'История и загадки', tpl: 'history', o: ['Холодное дело', 'Историческая загадка', 'Катастрофа / авария', 'Пропавший груз / клад / артефакт', 'Необъяснённое явление', 'Архивное расследование'] },
+  { g: 'Журналистика и проверка', tpl: 'verify', o: ['Журналистское расследование', 'Проверка факта', 'Верификация медиа', 'Геолокация / хронолокация', 'Проверка контрагента', 'Санкции / комплаенс'] },
+  { g: 'Игры и обучение', tpl: 'game', o: ['CTF / OSINT-квест', 'Учебное дело', 'Вымышленное дело (сюжет)'] },
+  { g: 'Прочее', tpl: 'misc', o: ['Наблюдение', 'Другое'] }
+];
+GE.CASE_OPT = {
+  status: ['Открыто', 'Сбор информации', 'Расследуется', 'Горячий след', 'Тупик', 'Ждём ответа', 'Приостановлено', 'На проверке', 'Частично раскрыто', 'Раскрыто', 'Закрыто', 'В архиве'],
+  stage: ['Постановка задачи', 'Сбор данных', 'Проверка источников', 'Анализ и версии', 'Верификация', 'Выводы и отчёт'],
+  priority: ['Низкий', 'Обычный', 'Высокий', 'Срочный', 'Критический'],
+  difficulty: ['Тривиальная', 'Низкая', 'Средняя', 'Высокая', 'Очень высокая', 'Почти безнадёжная'],
+  odds: ['Не оценены', 'Минимальные', 'Низкие', 'Средние', 'Высокие', 'Почти раскрыто'],
+  classif: ['Без грифа', 'Для служебного пользования', 'Конфиденциально', 'Секретно', 'Совершенно секретно'],
+  outcome: ['Не определён', 'Раскрыто — подтверждено', 'Раскрыто — вероятная версия', 'Не раскрыто', 'Опровергнуто / фейк', 'Недостаточно данных', 'Передано в компетентные органы'],
+  origin: ['Собственная инициатива', 'Публикация в СМИ', 'Судебное решение / приговор', 'Официальный запрос', 'Открытые данные / реестры', 'Сообщение читателя / подсказка', 'Архивный документ', 'Учебное задание', 'Игра / сюжет'],
+  scale: ['Частный случай', 'Локальное', 'Региональное', 'Национальное', 'Международное']
+};
+GE.CASE_QUICK = ['Пропажа', 'Убийство', 'Мошенничество', 'Холодное дело', 'Киберинцидент', 'Проверка факта', 'Геолокация / хронолокация', 'Журналистское расследование'];
+
 GE.TYPES = {
   person: {
     label: 'Персона', plural: 'Персоны', view: 'people', folder: '01 People', code: 'PER', icon: 'person', shape: 'circle',
@@ -1804,23 +1934,55 @@ GE.TYPES = {
   },
 
   case: {
-    label: 'Дело', plural: 'Дела', view: 'cases', folder: '09 Cases', code: 'CAS', icon: 'target', shape: 'diamond',
+    label: 'Дело', plural: 'Дела', view: 'cases', folder: '09 Cases', code: 'CAS', icon: 'target', shape: 'diamond', grid: 6,
     en: 'COLD CASES', ru: 'Расследования и холодные дела',
-    desc: 'Дело объединяет досье, фигурантов, таймлайн, зацепки, улики и гипотезы. Работайте только с публичной информацией и первоисточниками.',
+    desc: 'Полноценное расследование: паспорт дела, фигуранты, мотив–средства–возможность, таймлайн, улики, чеклист зацепок, версии, противоречия и доска. Только публичные источники и первоисточники.',
     fields: [
-      { k: 'title', l: 'Название / № дела', t: 'text', req: 1, ph: 'Дело №013 — Исчезновение на маяке' },
-      { k: 'case_type', l: 'Тип дела', t: 'select', opts: ['Пропажа', 'Убийство', 'Мошенничество', 'Кража', 'Холодное дело', 'Наблюдение', 'Другое'] },
-      { k: 'status', l: 'Статус', t: 'select', opts: ['Открыто', 'Расследуется', 'Приостановлено', 'Раскрыто', 'Закрыто'] },
-      { k: 'difficulty', l: 'Сложность', t: 'select', opts: ['Низкая', 'Средняя', 'Высокая', 'Очень высокая'] },
-      { k: 'subject', l: 'Объект / фигурант', t: 'text', ph: 'Имя, ник, телефон, адрес…' },
-      { k: 'briefing', l: 'Досье дела (что известно)', t: 'textarea', full: 1, big: 1 },
-      { k: 'timeline', l: 'Таймлайн (по строке на событие)', t: 'textarea', full: 1 },
-      { k: 'leads', l: 'Зацепки / задачи (чеклист)', t: 'textarea', full: 1 },
-      { k: 'hypothesis', l: 'Версии и гипотезы', t: 'textarea', full: 1 },
-      { k: 'conclusion', l: 'Развязка / вывод', t: 'textarea', full: 1 },
-      SRC_F, REL_F, CRED_F, RETR_F, TAGS_F, NOTES_F
+      { k: 'title', l: 'Название дела', t: 'text', req: 1, span: 4, sec: 'Паспорт дела', ph: 'Исчезновение на маяке Тёмный' },
+      { k: 'case_no', l: 'Номер дела', t: 'text', mono: 1, def: 'caseno', ph: 'CAS-2026-001' },
+      { k: 'case_type', l: 'Тип дела', t: 'select', groups: GE.CASE_GROUPS },
+      { k: 'status', l: 'Статус', t: 'select', opts: GE.CASE_OPT.status },
+      { k: 'stage', l: 'Этап расследования', t: 'select', opts: GE.CASE_OPT.stage },
+      { k: 'priority', l: 'Приоритет', t: 'select', opts: GE.CASE_OPT.priority },
+      { k: 'difficulty', l: 'Сложность', t: 'select', opts: GE.CASE_OPT.difficulty },
+      { k: 'odds', l: 'Шансы раскрытия', t: 'select', opts: GE.CASE_OPT.odds },
+      { k: 'classif', l: 'Гриф (для оформления)', t: 'select', opts: GE.CASE_OPT.classif },
+      { k: 'outcome', l: 'Итог расследования', t: 'select', opts: GE.CASE_OPT.outcome },
+      { k: 'origin', l: 'Откуда дело', t: 'select', opts: GE.CASE_OPT.origin },
+
+      { k: 'incident_date', l: 'Дата события (как известно)', t: 'text', sec: 'Где и когда', ph: '14 ноября 1987 · лето 1994 · 2019' },
+      { k: 'reported_date', l: 'Дата заведения дела', t: 'date', def: 'today' },
+      { k: 'deadline', l: 'Срок / контрольная дата', t: 'date' },
+      { k: 'place', l: 'Место события', t: 'text', span: 4, ph: 'Город, район, объект — только публичные места' },
+      { k: 'country', l: 'Страна', t: 'text' },
+      { k: 'geo', l: 'Точка на карте', t: 'ref', ref: 'geo', rel: 'место события' },
+      { k: 'org', l: 'Организация по делу', t: 'ref', ref: 'org', rel: 'организация по делу' },
+      { k: 'scale', l: 'Масштаб', t: 'select', opts: GE.CASE_OPT.scale },
+
+      { k: 'subject', l: 'Объект расследования', t: 'text', full: 1, sec: 'Объект и фигуранты', ph: 'Ник, домен, организация, публичное имя, название события…' },
+      { k: 'people', l: 'Фигуранты — по строке: Имя — роль — заметка', t: 'textarea', h: 96, ph: 'Иван Пример — свидетель — видел лодку около 22:10\nАнна Пример — подозреваемая — алиби не подтверждено\nПётр Образец — следователь — вёл дело' },
+
+      { k: 'motive', l: 'Мотив', t: 'textarea', span: 2, h: 76, sec: 'Мотив · средства · возможность', ph: 'Зачем это могли сделать' },
+      { k: 'means', l: 'Средства', t: 'textarea', span: 2, h: 76, ph: 'Чем и как это было возможно' },
+      { k: 'opportunity', l: 'Возможность', t: 'textarea', span: 2, h: 76, ph: 'Кто мог быть там и тогда' },
+
+      { k: 'briefing', l: 'Досье дела (что известно)', t: 'textarea', big: 1, sec: 'Материалы дела' },
+      { k: 'timeline', l: 'Таймлайн (по строке на событие)', t: 'textarea', h: 130, ph: '1987-11-14 18:00 — смена вахты\n1987-11-14 21:40 — последняя запись в журнале\n1992 — публикация в газете' },
+
+      { k: 'leads', l: 'Зацепки / задачи (чеклист)', t: 'textarea', span: 3, h: 130, mono: 1, sec: 'Работа по делу', ph: '- [ ] Найти первоисточник\n- [x] Сохранить архивную копию' },
+      { k: 'evidence', l: 'Улики — по строке: что — где — оценка', t: 'textarea', span: 3, h: 130, ph: 'Журнал вахты, стр. 41 — архив — подтверждено' },
+      { k: 'questions', l: 'Открытые вопросы', t: 'textarea', span: 3, h: 110, ph: 'Кто последним видел…?' },
+      { k: 'contradictions', l: 'Противоречия', t: 'textarea', span: 3, h: 110, ph: 'Что в источниках не сходится' },
+      { k: 'hypothesis', l: 'Версии и гипотезы', t: 'textarea', full: 1, h: 110, ph: 'Версия A: …\nВерсия B: …' },
+
+      { k: 'conclusion', l: 'Развязка / вывод', t: 'textarea', full: 1, h: 100, sec: 'Итог' },
+
+      { ...SRC_F, sec: 'Источники и оценка' },
+      REL_F, CRED_F, RETR_F,
+      { ...TAGS_F, span: 6 },
+      NOTES_F
     ],
-    cols: ['title', 'case_type', 'status', 'difficulty', 'updated']
+    cols: ['title', 'case_no', 'case_type', 'status', 'priority', 'incident_date', 'updated']
   }
 };
 GE.TYPE_KEYS = Object.keys(GE.TYPES);
@@ -1831,6 +1993,10 @@ GE.FIELD_LABEL = (type, k) => {
   const f = (GE.TYPES[type]?.fields || []).find(x => x.k === k);
   return f ? f.l.split(' (')[0].split(' —')[0] : k;
 };
+
+const _refCache = {};
+GE.refFields = type => _refCache[type] || (_refCache[type] = (GE.TYPES[type]?.fields || []).filter(f => f.t === 'ref'));
+GE.fmtYmd = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v).split('-').reverse().join('.') : String(v ?? '');
 
 /* ─────────── IndexedDB + База данных ─────────── */
 const KEY = 'godeye.v2';
@@ -2071,16 +2237,19 @@ GE.db = {
     const links = GE.DB.links.filter(l => ids.includes(l.from) || ids.includes(l.to));
     GE.DB.records = GE.DB.records.filter(r => !ids.includes(r.id));
     GE.DB.links = GE.DB.links.filter(l => !links.includes(l));
+    const cleared = [];
     GE.DB.records.forEach(r => {
+      GE.refFields(r.type).forEach(f => { if (r[f.k] && ids.includes(r[f.k])) { cleared.push([r.id, f.k, r[f.k]]); r[f.k] = ''; } });
       if (ids.includes(r.affiliation)) r.affiliation = '';
-      if (Array.isArray(r.linked)) r.linked = r.linked.filter(x => !ids.includes(x));
+      if (Array.isArray(r.linked) && r.linked.some(x => ids.includes(x))) { cleared.push([r.id, 'linked', r.linked.slice()]); r.linked = r.linked.filter(x => !ids.includes(x)); }
     });
     GE.log('DEL', 'Удалено записей: ' + removed.length + (removed.length === 1 ? ' — ' + removed[0].title : ''));
     GE.save();
-    return { removed, links };
+    return { removed, links, cleared };
   },
-  restore({ removed, links }) {
+  restore({ removed, links, cleared = [] }) {
     GE.DB.records.unshift(...removed); GE.DB.links.push(...links);
+    cleared.forEach(([rid, k, v]) => { const r = GE.db.get(rid); if (r) r[k] = v; });
     GE.log('UNDO', 'Восстановлено записей: ' + removed.length); GE.save();
   },
   link(from, to, relation, extra = {}) {
@@ -2101,6 +2270,7 @@ GE.db = {
     GE.DB.links.forEach(l => { if (ids.has(l.from) && ids.has(l.to)) out.push({ id: l.id, from: l.from, to: l.to, rel: l.relation, kind: 'link' }); });
     GE.DB.records.forEach(r => {
       if (r.affiliation && ids.has(r.affiliation)) out.push({ from: r.id, to: r.affiliation, rel: 'состоит в', kind: 'ref' });
+      GE.refFields(r.type).forEach(f => { if (f.k !== 'affiliation' && r[f.k] && ids.has(r[f.k])) out.push({ from: r.id, to: r[f.k], rel: f.rel || 'связан с', kind: 'ref' }); });
       (r.linked || []).forEach(x => { if (ids.has(x)) out.push({ from: r.id, to: x, rel: 'включает', kind: 'ref' }); });
       (r._wikilinks || []).forEach(t => { const x = GE.db.findTitle(t); if (x && x.id !== r.id) out.push({ from: r.id, to: x.id, rel: 'упоминает', kind: 'wiki' }); });
     });
@@ -2129,8 +2299,9 @@ GE.parseQuery = q => {
   return branches;
 };
 const KEY_ALIAS = { tag: 'tags', tags: 'tags', rel: 'reliability', cred: 'credibility', type: 'type', t: 'type', status: 'status', country: 'country', src: 'sources' };
-GE.recText = r => Object.entries(r).filter(([k]) => !['id', 'thumb', 'created', 'updated', '_wikilinks', '_path'].includes(k)).map(([, v]) => Array.isArray(v) ? v.join(' ') : String(v ?? '')).join(' ').toLowerCase()
-  + ' ' + (r.affiliation ? (GE.db.get(r.affiliation)?.title || '') : '').toLowerCase();
+GE.recText = r => Object.entries(r).filter(([k]) => !['id', 'thumb', 'created', 'updated', '_wikilinks', '_path', 'board'].includes(k)).map(([, v]) => Array.isArray(v) ? v.join(' ') : String(v ?? '')).join(' ').toLowerCase()
+  + ' ' + (r.affiliation ? (GE.db.get(r.affiliation)?.title || '') : '').toLowerCase()
+  + ' ' + GE.refFields(r.type).filter(f => f.k !== 'affiliation').map(f => GE.db.get(r[f.k])?.title || '').join(' ').toLowerCase();
 const matchOneToken = (rec, t) => {
   let hit;
   const k = t.key && KEY_ALIAS[t.key];
@@ -4915,7 +5086,7 @@ window.GE.GodEye = GodEye;
 const GE = window.GE, $ = GE.$, $$ = GE.$$, esc = GE.esc;
 
 const state = {}; // type -> {q, rel, tag, sort, mode}
-const S = type => (state[type] = state[type] || Object.assign({ q: '', rel: '', tag: '', sort: 'new', mode: 'table' }, GE.settings.view[type] || {}));
+const S = type => (state[type] = state[type] || Object.assign({ q: '', rel: '', tag: '', cstatus: '', ctype: '', sort: 'new', mode: type === 'case' ? 'cards' : 'table' }, GE.settings.view[type] || {}));
 
 const EYE_EMPTY = `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor"><circle cx="60" cy="60" r="52" stroke-opacity=".25" stroke-dasharray="2 5"/><polygon points="60,16 98,82 22,82" stroke-opacity=".6"/><path d="M40 62c7-10 33-10 40 0-7 9-33 9-40 0z" stroke-opacity=".8"/><circle cx="60" cy="62" r="6" stroke="#e2232e"/></svg>`;
 
@@ -4927,12 +5098,21 @@ GE.fieldText = (rec, k) => {
   if (k === 'updated' || k === 'created') return GE.fmtDate(v);
   if (k === 'retrieved' || k === 'published') return v ? GE.fmtDate(v, false) : '';
   if (k === 'lat' || k === 'lon') return v === '' || v == null ? '' : (+v).toFixed(5);
+  const fd = GE.TYPES[rec.type]?.fields.find(x => x.k === k);
+  if (fd && fd.t === 'ref') return GE.db.get(v)?.title || '';
+  if (fd && fd.t === 'date') return v ? GE.fmtYmd(v) : '';
   if (Array.isArray(v)) return v.join(', ');
   return v == null ? '' : String(v);
 };
+const STATUS_TONE = { 'Завершено': 'hi', 'Раскрыто': 'hi', 'Частично раскрыто': 'hi', 'В работе': 'red', 'Расследуется': 'red', 'Горячий след': 'red', 'Тупик': 'lo', 'Закрыто': 'na', 'В архиве': 'na' };
+const PRIO_TONE = { 'Критический': 'solid', 'Срочный': 'red', 'Высокий': 'lo', 'Обычный': 'mid', 'Низкий': 'na' };
+const CLASSIF_TONE = { 'Для служебного пользования': 'mid', 'Конфиденциально': 'lo', 'Секретно': 'red', 'Совершенно секретно': 'solid' };
 const cell = (rec, k) => {
   if (k === '_adm') return GE.admBadge(rec);
-  if (k === 'status') return rec.status ? `<span class="badge ${rec.status === 'Завершено' ? 'hi' : rec.status === 'В работе' ? 'red' : 'mid'}">${esc(rec.status)}</span>` : '—';
+  if (k === 'status') return rec.status ? `<span class="badge ${STATUS_TONE[rec.status] || 'mid'}">${esc(rec.status)}</span>` : '—';
+  if (k === 'priority') return rec.priority ? `<span class="badge ${PRIO_TONE[rec.priority] || 'mid'}">${esc(rec.priority)}</span>` : '<span class="dim">—</span>';
+  if (k === 'classif') return rec.classif && rec.classif !== 'Без грифа' ? `<span class="badge ${CLASSIF_TONE[rec.classif] || 'mid'}">${esc(rec.classif)}</span>` : '';
+  if (k === 'case_no') return rec.case_no ? `<span class="mono">${esc(rec.case_no)}</span>` : '<span class="dim">—</span>';
   if (k === 'verdict') return rec.verdict ? `<span class="badge ${/Измен|Вне|ИИ/.test(rec.verdict) ? 'lo' : rec.verdict === 'Оригинал' ? 'hi' : 'mid'}">${esc(rec.verdict)}</span>` : '—';
   const t = GE.fieldText(rec, k);
   return t ? esc(t) : '<span class="dim">—</span>';
@@ -4945,6 +5125,7 @@ GE.recSub = rec => {
   if (T === 'image') return [rec.verdict, rec.camera].filter(Boolean).join(' · ');
   if (T === 'source') return [rec.source_type, GE.host(rec.url) || rec.publisher].filter(Boolean).join(' · ');
   if (T === 'report') return [rec.report_type, rec.status].filter(Boolean).join(' · ');
+  if (T === 'case') return [rec.case_type, rec.place || rec.country, rec.incident_date].filter(Boolean).join(' · ');
   return '';
 };
 
@@ -4970,6 +5151,7 @@ GE.buildEntityView = (sec) => {
       <label class="search-field">${GE.icon('search')}<input class="input" data-f="q" placeholder="Фильтр: слова, tag:…, rel:A, cred:2, -исключить" value="${esc(st.q)}"></label>
       <select class="select" data-f="rel"><option value="">Надёжность: все</option>${Object.entries(GE.REL).map(([k, v]) => `<option value="${k}" ${st.rel === k ? 'selected' : ''}>${k} — ${esc(v)}</option>`).join('')}</select>
       <select class="select" data-f="tag"><option value="">Тег: все</option></select>
+      ${type === 'case' ? '<select class="select" data-f="cstatus"><option value="">Статус: все</option></select><select class="select" data-f="ctype"><option value="">Тип дела: все</option></select>' : ''}
       <select class="select" data-f="sort">
         <option value="new">Сначала новые</option><option value="old">Сначала старые</option><option value="az">По названию</option><option value="rel">По надёжности</option><option value="upd">Недавно изменённые</option>
       </select>
@@ -4980,7 +5162,7 @@ GE.buildEntityView = (sec) => {
   sec.querySelector('[data-f=sort]').value = st.sort;
   const persist = () => { GE.settings.view[type] = { sort: st.sort, mode: st.mode }; GE.saveSettings(); };
   sec.querySelector('[data-f=q]').addEventListener('input', GE.debounce(e => { st.q = e.target.value; GE.renderEntity(type); }, 120));
-  ['rel', 'tag', 'sort'].forEach(f => sec.querySelector(`[data-f=${f}]`).addEventListener('change', e => { st[f] = e.target.value; persist(); GE.renderEntity(type); }));
+  ['rel', 'tag', 'cstatus', 'ctype', 'sort'].forEach(f => { const el = sec.querySelector(`[data-f=${f}]`); if (el) el.addEventListener('change', e => { st[f] = e.target.value; persist(); GE.renderEntity(type); }); });
   sec.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => { st.mode = b.dataset.m; persist(); GE.renderEntity(type); }));
   sec.querySelector('[data-act=new]').onclick = () => GE.editRecord(type);
   sec.querySelector('[data-act=md]').onclick = () => GE.vault && GE.vault.exportZip(GE.db.byType(type), T.plural);
@@ -4995,10 +5177,23 @@ GE.renderEntity = type => {
   const tags = GE.uniq(all.flatMap(r => r.tags || [])).sort();
   const tagSel = sec.querySelector('[data-f=tag]');
   tagSel.innerHTML = '<option value="">Тег: все</option>' + tags.map(t => `<option ${st.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  if (type === 'case') {
+    const fill = (f, label, key, order) => {
+      const el = sec.querySelector(`[data-f=${f}]`); if (!el) return;
+      const cnt = {}; all.forEach(r => { if (r[key]) cnt[r[key]] = (cnt[r[key]] || 0) + 1; });
+      const vals = Object.keys(cnt).sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
+      if (st[f] && !cnt[st[f]]) st[f] = '';
+      el.innerHTML = `<option value="">${label}: все</option>` + vals.map(v => `<option value="${esc(v)}" ${st[f] === v ? 'selected' : ''}>${esc(v)} (${cnt[v]})</option>`).join('');
+    };
+    fill('cstatus', 'Статус', 'status', GE.CASE_OPT.status);
+    fill('ctype', 'Тип дела', 'case_type', GE.CASE_GROUPS.flatMap(g => g.o));
+    const ex = sec.querySelector('.ent-extra');
+    if (ex) ex.innerHTML = all.length ? `<div class="live-hud case-stats">${GE.caseStats()}</div>` : '';
+  }
   sec.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === st.mode));
   // фильтр
   const tokens = GE.parseQuery(st.q);
-  let list = all.filter(r => (!st.rel || r.reliability === st.rel) && (!st.tag || (r.tags || []).includes(st.tag)) && GE.matchQuery(r, tokens));
+  let list = all.filter(r => (!st.rel || r.reliability === st.rel) && (!st.tag || (r.tags || []).includes(st.tag)) && (!st.cstatus || r.status === st.cstatus) && (!st.ctype || r.case_type === st.ctype) && GE.matchQuery(r, tokens));
   const relOrder = r => 'ABCDEF'.indexOf(r.reliability || 'F') * 10 + (+r.credibility || 6);
   const sorters = {
     new: (a, b) => (b.created || '').localeCompare(a.created || ''),
@@ -5011,15 +5206,26 @@ GE.renderEntity = type => {
   sec.querySelector('.count').textContent = `${list.length} / ${all.length}`;
   const box = sec.querySelector('.ent-list');
   if (!all.length) {
-    box.innerHTML = `<div class="empty">${EYE_EMPTY}<h4>ЗАПИСЕЙ ПОКА НЕТ</h4><p>Создайте первую запись — ${esc(T.label.toLowerCase())} — или загрузите демонстрационный набор, чтобы увидеть, как работает система.</p>
-      <div class="row" style="justify-content:center"><button class="btn btn-primary" data-e="new">${GE.icon('plus')}Создать</button><button class="btn" data-e="demo">Демо-данные</button></div></div>`;
+    const isCase = type === 'case';
+    box.innerHTML = `<div class="empty">${EYE_EMPTY}<h4>${isCase ? 'ДЕЛ ПОКА НЕТ' : 'ЗАПИСЕЙ ПОКА НЕТ'}</h4><p>${isCase ? 'Откройте первое дело: выберите тип, и система подставит шаблон зацепок и вопросов. Либо загрузите вымышленное демо-дело, чтобы увидеть досье, хронологию, список зацепок и доску.' : `Создайте первую запись — ${esc(T.label.toLowerCase())} — или загрузите демонстрационный набор, чтобы увидеть, как работает система.`}</p>
+      <div class="row" style="justify-content:center"><button class="btn btn-primary" data-e="new">${GE.icon('plus')}${isCase ? 'Открыть дело' : 'Создать'}</button><button class="btn" data-e="demo">${isCase ? 'Демо-дело' : 'Демо-данные'}</button></div></div>`;
     box.querySelector('[data-e=new]').onclick = () => GE.editRecord(type);
-    box.querySelector('[data-e=demo]').onclick = () => GE.loadDemo();
+    box.querySelector('[data-e=demo]').onclick = () => (isCase ? GE.loadDemoCase() : GE.loadDemo());
     return;
   }
   if (!list.length) { box.innerHTML = `<div class="empty"><h4>НИЧЕГО НЕ НАЙДЕНО</h4><p>Измените фильтры или запрос.</p></div>`; return; }
+  const caseCard = r => {
+    const L = GE.parseLeads(r.leads).filter(x => x.box), done = L.filter(x => x.done).length;
+    return `<div class="card" data-id="${r.id}" data-stamp="${esc(GE.caseStamp(r))}" data-tone="${GE.caseTone(r)}">
+        <div class="card-type">${esc(r.case_no || (T.code + ' · ' + GE.fmtDate(r.created, false)))}</div>
+        <div class="card-title sens">${esc(r.title)}</div>
+        <div class="card-sub">${esc(GE.recSub(r)) || '&nbsp;'}</div>
+        ${L.length ? `<div class="card-prog" title="Зацепки: ${done} из ${L.length}"><i style="width:${Math.round(done / L.length * 100)}%"></i></div>` : ''}
+        <div class="card-foot">${cell(r, 'status')}${r.priority && r.priority !== 'Обычный' ? cell(r, 'priority') : ''}${GE.caseOverdue(r) ? '<span class="badge red">СРОК ИСТЁК</span>' : ''}${(r.tags || []).slice(0, 2).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+      </div>`;
+  };
   if (st.mode === 'cards') {
-    box.innerHTML = `<div class="cards">${list.map(r => `
+    box.innerHTML = `<div class="cards">${list.map(r => type === 'case' ? caseCard(r) : `
       <div class="card" data-id="${r.id}">
         ${r.thumb ? `<div class="card-thumb" style="background-image:url('${r.thumb}')"></div>` : ''}
         <div class="card-type">${esc(T.code)} · ${esc(GE.fmtDate(r.created, false))}</div>
@@ -5046,6 +5252,7 @@ GE.renderEntity = type => {
 GE.searchFor = rec => {
   if (!rec) return;
   let q = rec.title, t = 'auto';
+  if (rec.type === 'case' && rec.subject) q = rec.subject;
   if (rec.type === 'geo' && rec.lat !== '' && rec.lat != null) { q = `${rec.lat}, ${rec.lon}`; t = 'coords'; }
   else if (rec.type === 'source' && rec.url) { q = rec.url; t = 'url'; }
   else if (rec.type === 'image' && rec.image_url) { q = rec.image_url; t = 'image'; }
@@ -5063,14 +5270,130 @@ GE.deleteRecords = async ids => {
   GE.toast(`Удалено: ${snap.removed.length}`, { action: { label: 'Отменить', fn: () => GE.db.restore(snap) } });
 };
 
+/* ─────────── Дела: номера, шаблоны, штампы, разбор текстовых полей ─────────── */
+GE.sfx = n => { try { GE.audio && GE.audio.sfx(n); } catch (e) { /* звук необязателен */ } };
+GE.nextCaseNo = () => {
+  const y = new Date().getFullYear(), re = new RegExp('^CAS-' + y + '-(\\d+)$');
+  const n = GE.db.byType('case').reduce((m, r) => { const x = re.exec(r.case_no || ''); return x ? Math.max(m, +x[1]) : m; }, 0);
+  return `CAS-${y}-${String(n + 1).padStart(3, '0')}`;
+};
+GE.CASE_TPL = {
+  people: {
+    leads: ['Собрать первичные публикации: СМИ, официальные сообщения, судебные документы', 'Составить хронологию по датированным источникам', 'Отметить расхождения в датах и показаниях между источниками', 'Проверить открытые архивы газет, реестры, судебные базы', 'Сохранить архивные копии ключевых страниц', 'Определить участников и их роли по публичным документам', 'Нанести публичные места событий на карту', 'Сверить версии с официальными заявлениями', 'Если дело активное — передать находки через официальные каналы'],
+    questions: ['Кто и когда последним зафиксирован достоверными источниками?', 'Какие факты подтверждены двумя независимыми источниками?', 'Где источники противоречат друг другу?', 'Какие документы не опубликованы или недоступны?']
+  },
+  money: {
+    leads: ['Найти юрлица и их учредителей в официальных реестрах', 'Сверить даты регистрации, адреса и смену руководства', 'Проверить судебные дела и исполнительные производства в открытых базах', 'Собрать публикации и отзывы, сохранить архивные копии', 'Проследить связи между компаниями: общие адреса, контакты, домены', 'Составить схему денежных потоков по публичным данным', 'Проверить домены: WHOIS, DNS, история в веб-архиве', 'Сопоставить заявления компании с фактами'],
+    questions: ['Кто выгодоприобретатель?', 'Откуда деньги и куда они уходят?', 'Какие документы подтверждают сделку?', 'Что изменилось незадолго до события?']
+  },
+  digital: {
+    leads: ['Зафиксировать артефакты: URL, скриншоты, хэши файлов, время получения', 'Сохранить копии страниц в веб-архиве', 'Проверить домен: WHOIS, DNS, сертификаты, история', 'Найти связанные аккаунты и ники на публичных платформах', 'Сравнить стиль, время публикаций и метаданные', 'Проверить изображения: обратный поиск, EXIF', 'Построить таймлайн событий по меткам времени', 'Отделить подтверждённые факты от предположений', 'Только публичные сообщения об инциденте — не искать и не скачивать утёкшие данные'],
+    questions: ['Что именно произошло и когда это впервые зафиксировано?', 'Кто первоисточник?', 'Какие технические артефакты можно проверить публично?', 'Есть ли независимое подтверждение?']
+  },
+  history: {
+    leads: ['Найти первичные документы: архивы, газеты, мемуары, судебные материалы', 'Сопоставить даты и имена в разных источниках', 'Выяснить, какие версии уже выдвигались и кем', 'Проверить цифровые архивы: газетные подшивки, оцифрованные фонды', 'Нанести места на карту, сравнить со старыми планами', 'Выписать противоречия и белые пятна', 'Найти упоминания в научных работах и книгах', 'Сформулировать проверяемые гипотезы'],
+    questions: ['Какие документы утрачены или засекречены и почему?', 'Какие свидетельства дошли только из вторых рук?', 'Что известно сегодня, чего не знали следователи тогда?', 'Какая версия объясняет больше всего фактов?']
+  },
+  verify: {
+    leads: ['Найти первоисточник утверждения или материала', 'Сохранить архивную копию до возможного удаления', 'Обратный поиск изображения или видео', 'Проверить метаданные: EXIF, дата и устройство', 'Геолокация по ориентирам: карты, спутниковые снимки, тени', 'Хронолокация: погода, освещённость, сопутствующие события', 'Запросить комментарии заинтересованных сторон', 'Оценить источники по шкале Адмиралтейства'],
+    questions: ['Кто первым опубликовал это и когда?', 'Где и когда это снято на самом деле?', 'Что осталось неподтверждённым?', 'Какие альтернативные объяснения существуют?']
+  },
+  game: {
+    leads: ['Прочитать условие и выписать все данные: имена, даты, файлы, ссылки', 'Проверить метаданные и скрытые слои файлов', 'Найти упоминания имён и ников в открытых источниках', 'Собрать ключи, фразы и закономерности', 'Сверить найденное с подсказками организаторов', 'Зафиксировать ход решения для отчёта'],
+    questions: ['Что в условии указано прямо, а что только намёком?', 'Какие данные ещё не использованы?', 'Каков формат ответа или флага?']
+  },
+  misc: {
+    leads: ['Сформулировать цель и вопрос расследования', 'Собрать первичные источники', 'Проверить факты минимум по двум независимым источникам', 'Составить таймлайн', 'Сделать вывод и оценить уверенность'],
+    questions: ['Что нужно выяснить в первую очередь?', 'Какие данные доступны публично?', 'Чем можно подтвердить вывод?']
+  }
+};
+GE.caseGroup = type => GE.CASE_GROUPS.find(g => g.o.includes(type)) || null;
+GE.caseTemplate = type => {
+  const g = GE.caseGroup(type), tp = g && GE.CASE_TPL[g.tpl];
+  return tp ? { leads: tp.leads.map(x => '- [ ] ' + x).join('\n'), questions: tp.questions.map(x => '- ' + x).join('\n') } : null;
+};
+GE.caseIsClosed = r => ['Раскрыто', 'Закрыто', 'В архиве'].includes(r.status);
+GE.caseOverdue = r => !!(r.deadline && r.deadline < GE.today() && !GE.caseIsClosed(r));
+GE.caseStamp = r => {
+  const s = r.status, c = r.classif;
+  if (s === 'Раскрыто') return 'РАСКРЫТО';
+  if (s === 'Частично раскрыто') return 'ЧАСТИЧНО';
+  if (s === 'Закрыто') return 'ЗАКРЫТО';
+  if (s === 'В архиве') return 'АРХИВ';
+  if (c === 'Совершенно секретно') return 'СОВ. СЕКРЕТНО';
+  if (c === 'Секретно') return 'СЕКРЕТНО';
+  if (s === 'Горячий след') return 'ГОРЯЧИЙ СЛЕД';
+  if (s === 'Тупик') return 'ТУПИК';
+  if (c === 'Конфиденциально') return 'КОНФИДЕНЦ.';
+  if (c === 'Для служебного пользования') return 'ДСП';
+  if (r.case_type === 'Холодное дело') return 'COLD CASE';
+  return 'ДЕЛО';
+};
+GE.caseTone = r => {
+  const s = r.status, c = r.classif;
+  if (s === 'Раскрыто' || s === 'Частично раскрыто') return 'solved';
+  if (s === 'Закрыто' || s === 'В архиве') return 'closed';
+  if (c === 'Совершенно секретно' || c === 'Секретно') return 'secret';
+  if (s === 'Горячий след') return 'hot';
+  if (s === 'Тупик' || r.case_type === 'Холодное дело') return 'cold';
+  return 'open';
+};
+GE.caseLines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
+GE.stripBullet = s => String(s).replace(/^[-*•]\s+/, '');
+GE.parseLeads = txt => String(txt || '').split('\n').map((raw, i) => {
+  const m = raw.match(/^\s*[-*]\s*\[( |x|X)\]\s?(.*)$/);
+  return m ? { i, box: true, done: m[1] !== ' ', text: m[2].trim() } : { i, box: false, done: false, text: raw.replace(/^\s*[-*]\s+/, '').trim() };
+}).filter(x => x.text);
+GE.parsePeople = txt => GE.caseLines(txt).map(l => {
+  const p = GE.stripBullet(l).split(/\s+[—–-]\s+/);
+  return { name: p[0].trim(), role: (p[1] || '').trim(), note: p.slice(2).join(' — ').trim() };
+}).filter(x => x.name);
+GE.roleTone = role => /подозр/i.test(role) ? 'sus' : /потерпев|жертв|пропав|заложник/i.test(role) ? 'vic' : /свидет/i.test(role) ? 'wit' : /эксперт|следовател|журналист|адвокат|судь[яи]|прокурор|детектив|аналитик|оперативник|исследовател/i.test(role) ? 'exp' : '';
+const DATEY = /\d|январ|феврал|март|апрел|мая|июн|июл|август|сентябр|октябр|ноябр|декабр|весн|лет[оае]|осен|зим|утр|вечер|ночь|ночью|полдень|полночь/i;
+GE.parseTimeline = txt => GE.caseLines(txt).map(l => {
+  const s = GE.stripBullet(l);
+  const m = s.match(/^(.{1,28}?)\s[—–-]\s(.+)$/) || s.match(/^(.{1,28}?):\s+(.+)$/);
+  return m && DATEY.test(m[1]) ? { d: m[1].trim(), t: m[2].trim() } : { d: '', t: s };
+});
+GE.caseSet = (id, patch, msg) => {
+  const r = GE.db.get(id); if (!r) return null;
+  Object.assign(r, patch, { updated: GE.now() });
+  if (msg) GE.log('CAS', msg + ' — ' + r.title, id);
+  GE.save();
+  return r;
+};
+GE.toggleLead = (id, li) => {
+  const r = GE.db.get(id); if (!r) return null;
+  const rows = String(r.leads || '').split('\n'), m = rows[li] && rows[li].match(/^(\s*[-*]\s*)\[( |x|X)\](.*)$/);
+  if (!m) return null;
+  const done = m[2] === ' ';
+  rows[li] = `${m[1]}[${done ? 'x' : ' '}]${m[3]}`;
+  GE.caseSet(id, { leads: rows.join('\n') });
+  return done;
+};
+GE.caseStats = () => {
+  const all = GE.db.byType('case'), open = all.filter(r => !GE.caseIsClosed(r));
+  const L = all.flatMap(r => GE.parseLeads(r.leads).filter(x => x.box));
+  const pill = (l, v, c = '') => `<div class="hud-pill ${c}"><span>${l}</span><b>${v}</b></div>`;
+  const hot = open.filter(r => r.status === 'Горячий след').length, late = open.filter(GE.caseOverdue).length;
+  return pill('Всего дел', all.length) + pill('В работе', open.length, 'ok') + pill('Горячих следов', hot, hot ? 'alert' : '')
+    + pill('Раскрыто', all.filter(r => r.status === 'Раскрыто' || r.status === 'Частично раскрыто').length, 'hi')
+    + pill('Срок истёк', late, late ? 'alert' : '') + pill('Зацепки', `${L.filter(x => x.done).length} / ${L.length}`);
+};
+
 /* ─────────── Редактор записи ─────────── */
 const inputFor = (f, rec, type) => {
   const v = rec[f.k];
   const id = 'f_' + f.k;
   const ph = f.ph ? ` placeholder="${esc(f.ph)}"` : '';
   switch (f.t) {
-    case 'textarea': return `<textarea class="textarea ${f.mono ? 'mono' : ''}" id="${id}" style="${f.big ? 'min-height:260px' : ''}"${ph}>${esc(v || '')}</textarea>`;
-    case 'select': return `<select class="select" id="${id}"><option value="">—</option>${f.opts.map(o => `<option ${v === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+    case 'textarea': return `<textarea class="textarea ${f.mono ? 'mono' : ''}" id="${id}" style="${f.big ? 'min-height:260px' : f.h ? `min-height:${f.h}px` : ''}"${ph}>${esc(v || '')}</textarea>`;
+    case 'select': {
+      const opt = o => `<option ${v === o ? 'selected' : ''}>${esc(o)}</option>`;
+      const known = f.groups ? f.groups.flatMap(g => g.o) : f.opts;
+      const legacy = v && !known.includes(v) ? opt(v) : '';
+      return `<select class="select" id="${id}"><option value="">—</option>${f.groups ? f.groups.map(g => `<optgroup label="${esc(g.g)}">${g.o.map(opt).join('')}</optgroup>`).join('') : f.opts.map(opt).join('')}${legacy}</select>`;
+    }
     case 'rel': return `<select class="select" id="${id}"><option value="">—</option>${Object.entries(GE.REL).map(([k, l]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${k} — ${esc(l)}</option>`).join('')}</select>`;
     case 'cred': return `<select class="select" id="${id}"><option value="">—</option>${Object.entries(GE.CRED).map(([k, l]) => `<option value="${k}" ${String(v) === k ? 'selected' : ''}>${k} — ${esc(l)}</option>`).join('')}</select>`;
     case 'ref': return `<select class="select" id="${id}"><option value="">— не выбрано —</option>${GE.db.byType(f.ref).map(r => `<option value="${r.id}" ${v === r.id ? 'selected' : ''}>${esc(r.title)}</option>`).join('')}<option value="__new">+ создать новую…</option></select>`;
@@ -5084,7 +5407,7 @@ const inputFor = (f, rec, type) => {
     case 'date': return `<input class="input" type="date" id="${id}" value="${esc(v || (f.def === 'today' && !rec.id ? GE.today() : ''))}">`;
     case 'number': return `<input class="input mono" type="number" step="any" id="${id}" value="${v ?? ''}"${ph}>`;
     case 'url': return `<input class="input mono" type="url" id="${id}" value="${esc(v || '')}" placeholder="https://…">`;
-    default: return `<input class="input ${f.mono ? 'mono' : ''}" id="${id}" value="${esc(v || '')}"${ph}>`;
+    default: return `<input class="input ${f.mono ? 'mono' : ''}" id="${id}" value="${esc(v || (f.def === 'caseno' ? GE.nextCaseNo() : ''))}"${ph}>`;
   }
 };
 const readField = (f, root) => {
@@ -5101,12 +5424,17 @@ const readField = (f, root) => {
 GE.editRecord = (type, id, preset = {}) => {
   const T = GE.TYPES[type], rec = id ? GE.db.get(id) : Object.assign({}, preset);
   if (id && !rec) return;
-  const isReport = type === 'report';
+  const isReport = type === 'report', isCase = type === 'case';
+  const spanOf = f => f.span || (f.full || f.t === 'textarea' || f.t === 'refs' ? 6 : 2);
+  const fieldHtml = f => `<label class="field ${T.grid ? 'sp' + spanOf(f) : f.full || f.t === 'textarea' || f.t === 'refs' ? 'full' : ''}"><span>${esc(f.l)}${f.req ? ' <em>*</em>' : ''}</span>${inputFor(f, rec, type)}</label>`;
+  const caseIntro = isCase ? `<div class="notice">${GE.icon('shield', 'ic')}<div><b>Этика расследования.</b> Только публично задокументированные дела и открытые источники. Не вносите адреса, телефоны и данные частных лиц. Если дело активное, например пропал человек, передавайте находки в полицию или официальные поисковые организации.</div></div>
+    <div class="case-quick"><span>Быстрый выбор типа</span>${GE.CASE_QUICK.map(q => `<button type="button" class="chip" data-qt="${esc(q)}">${esc(q)}</button>`).join('')}</div>` : '';
   const body = document.createElement('div');
   body.innerHTML = `
     ${type === 'geo' ? `<div class="notice silver" style="margin-bottom:16px">${GE.icon('geo', 'ic')}<div>Вставьте координаты в любом формате — поля заполнятся автоматически:<input class="input mono" id="geo-paste" placeholder="59.9390, 30.3158  ·  59°56'20&quot;N 30°18'57&quot;E" style="margin-top:8px"></div></div>` : ''}
+    ${caseIntro}
     ${rec.thumb ? `<img src="${rec.thumb}" class="dr-thumb" alt="">` : ''}
-    <div class="form-grid">${T.fields.map(f => `<label class="field ${f.full || f.t === 'textarea' || f.t === 'refs' ? 'full' : ''}"><span>${esc(f.l)}${f.req ? ' <em>*</em>' : ''}</span>${inputFor(f, rec, type)}</label>`).join('')}</div>`;
+    <div class="form-grid ${T.grid ? 'g' + T.grid : ''}">${T.fields.map(f => (f.sec ? `<div class="form-sep">${esc(f.sec)}</div>` : '') + fieldHtml(f)).join('')}</div>`;
   if (type === 'geo') {
     body.querySelector('#geo-paste').addEventListener('input', e => {
       const c = GE.parseCoords(e.target.value);
@@ -5132,6 +5460,23 @@ GE.editRecord = (type, id, preset = {}) => {
       }]
     });
   }));
+  if (isCase) {
+    const sel = body.querySelector('#f_case_type'), leadsEl = body.querySelector('#f_leads'), questEl = body.querySelector('#f_questions');
+    const auto = { leads: '', questions: '' };
+    const free = (el, k) => !el.value.trim() || (auto[k] && el.value.trim() === auto[k].trim());
+    const mark = () => body.querySelectorAll('[data-qt]').forEach(c => c.classList.toggle('on', c.dataset.qt === sel.value));
+    sel.addEventListener('change', () => {
+      mark();
+      const tp = GE.caseTemplate(sel.value);
+      if (!tp) return;
+      let n = 0;
+      if (free(leadsEl, 'leads')) { leadsEl.value = auto.leads = tp.leads; n++; }
+      if (free(questEl, 'questions')) { questEl.value = auto.questions = tp.questions; n++; }
+      if (n) GE.toast('Подставлен шаблон зацепок: ' + sel.value);
+    });
+    body.querySelectorAll('[data-qt]').forEach(c => c.addEventListener('click', () => { sel.value = c.dataset.qt; sel.dispatchEvent(new Event('change')); }));
+    mark();
+  }
   const actions = [];
   if (id) actions.push({ label: 'Удалить', danger: true, left: true, fn: () => { GE.deleteRecords([id]); } });
   if (isReport) actions.push({ label: 'Автосборка из связанных', left: !id, keep: true, fn: ({ el }) => {
@@ -5143,25 +5488,28 @@ GE.editRecord = (type, id, preset = {}) => {
   } });
   actions.push({ label: 'Отмена' });
   actions.push({
-    label: id ? 'Сохранить' : 'Создать запись', primary: true, fn: ({ el }) => {
+    label: id ? 'Сохранить' : isCase ? 'Открыть дело' : 'Создать запись', primary: true, fn: ({ el }) => {
       const data = {};
       for (const f of T.fields) data[f.k] = readField(f, el);
       if (!data.title) { el.querySelector('#f_title').focus(); GE.toast('Заполните название', { type: 'err' }); return false; }
+      if (isCase && data.case_no && GE.db.byType('case').some(c => c.id !== id && c.case_no === data.case_no)) { el.querySelector('#f_case_no').focus(); GE.toast(`Номер дела ${data.case_no} уже занят — укажите другой`, { type: 'err' }); return false; }
       for (const f of T.fields) if (f.t === 'url' && data[f.k] && !GE.safeUrl(data[f.k])) { GE.toast(`Поле «${f.l}»: нужна ссылка вида https://…`, { type: 'err' }); el.querySelector('#f_' + f.k).focus(); return false; }
       if (type === 'geo' || type === 'image') {
         if (data.lat !== '' && (Math.abs(data.lat) > 90)) { GE.toast('Широта должна быть от −90 до 90', { type: 'err' }); return false; }
         if (data.lon !== '' && (Math.abs(data.lon) > 180)) { GE.toast('Долгота должна быть от −180 до 180', { type: 'err' }); return false; }
       }
       if (data.sources) data.sources = data.sources.filter(u => GE.safeUrl(u) || /^\[\[/.test(u));
+      const prevStatus = id ? GE.db.get(id)?.status : '';
       let r;
       if (id) r = GE.db.update(id, data);
       else r = GE.db.add(type, Object.assign({}, preset, data));
+      if (isCase && data.status === 'Раскрыто' && prevStatus !== 'Раскрыто') GE.sfx('found');
       GE.toast(id ? 'Запись обновлена' : 'Запись создана: ' + r.title);
       GE.emit('record:saved', r);
       if (GE.drawerId === r.id) GE.openRecord(r.id);
     }
   });
-  GE.modal({ title: (id ? 'Изменить · ' : 'Новая запись · ') + T.label, body, actions, size: isReport ? 'wide' : '' });
+  GE.modal({ title: isCase ? (id ? 'Изменить · Дело' + (rec.case_no ? ' · ' + rec.case_no : '') : 'Новое дело') : (id ? 'Изменить · ' : 'Новая запись · ') + T.label, body, actions, size: isReport || isCase ? 'wide' : '' });
 };
 
 GE.reportAutoBody = ids => {
@@ -5182,39 +5530,91 @@ GE.reportAutoBody = ids => {
 
 /* ─────────── Карточка записи (шторка) ─────────── */
 GE.closeDrawer = () => { $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); GE.drawerId = null; };
-GE.openRecord = id => {
+/* ─────────── Дела: оформление карточки ─────────── */
+const STAGE_SHORT = ['Задача', 'Сбор', 'Проверка', 'Анализ', 'Верификация', 'Выводы'];
+const OUTCOME_TONE = { 'Раскрыто — подтверждено': 'solved', 'Раскрыто — вероятная версия': 'solved', 'Не раскрыто': 'cold', 'Опровергнуто / фейк': 'fake', 'Недостаточно данных': 'cold', 'Передано в компетентные органы': 'closed' };
+const CASE_KV_SKIP = ['people', 'evidence', 'questions', 'contradictions', 'motive', 'means', 'opportunity', 'outcome', 'status', 'priority', 'classif', 'stage', 'case_no', 'deadline', 'difficulty', 'odds', 'retrieved'];
+const linkify = s => esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+GE.caseView = (r, nb, quiet) => {
+  const stages = GE.CASE_OPT.stage, cur = stages.indexOf(r.stage);
+  const leads = GE.parseLeads(r.leads), boxes = leads.filter(x => x.box), done = boxes.filter(x => x.done).length;
+  const people = GE.parsePeople(r.people), ev = GE.caseLines(r.evidence), qs = GE.caseLines(r.questions), cons = GE.caseLines(r.contradictions);
+  const pct = boxes.length ? Math.round(done / boxes.length * 100) : 0;
+  const sec = (h, inner) => inner ? `<div class="dr-sec"><h6>${h}</h6>${inner}</div>` : '';
+  const md = k => r[k] ? `<div class="md">${GE.md(r[k])}</div>` : '';
+  const pips = (n, total) => Array.from({ length: total }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
+  const dif = GE.CASE_OPT.difficulty.indexOf(r.difficulty) + 1, odd = Math.max(0, GE.CASE_OPT.odds.indexOf(r.odds));
+  const gauges = (dif || odd) ? `<div class="gauges">${dif ? `<div><span>Сложность</span><div class="pips">${pips(dif, 6)}</div><em>${esc(r.difficulty)}</em></div>` : ''}${odd ? `<div><span>Шансы раскрытия</span><div class="pips">${pips(odd, 5)}</div><em>${esc(r.odds)}</em></div>` : ''}</div>` : '';
+  const stage = `<div class="dr-sec"><h6>Этап расследования${r.stage ? ' · ' + esc(r.stage) : ''}</h6><div class="stage">${stages.map((s, i) => `<button type="button" class="stg ${i < cur ? 'done' : ''} ${i === cur ? 'on' : ''}" data-stage="${esc(s)}" title="${esc(s)}"><i>${i + 1}</i><span>${STAGE_SHORT[i]}</span></button>`).join('')}</div></div>`;
+  const prog = `<div class="case-prog"><div class="cp-top"><span>Прогресс по зацепкам</span><b>${boxes.length ? `${done} / ${boxes.length} · ${pct}%` : 'нет чек-листа'}</b></div><div class="cp-bar"><i style="width:${pct}%"></i></div><div class="cp-row"><span>Улики <b>${ev.length}</b></span><span>Фигуранты <b>${people.length}</b></span><span>Вопросы <b>${qs.length}</b></span><span>Противоречия <b>${cons.length}</b></span><span>Связи <b>${nb.length}</b></span></div>${gauges}</div>`;
+  const mmoItem = (l, v) => `<div class="mmo-i ${v ? '' : 'gap'}"><b>${l}</b><p>${v ? esc(v) : 'не установлено'}</p></div>`;
+  const mmo = (r.motive || r.means || r.opportunity) ? sec('Мотив · средства · возможность', `<div class="mmo">${mmoItem('Мотив', r.motive)}${mmoItem('Средства', r.means)}${mmoItem('Возможность', r.opportunity)}</div>`) : '';
+  const rost = people.length ? sec(`Фигуранты · ${people.length}`, `<div class="rost">${people.map(p => { const rec = GE.db.findTitle(p.name, 'person'); return `<div class="rost-i ${GE.roleTone(p.role)} ${rec ? 'lnk' : ''}" ${rec ? `data-open="${esc(rec.id)}" title="Открыть запись"` : ''}><b class="sens">${esc(p.name)}</b>${p.role ? `<span>${esc(p.role)}</span>` : ''}${p.note ? `<em>${esc(p.note)}</em>` : ''}</div>`; }).join('')}</div>`) : '';
+  const tl = GE.parseTimeline(r.timeline);
+  const tlH = tl.length ? sec(`Хронология · ${tl.length}`, `<div class="case-tl">${tl.map(e => `<div class="ctl-i">${e.d ? `<div class="ctl-date">${esc(e.d)}</div>` : ''}<div class="ctl-text">${esc(e.t)}</div></div>`).join('')}</div>`) : '';
+  const evH = ev.length ? sec(`Улики и документы · ${ev.length}`, `<div class="ev">${ev.map((e, i) => `<div class="ev-i"><b>E-${String(i + 1).padStart(2, '0')}</b><span>${linkify(GE.stripBullet(e))}</span></div>`).join('')}</div>`) : '';
+  const leadsH = leads.length ? sec(`Зацепки${boxes.length ? ` · ${done}/${boxes.length}` : ''}`, `<div class="chk-list">${leads.map(x => x.box ? `<div class="chk ${x.done ? 'done' : ''}" role="checkbox" aria-checked="${x.done}" tabindex="0" data-li="${x.i}"><i></i><span>${linkify(x.text)}</span></div>` : `<div class="chk plain"><i></i><span>${linkify(x.text)}</span></div>`).join('')}</div>`) : '';
+  const qaH = qs.length ? sec(`Открытые вопросы · ${qs.length}`, `<div class="qa">${qs.map(q => `<div class="qa-i q"><b>?</b><span>${esc(GE.stripBullet(q))}</span></div>`).join('')}</div>`) : '';
+  const coH = cons.length ? sec(`Противоречия · ${cons.length}`, `<div class="qa">${cons.map(q => `<div class="qa-i c"><b>!</b><span>${esc(GE.stripBullet(q))}</span></div>`).join('')}</div>`) : '';
+  const oc = r.outcome && r.outcome !== 'Не определён' ? r.outcome : '';
+  const outH = (oc || r.conclusion) ? sec('Развязка', `${oc ? `<div class="outcome ${OUTCOME_TONE[oc] || 'cold'} ${quiet ? '' : 'fresh'}"><span>${esc(oc)}</span></div>` : ''}${md('conclusion')}`) : '';
+  return { top: stage + prog, mid: mmo + rost + sec('Досье дела', md('briefing')) + tlH + evH + leadsH + qaH + coH + sec('Версии', md('hypothesis')) + outH };
+};
+GE.caseRefresh = (id, keep) => {
+  const b = $('#drawer .dr-b'), y = b ? b.scrollTop : 0;
+  GE.openRecord(id, true);
+  const nb = $('#drawer .dr-b'); if (nb) nb.scrollTop = y;
+  const el = keep && $('#drawer ' + keep); if (el) el.focus({ preventScroll: true });
+};
+GE.wireCase = (dr, id) => {
+  dr.querySelectorAll('[data-stage]').forEach(b => b.addEventListener('click', () => {
+    const r = GE.db.get(id); if (!r || r.stage === b.dataset.stage) return;
+    GE.caseSet(id, { stage: b.dataset.stage }, 'Этап «' + b.dataset.stage + '»');
+    GE.sfx('graph'); GE.caseRefresh(id, `[data-stage="${b.dataset.stage}"]`);
+  }));
+  dr.querySelectorAll('.chk[data-li]').forEach(el => {
+    const go = () => {
+      const li = +el.dataset.li, done = GE.toggleLead(id, li); if (done == null) return;
+      const L = GE.parseLeads(GE.db.get(id).leads).filter(x => x.box), all = done && L.length && L.every(x => x.done);
+      GE.sfx(all ? 'found' : done ? 'tab' : 'click');
+      if (all) GE.toast('Все зацепки отработаны');
+      GE.caseRefresh(id, `.chk[data-li="${li}"]`);
+    };
+    el.addEventListener('click', e => { if (!e.target.closest('a')) go(); });
+    el.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); go(); } });
+  });
+};
+
+GE.openRecord = (id, quiet) => {
   const r = GE.db.get(id); if (!r) return;
-  const T = GE.TYPES[r.type], dr = $('#drawer');
+  const T = GE.TYPES[r.type], dr = $('#drawer'), isCase = r.type === 'case';
   GE.drawerId = id;
   const urls = GE.uniq([].concat(r.url || [], r.website || [], r.image_url || [], r.archived_url || [], r.sources || []).filter(u => GE.safeUrl(u)));
-  const skip = new Set(['title', 'notes', 'body', 'objective', 'conclusion', 'briefing', 'timeline', 'leads', 'hypothesis', 'sources', 'url', 'website', 'image_url', 'archived_url', 'linked', 'tags', 'reliability', 'credibility']);
-  const kv = T.fields.filter(f => !skip.has(f.k) && GE.fieldText(r, f.k)).map(f => `<dt>${esc(GE.FIELD_LABEL(r.type, f.k))}</dt><dd class="${f.mono ? 'mono' : ''}">${f.k === 'affiliation' ? `<a href="#" data-open="${r.affiliation}">${esc(GE.fieldText(r, f.k))}</a>` : esc(GE.fieldText(r, f.k))}</dd>`).join('');
+  const skip = new Set(['title', 'notes', 'body', 'objective', 'conclusion', 'briefing', 'timeline', 'leads', 'hypothesis', 'sources', 'url', 'website', 'image_url', 'archived_url', 'linked', 'tags', 'reliability', 'credibility'].concat(isCase ? CASE_KV_SKIP : []));
+  const kv = T.fields.filter(f => !skip.has(f.k) && GE.fieldText(r, f.k)).map(f => `<dt>${esc(GE.FIELD_LABEL(r.type, f.k))}</dt><dd class="${f.mono ? 'mono' : ''}">${f.k === 'affiliation' || f.t === 'ref' ? `<a href="#" data-open="${esc(r[f.k])}">${esc(GE.fieldText(r, f.k))}</a>` : esc(GE.fieldText(r, f.k))}</dd>`).join('');
   const nb = GE.db.neighbors(id);
-  const hints = r.type === 'case' ? GE.caseHints(r) : [];
+  const hints = isCase ? GE.caseHints(r) : [];
   const text = (k, h) => r[k] ? `<div class="dr-sec"><h6>${h}</h6><div class="md">${GE.md(r[k])}</div></div>` : '';
-  const tlLines = (r.timeline || '').split('\n').map(l => l.trim()).filter(Boolean);
-  const tlHtml = tlLines.length ? `<div class="dr-sec"><h6>Таймлайн</h6><div class="timeline">${tlLines.map(e => { const i = e.search(/[-—:]/); const d = i > 0 && i < 20 ? e.slice(0, i).trim() : ''; const t = d ? e.slice(i + 1).trim() : e; return `<div class="tl-i">${d ? `<div class="tl-date">${esc(d)}</div>` : ''}<div class="tl-text">${esc(t)}</div></div>`; }).join('')}</div></div>` : '';
+  const cv = isCase ? GE.caseView(r, nb, quiet) : { top: '', mid: '' };
+  const caseBadges = isCase ? (r.priority && r.priority !== 'Обычный' ? cell(r, 'priority') : '') + cell(r, 'classif') + (r.deadline ? `<span class="badge ${GE.caseOverdue(r) ? 'red' : 'mid'}">${GE.caseOverdue(r) ? 'СРОК ИСТЁК · ' : 'СРОК · '}${esc(GE.fmtYmd(r.deadline))}</span>` : '') : '';
   dr.innerHTML = `
     <div class="dr-h">
       <button class="btn btn-icon btn-ghost close" aria-label="Закрыть">${GE.icon('x', 'ic')}</button>
-      <div class="dr-type">${esc(T.code)} · ${esc(T.label.toUpperCase())}</div>
+      <div class="dr-type">${esc(T.code)} · ${esc(T.label.toUpperCase())}${isCase && r.case_no ? ' · ' + esc(r.case_no) : ''}</div>
       <div class="dr-title sens">${esc(r.title)}</div>
-      <div class="dr-badges">${r.type !== 'report' ? GE.admBadge(r) : ''}${r.reliability ? `<span class="badge">${esc(GE.REL[r.reliability])}</span>` : ''}${r.credibility ? `<span class="badge">${esc(GE.CRED[r.credibility])}</span>` : ''}${r.status ? cell(r, 'status') : ''}${(r.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join(' ')}</div>
+      <div class="dr-badges">${r.type !== 'report' && !(isCase && !r.reliability && !r.credibility) ? GE.admBadge(r) : ''}${r.reliability ? `<span class="badge">${esc(GE.REL[r.reliability])}</span>` : ''}${r.credibility ? `<span class="badge">${esc(GE.CRED[r.credibility])}</span>` : ''}${r.status ? cell(r, 'status') : ''}${caseBadges}${(r.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join(' ')}</div>
     </div>
     <div class="dr-b">
+      ${cv.top}
       ${r.thumb ? `<img class="dr-thumb" src="${r.thumb}" alt="">` : ''}
       ${r.type === 'geo' && r.lat !== '' && r.lat != null ? `<div class="row" style="margin-bottom:16px"><button class="btn btn-sm" data-act="map">${GE.icon('geo')}Показать на карте</button><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}">Google</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://yandex.ru/maps/?ll=${r.lon},${r.lat}&z=17&pt=${r.lon},${r.lat}">Яндекс</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}">OSM</a></div>` : ''}
       ${kv ? `<div class="dr-sec"><h6>Сведения</h6><dl class="kv">${kv}<dt>Создано</dt><dd>${esc(GE.fmtDate(r.created))}</dd><dt>Изменено</dt><dd>${esc(GE.fmtDate(r.updated))}</dd></dl></div>` : ''}
       ${text('objective', 'Цель исследования')}
       ${text('body', r.type === 'report' ? 'Ход работы и находки' : 'Описание')}
-      ${text('conclusion', 'Вывод')}
-      ${text('briefing', 'Досье дела')}
-      ${tlHtml}
-      ${text('leads', 'Зацепки')}
-      ${text('hypothesis', 'Версии')}
+      ${isCase ? cv.mid : text('conclusion', 'Вывод')}
       ${text('notes', 'Заметки')}
       ${urls.length ? `<div class="dr-sec"><h6>Источники и ссылки · ${urls.length}</h6><div class="url-list">${urls.map(u => `<div class="row" style="gap:6px;flex-wrap:nowrap"><a href="${esc(u)}" target="_blank" rel="noopener" class="grow">${esc(u)}</a><a class="btn btn-icon btn-sm btn-ghost" title="Архивная копия" target="_blank" rel="noopener" href="https://web.archive.org/web/*/${esc(u)}">${GE.icon('archive')}</a></div>`).join('')}</div></div>` : ''}
-      ${hints.length ? `<div class="dr-sec"><h6>Подсказки детектива</h6>${hints.map(h => `<a class="hint" href="#/search?q=${encodeURIComponent(h.q)}" data-hint><b>${esc(h.t)}</b> — ${esc(h.a)}</a>`).join('')}</div>` : ''}
+      ${hints.length ? `<div class="dr-sec"><h6>Подсказки детектива</h6>${hints.map(h => `<a class="dhint" href="#/search?q=${encodeURIComponent(h.q)}" data-hint><b>${esc(h.t)}</b> — ${esc(h.a)}</a>`).join('')}</div>` : ''}
       <div class="dr-sec"><h6>Связи · ${nb.length}</h6>
         <div class="link-list">${nb.length ? nb.map(n => `<div class="link-i" data-open="${n.other.id}"><span class="rel">${n.out ? '→' : '←'} ${esc(n.edge.rel)}</span><span class="sens">${esc(n.other.title)}</span><span class="dim mono" style="font-size:10px">${GE.TYPES[n.other.type].code}</span>${n.edge.kind === 'link' ? `<button class="btn btn-icon btn-sm btn-ghost x" data-unlink="${n.edge.id}" title="Удалить связь">${GE.icon('x')}</button>` : ''}</div>`).join('') : '<div class="muted" style="font-size:12.5px">Связей пока нет.</div>'}</div>
         <button class="btn btn-sm" style="margin-top:10px" data-act="link">${GE.icon('link')}Добавить связь</button>
@@ -5245,20 +5645,30 @@ GE.openRecord = id => {
   act('md').onclick = () => GE.vault && GE.copy(GE.vault.recToMd(r));
   if (act('map')) act('map').onclick = () => { GE.closeDrawer(); location.hash = '#/geolocation'; setTimeout(() => GE.geo && GE.geo.focus(r), 250); };
   if (act('export')) act('export').onclick = () => GE.exportReportDialog(r);
+  if (isCase) GE.wireCase(dr, id);
+  dr.classList.toggle('case', isCase);
   dr.classList.add('on'); $('#scrim').classList.add('on');
 };
 
 GE.caseHints = r => {
-  const s = String(r.subject || '').trim();
-  if (!s) return [];
+  const s = String(r.subject || '').trim(), title = String(r.title || '').replace(/\s*\(DEMO\)\s*$/i, '').trim();
+  const grp = (GE.caseGroup(r.case_type) || {}).tpl;
   const H = [];
-  if (/^[a-zA-Z0-9_.]{3,24}$/.test(s)) H.push({ t: 'Никнейм', a: 'Live-проверка на 18 платформах', q: s });
-  if (/@/.test(s)) H.push({ t: 'Email', a: 'Публичные упоминания адреса', q: s });
-  if (/^https?:\/\//.test(s) || /^[\w-]+(\.[\w-]+)+$/.test(s)) H.push({ t: 'Домен', a: 'WHOIS, DNS, сертификаты, архив', q: s });
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) H.push({ t: 'IP', a: 'Гео, ASN, открытые порты', q: s });
-  if (/^\+?[\d\s()-]{7,}$/.test(s)) H.push({ t: 'Телефон', a: 'Нормализация E.164 и источники', q: s });
-  if (!H.length) H.push({ t: 'Текст', a: 'Полнотекстовый поиск по открытым источникам', q: s });
-  return H;
+  if (s) {
+    if (/^[a-zA-Z0-9_.]{3,24}$/.test(s)) H.push({ t: 'Никнейм', a: 'Live-проверка на 18 платформах', q: s });
+    if (/@/.test(s)) H.push({ t: 'Email', a: 'Публичные упоминания адреса', q: s });
+    if (/^https?:\/\//.test(s) || /^[\w-]+(\.[\w-]+)+$/.test(s)) H.push({ t: 'Домен', a: 'WHOIS, DNS, сертификаты, архив', q: s });
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) H.push({ t: 'IP', a: 'Гео, ASN, открытые порты', q: s });
+    if (/^\+?[\d\s()-]{7,}$/.test(s)) H.push({ t: 'Телефон', a: 'Нормализация E.164 и источники', q: s });
+    if (!H.length) H.push({ t: 'Текст', a: 'Полнотекстовый поиск по открытым источникам', q: s });
+  }
+  if (r.place) H.push({ t: 'Место', a: 'Публикации и карты по месту события', q: r.place });
+  if (r.place && r.incident_date) H.push({ t: 'Место и дата', a: 'Газетные архивы и хроники периода', q: `${r.place} ${r.incident_date}` });
+  if (title) H.push({ t: 'Название дела', a: 'Публикации в СМИ и архивные упоминания', q: `"${title}"` });
+  if (grp === 'money') H.push({ t: 'Реестры и суды', a: 'Юрлица, судебные дела, исполнительные производства', q: `${s || title} суд реестр` });
+  if (grp === 'verify') H.push({ t: 'Первоисточник', a: 'Первая публикация и обратный поиск', q: s || title });
+  if (grp === 'digital') H.push({ t: 'Веб-архив', a: 'Сохранённые версии страниц и упоминания', q: s || title });
+  return H.slice(0, 6);
 };
 
 GE.autoSearch = async id => {
@@ -5380,9 +5790,10 @@ GE.linkDialog = (fromId, toId) => {
 /* ─────────── Экспорт ─────────── */
 GE.exportCSV = (recs, name) => {
   if (!recs.length) return GE.toast('Нет записей для экспорта', { type: 'err' });
-  const keys = GE.uniq(['type', 'title', ...recs.flatMap(r => Object.keys(r))]).filter(k => !['thumb', '_wikilinks', '_path'].includes(k));
+  const keys = GE.uniq(['type', 'title', ...recs.flatMap(r => Object.keys(r))]).filter(k => !['thumb', '_wikilinks', '_path', 'board'].includes(k));
   const q = v => { v = Array.isArray(v) ? v.join('; ') : v == null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-  const rows = [keys.join(','), ...recs.map(r => keys.map(k => q(k === 'affiliation' ? (GE.db.get(r[k])?.title || '') : k === 'linked' ? (r[k] || []).map(x => GE.db.get(x)?.title).join('; ') : r[k])).join(','))];
+  const isRef = (r, k) => k === 'affiliation' || GE.refFields(r.type).some(f => f.k === k);
+  const rows = [keys.join(','), ...recs.map(r => keys.map(k => q(isRef(r, k) ? (GE.db.get(r[k])?.title || '') : k === 'linked' ? (r[k] || []).map(x => GE.db.get(x)?.title).join('; ') : r[k])).join(','))];
   GE.download(name, '﻿' + rows.join('\r\n'), 'text/csv;charset=utf-8');
 };
 
@@ -5452,6 +5863,46 @@ GE.loadDemo = () => {
   GE.log('DEMO', 'Загружен демонстрационный набор (вымышленные данные)');
   GE.save();
   GE.toast('Демо-данные загружены — откройте «Связи» и «Исследования»');
+};
+
+GE.loadDemoCase = () => {
+  if (GE.db.all().some(r => (r.tags || []).includes('демо-дело'))) return GE.toast('Демо-дело уже загружено');
+  const d = GE.today(), tag = ['демо-дело'];
+  const org = GE.db.add('org', { title: 'Служба маяков Северного района (DEMO)', org_type: 'Государственная', country: '', registry_id: 'вымышленная организация', tags: tag, notes: 'Вымышленная организация для демо-дела.' }, true);
+  const geo = GE.db.add('geo', { title: 'Мыс Тёмный, маяк (DEMO)', place: 'Мыс Тёмный (вымышленное место)', accuracy: 'Приблизительная', retrieved: d, tags: tag, notes: 'Координат нет: место придумано.' }, true);
+  const s1 = GE.db.add('source', { title: 'Журнал маяка, копия страницы за 13.11.1987 (DEMO)', url: 'https://example.org/archive/lighthouse-log-1987', source_type: 'Архив', publisher: 'Областной архив (вымышленный)', published: '1987-11-13', retrieved: d, reliability: 'B', credibility: '2', tags: tag.concat('улика'), notes: 'Последняя запись сделана в 23:40.' }, true);
+  const s2 = GE.db.add('source', { title: 'Газета «Прибрежный вестник» от 17.11.1987 (DEMO)', url: 'https://example.org/press/vestnik-1987-11-17', source_type: 'СМИ', publisher: 'Прибрежный вестник (вымышленная газета)', published: '1987-11-17', retrieved: d, reliability: 'C', credibility: '3', tags: tag.concat('улика'), notes: 'Краткая заметка о происшествии, без деталей расследования.' }, true);
+  const c = GE.db.add('case', {
+    title: 'Дело о погасшем маяке — Мыс Тёмный (DEMO)', case_no: GE.nextCaseNo(), case_type: 'Холодное дело', status: 'Расследуется', stage: 'Анализ и версии',
+    priority: 'Высокий', difficulty: 'Высокая', odds: 'Средние', classif: 'Без грифа', outcome: 'Не определён', origin: 'Архивный документ', scale: 'Локальное',
+    incident_date: '14 ноября 1987', reported_date: '1987-11-14', place: 'Мыс Тёмный, побережье (вымышленное место)', geo: geo.id, org: org.id,
+    subject: 'Погасший маяк на мысе Тёмном и исчезновение смотрителя',
+    people: 'Игнат Ровенский — смотритель маяка, пропавший — последняя запись в журнале в 23:40\nМария Лескова — свидетель — рыбачка, видела свет за полчаса до того, как он погас\nКапитан Добрынин — свидетель — по радио сообщил, что маяк не горит\nСледователь Орлов — следователь — вёл дело, закрыл через четыре месяца\nТимур Кадочников — подозреваемый — снабженец, у него был конфликт со смотрителем',
+    motive: 'Конфликт из-за поставок и возможный долг. Документов о долге в архивах нет.',
+    means: 'Лодка снабжения. Ключи от башни были у двух человек.',
+    opportunity: 'Ночь шторма, связи с берегом не было до шести утра.',
+    briefing: '## Суть дела\nВ ночь на 14 ноября 1987 года погас маяк на мысе Тёмном. Утром смотрителя на посту не нашли: журнал заполнен до 23:40, дверь башни была заперта изнутри. Через четыре месяца дело закрыли с формулировкой «несчастный случай в шторм».\n\n## Почему дело стоит пересмотреть\n- Время, когда погас свет, в показаниях расходится на два с половиной часа.\n- Запертая изнутри дверь в протоколе не объяснена.\n- Часть материалов дела не оцифрована.\n\nЭто вымышленное дело для знакомства с интерфейсом.',
+    timeline: 'Сентябрь 1987 — Маяк переходит на новый график, смотритель остаётся один\n12.11.1987 — Кадочников привозит продукты, свидетели слышат ссору\n13.11.1987, 23:40 — Последняя запись смотрителя в журнале\n14.11.1987, 00:15 — Рыбачка видит, как гаснет свет\n14.11.1987, 01:30 — Капитан сообщает по радио, что маяк не горит\n14.11.1987, 06:00 — Восстановлена связь, на берег уходит сообщение\n14.11.1987, 11:20 — Спасатели находят башню запертой изнутри, смотрителя нет\nМарт 1988 — Дело закрыто как несчастный случай в шторм',
+    leads: '- [x] Найти газетные публикации ноября 1987 года в оцифрованных подшивках\n- [x] Сопоставить время в показаниях свидетелей\n- [ ] Выяснить, у кого были ключи от башни\n- [ ] Найти метеосводки за 13–14 ноября 1987 года\n- [ ] Проверить, сохранился ли ведомственный архив дела\n- [ ] Сравнить почерк последней записи в журнале с предыдущими\n- [ ] Нанести на карту маяк, причал и дом свидетельницы',
+    evidence: 'Журнал маяка, страница за 13.11.1987 — копия, последняя запись в 23:40\nРапорт капитана Добрынина — маяк не горит в 01:30\nПротокол осмотра башни — дверь заперта изнутри, окно закрыто на задвижку\nГазета «Прибрежный вестник» от 17.11.1987 — короткая заметка',
+    questions: '- Кто сделал последнюю запись в журнале и когда это было на самом деле?\n- Почему свидетели называют разное время?\n- Почему дело закрыли всего за четыре месяца?',
+    contradictions: 'Рыбачка: свет погас около 00:15. Капитан: в 01:30 свет уже не горел. В рапорте следователя указано около 03:00.\nДверь заперта изнутри, но замок и задвижка в протоколе не исследованы.',
+    hypothesis: 'Основная версия: смотритель покинул башню до шторма, а запись в журнале сделал другой человек.\nАльтернатива: несчастный случай. Против неё запертая изнутри дверь и отсутствие следов на лестнице.',
+    sources: ['https://example.org/archive/lighthouse-log-1987', 'https://example.org/press/vestnik-1987-11-17'], reliability: 'C', credibility: '3', retrieved: d,
+    tags: tag.concat('маяк', 'холодное дело'), notes: 'Вымышленный сюжет для демонстрации раздела «Дела». Все имена, даты и места придуманы.',
+    board: { notes: [
+      { id: GE.uid('note'), text: 'Дверь заперта изнутри. Кто и как мог выйти?' },
+      { id: GE.uid('note'), text: 'Время гашения света: 00:15 или 01:30?' },
+      { id: GE.uid('note'), text: 'Запросить ведомственный архив за 1987–1988' }
+    ], pos: {} }
+  }, true);
+  GE.db.link(c.id, s1.id, 'улика');
+  GE.db.link(c.id, s2.id, 'улика');
+  GE.log('DEMO', 'Загружено вымышленное демо-дело');
+  GE.save();
+  GE.sfx('stamp');
+  GE.toast('Демо-дело загружено — откройте «Доска» и «Зацепки» в карточке дела');
+  GE.openRecord(c.id);
 };
 
 })();
@@ -7277,8 +7728,30 @@ PRO.exportDossier = rec => {
     .replace(/^- (.+)$/gm, '<li>$1</li>')
     .replace(/\n/g, '<br>');
 
-  const rows = t.fields.filter(f => !['title', 'body', 'notes', 'objective', 'conclusion', 'linked'].includes(f.k) && rec[f.k] !== undefined && rec[f.k] !== '' && (!Array.isArray(rec[f.k]) || rec[f.k].length))
-    .map(f => `<tr><th>${esc(f.l)}</th><td>${esc(Array.isArray(rec[f.k]) ? rec[f.k].join(', ') : rec[f.k])}</td></tr>`).join('');
+  const isCase = rec.type === 'case';
+  const rows = t.fields.filter(f => !['title', 'body', 'notes', 'objective', 'conclusion', 'linked'].includes(f.k) && !(isCase && f.t === 'textarea') && rec[f.k] !== undefined && rec[f.k] !== '' && (!Array.isArray(rec[f.k]) || rec[f.k].length))
+    .map(f => `<tr><th>${esc(isCase ? GE.FIELD_LABEL(rec.type, f.k) : f.l.split(' — ')[0])}</th><td>${esc(GE.fieldText(rec, f.k))}</td></tr>`).join('');
+  const caseHtml = !isCase ? '' : (() => {
+    const lines = s => GE.caseLines(s).map(GE.stripBullet);
+    const L = GE.parseLeads(rec.leads), people = GE.parsePeople(rec.people), tl = GE.parseTimeline(rec.timeline), ev = lines(rec.evidence), qs = lines(rec.questions), cons = lines(rec.contradictions);
+    const done = L.filter(x => x.box && x.done).length, total = L.filter(x => x.box).length;
+    const mmo = [['Мотив', rec.motive], ['Средства', rec.means], ['Возможность', rec.opportunity]];
+    const ul = arr => `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    const boardNotes = ((rec.board && rec.board.notes) || []).map(n => n.text).filter(Boolean);
+    return [
+      rec.briefing ? `<h2>Досье дела</h2><div class="box">${mdToHtml(rec.briefing)}</div>` : '',
+      people.length ? `<h2>Фигуранты (${people.length})</h2><table>${people.map(p => `<tr><th>${esc(p.role || '—')}</th><td><b>${esc(p.name)}</b>${p.note ? ' — ' + esc(p.note) : ''}</td></tr>`).join('')}</table>` : '',
+      mmo.some(x => x[1]) ? `<h2>Мотив · средства · возможность</h2><div class="mmo">${mmo.map(([l, v]) => `<div class="box"><div class="k">${l}</div>${v ? esc(v) : '<i>не установлено</i>'}</div>`).join('')}</div>` : '',
+      tl.length ? `<h2>Хронология (${tl.length})</h2><div class="tl">${tl.map(e => `<div class="tli">${e.d ? `<span>${esc(e.d)}</span>` : ''}${esc(e.t)}</div>`).join('')}</div>` : '',
+      ev.length ? `<h2>Улики и документы (${ev.length})</h2><table>${ev.map((e, i) => `<tr><th>E-${String(i + 1).padStart(2, '0')}</th><td>${esc(e)}</td></tr>`).join('')}</table>` : '',
+      L.length ? `<h2>Зацепки${total ? ` (${done} из ${total})` : ''}</h2><div class="box">${L.map(x => `<div class="ck">${x.box ? (x.done ? '&#9745;' : '&#9744;') : '&bull;'} ${esc(x.text)}</div>`).join('')}</div>` : '',
+      qs.length ? `<h2>Открытые вопросы (${qs.length})</h2>${ul(qs)}` : '',
+      cons.length ? `<h2>Противоречия (${cons.length})</h2>${ul(cons)}` : '',
+      rec.hypothesis ? `<h2>Версии и гипотезы</h2><div class="box">${mdToHtml(rec.hypothesis)}</div>` : '',
+      boardNotes.length ? `<h2>Заметки с доски (${boardNotes.length})</h2>${ul(boardNotes)}` : '',
+      (rec.outcome && rec.outcome !== 'Не определён') || rec.conclusion ? `<h2>Развязка</h2>${rec.outcome && rec.outcome !== 'Не определён' ? `<div class="outc">${esc(rec.outcome)}</div>` : ''}${rec.conclusion ? `<div class="box">${mdToHtml(rec.conclusion)}</div>` : ''}` : ''
+    ].join('\n');
+  })();
 
   const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GOD EYE DOSSIER · ${esc(rec.title)}</title>
@@ -7299,18 +7772,32 @@ th{width:210px;color:#8a8a96;font:500 11px/1.4 ui-monospace,monospace;text-trans
 code{font:12px ui-monospace,monospace;background:#141418;border:1px solid #26262e;padding:1px 5px;color:#fff}
 .box{background:#070709;border:1px solid #1e1e24;padding:16px;margin:10px 0}
 .tag{display:inline-block;font:11px ui-monospace,monospace;border:1px solid #2a2a32;padding:2px 7px;margin:0 4px 4px 0;color:#cacad2}
+ul{padding-left:20px;margin:8px 0 14px}
+li{margin:3px 0}
+.stamp{display:inline-block;margin-top:12px;padding:5px 12px;border:2px solid #e2232e;color:#e2232e;font:700 12px/1 ui-monospace,monospace;letter-spacing:.2em;transform:rotate(-2deg)}
+.mmo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mmo .box{margin:0}
+.k{font:600 10px/1 ui-monospace,monospace;letter-spacing:.2em;color:#e2232e;text-transform:uppercase;margin-bottom:8px}
+.tl{border-left:1px solid #3a1014;margin:10px 0 18px 6px;padding-left:16px}
+.tli{position:relative;padding:0 0 12px;font-size:13px}
+.tli::before{content:"";position:absolute;left:-21px;top:6px;width:8px;height:8px;border-radius:50%;background:#e2232e}
+.tli span{display:block;font:600 11px/1 ui-monospace,monospace;letter-spacing:.1em;color:#e2232e;margin-bottom:3px}
+.ck{margin:4px 0;font-size:13px}
+.outc{display:inline-block;margin:4px 0 10px;padding:7px 14px;border:2px solid #e2232e;color:#e2232e;font:700 13px/1 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-2deg)}
+@media (max-width:640px){.mmo{grid-template-columns:1fr}}
 .foot{margin-top:28px;padding-top:14px;border-top:1px solid #1d1d22;font:11px ui-monospace,monospace;color:#6e6e78;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 @media print{body{background:#fff;color:#111}.wrap{border-color:#ccc;background:#fff}h1,h2{color:#000}.box{background:#fafafa;border-color:#ddd}}
 </style></head><body><div class="wrap">
 <div class="top">
-  <div><div class="eyebrow">GOD EYE · OSINT DOSSIER · ${esc(t.code)}</div><h1>${esc(rec.title)}</h1></div>
+  <div><div class="eyebrow">GOD EYE · OSINT DOSSIER · ${esc(t.code)}${isCase && rec.case_no ? ' · ' + esc(rec.case_no) : ''}</div><h1>${esc(rec.title)}</h1>${isCase ? `<div class="stamp">${esc(GE.caseStamp(rec))}</div>` : ''}</div>
   <div class="meta">ОПЕРАТОР: ${esc(GE.settings.callsign)}<br>ДАТА ЭКСПОРТА: ${esc(GE.fmtDate(GE.now()))}<br>АДМИРАЛТЕЙСТВО: ${esc((rec.reliability || '—') + (rec.credibility || ''))}</div>
 </div>
-${rows ? `<h2>Сводные поля</h2><table>${rows}</table>` : ''}
+${rows ? `<h2>${isCase ? 'Паспорт дела' : 'Сводные поля'}</h2><table>${rows}</table>` : ''}
+${caseHtml}
 ${rec.objective ? `<h2>Цель исследования</h2><div class="box">${mdToHtml(rec.objective)}</div>` : ''}
 ${rec.body ? `<h2>Ход работы и находки</h2><div class="box">${mdToHtml(rec.body)}</div>` : ''}
 ${rec.notes ? `<h2>Заметки</h2><div class="box">${mdToHtml(rec.notes)}</div>` : ''}
-${rec.conclusion ? `<h2>Вывод</h2><div class="box">${mdToHtml(rec.conclusion)}</div>` : ''}
+${!isCase && rec.conclusion ? `<h2>Вывод</h2><div class="box">${mdToHtml(rec.conclusion)}</div>` : ''}
 ${linked.length ? `<h2>Связанные записи (${linked.length})</h2><table>${linked.map(x => `<tr><th>${esc(x.edge.rel)}</th><td><b>${esc(x.other.title)}</b> (${esc(GE.TYPES[x.other.type]?.label || x.other.type)})</td></tr>`).join('')}</table>` : ''}
 <div class="foot"><span>GOD EYE v${esc(GE.VERSION)} · OFFLINE DOSSIER</span><span>Автономный документ · без внешних зависимостей</span></div>
 </div></body></html>`;
@@ -8477,10 +8964,11 @@ C.info = n => {
 const GE = window.GE, $ = GE.$, esc = GE.esc;
 const V = GE.vault = { handle: null };
 
-const TYPE_BY_FM = { person: 'person', people: 'person', персона: 'person', organization: 'org', org: 'org', организация: 'org', geolocation: 'geo', geo: 'geo', location: 'geo', локация: 'geo', image: 'image', изображение: 'image', source: 'source', источник: 'source', research: 'report', report: 'report', исследование: 'report', отчёт: 'report' };
-const TYPE_BY_DIR = { '01 People': 'person', '02 Organizations': 'org', '03 Geolocation': 'geo', '04 Images': 'image', '05 Sources': 'source', '07 Research': 'report', '08 Reports': 'report' };
-const FM_TYPE = { person: 'person', org: 'organization', geo: 'geolocation', image: 'image', source: 'source', report: 'report' };
+const TYPE_BY_FM = { person: 'person', people: 'person', персона: 'person', organization: 'org', org: 'org', организация: 'org', geolocation: 'geo', geo: 'geo', location: 'geo', локация: 'geo', image: 'image', изображение: 'image', source: 'source', источник: 'source', research: 'report', report: 'report', исследование: 'report', отчёт: 'report', case: 'case', дело: 'case' };
+const TYPE_BY_DIR = { '01 People': 'person', '02 Organizations': 'org', '03 Geolocation': 'geo', '04 Images': 'image', '05 Sources': 'source', '07 Research': 'report', '08 Reports': 'report', '09 Cases': 'case' };
+const FM_TYPE = { person: 'person', org: 'organization', geo: 'geolocation', image: 'image', source: 'source', report: 'report', case: 'case' };
 const SKIP_KEYS = new Set(['id', 'type', 'title', 'thumb', 'created', 'updated', 'notes', 'body', 'objective', 'conclusion', '_wikilinks', '_path']);
+const CASE_SEC = { briefing: 'Досье дела', timeline: 'Таймлайн', people: 'Фигуранты', motive: 'Мотив', means: 'Средства', opportunity: 'Возможность', leads: 'Зацепки', evidence: 'Улики', questions: 'Открытые вопросы', contradictions: 'Противоречия', hypothesis: 'Версии', conclusion: 'Развязка' };
 
 /* ─────────── Имена файлов ─────────── */
 V.safeName = s => String(s || 'Без названия').replace(/[\\/:*?"<>|#^[\]]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || 'Без названия';
@@ -8530,7 +9018,7 @@ V.recToMd = (r, names) => {
   const nm = id => { const x = GE.db.get(id); return x ? (names && names.get(id) || V.safeName(x.title)) : null; };
   const fm = { type: FM_TYPE[r.type], godeye_id: r.id };
   T.fields.forEach(f => {
-    if (SKIP_KEYS.has(f.k)) return;
+    if (SKIP_KEYS.has(f.k) || (r.type === 'case' && CASE_SEC[f.k])) return;
     let v = r[f.k];
     if (f.t === 'ref') v = v && nm(v) ? `[[${nm(v)}]]` : '';
     if (f.t === 'refs') v = (v || []).map(nm).filter(Boolean).map(n => `[[${n}]]`);
@@ -8547,6 +9035,8 @@ V.recToMd = (r, names) => {
     if (r.body) md += `## Ход работы и находки\n${r.body}\n\n`;
     if (r.conclusion) md += `## Вывод\n${r.conclusion}\n\n`;
   }
+  if (r.type === 'case') T.fields.forEach(f => { const h = CASE_SEC[f.k]; if (h && r[f.k]) md += `## ${h}\n${String(r[f.k]).replace(/^##(?=\s)/gm, '###')}\n\n`; });
+  if (r.type === 'case' && r.board && (r.board.notes || []).length) md += `## Доска\n${r.board.notes.map(n => '- ' + String(n.text || '').replace(/\s*\n+\s*/g, ' ')).join('\n')}\n\n`;
   if (r.notes) md += `## Заметки\n${r.notes}\n\n`;
   const urls = GE.uniq([].concat(r.url || [], r.website || [], r.image_url || [], r.archived_url || [], r.sources || []).filter(u => GE.safeUrl(u)));
   if (urls.length) md += `## Источники\n${urls.map(u => `- ${u}`).join('\n')}\n\n`;
@@ -8593,7 +9083,13 @@ V.mdToRec = (path, text) => {
     if (sec['ход работы и находки'] || sec['находки']) rec.body = sec['ход работы и находки'] || sec['находки'];
     if (sec['вывод']) rec.conclusion = sec['вывод'];
   }
-  const known = new Set(['связи', 'источники', 'цель', 'ход работы и находки', 'находки', 'вывод', 'заметки']);
+  if (type === 'case') Object.entries(CASE_SEC).forEach(([k, h]) => { if (sec[h.toLowerCase()]) rec[k] = sec[h.toLowerCase()]; });
+  if (type === 'case' && sec['доска']) {
+    const ex = (rec.id && GE.db.get(rec.id)) || GE.db.findTitle(title, 'case'), oldB = (ex && ex.board) || {};
+    const texts = sec['доска'].split('\n').map(l => l.replace(/^\s*[-*]\s+/, '').trim()).filter(Boolean);
+    if (texts.length) rec.board = { notes: texts.map(x => { const o = (oldB.notes || []).find(n => n.text === x); return o ? Object.assign({}, o) : { id: GE.uid('note'), text: x }; }), pos: Object.assign({}, oldB.pos) };
+  }
+  const known = new Set(['связи', 'источники', 'цель', 'ход работы и находки', 'находки', 'вывод', 'заметки', ...(type === 'case' ? Object.values(CASE_SEC).map(h => h.toLowerCase()).concat('доска') : [])]);
   const notes = [sec._intro, sec['заметки'], ...Object.entries(sec).filter(([k]) => !known.has(k) && k !== '_intro').map(([k, v]) => `## ${k}\n${v}`)].filter(Boolean).join('\n\n');
   if (type === 'report' && !rec.body && notes) rec.body = notes; else if (notes) rec.notes = notes;
   rec._wikilinks = GE.uniq((body.match(/\[\[([^\]|#]+)/g) || []).map(s => s.slice(2).trim()));
