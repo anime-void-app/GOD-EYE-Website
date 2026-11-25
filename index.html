@@ -5476,6 +5476,7 @@ const done = (id, html, ok = true, status) => {
   st.textContent = status || (ok ? 'OK' : 'НЕДОСТУПНО');
   const b = el.querySelector('.live-card-b'); b.classList.remove('scanline'); b.innerHTML = html;
 };
+const GODEYE_PROXY = 'https://god-eye-proxy.zajcevtihon09.workers.dev';
 const apiUrl = url => {
   const px = (GE.settings.apiKeys && GE.settings.apiKeys.proxy || '').trim();
   return px ? px.replace(/\/+$/, '') + '/' + url : url;
@@ -5958,7 +5959,7 @@ S.live = (forceRefresh = false) => {
       };
     }, `https://github.com/${q}`);
 
-    job('Публичные профили · Live-проверка (16 платформ)', async () => {
+    job('Публичные профили · Live-проверка (18 платформ)', async () => {
       const checks = [
         {
           name: 'GitLab',
@@ -6107,6 +6108,27 @@ S.live = (forceRefresh = false) => {
             const r = await GE.fetchJSON(`https://archive.org/advancedsearch.php?q=uploader:${E(q)}&fl[]=identifier&rows=1&output=json`, 10000);
             const n = r && r.response && r.response.numFound;
             return n > 0 ? { found: true, url: `https://archive.org/search?query=uploader:${E(q)}`, info: `загрузок: ${n}` } : { found: false };
+          }
+        },
+        {
+          name: 'Telegram',
+          fn: async () => {
+            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://t.me/' + q)}`, { referrerPolicy: 'no-referrer' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const html = await r.text();
+            const m = html.match(/<title>Telegram:\s*(View|Contact)\s+@([^<]*)<\/title>/i);
+            if (!m) return { found: false };
+            return m[1] === 'View' ? { found: true, url: `https://t.me/${E(q)}`, info: 'публичный профиль/канал' } : { found: false };
+          }
+        },
+        {
+          name: 'Twitch',
+          fn: async () => {
+            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://www.twitch.tv/' + q)}`, { referrerPolicy: 'no-referrer' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const html = await r.text();
+            const t = (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+            return t.trim() && t.trim() !== 'Twitch' ? { found: true, url: `https://www.twitch.tv/${E(q)}`, info: 'канал существует' } : { found: false };
           }
         }
       ];
