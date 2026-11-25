@@ -868,6 +868,12 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
   #main { margin: 0; }
 }
 
+/* Хоррор-атмосфера: CRT-мерцание и сканлайны */
+body{animation:ge-crt 9s infinite}
+@keyframes ge-crt{0%,100%{opacity:1}95%{opacity:1}96%{opacity:.93}97%{opacity:1}98%{opacity:.96}}
+body::after{content:'';position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.45;mix-blend-mode:multiply;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px)}
+body.fx-off::after{display:none}
+body.fx-off{animation:none}
 </style>
 </head>
 <body class="intro-active">
@@ -997,6 +1003,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
             <button data-track="oculus" class="on"><b>OCULUS ABYSS</b><small>Ritual Horror · Dissonant Drone</small></button>
             <button data-track="signal"><b>BLACK PROTOCOL</b><small>Industrial Threat · 88 BPM</small></button>
             <button data-track="ghost"><b>GHOST ARCHIVE</b><small>Paranormal Signal · Haunted Air</small></button>
+            <button data-track="sanctum"><b>RED SANCTUM</b><small>Crimson Ritual · Heartbeat + Choir</small></button>
           </div>
           <div class="ap-sliders">
             <label><span>OST</span><input type="range" id="ap-ost-vol" min="0" max="100" value="38"><b id="ap-ost-pct">38%</b></label>
@@ -1441,6 +1448,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
                   <option value="oculus">OCULUS ABYSS (Ritual Horror)</option>
                   <option value="signal">BLACK PROTOCOL (Industrial Threat · 88 BPM)</option>
                   <option value="ghost">GHOST ARCHIVE (Paranormal Signal)</option>
+                  <option value="sanctum">RED SANCTUM (Crimson Ritual)</option>
                 </select>
               </div>
               <div class="set-row"><div class="l"><b>Громкость саундтрека</b><span>Плавная регулировка уровня OST.</span></div><input type="range" class="audio-range" id="set-audio-ost-vol" min="0" max="100" value="38"></div>
@@ -3151,6 +3159,7 @@ const TRACKS = {
   oculus: { name: 'OCULUS ABYSS',   sub: 'Ritual Horror · Dissonant Drone' },
   signal: { name: 'BLACK PROTOCOL', sub: 'Industrial Threat · 88 BPM' },
   ghost:  { name: 'GHOST ARCHIVE',  sub: 'Paranormal Signal · Haunted Air' },
+  sanctum:{ name: 'RED SANCTUM',    sub: 'Crimson Ritual · Heartbeat + Choir' },
 };
 
 let ctx = null;
@@ -3553,6 +3562,63 @@ function startGhost(ac, token) {
   trackEvery(() => { if (Math.random() < 0.7) playImpact(ac, 31 + Math.random() * 8, 0.11); }, 7600, token);
 }
 
+/* ─────────── ТРЕК 4: RED SANCTUM (Crimson Ritual · Heartbeat + Choir) ─────────── */
+function startSanctum(ac, token) {
+  const now = ac.currentTime;
+  const bed = ac.createGain(); bed.gain.value = 0.2; bed.connect(trackBus);
+
+  // Глубокий суб-гул D1 с медленным «дыханием»
+  const sub = ac.createOscillator();
+  sub.type = 'sine'; sub.frequency.value = 36.71;
+  const subG = ac.createGain(); subG.gain.value = 0.38;
+  sub.connect(subG); subG.connect(bed); sub.start(now);
+  const lfo = ac.createOscillator();
+  lfo.frequency.value = 0.05;
+  const lfoG = ac.createGain(); lfoG.gain.value = 0.16;
+  lfo.connect(lfoG); lfoG.connect(subG.gain); lfo.start(now);
+  trackNodes.push(bed, sub, subG, lfo, lfoG);
+
+  // Диссонансный «хор»: расстроенные голоса с медленной атакой
+  const voices = [
+    { f: 146.83, v: 0.05 },
+    { f: 149.2, v: 0.045 },
+    { f: 220.0, v: 0.04 },
+    { f: 221.6, v: 0.035 }
+  ];
+  let vi = 0;
+  const choir = () => {
+    if (!isActive(token)) return;
+    const v = voices[vi++ % voices.length];
+    playPadNote(ac, v.f, 6.2, v.v, trackBus, 'sawtooth', 620);
+    trackLater(() => playPadNote(ac, v.f * 0.5, 6.2, v.v * 0.6, trackBus, 'sine', 300), 280, token);
+  };
+  trackLater(choir, 1100, token);
+  trackEvery(choir, 3300, token);
+
+  // Сердцебиение: глухой двойной удар
+  const beat = () => {
+    if (!isActive(token)) return;
+    const t = ac.currentTime;
+    [0, 0.17].forEach(off => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(58, t + off);
+      o.frequency.exponentialRampToValueAtTime(30, t + off + 0.13);
+      g.gain.setValueAtTime(0.0001, t + off);
+      g.gain.linearRampToValueAtTime(0.3, t + off + 0.014);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.25);
+      o.connect(g); g.connect(trackBus);
+      o.start(t + off); o.stop(t + off + 0.3);
+    });
+  };
+  trackLater(beat, 700, token);
+  trackEvery(beat, 2500, token);
+
+  // Редкий шёпот и глухие удары
+  trackEvery(() => { if (Math.random() < 0.5) playBreath(ac, 280 + Math.random() * 480, 2.4, 0.032); }, 7200, token);
+  trackEvery(() => { if (Math.random() < 0.6) playImpact(ac, 27 + Math.random() * 6, 0.11); }, 9800, token);
+}
+
 function startOst(trackId) {
   const ac = ensureCtx();
   if (!ac) return;
@@ -3576,7 +3642,8 @@ function startOst(trackId) {
     createTrackFX(ac);
     if (id === 'oculus') startOculus(ac, token);
     else if (id === 'signal') startSignal(ac, token);
-    else startGhost(ac, token);
+    else if (id === 'ghost') startGhost(ac, token);
+    else startSanctum(ac, token);
   };
 
   if (ac.state === 'suspended') ac.resume().then(launch).catch(() => {});
@@ -4207,7 +4274,7 @@ class GodEye {
     this.open = open * this.lidMul;
 
     // Красные импульсы
-    if (this.o.mode !== 'intro' && now > this.nextPulse) { this.pulse(1); this.nextPulse = now + 5500 + Math.random() * 4500; }
+    if (this.o.mode !== 'intro' && now > this.nextPulse) { this.pulse(1.35); this.nextPulse = now + 3200 + Math.random() * 2600; }
     for (const p of this.pulses) { p.k = (now - p.t0) / 1700; p.r = lerp(0.17, 1.08, eOut(clamp(p.k, 0, 1))) * this.u; }
     this.pulses = this.pulses.filter(p => p.k < 1);
 
@@ -8808,6 +8875,7 @@ P.commands = () => [
   { g: 'Звук', icon: 'spark', t: 'OST: OCULUS DRONE (Dark Ambient)', run: () => GE.audio && GE.audio.startOst('oculus') },
   { g: 'Звук', icon: 'spark', t: 'OST: BLACK SIGNAL (Tactical Pulse)', run: () => GE.audio && GE.audio.startOst('signal') },
   { g: 'Звук', icon: 'spark', t: 'OST: GHOST TERMINAL (Cyber-Noir)', run: () => GE.audio && GE.audio.startOst('ghost') },
+  { g: 'Звук', icon: 'spark', t: 'OST: RED SANCTUM (Crimson Ritual)', run: () => GE.audio && GE.audio.startOst('sanctum') },
   ...['extract', 'hash', 'codec', 'time', 'url', 'coords', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
 ];
 P.render = () => {
