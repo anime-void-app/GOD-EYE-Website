@@ -3134,6 +3134,9 @@ let trackTimers = [];
 let lastHoverTs = 0;
 let trackGeneration = 0;
 let activeTrackId = null;
+let trackBus = null;
+let trackRev = null;
+let trackDL = null;
 
 const isActive = token => playing && token === trackGeneration;
 function trackLater(fn, ms, token) {
@@ -3209,7 +3212,7 @@ function ensureCtx() {
   const revGain = ctx.createGain();
   revGain.gain.value = 0.46;
   reverb.connect(revGain);
-  revGain.connect(ostBus);
+  revGain.connect(sfxBus);
 
   // Стерео-дилей для арпеджио и сонар-пинга
   delayL = ctx.createDelay(1.5);
@@ -3234,17 +3237,56 @@ function ensureCtx() {
   return ctx;
 }
 
+function createTrackFX(ac) {
+  trackBus = ac.createGain();
+  trackBus.gain.value = 1;
+  trackBus.connect(ostBus);
+
+  trackRev = ac.createConvolver();
+  trackRev.buffer = makeReverbImpulse(ac, 3.4, 2.5);
+  const revGain = ac.createGain();
+  revGain.gain.value = 0.46;
+  trackRev.connect(revGain);
+  revGain.connect(trackBus);
+
+  trackDL = ac.createDelay(1.5);
+  const dR = ac.createDelay(1.5);
+  trackDL.delayTime.value = 0.34;
+  dR.delayTime.value = 0.51;
+  const fb = ac.createGain();
+  fb.gain.value = 0.34;
+  const dFilt = ac.createBiquadFilter();
+  dFilt.type = 'lowpass';
+  dFilt.frequency.value = 1850;
+  trackDL.connect(dFilt); dFilt.connect(dR);
+  dR.connect(fb); fb.connect(trackDL);
+  const dWet = ac.createGain();
+  dWet.gain.value = 0.28;
+  trackDL.connect(dWet); dR.connect(dWet);
+  dWet.connect(trackBus);
+}
+
 function stopTrackNodes() {
   trackTimers.forEach(id => { clearInterval(id); clearTimeout(id); });
   trackTimers = [];
   const now = ctx ? ctx.currentTime : 0;
   trackNodes.forEach(n => {
     try {
-      if (n.gain && n.gain.setTargetAtTime) n.gain.setTargetAtTime(0.0001, now, 0.18);
-      if (n.stop) n.stop(now + 0.65);
+      if (n.gain && n.gain.setTargetAtTime) n.gain.setTargetAtTime(0.0001, now, 0.12);
+      if (n.stop) n.stop(now + 0.4);
     } catch {}
   });
   trackNodes = [];
+  if (trackBus) {
+    try {
+      trackBus.gain.cancelScheduledValues(now);
+      trackBus.gain.setValueAtTime(Math.max(0.0001, trackBus.gain.value), now);
+      trackBus.gain.setTargetAtTime(0.0001, now, 0.08);
+      const b = trackBus;
+      setTimeout(() => { try { b.disconnect(); } catch {} }, 900);
+    } catch {}
+    trackBus = null; trackRev = null; trackDL = null;
+  }
 }
 
 function playPadNote(ac, freq, dur, vol, dest, type = 'triangle', cutoff = 900) {
@@ -3267,7 +3309,7 @@ function playPadNote(ac, freq, dur, vol, dest, type = 'triangle', cutoff = 900) 
   osc.connect(filt); osc2.connect(filt);
   filt.connect(g);
   g.connect(dest);
-  if (reverb) g.connect(reverb);
+  if (trackRev) g.connect(trackRev);
   osc.start(now); osc2.start(now);
   osc.stop(now + dur + 0.8); osc2.stop(now + dur + 0.8);
 }
@@ -3289,8 +3331,8 @@ function playPluck(ac, freq, dur, vol, dest, toDelay = true) {
 
   osc.connect(filt); filt.connect(g);
   g.connect(dest);
-  if (toDelay && delayL) g.connect(delayL);
-  if (reverb) g.connect(reverb);
+  if (toDelay && trackDL) g.connect(trackDL);
+  if (trackRev) g.connect(trackRev);
   osc.start(now); osc.stop(now + dur + 0.06);
 }
 
@@ -3305,7 +3347,7 @@ function playImpact(ac, root = 42, vol = 0.18) {
   g.gain.setValueAtTime(0.0001, t);
   g.gain.linearRampToValueAtTime(vol, t + 0.018);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
-  o.connect(g); g.connect(ostBus); if (reverb) g.connect(reverb);
+  o.connect(g); g.connect(trackBus); if (trackRev) g.connect(trackRev);
   o.start(t); o.stop(t + 1.9);
 }
 
@@ -3321,17 +3363,17 @@ function playBreath(ac, center = 850, dur = 2.8, vol = 0.045) {
   g.gain.setValueAtTime(0.0001, ac.currentTime);
   g.gain.linearRampToValueAtTime(vol, ac.currentTime + dur * 0.28);
   g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
-  src.connect(bp); bp.connect(g); g.connect(ostBus); if (reverb) g.connect(reverb);
+  src.connect(bp); bp.connect(g); g.connect(trackBus); if (trackRev) g.connect(trackRev);
   src.start(); src.stop(ac.currentTime + dur + 0.05);
 }
 
 /* ─────────── ТРЕК 1: OCULUS DRONE (Dark Ambient · D minor) ─────────── */
 function startOculus(ac, token) {
   const now = ac.currentTime;
-  const bed = ac.createGain(); bed.gain.value = 0.22; bed.connect(ostBus);
+  const bed = ac.createGain(); bed.gain.value = 0.22; bed.connect(trackBus);
   const filt = ac.createBiquadFilter();
   filt.type = 'lowpass'; filt.frequency.value = 260; filt.Q.value = 1.4;
-  filt.connect(bed); filt.connect(reverb);
+  filt.connect(bed); filt.connect(trackRev);
 
   // LFO плавно открывает и закрывает фильтр дрона
   const lfo = ac.createOscillator();
@@ -3371,7 +3413,7 @@ function startOculus(ac, token) {
     if (!isActive(token)) return;
     const ch = chords[ci++ % chords.length];
     ch.forEach((f, idx) => {
-      trackLater(() => playPadNote(ac, f, 7.8, 0.052, ostBus, idx === 1 ? 'sawtooth' : 'triangle', 680), idx * 240, token);
+      trackLater(() => playPadNote(ac, f, 7.8, 0.052, trackBus, idx === 1 ? 'sawtooth' : 'triangle', 680), idx * 240, token);
     });
     // Редкая кристаллическая нота наверху
     if (Math.random() < 0.72) {
@@ -3390,7 +3432,7 @@ function startOculus(ac, token) {
 /* ─────────── ТРЕК 2: BLACK SIGNAL (Tactical Pulse · 88 BPM) ─────────── */
 function startSignal(ac, token) {
   const now = ac.currentTime;
-  const bed = ac.createGain(); bed.gain.value = 0.16; bed.connect(ostBus);
+  const bed = ac.createGain(); bed.gain.value = 0.16; bed.connect(trackBus);
   const sub = ac.createOscillator();
   sub.type = 'sine'; sub.frequency.value = 36.71;
   const subG = ac.createGain(); subG.gain.value = 0.45;
@@ -3421,20 +3463,20 @@ function startSignal(ac, token) {
       k.frequency.exponentialRampToValueAtTime(34, t + 0.14);
       kg.gain.setValueAtTime(inBar === 0 ? 0.24 : 0.13, t);
       kg.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-      k.connect(kg); kg.connect(ostBus);
+      k.connect(kg); kg.connect(trackBus);
       k.start(t); k.stop(t + 0.24);
     }
 
     // Аналоговое арпеджио на чётных шагах
     if (inBar % 2 === 0) {
       const freq = pat[(inBar / 2) % pat.length];
-      playPluck(ac, freq, 0.32, 0.068, ostBus, true);
+      playPluck(ac, freq, 0.32, 0.068, trackBus, true);
     }
 
     // Тёмный пэд на начале каждого второго такта
     if (inBar === 0) {
-      playPadNote(ac, pat[0] * 0.5, 5.4, 0.055, ostBus, 'triangle', 540);
-      playPadNote(ac, pat[2], 5.4, 0.025, ostBus, 'sine', 920);
+      playPadNote(ac, pat[0] * 0.5, 5.4, 0.055, trackBus, 'triangle', 540);
+      playPadNote(ac, pat[2], 5.4, 0.025, trackBus, 'sine', 920);
     }
     step++;
   };
@@ -3446,7 +3488,7 @@ function startSignal(ac, token) {
 /* ─────────── ТРЕК 3: GHOST TERMINAL (Cyber-Noir · Sonar) ─────────── */
 function startGhost(ac, token) {
   const now = ac.currentTime;
-  const bed = ac.createGain(); bed.gain.value = 0.2; bed.connect(ostBus);
+  const bed = ac.createGain(); bed.gain.value = 0.2; bed.connect(trackBus);
 
   // Мягкий тёплый атмосферный шум-комната (vinyl / radio air)
   const bufLen = ac.sampleRate * 4;
@@ -3476,7 +3518,7 @@ function startGhost(ac, token) {
   const o2 = ac.createOscillator(), g2 = ac.createGain();
   o2.type = 'triangle'; o2.frequency.value = 103.83; g2.gain.value = 0.07;
   const f2 = ac.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 240;
-  o2.connect(f2); f2.connect(g2); g2.connect(bed); g2.connect(reverb); o2.start(now);
+  o2.connect(f2); f2.connect(g2); g2.connect(bed); g2.connect(trackRev); o2.start(now);
 
   trackNodes.push(bed, noise, nGain, o1, g1, o2, g2);
 
@@ -3492,7 +3534,7 @@ function startGhost(ac, token) {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(0.042, t + 0.015);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
-    o.connect(g); g.connect(reverb); if (delayL) g.connect(delayL);
+    o.connect(g); g.connect(trackRev); if (trackDL) g.connect(trackDL);
     o.start(t); o.stop(t + 2.6);
   };
   trackLater(ping, 500, token);
@@ -3521,6 +3563,7 @@ function startOst(trackId) {
     ostBus.gain.setValueAtTime(Math.max(0.001, ostBus.gain.value), ac.currentTime);
     ostBus.gain.setTargetAtTime(Math.max(0.001, targetVol), ac.currentTime, 0.35);
 
+    createTrackFX(ac);
     if (id === 'oculus') startOculus(ac, token);
     else if (id === 'signal') startSignal(ac, token);
     else startGhost(ac, token);
@@ -3804,6 +3847,13 @@ function init() {
     if (e.altKey && (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь')) {
       e.preventDefault();
       toggleOst();
+    }
+  });
+
+  // Возобновление AudioContext при возврате на вкладку (браузер может приостановить его в фоне)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && playing && ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
     }
   });
 
