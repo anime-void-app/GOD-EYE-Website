@@ -967,6 +967,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
       <a href="#/sources" data-view="sources"><span class="nv-idx">05</span><svg class="ic"><use href="#i-source"/></svg>Источники<span class="nv-count" data-count="source"></span></a>
       <a href="#/connections" data-view="connections"><span class="nv-idx">06</span><svg class="ic"><use href="#i-graph"/></svg>Связи<span class="nv-count" data-count="links"></span></a>
       <a href="#/reports" data-view="reports"><span class="nv-idx">07</span><svg class="ic"><use href="#i-report"/></svg>Исследования<span class="nv-count" data-count="report"></span></a>
+      <a href="#/cases" data-view="cases"><span class="nv-idx">CS</span><svg class="ic"><use href="#i-target"/></svg>Дела<span class="nv-count" data-count="case"></span></a>
       <a href="#/tools" data-view="tools"><span class="nv-idx">T</span><svg class="ic"><use href="#i-tools"/></svg>Инструменты</a>
       <div class="nav-group">СИСТЕМА</div>
       <a href="#/archive" data-view="archive"><span class="nv-idx">09</span><svg class="ic"><use href="#i-archive"/></svg>Архив</a>
@@ -1223,6 +1224,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
       <section class="view" data-view="images" data-entity="image" data-idx="04" data-en="IMAGES"></section>
       <section class="view" data-view="sources" data-entity="source" data-idx="05" data-en="SOURCES"></section>
       <section class="view" data-view="reports" data-entity="report" data-idx="07" data-en="RESEARCH"></section>
+      <section class="view" data-view="cases" data-entity="case" data-idx="08" data-en="COLD CASES"></section>
 
       <!-- ═════ 06 CONNECTIONS ═════ -->
       <section class="view" data-view="connections" data-idx="06" data-en="CONNECTIONS">
@@ -1769,6 +1771,26 @@ GE.TYPES = {
       TAGS_F
     ],
     cols: ['title', 'report_type', 'status', 'confidence', 'updated']
+  },
+
+  case: {
+    label: 'Дело', plural: 'Дела', view: 'cases', folder: '09 Cases', code: 'CAS', icon: 'target', shape: 'diamond',
+    en: 'COLD CASES', ru: 'Расследования и холодные дела',
+    desc: 'Дело объединяет досье, фигурантов, таймлайн, зацепки, улики и гипотезы. Работайте только с публичной информацией и первоисточниками.',
+    fields: [
+      { k: 'title', l: 'Название / № дела', t: 'text', req: 1, ph: 'Дело №013 — Исчезновение на маяке' },
+      { k: 'case_type', l: 'Тип дела', t: 'select', opts: ['Пропажа', 'Убийство', 'Мошенничество', 'Кража', 'Холодное дело', 'Наблюдение', 'Другое'] },
+      { k: 'status', l: 'Статус', t: 'select', opts: ['Открыто', 'Расследуется', 'Приостановлено', 'Раскрыто', 'Закрыто'] },
+      { k: 'difficulty', l: 'Сложность', t: 'select', opts: ['Низкая', 'Средняя', 'Высокая', 'Очень высокая'] },
+      { k: 'subject', l: 'Объект / фигурант', t: 'text', ph: 'Имя, ник, телефон, адрес…' },
+      { k: 'briefing', l: 'Досье дела (что известно)', t: 'textarea', full: 1, big: 1 },
+      { k: 'timeline', l: 'Таймлайн (по строке на событие)', t: 'textarea', full: 1 },
+      { k: 'leads', l: 'Зацепки / задачи (чеклист)', t: 'textarea', full: 1 },
+      { k: 'hypothesis', l: 'Версии и гипотезы', t: 'textarea', full: 1 },
+      { k: 'conclusion', l: 'Развязка / вывод', t: 'textarea', full: 1 },
+      SRC_F, REL_F, CRED_F, RETR_F, TAGS_F, NOTES_F
+    ],
+    cols: ['title', 'case_type', 'status', 'difficulty', 'updated']
   }
 };
 GE.TYPE_KEYS = Object.keys(GE.TYPES);
