@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-labelledby="title desc">
+<title id="title">Lucifer — the fallen angel</title>
+<desc id="desc">A stylized fallen angel with vast dark wings, a broken crimson halo and glowing eyes.</desc>
+<defs>
+  <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#d9d7dc"/><stop offset=".22" stop-color="#85838c"/><stop offset=".58" stop-color="#33323a"/><stop offset="1" stop-color="#09090d"/>
+  </linearGradient>
+  <linearGradient id="feather" x1="0" y1="0" x2=".8" y2="1">
+    <stop offset="0" stop-color="#e1dfe4"/><stop offset=".28" stop-color="#77747e"/><stop offset=".72" stop-color="#28272e"/><stop offset="1" stop-color="#0b0b0f"/>
+  </linearGradient>
+  <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#e1dfe5"/><stop offset=".3" stop-color="#777680"/><stop offset=".72" stop-color="#28272e"/><stop offset="1" stop-color="#0b0b0e"/>
+  </linearGradient>
+  <linearGradient id="robe" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#09090c"/><stop offset=".48" stop-color="#35343c"/><stop offset=".54" stop-color="#16151a"/><stop offset="1" stop-color="#07070a"/>
+  </linearGradient>
+  <linearGradient id="crimson" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ff7378"/><stop offset=".45" stop-color="#c30d1b"/><stop offset="1" stop-color="#4b0007"/>
+  </linearGradient>
+  <radialGradient id="core">
+    <stop offset="0" stop-color="#fff1e4"/><stop offset=".2" stop-color="#ff7779"/><stop offset=".5" stop-color="#c10c1a"/><stop offset="1" stop-color="#560008" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="redGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur stdDeviation="7" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <path id="wingFeathers" d="
+    M415 318 C319 222 219 126 99 78 C139 178 242 278 404 348 Z
+    M413 330 C317 259 226 177 117 133 C164 232 263 310 402 359 Z
+    M405 343 C310 292 229 230 132 194 C192 286 282 348 395 371 Z
+    M399 354 C315 324 239 286 153 256 C216 338 300 383 393 386 Z
+    M397 365 C321 354 251 333 183 318 C245 391 320 416 401 402 Z
+    M400 374 C334 380 276 373 215 363 C272 424 339 440 408 414 Z"/>
+  <style>
+    .wings{transform-origin:450px 340px;animation:wing-drift 8s ease-in-out infinite}
+    .halo{transform-origin:450px 170px;animation:halo-turn 42s linear infinite}
+    .core{transform-origin:450px 350px;animation:core-beat 3.1s ease-in-out infinite}
+    .eyes{animation:eye-pulse 2.4s ease-in-out infinite}
+    .wing-base{fill:#0b0b10;stroke:#77747e;stroke-opacity:.58;stroke-width:2}
+    .feather{fill:url(#feather);stroke:#b7b3bc;stroke-opacity:.25;stroke-width:1.2}
+    .vein{fill:none;stroke:#e0dce3;stroke-opacity:.34;stroke-width:1.2}
+    .armor-line{fill:none;stroke:#d1cdd6;stroke-opacity:.52;stroke-width:1.4}
+    @keyframes wing-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @keyframes halo-turn{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @keyframes core-beat{0%,100%{opacity:.72;transform:scale(.96)}50%{opacity:1;transform:scale(1.08)}}
+    @keyframes eye-pulse{0%,100%{opacity:.72}50%{opacity:1}}
+    @media(prefers-reduced-motion:reduce){.wings,.halo,.core,.eyes{animation:none!important}}
+  </style>
+</defs>
+
+<g class="halo" fill="none">
+  <circle cx="450" cy="170" r="112" stroke="#a90b18" stroke-width="3" stroke-dasharray="530 174" filter="url(#redGlow)"/>
+  <circle cx="450" cy="170" r="126" stroke="#c6c2ca" stroke-opacity=".25" stroke-width="1.3" stroke-dasharray="2 14"/>
+  <circle cx="450" cy="170" r="92" stroke="#d5cbd0" stroke-opacity=".24" stroke-width="1"/>
+  <path d="M450 38v22M450 280v22M318 170h22M560 170h22M357 77l16 16M527 247l16 16M543 77l-16 16M373 247l-16 16" stroke="#d7cbd0" stroke-opacity=".55" stroke-width="2"/>
+</g>
+
+<g class="wings">
+  <g class="wing-left">
+    <path class="wing-base" d="M428 310C340 201 238 101 88 63C105 178 119 305 187 403C246 485 344 432 428 365C407 345 405 326 428 310Z"/>
+    <use href="#wingFeathers" class="feather"/>
+    <path class="vein" d="M420 345C319 258 220 158 105 83M405 367C299 308 215 233 139 198M394 386C300 361 239 328 183 318"/>
+    <path d="M412 325C328 268 250 207 177 154" fill="none" stroke="#b8b4be" stroke-opacity=".3" stroke-width="3"/>
+  </g>
+  <g transform="translate(900 0) scale(-1 1)">
+    <g class="wing-left">
+      <path class="wing-base" d="M428 310C340 201 238 101 88 63C105 178 119 305 187 403C246 485 344 432 428 365C407 345 405 326 428 310Z"/>
+      <use href="#wingFeathers" class="feather"/>
+      <path class="vein" d="M420 345C319 258 220 158 105 83M405 367C299 308 215 233 139 198M394 386C300 361 239 328 183 318"/>
+      <path d="M412 325C328 268 250 207 177 154" fill="none" stroke="#b8b4be" stroke-opacity=".3" stroke-width="3"/>
+    </g>
+  </g>
+  <path d="M410 316C342 272 292 250 251 244C296 311 344 356 416 373Z" fill="#16151b" stroke="#77747e" stroke-opacity=".38"/>
+  <path d="M490 316C558 272 608 250 649 244C604 311 556 356 484 373Z" fill="#16151b" stroke="#77747e" stroke-opacity=".38"/>
+</g>
+
+<g class="figure">
+  <path d="M409 280C381 312 385 381 372 459L330 612C390 651 510 651 570 612L528 459C515 381 519 312 491 280C470 264 430 264 409 280Z" fill="url(#robe)" stroke="#89858f" stroke-opacity=".48" stroke-width="2"/>
+  <path d="M450 291L450 619M421 320C405 394 402 477 385 590M479 320C495 394 498 477 515 590" class="armor-line"/>
+  <path d="M405 302C367 302 342 322 306 356L284 341C316 298 355 275 408 278Z" fill="url(#armor)" stroke="#a7a3ad" stroke-opacity=".6" stroke-width="2"/>
+  <path d="M495 302C533 302 558 322 594 356L616 341C584 298 545 275 492 278Z" fill="url(#armor)" stroke="#a7a3ad" stroke-opacity=".6" stroke-width="2"/>
+  <path d="M303 352L275 373L291 389L324 366M597 352L625 373L609 389L576 366" fill="none" stroke="#a7a3ad" stroke-width="5" stroke-linecap="round"/>
+  <path d="M404 284L382 315L414 342L450 323L486 342L518 315L496 284L474 269L450 285L426 269Z" fill="url(#armor)" stroke="#d0cbd5" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M420 296L450 316L480 296M450 316V343" class="armor-line"/>
+  <path d="M414 205C414 165 432 139 450 139C468 139 486 165 486 205L478 251C468 269 459 277 450 280C441 277 432 269 422 251Z" fill="url(#armor)" stroke="#b7b2bc" stroke-opacity=".6" stroke-width="2"/>
+  <path d="M420 188C394 165 395 137 410 111C416 143 437 153 439 178M480 188C506 165 505 137 490 111C484 143 463 153 461 178" fill="#111116" stroke="#aaa5b0" stroke-opacity=".7" stroke-width="3"/>
+  <path d="M424 210C436 196 464 196 476 210L470 247C463 259 456 265 450 267C444 265 437 259 430 247Z" fill="#08080c"/>
+  <g class="eyes" filter="url(#redGlow)">
+    <path d="M429 222L444 225M471 222L456 225" stroke="#ff3946" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="438" cy="224" r="2.5" fill="#fff0e9"/><circle cx="462" cy="224" r="2.5" fill="#fff0e9"/>
+  </g>
+  <path d="M430 255L450 263L470 255" fill="none" stroke="#8c8791" stroke-opacity=".6" stroke-width="1.5"/>
+  <path d="M409 375L450 405L491 375" fill="none" stroke="#bcb7c0" stroke-opacity=".4" stroke-width="2"/>
+  <g class="core" filter="url(#redGlow)">
+    <circle cx="450" cy="354" r="38" fill="url(#core)"/>
+    <path d="M450 332L468 354L450 376L432 354Z" fill="#9e0915" stroke="#f1c4c4" stroke-width="1.5"/>
+    <path d="M450 340L461 354L450 368L439 354Z" fill="#f1d9d4" fill-opacity=".7"/>
+  </g>
+  <path d="M389 451C413 465 428 478 450 500C472 478 487 465 511 451M374 526C406 540 425 558 450 588C475 558 494 540 526 526" fill="none" stroke="#8d8993" stroke-opacity=".38" stroke-width="2"/>
+  <path d="M365 602L450 628L535 602" fill="none" stroke="#b7b2bc" stroke-opacity=".35" stroke-width="2"/>
+</g>
+
+<g fill="none" stroke="#b9b2bd" stroke-opacity=".35">
+  <circle cx="450" cy="354" r="57" stroke-dasharray="2 9"/>
+  <circle cx="450" cy="354" r="72" stroke="#a50e19" stroke-opacity=".3" stroke-dasharray="28 12 4 12"/>
+</g>
+<g fill="#c7c1cc" opacity=".72">
+  <path d="M151 495l7-15 7 15-7 15Z"/><path d="M742 460l6-13 6 13-6 13Z"/>
+  <path d="M224 555l5-11 5 11-5 11Z"/><path d="M681 570l5-11 5 11-5 11Z"/>
+</g>
+<g fill="#c51a26" filter="url(#softGlow)">
+  <circle cx="196" cy="190" r="3"/><circle cx="706" cy="224" r="3"/>
+  <circle cx="252" cy="470" r="2.5"/><circle cx="650" cy="490" r="2.5"/>
+</g>
+</svg>
