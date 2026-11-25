@@ -868,6 +868,80 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
   #main { margin: 0; }
 }
 
+
+/* LUCIFER 3D HERO — visual-only layer */
+.hero-eye { isolation: isolate; overflow: hidden; }
+.hero-eye > #hero-eye { display: none !important; }
+.hero-eye .hud, .hero-eye .hud-frame { z-index: 6; }
+.lucifer-stage {
+  position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  perspective: 1200px; cursor: crosshair; isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(115,0,9,.19), transparent 54%),
+    radial-gradient(ellipse at 50% 100%, rgba(125,0,8,.14), transparent 58%);
+}
+.lucifer-stage::before {
+  content: ''; position: absolute; inset: -18%; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 48%, rgba(180,18,28,.14), transparent 42%),
+              radial-gradient(ellipse at 50% 72%, rgba(180,180,190,.07), transparent 55%);
+  filter: blur(18px);
+}
+.lucifer-art {
+  position: absolute; left: 50%; top: 50%; z-index: 1;
+  width: 108%; height: 108%; max-width: none; max-height: none;
+  object-fit: contain; pointer-events: none; user-select: none;
+  transform: translate3d(calc(-50% + var(--px, 0px)), calc(-50% + var(--py, 0px)), 0)
+             rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.025);
+  transform-style: preserve-3d; opacity: .97;
+  filter: drop-shadow(0 0 34px rgba(150,0,10,.26));
+  transition: filter .35s ease, opacity .35s ease;
+}
+.lucifer-orbit {
+  position: absolute; left: 50%; top: 50%; z-index: 2; pointer-events: none;
+  width: min(72%, 430px); aspect-ratio: 1; border: 1px solid rgba(190,185,195,.18);
+  border-radius: 50%; box-shadow: 0 0 30px rgba(160,0,12,.1), inset 0 0 24px rgba(160,0,12,.04);
+  transform: translate(-50%,-50%) rotateX(68deg);
+  animation: lucifer-orbit-spin 38s linear infinite;
+}
+.lucifer-orbit::before, .lucifer-orbit::after {
+  content: ''; position: absolute; inset: 8%; border: 1px solid rgba(190,28,34,.25);
+  border-radius: 50%; transform: rotate(42deg);
+}
+.lucifer-orbit::after { inset: 18%; border-color: rgba(224,215,220,.14); transform: rotate(-34deg); }
+@keyframes lucifer-orbit-spin {
+  from { transform: translate(-50%,-50%) rotateX(68deg) rotateZ(0deg); }
+  to { transform: translate(-50%,-50%) rotateX(68deg) rotateZ(360deg); }
+}
+.lucifer-webgl {
+  position: absolute; inset: 0; z-index: 3; display: block;
+  width: 100%; height: 100%; pointer-events: none; opacity: .92;
+}
+.lucifer-stage.is-scan .lucifer-art {
+  filter: drop-shadow(0 0 48px rgba(226,35,46,.48));
+}
+.lucifer-stage.is-scan .lucifer-orbit {
+  border-color: rgba(226,35,46,.72);
+  box-shadow: 0 0 42px rgba(226,35,46,.3), inset 0 0 26px rgba(226,35,46,.12);
+}
+.lucifer-stage.is-scan::after {
+  content: ''; position: absolute; left: 50%; top: 50%; z-index: 4;
+  width: 12%; aspect-ratio: 1; border: 1px solid rgba(235,215,220,.72);
+  border-radius: 50%; pointer-events: none;
+  animation: lucifer-scan-wave 1s cubic-bezier(.12,.65,.2,1) both;
+}
+@keyframes lucifer-scan-wave {
+  0% { opacity: .9; transform: translate(-50%,-50%) scale(.25); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(7.5); }
+}
+@media (max-width: 680px) {
+  .lucifer-art { width: 116%; height: 112%; }
+  .lucifer-orbit { width: 82%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lucifer-orbit { animation: none !important; }
+}
+body.motion-off .lucifer-orbit { animation: none !important; }
+
 </style>
 </head>
 <body class="intro-active">
@@ -1022,11 +1096,11 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
       <section class="view" data-view="dashboard" data-idx="00" data-en="DASHBOARD">
         <div class="hero panel rv" style="--i:0">
           <div class="hero-eye">
-            <canvas id="hero-eye" aria-label="Анимированное всевидящее око. Нажмите, чтобы запустить импульс."></canvas>
-            <div class="hud hud-tl"><span class="live">● OCULUS ACTIVE</span><br><span id="hud-gaze">GAZE +0.00 · +0.00</span></div>
+            <canvas id="hero-eye" aria-label="Визуальный слой заменён интерактивной 3D-сценой."></canvas>
+            <div class="hud hud-tl"><span class="live">● LUCIFER ACTIVE</span><br><span id="hud-gaze">GAZE +0.00 · +0.00</span></div>
             <div class="hud hud-tr">SIGNAL <b id="hud-signal">99.2%</b><br>ПРИВАТНЫЙ КОНТУР</div>
             <div class="hud hud-bl">ЗАПИСЕЙ <b id="hud-records">0</b><br>СВЯЗЕЙ <b id="hud-links">0</b></div>
-            <div class="hud hud-br"><b id="hud-time">00:00:00</b> UTC<br>нажмите на око</div>
+            <div class="hud hud-br"><b id="hud-time">00:00:00</b> UTC<br>нажмите на образ</div>
             <div class="hud-frame"></div>
           </div>
           <div class="hero-side">
@@ -1425,11 +1499,11 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
             </div>
             <div class="panel">
               <div class="panel-h">Визуальные эффекты</div>
-              <div class="set-row"><div class="l"><b>Заставка при запуске</b><span>Кинематографичное появление ока.</span></div>
+              <div class="set-row"><div class="l"><b>Заставка при запуске</b><span>Кинематографичное появление образа.</span></div>
                 <select class="select" id="set-intro"><option value="session">Один раз за сеанс</option><option value="always">При каждом открытии</option><option value="off">Выключена</option></select></div>
-              <div class="set-row"><div class="l"><b>Качество анимации ока</b><span>«Облегчённое» снижает нагрузку на слабых компьютерах. Система сама понизит качество, если увидит просадку кадров.</span></div>
+              <div class="set-row"><div class="l"><b>Качество 3D-сцены</b><span>«Облегчённое» снижает нагрузку на слабых компьютерах. Система сама понизит качество, если увидит просадку кадров.</span></div>
                 <select class="select" id="set-quality"><option value="full">Максимальное</option><option value="lite">Облегчённое</option><option value="min">Минимальное</option></select></div>
-              <div class="set-row"><div class="l"><b>Око следит за курсором</b><span>Иначе — свободные движения зрачка.</span></div><label class="switch"><input type="checkbox" id="set-follow"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Сцена реагирует на курсор</b><span>Иначе — свободное движение сцены.</span></div><label class="switch"><input type="checkbox" id="set-follow"><i></i></label></div>
               <div class="set-row"><div class="l"><b>Интерактивная сетка фона</b><span>Подсветка сетки вокруг курсора.</span></div><label class="switch"><input type="checkbox" id="set-spot"><i></i></label></div>
               <div class="set-row"><div class="l"><b>Минимум движения</b><span>Отключает анимации интерфейса (для чувствительных к движению).</span></div><label class="switch"><input type="checkbox" id="set-motion"><i></i></label></div>
               <div class="set-row"><div class="l"><b>Посмотреть заставку</b><span>Запустить её прямо сейчас.</span></div><button class="btn" id="set-replay">Запустить</button></div>
@@ -4009,7 +4083,7 @@ function init() {
 
   document.addEventListener('click', e => {
     if (e.target.closest('#audio-toggle, #audio-pop-btn, #ap-test')) return;
-    if (e.target.closest('#hero-eye')) { sfx('eye'); return; }
+    if (e.target.closest('#hero-eye, .lucifer-stage')) { sfx('eye'); return; }
     if (e.target.closest('.pivot-link')) { sfx('pivot'); return; }
     if (e.target.closest('.tabs button, .seg button, .type-tab, .nav a')) { sfx('tab'); return; }
     if (e.target.closest('button, .eng-open, .chip, .pb-step input')) { sfx('click'); return; }
@@ -9159,5 +9233,243 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 })();
 
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a600bd056ab31d0c',t:'MTc5NTYxMDU5OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a600bd056ab31d0c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a600bd056ab31d0c',t:'MTc5NTYxMDU5OQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a600bd056ab31d0c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+'use strict';
+var GE = window.GE;
+var host = document.querySelector('.hero-eye');
+if (!GE || !host || host.dataset.luciferReady) return;
+host.dataset.luciferReady = '1';
+
+var oldCanvas = host.querySelector('#hero-eye');
+if (oldCanvas) oldCanvas.style.display = 'none';
+
+var stage = document.createElement('div');
+stage.className = 'lucifer-stage';
+stage.setAttribute('role', 'img');
+stage.setAttribute('aria-label', 'Интерактивная 3D-сцена Люцифера с крыльями, орбитами и частицами');
+var art = document.createElement('img');
+art.className = 'lucifer-art';
+art.alt = '';
+art.draggable = false;
+art.src = 'assets/lucifer-hero.svg';
+var orbit = document.createElement('div');
+orbit.className = 'lucifer-orbit';
+stage.appendChild(art);
+stage.appendChild(orbit);
+host.insertBefore(stage, host.firstChild);
+
+var THREE = window.THREE;
+var renderer = null, scene = null, camera = null, rig = null;
+var ringA = null, ringB = null, ringC = null, halo = null, dust = null, pulse = null, core = null;
+var phases = null, basePositions = null, pulseAt = -1;
+var targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+var focusEl = null, started = false, staticDrawn = false;
+var quality = GE.settings && GE.settings.quality || 'full';
+var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+var reduced = function () {
+  return !!(GE.settings && GE.settings.motion) ||
+    (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+};
+var api = {
+  g: { x: 0, y: 0 },
+  o: { follow: !(GE.settings && GE.settings.follow === false), quality: quality },
+  lookAt: function (el) { focusEl = el || null; },
+  scan: function () { firePulse(); },
+  start: function () {
+    if (started) return;
+    started = true;
+    if (renderer) requestAnimationFrame(frame);
+  },
+  setQuality: function (name) {
+    this.o.quality = name || 'full';
+    if (renderer) {
+      var cap = name === 'min' ? 1 : name === 'lite' ? 1.15 : 1.5;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
+      resize();
+    }
+  },
+  draw: function () { if (renderer && scene && camera) renderer.render(scene, camera); }
+};
+GE.heroEye = api;
+GE.startHero = function () { api.start(); };
+
+function firePulse() {
+  pulseAt = performance.now();
+  stage.classList.remove('is-scan');
+  void stage.offsetWidth;
+  stage.classList.add('is-scan');
+  window.setTimeout(function () { stage.classList.remove('is-scan'); }, 1050);
+}
+stage.addEventListener('click', firePulse);
+stage.addEventListener('pointermove', function (e) {
+  if (!api.o.follow) return;
+  focusEl = null;
+  var r = host.getBoundingClientRect();
+  targetX = clamp(((e.clientX - r.left) / r.width - .5) * 2, -1, 1);
+  targetY = clamp(((e.clientY - r.top) / r.height - .5) * 2, -1, 1);
+}, { passive: true });
+stage.addEventListener('pointerleave', function () {
+  if (!focusEl) { targetX = 0; targetY = 0; }
+});
+
+function resize() {
+  if (!renderer || !camera) return;
+  var w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+}
+function addRing(radius, tube, color, opacity, rx, ry, rz) {
+  var material = new THREE.MeshBasicMaterial({
+    color: color, transparent: true, opacity: opacity,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  var mesh = new THREE.Mesh(new THREE.TorusGeometry(radius, tube, 6, 180), material);
+  mesh.rotation.set(rx || 0, ry || 0, rz || 0);
+  rig.add(mesh);
+  return mesh;
+}
+function initWebGL() {
+  if (!THREE || !THREE.WebGLRenderer) return;
+  try {
+    var w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+    renderer.domElement.className = 'lucifer-webgl';
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    renderer.setClearColor(0x000000, 0);
+    var cap = quality === 'min' ? 1 : quality === 'lite' ? 1.15 : 1.5;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
+    renderer.setSize(w, h, false);
+    stage.appendChild(renderer.domElement);
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(40, w / h, .1, 80);
+    camera.position.set(0, 0, 13);
+    rig = new THREE.Group();
+    scene.add(rig);
+
+    ringA = addRing(3.35, .012, 0xd0cbd3, .32, 1.12, .22, .12);
+    ringB = addRing(2.75, .009, 0x9c2028, .34, .48, -.78, -.25);
+    ringC = addRing(4.05, .007, 0xe4dfe5, .15, 1.42, .28, .4);
+    halo = addRing(.92, .014, 0xd61d2b, .5, 1.18, .05, .18);
+    halo.position.set(0, 2.35, .9);
+
+    var count = quality === 'min' ? 70 : quality === 'lite' ? 125 : 210;
+    var positions = new Float32Array(count * 3);
+    basePositions = new Float32Array(count * 3);
+    phases = new Float32Array(count);
+    var colors = new Float32Array(count * 3);
+    for (var i = 0; i < count; i++) {
+      var x = (Math.random() - .5) * 9.4;
+      var y = (Math.random() - .5) * 7.1;
+      var z = -.8 + Math.random() * 2.5;
+      positions[i * 3] = basePositions[i * 3] = x;
+      positions[i * 3 + 1] = basePositions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = basePositions[i * 3 + 2] = z;
+      phases[i] = Math.random() * Math.PI * 2;
+      var color = new THREE.Color(Math.random() < .28 ? 0xc52230 : 0xcfcbd3);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+    }
+    var geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    var material = new THREE.PointsMaterial({
+      size: .045, transparent: true, opacity: .8, vertexColors: true,
+      blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+    });
+    dust = new THREE.Points(geometry, material);
+    rig.add(dust);
+
+    var pulseMaterial = new THREE.MeshBasicMaterial({
+      color: 0xe5cfd5, transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    pulse = new THREE.Mesh(new THREE.TorusGeometry(1, .018, 8, 140), pulseMaterial);
+    pulse.rotation.set(.9, .2, 0);
+    pulse.position.z = 1.25;
+    pulse.visible = false;
+    rig.add(pulse);
+
+    var coreMaterial = new THREE.MeshBasicMaterial({
+      color: 0xb80d1c, transparent: true, opacity: .7,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    core = new THREE.Mesh(new THREE.OctahedronGeometry(.16, 0), coreMaterial);
+    core.position.set(0, -.08, 1.35);
+    rig.add(core);
+    resize();
+  } catch (err) {
+    if (renderer) { try { renderer.dispose(); } catch (_) {} }
+    renderer = scene = camera = rig = null;
+    console.warn('Lucifer WebGL fallback:', err);
+  }
+}
+function updateTarget() {
+  if (!api.o.follow) { targetX = 0; targetY = 0; return; }
+  if (focusEl && focusEl.isConnected) {
+    var fr = focusEl.getBoundingClientRect();
+    var hr = host.getBoundingClientRect();
+    targetX = clamp(((fr.left + fr.width / 2 - hr.left) / hr.width - .5) * 2, -1, 1);
+    targetY = clamp(((fr.top + fr.height / 2 - hr.top) / hr.height - .5) * 2, -1, 1);
+  }
+}
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!renderer || !scene || !camera || document.hidden) return;
+  if (reduced()) {
+    if (!staticDrawn) { renderer.render(scene, camera); staticDrawn = true; }
+    return;
+  }
+  staticDrawn = false;
+  var t = now * .001;
+  updateTarget();
+  currentX += (targetX - currentX) * .035;
+  currentY += (targetY - currentY) * .035;
+  api.g.x = currentX;
+  api.g.y = currentY;
+  art.style.setProperty('--px', (currentX * 9).toFixed(2) + 'px');
+  art.style.setProperty('--py', (currentY * 7).toFixed(2) + 'px');
+  art.style.setProperty('--rx', (-currentY * 2.8).toFixed(2) + 'deg');
+  art.style.setProperty('--ry', (currentX * 3.8).toFixed(2) + 'deg');
+
+  rig.rotation.y += (currentX * .15 - rig.rotation.y) * .025;
+  rig.rotation.x += (-currentY * .09 - rig.rotation.x) * .025;
+  ringA.rotation.z = t * .045;
+  ringB.rotation.z = -t * .072;
+  ringC.rotation.y = .28 + Math.sin(t * .17) * .06;
+  halo.rotation.z = .18 + t * .035;
+  core.rotation.x = t * .3;
+  core.rotation.y = t * .42;
+  core.scale.setScalar(1 + Math.sin(t * 2.1) * .08);
+
+  var attr = dust.geometry.attributes.position;
+  for (var i = 0; i < phases.length; i++) {
+    attr.array[i * 3] = basePositions[i * 3] + Math.cos(t * .22 + phases[i]) * .1;
+    attr.array[i * 3 + 1] = basePositions[i * 3 + 1] + Math.sin(t * .36 + phases[i]) * .16;
+  }
+  attr.needsUpdate = true;
+
+  if (pulseAt >= 0 && pulse) {
+    var k = clamp((now - pulseAt) / 1150, 0, 1);
+    pulse.visible = k < 1;
+    pulse.scale.setScalar(.2 + k * 4.4);
+    pulse.material.opacity = .78 * (1 - k);
+    if (k >= 1) pulseAt = -1;
+  }
+  renderer.render(scene, camera);
+}
+initWebGL();
+if (window.ResizeObserver) {
+  var ro = new ResizeObserver(resize);
+  ro.observe(host);
+}
+window.addEventListener('resize', resize, { passive: true });
+})();
+</script>
+</body>
 </html>
