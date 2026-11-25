@@ -2836,6 +2836,37 @@ GE.ENGINES = [
   { n: 'Chess.com', d: 'chess.com/member/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.chess.com/member/' + E(q) },
   { n: 'Lichess', d: 'lichess.org/@/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://lichess.org/@/' + E(q) },
   { n: 'WhatsMyName', d: 'Агрегатор: проверка ника на сотнях площадок', c: 'Профили по нику', fast: 1, reg: 'global', t: ['username'], u: q => 'https://whatsmyname.app/?q=' + E(q) },
+  { n: 'Facebook', d: 'facebook.com/…', c: 'Профили по нику', login: 1, reg: 'global', t: ['username'], u: q => 'https://www.facebook.com/' + E(q) },
+  { n: 'Snapchat', d: 'snapchat.com/add/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.snapchat.com/add/' + E(q) },
+  { n: 'Tumblr', d: 'tumblr.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.tumblr.com/' + E(q) },
+  { n: 'Flickr', d: 'flickr.com/people/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.flickr.com/people/' + E(q) },
+  { n: 'DeviantArt', d: 'deviantart.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.deviantart.com/' + E(q) },
+  { n: 'ArtStation', d: 'artstation.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.artstation.com/' + E(q) },
+  { n: 'Dribbble', d: 'dribbble.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://dribbble.com/' + E(q) },
+  { n: 'Patreon', d: 'patreon.com/…', c: 'Профили по нику', login: 1, reg: 'global', t: ['username'], u: q => 'https://www.patreon.com/' + E(q) },
+  { n: 'Kick', d: 'kick.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://kick.com/' + E(q) },
+  { n: 'Vimeo', d: 'vimeo.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://vimeo.com/' + E(q) },
+  { n: 'Dailymotion', d: 'dailymotion.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.dailymotion.com/' + E(q) },
+  { n: 'Roblox', d: 'Поиск пользователя roblox.com', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.roblox.com/search/users?keyword=' + E(q) },
+  { n: 'OK.ru', d: 'ok.ru/…', c: 'Профили по нику', reg: 'ru', t: ['username'], u: q => 'https://ok.ru/' + E(q) },
+  { n: 'Bitbucket', d: 'bitbucket.org/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://bitbucket.org/' + E(q) },
+  { n: 'Codeberg', d: 'codeberg.org/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://codeberg.org/' + E(q) },
+  { n: 'Gitea', d: 'gitea.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://gitea.com/' + E(q) },
+  { n: 'Launchpad', d: 'launchpad.net/~…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://launchpad.net/~' + E(q) },
+  { n: 'PyPI', d: 'pypi.org/user/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://pypi.org/user/' + E(q) },
+  { n: 'RubyGems', d: 'rubygems.org/profiles/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://rubygems.org/profiles/' + E(q) },
+  { n: 'Packagist', d: 'packagist.org/users/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://packagist.org/users/' + E(q) },
+  { n: 'SourceForge', d: 'sourceforge.net/u/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://sourceforge.net/u/' + E(q) },
+  { n: 'Kaggle', d: 'kaggle.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.kaggle.com/' + E(q) },
+  { n: 'LeetCode', d: 'leetcode.com/u/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://leetcode.com/u/' + E(q) },
+  { n: 'HackerRank', d: 'hackerrank.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.hackerrank.com/' + E(q) },
+  { n: 'Codewars', d: 'codewars.com/users/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.codewars.com/users/' + E(q) },
+  { n: 'CodePen', d: 'codepen.io/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://codepen.io/' + E(q) },
+  { n: 'Replit', d: 'replit.com/@…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://replit.com/@' + E(q) },
+  { n: 'Indie Hackers', d: 'indiehackers.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://www.indiehackers.com/' + E(q) },
+  { n: 'Devpost', d: 'devpost.com/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://devpost.com/' + E(q) },
+  { n: 'Lobste.rs', d: 'lobste.rs/u/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://lobste.rs/u/' + E(q) },
+  { n: 'Lemmy', d: 'lemmy.world/u/…', c: 'Профили по нику', reg: 'global', t: ['username'], u: q => 'https://lemmy.world/u/' + E(q) },
 
   // Домены
   { n: 'ICANN Lookup', d: 'Официальная регистрационная информация (RDAP)', c: 'Домен и инфраструктура', fast: 1, reg: 'global', t: ['domain'], u: q => 'https://lookup.icann.org/en/lookup?name=' + E(q) },
@@ -5927,7 +5958,7 @@ S.live = (forceRefresh = false) => {
       };
     }, `https://github.com/${q}`);
 
-    job('Публичные профили · Live-проверка (12 платформ)', async () => {
+    job('Публичные профили · Live-проверка (16 платформ)', async () => {
       const checks = [
         {
           name: 'GitLab',
@@ -6038,6 +6069,44 @@ S.live = (forceRefresh = false) => {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             const u = await r.json();
             return { found: true, url: u.url || `https://lichess.org/@/${E(q)}`, info: u.profile?.country || 'найден' };
+          }
+        },
+        {
+          name: 'GitHub',
+          fn: async () => {
+            const r = await fetch(`https://api.github.com/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.id ? { found: true, url: u.html_url, info: u.name || `репо: ${u.public_repos || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'Bitbucket',
+          fn: async () => {
+            const r = await fetch(`https://api.bitbucket.org/2.0/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.uuid ? { found: true, url: `https://bitbucket.org/${E(u.username)}/`, info: u.display_name || 'найден' } : { found: false };
+          }
+        },
+        {
+          name: 'Codeberg',
+          fn: async () => {
+            const r = await fetch(`https://codeberg.org/api/v1/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.id ? { found: true, url: `https://codeberg.org/${E(u.login)}`, info: u.full_name || 'найден' } : { found: false };
+          }
+        },
+        {
+          name: 'Archive.org',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://archive.org/advancedsearch.php?q=uploader:${E(q)}&fl[]=identifier&rows=1&output=json`, 10000);
+            const n = r && r.response && r.response.numFound;
+            return n > 0 ? { found: true, url: `https://archive.org/search?query=uploader:${E(q)}`, info: `загрузок: ${n}` } : { found: false };
           }
         }
       ];
