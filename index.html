@@ -890,6 +890,9 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
 .bcard.case{background:#3a0d0d;color:#f5e9d8;border:1px solid #8a1a1a;box-shadow:0 0 28px rgba(160,0,0,.45)}
 .bcard.case .bcode{color:#e0a0a0}
 .bcard.note{background:#ffe9a8;transform:rotate(-2deg)}
+.hint{display:block;padding:7px 10px;margin:4px 0;border:1px solid var(--line-2);border-radius:4px;color:var(--silver);font-size:12.5px;text-decoration:none}
+.hint b{color:var(--crimson-3);font-weight:600}
+.hint:hover{border-color:var(--crimson-3);color:var(--white)}
 </style>
 </head>
 <body class="intro-active">
@@ -5182,6 +5185,7 @@ GE.openRecord = id => {
   const skip = new Set(['title', 'notes', 'body', 'objective', 'conclusion', 'sources', 'url', 'website', 'image_url', 'archived_url', 'linked', 'tags', 'reliability', 'credibility']);
   const kv = T.fields.filter(f => !skip.has(f.k) && GE.fieldText(r, f.k)).map(f => `<dt>${esc(GE.FIELD_LABEL(r.type, f.k))}</dt><dd class="${f.mono ? 'mono' : ''}">${f.k === 'affiliation' ? `<a href="#" data-open="${r.affiliation}">${esc(GE.fieldText(r, f.k))}</a>` : esc(GE.fieldText(r, f.k))}</dd>`).join('');
   const nb = GE.db.neighbors(id);
+  const hints = r.type === 'case' ? GE.caseHints(r) : [];
   const text = (k, h) => r[k] ? `<div class="dr-sec"><h6>${h}</h6><div class="md">${GE.md(r[k])}</div></div>` : '';
   dr.innerHTML = `
     <div class="dr-h">
@@ -5199,6 +5203,7 @@ GE.openRecord = id => {
       ${text('conclusion', 'Вывод')}
       ${text('notes', 'Заметки')}
       ${urls.length ? `<div class="dr-sec"><h6>Источники и ссылки · ${urls.length}</h6><div class="url-list">${urls.map(u => `<div class="row" style="gap:6px;flex-wrap:nowrap"><a href="${esc(u)}" target="_blank" rel="noopener" class="grow">${esc(u)}</a><a class="btn btn-icon btn-sm btn-ghost" title="Архивная копия" target="_blank" rel="noopener" href="https://web.archive.org/web/*/${esc(u)}">${GE.icon('archive')}</a></div>`).join('')}</div></div>` : ''}
+      ${hints.length ? `<div class="dr-sec"><h6>Подсказки детектива</h6>${hints.map(h => `<a class="hint" href="#/search?q=${encodeURIComponent(h.q)}" data-hint><b>${esc(h.t)}</b> — ${esc(h.a)}</a>`).join('')}</div>` : ''}
       <div class="dr-sec"><h6>Связи · ${nb.length}</h6>
         <div class="link-list">${nb.length ? nb.map(n => `<div class="link-i" data-open="${n.other.id}"><span class="rel">${n.out ? '→' : '←'} ${esc(n.edge.rel)}</span><span class="sens">${esc(n.other.title)}</span><span class="dim mono" style="font-size:10px">${GE.TYPES[n.other.type].code}</span>${n.edge.kind === 'link' ? `<button class="btn btn-icon btn-sm btn-ghost x" data-unlink="${n.edge.id}" title="Удалить связь">${GE.icon('x')}</button>` : ''}</div>`).join('') : '<div class="muted" style="font-size:12.5px">Связей пока нет.</div>'}</div>
         <button class="btn btn-sm" style="margin-top:10px" data-act="link">${GE.icon('link')}Добавить связь</button>
@@ -5215,6 +5220,7 @@ GE.openRecord = id => {
     </div>`;
   dr.querySelector('.close').onclick = GE.closeDrawer;
   dr.querySelectorAll('[data-open]').forEach(el => el.addEventListener('click', e => { if (e.target.closest('[data-unlink]')) return; e.preventDefault(); GE.openRecord(el.dataset.open); }));
+  dr.querySelectorAll('[data-hint]').forEach(el => el.addEventListener('click', () => GE.closeDrawer()));
   dr.querySelectorAll('[data-unlink]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); GE.db.unlink(b.dataset.unlink); GE.openRecord(id); }));
   dr.querySelectorAll('.wl').forEach(w => w.addEventListener('click', () => { const x = GE.db.findTitle(w.dataset.wl); if (x) GE.openRecord(x.id); else GE.toast('Запись «' + w.dataset.wl + '» не найдена'); }));
   const act = a => dr.querySelector(`[data-act=${a}]`);
@@ -5228,6 +5234,19 @@ GE.openRecord = id => {
   if (act('map')) act('map').onclick = () => { GE.closeDrawer(); location.hash = '#/geolocation'; setTimeout(() => GE.geo && GE.geo.focus(r), 250); };
   if (act('export')) act('export').onclick = () => GE.exportReportDialog(r);
   dr.classList.add('on'); $('#scrim').classList.add('on');
+};
+
+GE.caseHints = r => {
+  const s = String(r.subject || '').trim();
+  if (!s) return [];
+  const H = [];
+  if (/^[a-zA-Z0-9_.]{3,24}$/.test(s)) H.push({ t: 'Никнейм', a: 'Live-проверка на 18 платформах', q: s });
+  if (/@/.test(s)) H.push({ t: 'Email', a: 'Публичные упоминания адреса', q: s });
+  if (/^https?:\/\//.test(s) || /^[\w-]+(\.[\w-]+)+$/.test(s)) H.push({ t: 'Домен', a: 'WHOIS, DNS, сертификаты, архив', q: s });
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) H.push({ t: 'IP', a: 'Гео, ASN, открытые порты', q: s });
+  if (/^\+?[\d\s()-]{7,}$/.test(s)) H.push({ t: 'Телефон', a: 'Нормализация E.164 и источники', q: s });
+  if (!H.length) H.push({ t: 'Текст', a: 'Полнотекстовый поиск по открытым источникам', q: s });
+  return H;
 };
 
 GE.openBoard = id => {
