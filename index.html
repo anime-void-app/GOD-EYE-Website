@@ -127,12 +127,12 @@ body.fx-off #bg .bg-spot { display: none; }
 #intro.reveal canvas, #intro.reveal .intro-text, #intro.reveal .intro-skip { opacity: 0; transition: opacity 0.3s ease; }
 
 .intro-text {
-  position: absolute; left: 0; right: 0; top: 73%; z-index: 3;
-  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px;
+  position: absolute; left: 0; right: 0; bottom: clamp(20px, 5.5vh, 64px); z-index: 3;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 11px;
   padding: 0 16px;
 }
 .intro-title {
-  font: 600 clamp(2.2rem, 6vw, 4.4rem)/1 var(--f-display);
+  font: 600 clamp(2rem, min(6vw, 8.4vh), 4.4rem)/1 var(--f-display);
   letter-spacing: 0.34em; margin-right: -0.34em;
   display: flex;
 }
@@ -153,7 +153,8 @@ body.fx-off #bg .bg-spot { display: none; }
 .intro-sub.on { opacity: 1; transform: none; }
 .intro-rule { width: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--silver), transparent); transition: width 1.2s var(--ease); }
 .intro-rule.on { width: min(420px, 70vw); }
-.intro-boot { font: 400 11px/1.9 var(--f-mono); color: var(--muted); letter-spacing: 0.14em; min-height: 64px; text-align: left; }
+.intro-boot { font: 400 11px/1.75 var(--f-mono); color: var(--muted); letter-spacing: 0.14em; min-height: 0; text-align: left; }
+@media (max-height: 820px) { .intro-title { font-size: clamp(2rem, 7.4vh, 3.6rem); } .intro-enter { padding: 10px 30px; } }
 .intro-boot .ok { color: var(--silver); }
 .intro-boot .ok::after { content: ' ✓'; color: var(--crimson-3); }
 .intro-enter {
@@ -170,6 +171,22 @@ body.fx-off #bg .bg-spot { display: none; }
   padding: 8px 12px; border: 1px solid transparent; transition: color 0.2s, border-color 0.2s;
 }
 .intro-skip:hover { color: var(--silver); border-color: var(--line-2); }
+
+/* ===INTRO-CSS-BEGIN=== */
+.intro-gate { position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; padding: 0 20px; background: radial-gradient(ellipse at 50% 46%, rgba(52, 6, 12, 0.6), rgba(0, 0, 0, 0) 62%); transition: opacity 0.3s ease; }
+#intro.gated .intro-gate { display: flex; }
+#intro.gated .intro-text, #intro.gated #intro-canvas { display: none; }
+#intro.reveal .intro-gate { opacity: 0; }
+.gate-eye { position: relative; width: min(380px, 72vw); height: 2px; background: linear-gradient(90deg, transparent, var(--silver), #fff, var(--silver), transparent); box-shadow: 0 0 24px rgba(226, 35, 46, 0.55), 0 0 90px rgba(226, 35, 46, 0.25); animation: gateBreath 3.8s ease-in-out infinite; }
+.gate-eye::after { content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: radial-gradient(circle, #fff 0, #e2232e 55%, transparent 72%); box-shadow: 0 0 22px #e2232e; }
+@keyframes gateBreath { 0%, 100% { transform: scaleX(0.5); opacity: 0.5; } 50% { transform: scaleX(1); opacity: 1; } }
+.gate-title { font: 600 12px/1 var(--f-mono); letter-spacing: 0.62em; margin-right: -0.62em; color: var(--crimson-3); text-shadow: 0 0 18px rgba(226, 35, 46, 0.6); }
+.gate-go { padding: 14px 40px; border: 1px solid var(--line-3); color: var(--silver); font: 600 13px/1 var(--f-display); letter-spacing: 0.42em; background: rgba(0, 0, 0, 0.45); transition: border-color 0.3s, color 0.3s, box-shadow 0.3s; }
+.gate-go:hover, .gate-go:focus-visible { border-color: var(--crimson-3); color: #fff; box-shadow: 0 0 28px rgba(226, 35, 46, 0.35), inset 0 0 18px rgba(226, 35, 46, 0.15); outline: none; }
+.gate-mute { padding: 8px 12px; font: 500 11px/1 var(--f-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid transparent; transition: color 0.2s, border-color 0.2s; }
+.gate-mute:hover { color: var(--silver); border-color: var(--line-3); }
+.gate-hint { font: 400 11px/1.7 var(--f-mono); letter-spacing: 0.14em; color: var(--muted); max-width: 440px; }
+/* ===INTRO-CSS-END=== */
 
 /* ═══════════════════════════ КАРКАС ═══════════════════════════ */
 #app { position: relative; z-index: 1; min-height: 100vh; }
@@ -1154,6 +1171,10 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
   .bc.enter,.pin.fall,.th.new .th-main,.th.new .th-tw{animation:none!important;stroke-dashoffset:0}
 }
 
+/* оповещения над доской: сверху по центру, чтобы не закрывать масштаб и инспектор */
+body.board-open #toasts{top:66px;bottom:auto;right:auto;left:50%;transform:translateX(-50%);align-items:center}
+body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0,0,.6)}
+
 /* метки проверки и поиск */
 .bc-flag{position:absolute;top:-11px;right:-11px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#f0e6cd;color:var(--fc);box-shadow:0 0 0 2px #f0e6cd,0 0 0 3.5px var(--fc),0 3px 6px rgba(0,0,0,.5);transform:rotate(-12deg);z-index:2;font:800 15px/1 var(--f-mono);filter:url(#bd-rough);pointer-events:none}
 .bc-flag svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
@@ -1321,6 +1342,13 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
   <div class="lid lid-top"></div>
   <div class="lid lid-bottom"></div>
   <canvas id="intro-canvas"></canvas>
+  <div class="intro-gate" id="intro-gate">
+    <div class="gate-eye"></div>
+    <div class="gate-title">ОКО СПИТ</div>
+    <button class="gate-go" id="gate-go">Разбудить око</button>
+    <button class="gate-mute" id="gate-mute">войти без звука</button>
+    <div class="gate-hint">Лучше в наушниках. Браузер включает звук только после нажатия.</div>
+  </div>
   <div class="intro-text">
     <h1 class="intro-title" id="intro-title" aria-label="GOD EYE"></h1>
     <div class="intro-rule" id="intro-rule"></div>
@@ -1402,6 +1430,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
             <button data-track="signal"><b>BLACK PROTOCOL</b><small>Industrial Threat · 88 BPM</small></button>
             <button data-track="ghost"><b>GHOST ARCHIVE</b><small>Paranormal Signal · Haunted Air</small></button>
             <button data-track="sanctum"><b>RED SANCTUM</b><small>Crimson Ritual · Heartbeat + Choir</small></button>
+            <button data-track="noir"><b>CASEFILE NOIR</b><small>Noir Jazz · Rain · Typewriter · 68 BPM</small></button>
           </div>
           <div class="ap-sliders">
             <label><span>OST</span><input type="range" id="ap-ost-vol" min="0" max="100" value="38"><b id="ap-ost-pct">38%</b></label>
@@ -1410,6 +1439,10 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
           <div class="ap-row">
             <label class="check"><input type="checkbox" id="ap-sfx-on" checked><span>UI-звуки (SFX)</span></label>
             <button class="btn btn-sm btn-ghost" id="ap-test">Тест SFX</button>
+          </div>
+          <div class="ap-row">
+            <label class="check"><input type="checkbox" id="ap-eye-on" checked><span>Звуки глаза</span></label>
+            <button class="btn btn-sm btn-ghost" id="ap-test-intro">Звук заставки</button>
           </div>
         </div>
       </div>
@@ -1848,6 +1881,7 @@ body.motion-off *, body.motion-off *::before, body.motion-off *::after { animati
                   <option value="signal">BLACK PROTOCOL (Industrial Threat · 88 BPM)</option>
                   <option value="ghost">GHOST ARCHIVE (Paranormal Signal)</option>
                   <option value="sanctum">RED SANCTUM (Crimson Ritual)</option>
+                  <option value="noir">CASEFILE NOIR (Noir Jazz · дождь · печатная машинка)</option>
                 </select>
               </div>
               <div class="set-row"><div class="l"><b>Громкость саундтрека</b><span>Плавная регулировка уровня OST.</span></div><input type="range" class="audio-range" id="set-audio-ost-vol" min="0" max="100" value="38"></div>
@@ -3643,6 +3677,7 @@ const TRACKS = {
   signal: { name: 'BLACK PROTOCOL', sub: 'Industrial Threat · 88 BPM' },
   ghost:  { name: 'GHOST ARCHIVE',  sub: 'Paranormal Signal · Haunted Air' },
   sanctum:{ name: 'RED SANCTUM',    sub: 'Crimson Ritual · Heartbeat + Choir' },
+  noir:   { name: 'CASEFILE NOIR',  sub: 'Noir Jazz · Rain · Typewriter · 68 BPM' },
 };
 
 let ctx = null;
@@ -3791,8 +3826,8 @@ function stopTrackNodes() {
   }
 }
 
-function playPadNote(ac, freq, dur, vol, dest, type = 'triangle', cutoff = 900) {
-  const now = ac.currentTime;
+function playPadNote(ac, freq, dur, vol, dest, type = 'triangle', cutoff = 900, t0) {
+  const now = t0 != null ? t0 : ac.currentTime;
   const osc = ac.createOscillator();
   const osc2 = ac.createOscillator();
   const filt = ac.createBiquadFilter();
@@ -3816,8 +3851,8 @@ function playPadNote(ac, freq, dur, vol, dest, type = 'triangle', cutoff = 900) 
   osc.stop(now + dur + 0.8); osc2.stop(now + dur + 0.8);
 }
 
-function playPluck(ac, freq, dur, vol, dest, toDelay = true) {
-  const now = ac.currentTime;
+function playPluck(ac, freq, dur, vol, dest, toDelay = true, t0) {
+  const now = t0 != null ? t0 : ac.currentTime;
   const osc = ac.createOscillator();
   const filt = ac.createBiquadFilter();
   const g = ac.createGain();
@@ -3950,9 +3985,7 @@ function startSignal(ac, token) {
   ];
   let step = 0;
 
-  const tick = () => {
-    if (!isActive(token)) return;
-    const t = ac.currentTime;
+  const tickAt = t => {
     const bar = Math.floor(step / 16) % arpPatterns.length;
     const pat = arpPatterns[bar];
     const inBar = step % 16;
@@ -3972,18 +4005,20 @@ function startSignal(ac, token) {
     // Аналоговое арпеджио на чётных шагах
     if (inBar % 2 === 0) {
       const freq = pat[(inBar / 2) % pat.length];
-      playPluck(ac, freq, 0.32, 0.068, trackBus, true);
+      playPluck(ac, freq, 0.32, 0.068, trackBus, true, t);
     }
 
     // Тёмный пэд на начале каждого второго такта
     if (inBar === 0) {
-      playPadNote(ac, pat[0] * 0.5, 5.4, 0.055, trackBus, 'triangle', 540);
-      playPadNote(ac, pat[2], 5.4, 0.025, trackBus, 'sine', 920);
+      playPadNote(ac, pat[0] * 0.5, 5.4, 0.055, trackBus, 'triangle', 540, t);
+      playPadNote(ac, pat[2], 5.4, 0.025, trackBus, 'sine', 920, t);
     }
     step++;
   };
-  tick();
-  trackEvery(tick, 170, token);
+  let nextT = ac.currentTime + 0.1;
+  const pump = () => { if (!isActive(token)) return; while (nextT < ac.currentTime + 0.5) { tickAt(nextT); nextT += 0.17045; } };
+  pump();
+  trackEvery(pump, 70, token);
   trackEvery(() => { playBreath(ac, 1400 + Math.random() * 900, 0.42, 0.07); if (Math.random() < 0.5) playImpact(ac, 38, 0.12); }, 2720, token);
 }
 
@@ -4102,6 +4137,198 @@ function startSanctum(ac, token) {
   trackEvery(() => { if (Math.random() < 0.6) playImpact(ac, 27 + Math.random() * 6, 0.11); }, 9800, token);
 }
 
+/* ===NOIR-BEGIN=== */
+/* ─────────── ТРЕК 5: CASEFILE NOIR (нуар-джаз · дождь · печатная машинка · 68 BPM) ───────────
+   Живая игра по партитуре: ходящий контрабас, щётки и райд, электропиано (FM), приглушённая труба,
+   дождь за окном, треск винила, часы, пишущая машинка и далёкий ревун. Ноты ставятся заранее по
+   часам звука (а не по таймеру страницы), поэтому темп не плывёт, даже когда браузер занят. */
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const NOIR_BARS = [
+  { n: 'Dm9', root: 38, bass: [38, 41, 45, 48], keys: [53, 57, 60, 64], tones: [2, 5, 9, 0, 4] },
+  { n: 'Dm9', root: 38, bass: [38, 41, 45, 50], keys: [53, 57, 60, 64], tones: [2, 5, 9, 0, 4] },
+  { n: 'Bbmaj7#11', root: 34, bass: [34, 38, 41, 45], keys: [58, 62, 64, 69], tones: [10, 2, 5, 9, 4] },
+  { n: 'Bbmaj7#11', root: 34, bass: [34, 38, 41, 45], keys: [58, 62, 64, 69], tones: [10, 2, 5, 9, 4] },
+  { n: 'Gm9', root: 43, bass: [43, 46, 50, 41], keys: [58, 62, 65, 69], tones: [7, 10, 2, 5, 9] },
+  { n: 'Em7b5', root: 40, bass: [40, 43, 46, 50], keys: [55, 58, 62, 64], tones: [4, 7, 10, 2] },
+  { n: 'A7b9', root: 45, bass: [45, 49, 52, 43], keys: [55, 58, 61, 64], tones: [9, 1, 4, 7, 10] },
+  { n: 'A7b9', root: 33, bass: [33, 37, 40, 43], keys: [55, 58, 61, 64], tones: [9, 1, 4, 7, 10] }
+];
+const NOIR_SCALE = [2, 4, 5, 7, 9, 10, 0];
+function noirEngine(ac, bus, rev, dl) {
+  const E = { ac, bus, rev, dl, beat: 60 / 68, swing: 0.667, t0: ac.currentTime + 0.3, i: 0, nextDrop: 0, nextPop: 0, nextTick: 0, tick: 0, rnd: Math.random };
+  const mk = (v, wr, wd) => {
+    const g = ac.createGain(); g.gain.value = v; g.connect(bus);
+    if (wr && rev) { const r = ac.createGain(); r.gain.value = wr; g.connect(r); r.connect(rev); }
+    if (wd && dl) { const d = ac.createGain(); d.gain.value = wd; g.connect(d); d.connect(dl); }
+    return g;
+  };
+  E.bass = mk(0.55); E.kit = mk(0.36, 0.1); E.keys = mk(0.34, 0.4, 0.12); E.lead = mk(0.3, 0.55, 0.3); E.amb = mk(0.5, 0.2); E.type = mk(0.3, 0.3);
+  E.nextDrop = E.t0; E.nextPop = E.t0 + 1.2; E.nextTick = E.t0 + 0.5;
+  return E;
+}
+const nzSrc = (E, t, dur, kind = 'white') => { const s = E.ac.createBufferSource(); s.buffer = nzBuf(E.ac, Math.max(1, dur + 0.2), kind); s.start(t); s.stop(t + dur + 0.05); return s; };
+function noirBass(E, t, m, vel, dur) {
+  const ac = E.ac, f = mtof(m), o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter(), g2 = ac.createGain();
+  o.type = 'triangle'; o2.type = 'sine';
+  o.frequency.setValueAtTime(f * 1.03, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.03); o2.frequency.value = f * 2; g2.gain.value = 0.3;
+  lp.type = 'lowpass'; lp.Q.value = 1.1; lp.frequency.setValueAtTime(1600, t); lp.frequency.exponentialRampToValueAtTime(430, t + 0.2);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel, t + 0.01); g.gain.exponentialRampToValueAtTime(vel * 0.4, t + dur * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(E.bass);
+  o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  const n = nzSrc(E, t, 0.04), nf = ac.createBiquadFilter(), ng = ac.createGain(); nf.type = 'lowpass'; nf.frequency.value = 1100;
+  ng.gain.setValueAtTime(vel * 0.5, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.035); n.connect(nf); nf.connect(ng); ng.connect(E.bass);
+}
+function noirKey(E, t, m, vel, dur) {
+  const ac = E.ac, f = mtof(m), car = ac.createOscillator(), mod = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain(), tine = ac.createOscillator(), tg = ac.createGain();
+  car.type = 'sine'; mod.type = 'sine'; tine.type = 'sine';
+  car.frequency.value = f; mod.frequency.value = f; tine.frequency.value = f * 2.005;
+  mg.gain.setValueAtTime(f * (1.6 + vel * 1.4), t); mg.gain.exponentialRampToValueAtTime(f * 0.12, t + 0.55);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.42, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  tg.gain.setValueAtTime(0.0001, t); tg.gain.linearRampToValueAtTime(vel * 0.08, t + 0.003); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  mod.connect(mg); mg.connect(car.frequency); car.connect(g); tine.connect(tg); g.connect(E.keys); tg.connect(E.keys);
+  [car, mod, tine].forEach(o => { o.start(t); o.stop(t + dur + 0.1); });
+}
+function noirRide(E, t, vel) {
+  const ac = E.ac, n = nzSrc(E, t, 0.7), hp = ac.createBiquadFilter(), g = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 6200; g.gain.setValueAtTime(vel * 0.04, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+  n.connect(hp); hp.connect(g); g.connect(E.kit);
+  [3180, 4730, 6410].forEach((f, k) => { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = f; og.gain.setValueAtTime(vel * 0.013, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.4 + k * 0.05); o.connect(og); og.connect(E.kit); o.start(t); o.stop(t + 0.6); });
+}
+function noirBrush(E, t, vel) {
+  const ac = E.ac, n = nzSrc(E, t, 0.5), bp = ac.createBiquadFilter(), g = ac.createGain();
+  bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 0.6;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.05, t + 0.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+  n.connect(bp); bp.connect(g); g.connect(E.kit);
+}
+function noirChick(E, t, vel) {
+  const ac = E.ac, n = nzSrc(E, t, 0.06), hp = ac.createBiquadFilter(), g = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 7600; g.gain.setValueAtTime(vel * 0.07, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+  n.connect(hp); hp.connect(g); g.connect(E.kit);
+}
+/* приглушённая труба: пила и квадрат через резонанс, вибрато вступает не сразу, дыхание */
+function noirLead(E, t, m, dur, vel, slide) {
+  const ac = E.ac, f = mtof(m), o = ac.createOscillator(), o2 = ac.createOscillator(), mix = ac.createGain(), g2 = ac.createGain(), bp = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), env = ac.createGain();
+  o.type = 'sawtooth'; o2.type = 'square'; o2.frequency.value = f * 1.004; g2.gain.value = 0.35;
+  if (slide) { o.frequency.setValueAtTime(f * Math.pow(2, -slide / 12), t); o.frequency.exponentialRampToValueAtTime(f, t + 0.09); } else o.frequency.value = f;
+  const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 5.4; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * 0.009, t + Math.min(dur * 0.55, 0.55)); lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
+  bp.type = 'bandpass'; bp.Q.value = 1.1; bp.frequency.setValueAtTime(Math.min(1700, Math.max(900, f * 2.2)), t);
+  lp.type = 'lowpass'; lp.frequency.value = 3000;
+  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(vel, t + 0.06); env.gain.linearRampToValueAtTime(vel * 0.78, t + 0.22); env.gain.setValueAtTime(vel * 0.78, t + Math.max(0.25, dur - 0.3)); env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(mix); o2.connect(g2); g2.connect(mix); mix.connect(bp); bp.connect(lp); lp.connect(env); env.connect(E.lead);
+  const n = nzSrc(E, t, dur), nb = ac.createBiquadFilter(), ng = ac.createGain(); nb.type = 'bandpass'; nb.frequency.value = 2200; nb.Q.value = 0.8;
+  ng.gain.setValueAtTime(0.0001, t); ng.gain.linearRampToValueAtTime(vel * 0.06, t + 0.05); ng.gain.exponentialRampToValueAtTime(0.0001, t + dur); n.connect(nb); nb.connect(ng); ng.connect(E.lead);
+  [o, o2, lfo].forEach(x => { x.start(t); x.stop(t + dur + 0.05); });
+}
+function noirTick(E, t, hi) {
+  const ac = E.ac, o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.value = hi ? 1900 : 1450; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.014, t + 0.001); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
+  o.connect(g); g.connect(E.amb); o.start(t); o.stop(t + 0.03);
+}
+function noirDrop(E, t) {
+  const ac = E.ac, n = nzSrc(E, t, 0.01), bp = ac.createBiquadFilter(), g = ac.createGain(), p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+  bp.type = 'bandpass'; bp.frequency.value = 2400 + E.rnd() * 4600; bp.Q.value = 4; g.gain.setValueAtTime(0.012 + E.rnd() * 0.026, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+  n.connect(bp); bp.connect(g); if (p) { p.pan.value = E.rnd() * 2 - 1; g.connect(p); p.connect(E.amb); } else g.connect(E.amb);
+}
+function noirPop(E, t) {
+  const ac = E.ac, n = nzSrc(E, t, 0.01), hp = ac.createBiquadFilter(), g = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 1400; g.gain.setValueAtTime(0.03 + E.rnd() * 0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
+  n.connect(hp); hp.connect(g); g.connect(E.amb);
+}
+function noirHorn(E, t) {
+  const ac = E.ac, lp = ac.createBiquadFilter(), g = ac.createGain();
+  lp.type = 'lowpass'; lp.frequency.value = 260; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.05, t + 1.4); g.gain.setValueAtTime(0.05, t + 2.7); g.gain.exponentialRampToValueAtTime(0.0001, t + 6.0);
+  lp.connect(g); g.connect(E.amb); if (E.rev) { const r = ac.createGain(); r.gain.value = 1.4; g.connect(r); r.connect(E.rev); }
+  [82.41, 83.0].forEach(f => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(lp); o.start(t); o.stop(t + 6.2); });
+}
+function noirTyping(E, t) {
+  const n = 7 + Math.floor(E.rnd() * 9);
+  for (let k = 0; k < n; k++) FX.key(E.ac, E.type, E.rev, t + k * (0.085 + E.rnd() * 0.05));
+  FX.bell(E.ac, E.type, E.rev, t + n * 0.11 + 0.2);
+}
+function noirPhrase(E, barIdx, bt) {
+  const B = NOIR_BARS[barIdx], R = E.rnd;
+  const allowed = m => B.tones.includes(m % 12) || NOIR_SCALE.includes(m % 12);
+  const chordT = m => B.tones.includes(m % 12);
+  let m = 67 + Math.floor(R() * 8);
+  while (!chordT(m)) m++;
+  const notes = [], count = 3 + Math.floor(R() * 3), sw = [0, 0.667, 1.667][Math.floor(R() * 3)];
+  let at = sw;
+  for (let k = 0; k < count; k++) {
+    const last = k === count - 1;
+    let dur = last ? 1.4 + R() * 1.2 : [0.667, 1, 1.333][Math.floor(R() * 3)];
+    if (at + dur > 3.7) dur = Math.max(0.5, 3.7 - at);
+    notes.push({ m, at, dur, slide: !last && R() < 0.25 ? 1 : 0 });
+    at += dur;
+    if (at >= 3.7) break;
+    if (R() < 0.65) { let s = R() < 0.5 ? 1 : -1, tries = 0; do { m += s * (1 + Math.floor(R() * 2)); tries++; } while (!allowed(m) && tries < 6); }
+    else { const c = []; for (let x = m - 5; x <= m + 5; x++) if (chordT(x) && x !== m) c.push(x); if (c.length) m = c[Math.floor(R() * c.length)]; }
+    m = Math.max(60, Math.min(79, m));
+  }
+  notes.forEach((x, k) => noirLead(E, bt + x.at * E.beat, x.m, x.dur * E.beat, 0.34 + R() * 0.1, k === 0 && R() < 0.4 ? 1 : x.slide));
+}
+function noirBeat(E, i, t) {
+  const R = E.rnd, bar = Math.floor(i / 4), b = i % 4, B = NOIR_BARS[bar % 8], N = NOIR_BARS[(bar + 1) % 8], loop = Math.floor(bar / 8), j = () => (R() - 0.5) * 0.02;
+  // контрабас: корень, два тона аккорда, подход снизу или сверху к следующему корню
+  let m;
+  if (b === 0) m = B.root;
+  else if (b === 1) m = B.bass[1 + Math.floor(R() * 2)];
+  else if (b === 2) m = B.bass[2 + Math.floor(R() * 2)];
+  else { let r = N.root; while (r < 36) r += 12; while (r > 50) r -= 12; m = r + (R() < 0.7 ? -1 : 1); }
+  noirBass(E, t + j(), m, [0.9, 0.62, 0.72, 0.64][b], E.beat * 0.92);
+  // райд «динь динь-а динь» и щётки на 2 и 4
+  noirRide(E, t + j(), b === 0 ? 0.9 : 0.75);
+  if (b === 1 || b === 3) { noirRide(E, t + E.beat * E.swing, 0.42); noirChick(E, t, 0.6); if (R() < 0.85) noirBrush(E, t, 0.8); }
+  // электропиано: редкие аккорды с лёгким арпеджио
+  if (b === 0) {
+    const pats = loop === 0 ? [[0], [1.667]] : [[0], [1.667], [0, 2.667], [1.667, 3.667]];
+    const pat = pats[Math.floor(R() * pats.length)];
+    pat.forEach(off => B.keys.forEach((km, k) => noirKey(E, t + off * E.beat + k * 0.028 + j(), km, 0.5 + R() * 0.2 - k * 0.04, 2.2)));
+    // реплика трубы
+    const phraseBars = { 0: 0.85, 3: 0.5, 5: 0.7 };
+    const p = phraseBars[bar % 8];
+    if (p != null && loop > 0 && R() < p) noirPhrase(E, bar % 8, t);
+    // текстуры: пишущая машинка и далёкий ревун
+    if (R() < 0.16) noirTyping(E, t + R() * 2 * E.beat);
+    if (loop > 0 && R() < 0.05) noirHorn(E, t + R() * 2 * E.beat);
+  }
+}
+/* ставит всё, что должно прозвучать до момента tEnd (по часам звука) */
+function noirPump(E, tEnd) {
+  while (E.t0 + E.i * E.beat < tEnd) { noirBeat(E, E.i, E.t0 + E.i * E.beat); E.i++; }
+  while (E.nextDrop < tEnd) { noirDrop(E, E.nextDrop); E.nextDrop += 0.045 + E.rnd() * 0.2; }
+  while (E.nextPop < tEnd) { noirPop(E, E.nextPop); E.nextPop += 0.35 + E.rnd() * 2.2; }
+  while (E.nextTick < tEnd) { noirTick(E, E.nextTick, E.tick++ % 2 === 0); E.nextTick += 1; }
+}
+/* непрерывный дождь за окном */
+function noirRain(E, reg) {
+  const ac = E.ac, src = ac.createBufferSource(), hp = ac.createBiquadFilter(), bp = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), g = ac.createGain();
+  src.buffer = nzBuf(ac, 6, 'white'); src.loop = true;
+  hp.type = 'highpass'; hp.frequency.value = 900; bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 0.5; lp.type = 'lowpass'; lp.frequency.value = 9000;
+  g.gain.value = 0.02;
+  const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 0.07; lg.gain.value = 0.007; lfo.connect(lg); lg.connect(g.gain);
+  src.connect(hp); hp.connect(bp); bp.connect(lp); lp.connect(g); g.connect(E.amb);
+  src.start(E.t0 - 0.2); lfo.start(E.t0 - 0.2);
+  if (reg) reg.push(src, lfo, g);
+}
+function startNoir(ac, token) {
+  const E = noirEngine(ac, trackBus, trackRev, trackDL);
+  noirRain(E, trackNodes);
+  const pump = () => { if (isActive(token)) noirPump(E, ac.currentTime + 1.1); };
+  pump();
+  trackEvery(pump, 120, token);
+}
+/* версия для офлайн-проверки: свой реверб и эхо, все ноты ставятся сразу */
+function noirOffline(ac, dest, secs) {
+  const bus = ac.createGain(); bus.connect(dest);
+  const conv = ac.createConvolver(); conv.buffer = makeReverbImpulse(ac, 3.4, 2.5);
+  const cg = ac.createGain(); cg.gain.value = 0.46; conv.connect(cg); cg.connect(bus);
+  const dl = ac.createDelay(1.5); dl.delayTime.value = 0.44; const fb = ac.createGain(); fb.gain.value = 0.3; dl.connect(fb); fb.connect(dl);
+  const dg = ac.createGain(); dg.gain.value = 0.25; dl.connect(dg); dg.connect(bus);
+  const E = noirEngine(ac, bus, conv, dl); noirRain(E); noirPump(E, secs);
+  return E;
+}
+/* ===NOIR-END=== */
+
 function startOst(trackId) {
   const ac = ensureCtx();
   if (!ac) return;
@@ -4126,6 +4353,7 @@ function startOst(trackId) {
     if (id === 'oculus') startOculus(ac, token);
     else if (id === 'signal') startSignal(ac, token);
     else if (id === 'ghost') startGhost(ac, token);
+    else if (id === 'noir') startNoir(ac, token);
     else startSanctum(ac, token);
   };
 
@@ -4248,6 +4476,300 @@ FX.lamp = (ac, out, rev, t) => {
   o.connect(lp); lp.connect(g); g.connect(out); o.start(t + 0.05); o.stop(t + 1.15);
 };
 /* ===FX-END=== */
+
+/* ===INTRO-AUDIO-BEGIN=== */
+/* ─────────── Заставка: «Пробуждение Ока» (звуковая партитура) и звуки глаза ─────────── */
+const NZ = new Map();
+const nzBuf = (ac, sec, kind) => {
+  const key = ac.sampleRate + kind + sec;
+  let b = NZ.get(key);
+  if (b) return b;
+  const n = Math.floor(ac.sampleRate * sec);
+  b = ac.createBuffer(1, n, ac.sampleRate);
+  const d = b.getChannelData(0);
+  if (kind === 'brown') { let v = 0; for (let i = 0; i < n; i++) { v = (v + (Math.random() * 2 - 1) * 0.04) / 1.02; d[i] = v * 5; } }
+  else for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  NZ.set(key, b);
+  return b;
+};
+/* формантные группы гласных: голос «хора» и шёпот */
+const VOW = {
+  u: [[320, 1], [700, 0.3], [2600, 0.08]],
+  o: [[450, 1], [800, 0.42], [2830, 0.12]],
+  a: [[800, 1], [1150, 0.5], [2900, 0.18]],
+  e: [[420, 1], [2000, 0.4], [2800, 0.2]]
+};
+function iSession(ac, dest, wet) {
+  const S = { ac, src: [], t0: ac.currentTime + 0.05 };
+  S.bus = ac.createGain(); S.bus.gain.value = 1; S.bus.connect(dest);
+  // свой «соборный» реверб: длинный и тёмный
+  const conv = ac.createConvolver(); conv.buffer = makeReverbImpulse(ac, 5.6, 2.1);
+  const cg = ac.createGain(); cg.gain.value = wet == null ? 0.62 : wet;
+  S.rv = ac.createGain(); S.rv.gain.value = 1; S.rv.connect(conv); conv.connect(cg); cg.connect(S.bus);
+  S.bed = ac.createGain(); S.bed.gain.value = 1; S.bed.connect(S.bus);
+  return S;
+}
+const iOsc = (S, type, f, t, dur) => { const o = S.ac.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); o.start(t); o.stop(t + dur); S.src.push(o); return o; };
+const iGain = (S, v) => { const g = S.ac.createGain(); g.gain.value = v; return g; };
+const iPan = (S, node, p) => { if (!S.ac.createStereoPanner) return node; const sp = S.ac.createStereoPanner(); sp.pan.value = p; node.connect(sp); return sp; };
+const iSend = (S, node, wet, dry = 1) => { if (dry) node.connect(S.bus); if (wet) { const g = S.ac.createGain(); g.gain.value = wet; node.connect(g); g.connect(S.rv); } };
+const iSwell = (p, t, a, peak, hold, r) => { p.setValueAtTime(0.0001, t); p.linearRampToValueAtTime(peak, t + a); p.setValueAtTime(peak, t + a + hold); p.exponentialRampToValueAtTime(0.0001, t + a + hold + r); };
+const iNoise = (S, t, dur, kind = 'white') => { const n = S.ac.createBufferSource(); n.buffer = nzBuf(S.ac, Math.max(1, dur + 0.5), kind); n.start(t); n.stop(t + dur + 0.1); S.src.push(n); return n; };
+
+/* голос хора: три пилы, вибрато, формантные фильтры; гласная плавно «раскрывается» from → to */
+function iChoir(S, t, dur, f, from, to, vol, pan) {
+  const ac = S.ac, mix = iGain(S, 1), lfo = iOsc(S, 'sine', 4.4 + Math.random() * 1.4, t, dur + 3.5), lg = iGain(S, f * 0.006);
+  lfo.connect(lg);
+  [1, 1.0042, 0.9958].forEach(m => { const o = iOsc(S, 'sawtooth', f * m, t, dur + 3.5); lg.connect(o.frequency); const g = iGain(S, 0.3); o.connect(g); g.connect(mix); });
+  const env = ac.createGain(), att = Math.min(1.1, dur * 0.3); iSwell(env.gain, t, att, vol, Math.max(0, dur - att - 3.6), 3.6);
+  const A = VOW[from], B = VOW[to];
+  A.forEach(([fc, a0], i) => {
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 6.5;
+    bp.frequency.setValueAtTime(fc, t); bp.frequency.linearRampToValueAtTime(B[i][0], t + dur * 0.7);
+    const g = ac.createGain(); g.gain.setValueAtTime(a0, t); g.gain.linearRampToValueAtTime(B[i][1], t + dur * 0.7);
+    mix.connect(bp); bp.connect(g); g.connect(env);
+  });
+  iSend(S, iPan(S, env, pan), 0.8);
+}
+/* гонг: неравномерные обертоны, биения и удар колотушки */
+function iGong(S, t, f0, vol, decay) {
+  const ac = S.ac, mix = iGain(S, 1);
+  const R = [1, 1.452, 1.987, 2.436, 2.81, 3.52, 4.31, 5.4], G = [1, 0.85, 0.7, 0.58, 0.46, 0.34, 0.24, 0.16], D = [1, 0.86, 0.72, 0.6, 0.5, 0.4, 0.32, 0.25];
+  R.forEach((r, i) => {
+    [0, i < 3 ? 0.7 + i * 0.3 : null].forEach((beat, k) => {
+      if (beat == null) return;
+      const o = iOsc(S, 'sine', f0 * r * (1 + (Math.random() - 0.5) * 0.004) + beat, t, decay * D[i] + 0.3);
+      const g = ac.createGain(), pk = vol * G[i] * (k ? 0.6 : 1);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(pk, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + decay * D[i]);
+      o.connect(g); g.connect(mix);
+    });
+  });
+  const nz = iNoise(S, t, 0.2), hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1600;
+  const ng = ac.createGain(); ng.gain.setValueAtTime(0.0001, t); ng.gain.linearRampToValueAtTime(vol * 0.5, t + 0.003); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  nz.connect(hp); hp.connect(ng); ng.connect(mix);
+  iSend(S, mix, 0.85);
+}
+function iBoom(S, t, vol) {
+  const ac = S.ac, o = iOsc(S, 'sine', 98, t, 4.4); o.frequency.exponentialRampToValueAtTime(26, t + 1.1);
+  const o2 = iOsc(S, 'sine', 170, t, 1.2); o2.frequency.exponentialRampToValueAtTime(62, t + 0.5);
+  const g2 = S.ac.createGain(); g2.gain.setValueAtTime(0.0001, t); g2.gain.linearRampToValueAtTime(vol * 0.55, t + 0.008); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.9); o2.connect(g2); iSend(S, g2, 0.3);
+  const ws = ac.createWaveShaper(), curve = new Float32Array(257);
+  for (let i = 0; i < 257; i++) curve[i] = Math.tanh(2.2 * (i / 128 - 1));
+  ws.curve = curve;
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 4.0);
+  o.connect(ws); ws.connect(g); iSend(S, g, 0.25);
+}
+function iThump(S, t, vol) {
+  const ac = S.ac, o = iOsc(S, 'sine', 66, t, 0.5); o.frequency.exponentialRampToValueAtTime(32, t + 0.17);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+  o.connect(g); iSend(S, g, 0.3);
+  const nz = iNoise(S, t, 0.05), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220;
+  const ng = ac.createGain(); ng.gain.setValueAtTime(vol * 0.5, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+  nz.connect(lp); lp.connect(ng); iSend(S, ng, 0, 1);
+}
+/* подъём перед открытием: шум с ползущим фильтром и тональная пила; резко обрывается перед ударом */
+function iRiser(S, t, dur, vol) {
+  const ac = S.ac, src = iNoise(S, t, dur), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+  bp.frequency.setValueAtTime(180, t); bp.frequency.exponentialRampToValueAtTime(7200, t + dur);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.95); g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.03);
+  src.connect(bp); bp.connect(g); iSend(S, g, 0.35);
+  const o = iOsc(S, 'sawtooth', 73.4, t, dur + 0.1); o.frequency.exponentialRampToValueAtTime(293.7, t + dur);
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(200, t); lp.frequency.exponentialRampToValueAtTime(3200, t + dur);
+  const g2 = ac.createGain(); g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(vol * 0.5, t + dur * 0.95); g2.gain.linearRampToValueAtTime(0.0001, t + dur + 0.03);
+  o.connect(lp); lp.connect(g2); iSend(S, g2, 0.3);
+}
+/* скрип «каменного века»: смычковая пила через резонанс — механизм открывается */
+function iCreak(S, t, dur, vol) {
+  const ac = S.ac, o = iOsc(S, 'sawtooth', 52, t, dur + 0.1); o.frequency.exponentialRampToValueAtTime(118, t + dur);
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 9; bp.frequency.setValueAtTime(260, t); bp.frequency.exponentialRampToValueAtTime(980, t + dur);
+  const g = ac.createGain(); iSwell(g.gain, t, dur * 0.3, vol, dur * 0.3, dur * 0.4);
+  o.connect(bp); bp.connect(g); iSend(S, g, 0.4);
+}
+function iWhisper(S, t, dur, from, to, vol, pan) {
+  const ac = S.ac, src = iNoise(S, t, dur), env = ac.createGain(); iSwell(env.gain, t, dur * 0.35, vol, dur * 0.2, dur * 0.45);
+  const A = VOW[from], B = VOW[to];
+  A.slice(0, 2).forEach(([fc], i) => {
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 12; bp.frequency.setValueAtTime(fc, t); bp.frequency.linearRampToValueAtTime(B[i][0], t + dur);
+    const g = ac.createGain(); g.gain.value = i ? 0.6 : 1; src.connect(bp); bp.connect(g); g.connect(env);
+  });
+  iSend(S, iPan(S, env, pan), 0.9);
+}
+/* стеклянное мерцание на вспышке: обертоны ряда D */
+function iShimmer(S, t, vol) {
+  [1174.66, 1318.5, 1480, 1661.2, 1864.7, 2093, 2637].forEach((f, i) => {
+    const o = iOsc(S, 'sine', f * (1 + (Math.random() - 0.5) * 0.01), t + i * 0.025, 4);
+    const g = S.ac.createGain(); g.gain.setValueAtTime(0.0001, t + i * 0.025); g.gain.linearRampToValueAtTime(vol / (1 + i * 0.15), t + i * 0.025 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.025 + 3.4 - i * 0.25);
+    o.connect(g); iSend(S, iPan(S, g, (Math.random() * 2 - 1) * 0.8), 0.7);
+  });
+}
+function iTick(S, t, f, vol) {
+  const ac = S.ac, nz = iNoise(S, t, 0.03), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 9;
+  const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
+  nz.connect(bp); bp.connect(g); iSend(S, iPan(S, g, (Math.random() * 2 - 1) * 0.5), 0.15);
+}
+function iTink(S, t, f, vol, dec = 0.5) {
+  const ac = S.ac, o = iOsc(S, 'sine', f, t, dec + 0.2), o2 = iOsc(S, 'triangle', f * 2.01, t, dec + 0.2);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+  const g2 = iGain(S, 0.3); o.connect(g); o2.connect(g2); g2.connect(g); iSend(S, g, 0.55);
+}
+function iBlip(S, t, f, vol) {
+  const ac = S.ac, o = iOsc(S, 'triangle', f, t, 0.3), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+  o.connect(lp); lp.connect(g); iSend(S, g, 0.3);
+}
+/* «орбита»: тон кружит между левым и правым каналом */
+function iOrbit(S, t, dur, f, rate, vol) {
+  const ac = S.ac, o = iOsc(S, 'sine', f, t, dur + 2.5), g = ac.createGain(); iSwell(g.gain, t, dur * 0.4, vol, dur * 0.3, dur * 0.5 + 1.5);
+  const trem = iOsc(S, 'sine', 5.2, t, dur + 2.5), tg = iGain(S, vol * 0.25); trem.connect(tg); tg.connect(g.gain);
+  o.connect(g);
+  if (ac.createStereoPanner) {
+    const sp = ac.createStereoPanner(), lfo = iOsc(S, 'sine', rate, t, dur + 2.5), lg = iGain(S, 0.9);
+    lfo.connect(lg); lg.connect(sp.pan); g.connect(sp); iSend(S, sp, 0.6);
+  } else iSend(S, g, 0.6);
+}
+
+/* Партитура. Время t отсчитывается от начала заставки и совпадает с шкалой глаза:
+   0.4 линия · 1.25 грани · 2.2 заливка · 2.6 щель · 2.95 глаз открывается · 3.85 вспышка ·
+   4.0 кольца · 5.0 титул · 6.1 строки загрузки · 7.4 кнопка · 9.2 вход */
+function introScore(S) {
+  const ac = S.ac, T = x => S.t0 + x;
+  // 0. Пробуждение: мягкий удар сердца
+  iThump(S, T(0.02), 0.4);
+  // 1. Тёмный фон: суб-дрон D1 + A1 + D2 и «воздух»
+  [[36.71, 'sine', 0.2], [55.0, 'sine', 0.1], [73.58, 'triangle', 0.15], [110.0, 'sine', 0.06]].forEach(([f, type, v]) => {
+    const o = iOsc(S, type, f, T(0), 15), g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, T(0)); g.gain.linearRampToValueAtTime(v, T(3.0)); g.gain.linearRampToValueAtTime(v * 0.5, T(6.5)); g.gain.setValueAtTime(v * 0.5, T(9.6)); g.gain.exponentialRampToValueAtTime(0.0001, T(14.6));
+    o.connect(g); g.connect(S.bed);
+  });
+  const air = iNoise(S, T(0), 14, 'brown'), ab = ac.createBiquadFilter(); ab.type = 'bandpass'; ab.frequency.value = 240; ab.Q.value = 0.7;
+  const ag = ac.createGain(); iSwell(ag.gain, T(0), 2.4, 0.035, 3.0, 8.0); air.connect(ab); ab.connect(ag); ag.connect(S.bed);
+  // 2. Линия и грани: натянутая «струна» и два расходящихся голоса
+  const wire = iOsc(S, 'sine', 420, T(0.4), 0.95); wire.frequency.exponentialRampToValueAtTime(1850, T(1.25));
+  const wg = ac.createGain(); iSwell(wg.gain, T(0.4), 0.4, 0.03, 0.2, 0.3); const wt = iOsc(S, 'sine', 7, T(0.4), 1.1), wtg = iGain(S, 0.012); wt.connect(wtg); wtg.connect(wg.gain);
+  wire.connect(wg); iSend(S, wg, 0.6);
+  iTick(S, T(1.25), 3200, 0.12);
+  [[-0.7, 300, 784], [0.7, 305, 790]].forEach(([p, a, b]) => {
+    const o = iOsc(S, 'sine', a, T(1.25), 1.3); o.frequency.exponentialRampToValueAtTime(b, T(2.4));
+    const g = ac.createGain(); iSwell(g.gain, T(1.25), 0.7, 0.036, 0.2, 0.4); o.connect(g); iSend(S, iPan(S, g, p), 0.6);
+  });
+  [1.8, 2.35].forEach(x => iTick(S, T(x), 2400, 0.1));
+  // 3. Сердце набирает силу
+  iThump(S, T(1.9), 0.34); iThump(S, T(2.75), 0.5);
+  // 4. Накал: «вдох», счётчик диафрагмы и серво щели
+  iRiser(S, T(2.2), 0.73, 0.1);
+  let tt = 2.4, gap = 0.15;
+  while (tt < 2.92) { iTick(S, T(tt), 2200 + Math.random() * 3000, 0.11); gap *= 0.82; tt += Math.max(gap, 0.018); }
+  const servo = iOsc(S, 'sawtooth', 140, T(2.6), 0.4); servo.frequency.exponentialRampToValueAtTime(1100, T(2.95));
+  const sb = ac.createBiquadFilter(); sb.type = 'bandpass'; sb.Q.value = 5; sb.frequency.setValueAtTime(400, T(2.6)); sb.frequency.exponentialRampToValueAtTime(2200, T(2.95));
+  const sg = ac.createGain(); iSwell(sg.gain, T(2.6), 0.2, 0.05, 0.05, 0.1); servo.connect(sb); sb.connect(sg); iSend(S, sg, 0.3);
+  // 5. ГЛАЗ ОТКРЫВАЕТСЯ: гонг, удар, кластер хора, скрип механизма
+  iBoom(S, T(3.0), 0.42);
+  iGong(S, T(3.0), 73.4, 0.2, 7.0);
+  iCreak(S, T(2.97), 0.95, 0.05);
+  [[146.83, -0.3, 0.03], [220.0, 0.3, 0.03], [293.66, -0.55, 0.028], [311.13, 0.55, 0.024], [415.3, -0.15, 0.02], [440.0, 0.15, 0.024], [587.33, -0.7, 0.016], [880.0, 0.7, 0.013]]
+    .forEach(([f, p, v], i) => iChoir(S, T(3.0 + i * 0.02), 5.6, f, 'o', 'a', v, p));
+  // 6. Вспышка: стекло и второй удар
+  iThump(S, T(3.85), 0.42); iShimmer(S, T(3.85), 0.05);
+  // 7. Кольца: орбиты и шёпот
+  iOrbit(S, T(4.0), 4.5, 587.33, 0.35, 0.032); iOrbit(S, T(4.4), 4.2, 880.0, 0.27, 0.025); iOrbit(S, T(4.8), 3.8, 1174.66, 0.21, 0.018);
+  iWhisper(S, T(4.35), 1.5, 'o', 'a', 0.6, -0.6); iWhisper(S, T(5.4), 1.4, 'u', 'o', 0.6, 0.6); iWhisper(S, T(6.5), 1.6, 'o', 'e', 0.6, 0);
+  // 8. Титул: удар клейма и бегущие искры по буквам
+  iThump(S, T(5.0), 0.5); iGong(S, T(5.0), 98, 0.12, 4.0);
+  [587.33, 622.25, 783.99, 880.0, 932.33, 1174.66].forEach((f, k) => iTink(S, T(5.0 + [0, 1, 2, 4, 5, 6][k] * 0.085 + 0.1), f, 0.06));
+  // 9. Подзаголовок, строки загрузки, кнопка
+  const sw = iOsc(S, 'sine', 880, T(5.6), 1.1); sw.frequency.exponentialRampToValueAtTime(1760, T(6.4));
+  const swg = ac.createGain(); iSwell(swg.gain, T(5.6), 0.5, 0.025, 0.1, 0.4); sw.connect(swg); iSend(S, swg, 0.7);
+  [293.66, 440.0, 587.33, 880.0].forEach((f, i) => iBlip(S, T(6.1 + i * 0.32), f, 0.06));
+  iTink(S, T(7.4), 1174.66, 0.05, 1.6);
+  return S;
+}
+/* Выход из заставки: веки раскрываются. quick — когда заставку пропустили */
+function introOutro(ac, dest, quick) {
+  const S = iSession(ac, dest, 0.5), T = x => S.t0 + x;
+  if (quick) { iThump(S, T(0), 0.32); const n = iNoise(S, T(0), 0.6), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9; bp.frequency.setValueAtTime(500, T(0)); bp.frequency.exponentialRampToValueAtTime(5000, T(0.55)); const g = ac.createGain(); iSwell(g.gain, T(0), 0.18, 0.07, 0.1, 0.3); n.connect(bp); bp.connect(g); iSend(S, g, 0.3); }
+  else {
+    iThump(S, T(0.05), 0.55);
+    const n = iNoise(S, T(0), 1.3), bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.8; bp.frequency.setValueAtTime(300, T(0)); bp.frequency.exponentialRampToValueAtTime(6500, T(1.15));
+    const g = ac.createGain(); iSwell(g.gain, T(0), 0.5, 0.16, 0.2, 0.6); n.connect(bp); bp.connect(g); iSend(S, g, 0.45);
+    iBoom(S, T(0.28), 0.5); iShimmer(S, T(0.35), 0.035);
+  }
+  S.stopAll = () => { try { S.bus.disconnect(); } catch (e) { /* уже отключено */ } };
+  setTimeout(S.stopAll, 9000);
+}
+/* публичный вход: партитура + управление концом */
+function playIntro() {
+  const c = cfg();
+  if (!c.sfx || c.sfxVol <= 0) return null;
+  const ac = ensureCtx();
+  if (!ac) return null;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const bus = ac.createGain(); bus.gain.value = 1.4; bus.connect(sfxBus);
+  const S = iSession(ac, bus);
+  introScore(S);
+  introLive = true;
+  const born = performance.now();
+  let ended = false;
+  const cleanup = () => { try { bus.disconnect(); S.bus.disconnect(); } catch (e) { /* уже отключено */ } };
+  setTimeout(() => { introLive = false; cleanup(); }, 18000);
+  return {
+    end(quick) {
+      if (ended) return; ended = true;
+      const fast = quick == null ? performance.now() - born < 6000 : quick, now = ac.currentTime;
+      S.bed.gain.cancelScheduledValues(now); S.bed.gain.setValueAtTime(Math.max(0.0001, S.bed.gain.value), now); S.bed.gain.linearRampToValueAtTime(0.0001, now + (fast ? 0.35 : 1.8));
+      bus.gain.cancelScheduledValues(now); bus.gain.setValueAtTime(bus.gain.value, now); bus.gain.setTargetAtTime(0.0001, now + (fast ? 0 : 1.1), fast ? 0.1 : 0.8);
+      introOutro(ac, sfxBus, fast);
+      setTimeout(() => { introLive = false; cleanup(); if (cfg().ost && !playing) startOst(cfg().track); }, fast ? 900 : 4200);
+    }
+  };
+}
+let introLive = false;
+const canAutoplay = () => !!(navigator.userActivation && navigator.userActivation.hasBeenActive);
+const wantsGate = () => cfg().sfx !== false && cfg().sfxVol > 0 && !canAutoplay() && !!(window.AudioContext || window.webkitAudioContext);
+const unlockAudio = () => { const ac = ensureCtx(); if (ac && ac.state === 'suspended') ac.resume().catch(() => {}); return ac; };
+
+/* Звуки глаза на дашборде: сужение зрачка, моргание, красный импульс, «захват» взгляда */
+FX.eye = (ac, out, rev, t) => {
+  fxTone(ac, out, t, { type: 'sine', f: 150, f2: 38, d: 0.9, g: 0.36 });
+  fxTone(ac, out, t + 0.02, { type: 'sawtooth', f: 180, f2: 1500, d: 0.35, g: 0.04 });
+  for (let i = 0; i < 7; i++) fxBurst(ac, out, t + 0.05 + i * (0.06 - i * 0.005), { dur: 0.012, pow: 2, f: 2600 + i * 420, q: 9, g: 0.14 });
+  [880, 1318.5, 1760].forEach((f, i) => fxTone(ac, out, t + 0.28 + i * 0.03, { type: 'sine', f, d: 1.6, g: 0.035, a: 0.01, rev }));
+};
+FX.eyeblink = (ac, out, rev, t) => {
+  fxBurst(ac, out, t, { dur: 0.03, pow: 1.5, type: 'lowpass', f: 900, q: 0.5, g: 0.1 });
+  fxTone(ac, out, t, { type: 'sine', f: 130, f2: 78, d: 0.07, g: 0.07 });
+};
+FX.eyepulse = (ac, out, rev, t) => {
+  fxTone(ac, out, t, { type: 'sine', f: 52, f2: 44, d: 1.2, g: 0.2, a: 0.25 });
+  fxBurst(ac, out, t, { dur: 0.9, pow: 1, type: 'lowpass', f: 420, q: 0.6, g: 0.035 });
+  fxTone(ac, out, t + 0.05, { type: 'sine', f: 1568, d: 1.5, g: 0.02, a: 0.02, rev });
+};
+FX.eyelock = (ac, out, rev, t) => {
+  fxTone(ac, out, t, { type: 'sawtooth', f: 260, f2: 620, d: 0.09, g: 0.03 });
+  fxBurst(ac, out, t + 0.09, { dur: 0.012, pow: 2, f: 3600, q: 9, g: 0.12 });
+};
+/* «Дело раскрыто»: штамп, аккорд электропиано вверх, низкий D и звонок */
+FX.solved = (ac, out, rev, t) => {
+  fxTone(ac, out, t, { type: 'sine', f: 125, f2: 52, d: 0.3, g: 0.32 });
+  fxBurst(ac, out, t, { dur: 0.05, pow: 2, type: 'highpass', f: 900, q: 0.8, g: 0.14 });
+  [[0.14, 293.66], [0.24, 349.23], [0.34, 440.0], [0.44, 523.25], [0.54, 659.25]].forEach(([dt, f]) => {
+    fxTone(ac, out, t + dt, { type: 'sine', f, d: 2.2, g: 0.07, a: 0.004, rev });
+    fxTone(ac, out, t + dt, { type: 'triangle', f: f * 2.005, d: 0.9, g: 0.012, a: 0.003, rev });
+  });
+  fxTone(ac, out, t + 0.14, { type: 'sine', f: 73.4, d: 2.6, g: 0.1, a: 0.05, rev });
+  FX.bell(ac, out, rev, t + 0.75);
+};
+const eyeGap = {};
+function eyeSfx(d) {
+  if (!d || document.hidden || introLive || !cfg().sfx || cfg().eye === false) return;
+  const gesture = d.type === 'scan' && navigator.userActivation && navigator.userActivation.isActive;
+  if (!gesture && (!ctx || ctx.state !== 'running')) return;
+  const gap = { blink: 2200, pulse: 2800, lock: 900, scan: 0 }[d.type] || 1000, now = performance.now();
+  if (now - (eyeGap[d.type] || 0) < gap) return;
+  eyeGap[d.type] = now;
+  sfx({ blink: 'eyeblink', pulse: 'eyepulse', lock: 'eyelock', scan: 'eye' }[d.type] || 'eyeblink');
+}
+window.addEventListener('godeye:eye', e => eyeSfx(e.detail));
+/* ===INTRO-AUDIO-END=== */
 
 /* ─────────── ТАКТИЛЬНЫЕ UI SFX ─────────── */
 function sfx(type = 'click') {
@@ -4537,6 +5059,7 @@ function syncUI() {
   if (ov) ov.value = c.ostVol;
   if (sv) sv.value = c.sfxVol;
   if (so) so.checked = c.sfx;
+  const eo = $('#ap-eye-on'); if (eo) eo.checked = c.eye !== false;
   const op = $('#ap-ost-pct'), sp = $('#ap-sfx-pct');
   if (op) op.textContent = c.ostVol + '%';
   if (sp) sp.textContent = c.sfxVol + '%';
@@ -4580,6 +5103,13 @@ function init() {
   $('#ap-sfx-vol')?.addEventListener('input', e => setSfxVol(e.target.value));
   $('#ap-sfx-on')?.addEventListener('change', e => setSfxEnabled(e.target.checked));
   $('#ap-test')?.addEventListener('click', () => { ensureCtx(); sfx('found'); });
+  $('#ap-eye-on')?.addEventListener('change', e => { cfg().eye = e.target.checked; saveCfg(); sfx('tab'); });
+  let introPreview = null;
+  $('#ap-test-intro')?.addEventListener('click', () => {
+    if (introPreview) { introPreview.end(true); introPreview = null; return; }
+    unlockAudio(); introPreview = playIntro();
+    if (introPreview) setTimeout(() => { if (introPreview) { introPreview.end(false); introPreview = null; } }, 9600);
+  });
 
   // Привязки в разделе Настройки
   $('#set-audio-ost')?.addEventListener('change', e => { if (e.target.checked) startOst(cfg().track); else stopOst(); });
@@ -4608,13 +5138,13 @@ function init() {
   document.addEventListener('pointerdown', () => {
     if (!unlocked) {
       unlocked = true;
-      if (cfg().ost && !playing) startOst(cfg().track);
+      if (cfg().ost && !playing && !introLive) startOst(cfg().track);
     }
   }, { passive: true });
 
   document.addEventListener('click', e => {
-    if (e.target.closest('#audio-toggle, #audio-pop-btn, #ap-test')) return;
-    if (e.target.closest('#hero-eye')) { sfx('eye'); return; }
+    if (e.target.closest('#audio-toggle, #audio-pop-btn, #ap-test, #ap-test-intro, #intro')) return;
+    if (e.target.closest('#hero-eye')) { if (cfg().eye === false) sfx('click'); return; }
     if (e.target.closest('.pivot-link')) { sfx('pivot'); return; }
     if (e.target.closest('.tabs button, .seg button, .type-tab, .nav a')) { sfx('tab'); return; }
     if (e.target.closest('button, .eng-open, .chip, .pb-step input')) { sfx('click'); return; }
@@ -4638,6 +5168,9 @@ GE.audio = {
   setSfxEnabled,
   sfx,
   isPlaying: () => playing,
+  intro: playIntro, wantsGate, canAutoplay, unlock: unlockAudio,
+  __intro: (ac, dest) => { const S = iSession(ac, dest); introScore(S); return S; },
+  __noir: (ac, dest, secs) => noirOffline(ac, dest, secs),
   __fx: FX,
 };
 })();
@@ -4846,16 +5379,18 @@ class GodEye {
   /** Сканирование: зрачок сужается, импульс, частицы стекаются к оку */
   scan() {
     this.scanAt = performance.now();
+    this.emit('scan');
     this.pulse(1.4);
     const n = this.q.parts ? 16 : 0;
     for (let i = 0; i < n; i++) this.parts.push(this.mkPart('i', true));
   }
-  blink() { if (!this.blinkS) this.blinkS = { t0: performance.now(), dbl: false }; }
+  emit(type) { if (this.o.mode === 'intro' || !this.inView) return; try { window.dispatchEvent(new CustomEvent('godeye:eye', { detail: { type, id: this.cv.id } })); } catch (e) { /* не критично */ } }
+  blink() { if (!this.blinkS) { this.blinkS = { t0: performance.now(), dbl: false }; this.emit('blink'); } }
   /** Плавно закрыть (to=0) или открыть (to=1) веко; возвращает Promise */
   lids(to, dur = 260) {
     return new Promise(res => { this.lidAnim = { from: this.lidMul, to, t0: performance.now(), dur, res }; });
   }
-  lookAt(el) { this.focusEl = el; }
+  lookAt(el) { this.focusEl = el; if (el) this.emit('lock'); }
 
   mkPart(kind, fast) {
     const R = Math.random;
@@ -4925,7 +5460,7 @@ class GodEye {
     // Моргание
     let open = 1;
     if (this.o.mode !== 'intro' || this.introT > 6.5) {
-      if (!this.blinkS && now > this.nextBlink) this.blinkS = { t0: now, dbl: Math.random() < 0.18 };
+      if (!this.blinkS && now > this.nextBlink) { this.blinkS = { t0: now, dbl: Math.random() < 0.18 }; this.emit('blink'); }
       if (this.blinkS) {
         const e = now - this.blinkS.t0, Cl = 80, H = 45, Op = 175;
         if (e < 0) open = 1;
@@ -4944,7 +5479,7 @@ class GodEye {
     this.open = open * this.lidMul;
 
     // Красные импульсы
-    if (this.o.mode !== 'intro' && now > this.nextPulse) { this.pulse(1.35); this.nextPulse = now + 3200 + Math.random() * 2600; }
+    if (this.o.mode !== 'intro' && now > this.nextPulse) { this.pulse(1.35); this.emit('pulse'); this.nextPulse = now + 3200 + Math.random() * 2600; }
     for (const p of this.pulses) { p.k = (now - p.t0) / 1700; p.r = lerp(0.17, 1.08, eOut(clamp(p.k, 0, 1))) * this.u; }
     this.pulses = this.pulses.filter(p => p.k < 1);
 
@@ -5858,7 +6393,7 @@ GE.editRecord = (type, id, preset = {}) => {
       let r;
       if (id) r = GE.db.update(id, data);
       else r = GE.db.add(type, Object.assign({}, preset, data));
-      if (isCase && data.status === 'Раскрыто' && prevStatus !== 'Раскрыто') GE.sfx('found');
+      if (isCase && data.status === 'Раскрыто' && prevStatus !== 'Раскрыто') GE.sfx('solved');
       GE.toast(id ? 'Запись обновлена' : 'Запись создана: ' + r.title);
       GE.emit('record:saved', r);
       if (GE.drawerId === r.id) GE.openRecord(r.id);
@@ -6220,7 +6755,7 @@ GE.loadDemoCase = () => {
   }, true);
   c.board.threads.push(
     { id: GE.uid('th'), a: n1.id, b: c.id, kind: 'sus', label: 'улика не сходится' },
-    { id: GE.uid('th'), a: n2.id, b: s1.id, kind: 'weak', label: 'расхождение во времени' }
+    { id: GE.uid('th'), a: n2.id, b: geo.id, kind: 'weak', label: 'показания с берега' }
   );
   if (photo) c.board.threads.push({ id: GE.uid('th'), a: photo.id, b: geo.id, kind: 'ok', label: 'место съёмки' });
   GE.db.link(c.id, s1.id, 'улика');
@@ -9641,31 +10176,51 @@ const Intro = {
       title.innerHTML = 'GOD EYE'.split('').map((ch, i) => ch === ' ' ? '<span class="gap"></span>' : `<span style="--i:${i}">${ch}</span>`).join('');
       ['#intro-sub', '#intro-rule', '#intro-enter'].forEach(s => $(s).classList.remove('on'));
       $('#intro-boot').innerHTML = '';
-      const eye = new GE.GodEye($('#intro-canvas'), { mode: 'intro', size: Math.min(0.62, 0.62 * (innerWidth < 700 ? 1.25 : 1)), cy: 0.4, quality: GE.settings.quality === 'min' ? 'lite' : GE.settings.quality });
-      eye.start();
+      // Браузеры не дают играть звук до первого нажатия: если жеста ещё не было, сначала короткий экран «Разбудить око»
+      const needGate = !!(GE.audio && GE.audio.wantsGate && GE.audio.wantsGate());
+      el.classList.toggle('gated', needGate);
+      let eye = null, snd = null, finished = false, born = 0;
       const timers = [];
       const at = (s, fn) => timers.push(setTimeout(fn, s * 1000));
-      at(5.0, () => title.classList.add('on'));
-      at(5.6, () => { $('#intro-rule').classList.add('on'); $('#intro-sub').classList.add('on'); });
-      const boot = ['ИНИЦИАЛИЗАЦИЯ ЯДРА', 'ЗАГРУЗКА БАЗЫ · ' + GE.db.all().length + ' ЗАПИСЕЙ', 'КАЛИБРОВКА ОКА', 'ДОБРО ПОЖАЛОВАТЬ, ' + String(GE.settings.callsign).toUpperCase()];
-      boot.forEach((line, i) => at(6.1 + i * 0.32, () => { const d = document.createElement('div'); d.className = 'ok'; d.textContent = '> ' + line; $('#intro-boot').appendChild(d); }));
-      at(7.4, () => $('#intro-enter').classList.add('on'));
-      let finished = false;
       const finish = async () => {
         if (finished) return; finished = true;
         timers.forEach(clearTimeout);
         document.removeEventListener('keydown', onKey, true);
-        await eye.lids(0, 200);
+        if (snd) snd.end();
+        if (eye) await eye.lids(0, 200);
         el.classList.add('reveal');
         document.body.classList.remove('intro-active');
         GE.reveal();
-        setTimeout(() => { eye.destroy(); el.classList.add('hidden'); el.classList.remove('reveal'); resolve(); }, 1150);
+        setTimeout(() => { eye && eye.destroy(); el.classList.add('hidden'); el.classList.remove('reveal', 'gated'); resolve(); }, 1150);
       };
-      const onKey = e => { if (['Escape', 'Enter', ' '].includes(e.key)) { e.preventDefault(); finish(); } };
+      const begin = withSound => {
+        if (eye || finished) return;
+        el.classList.remove('gated');
+        born = performance.now();
+        if (withSound && GE.audio) { GE.audio.unlock(); snd = GE.audio.intro(); }
+        eye = new GE.GodEye($('#intro-canvas'), { mode: 'intro', size: Math.min(0.62, 0.62 * (innerWidth < 700 ? 1.25 : 1)), cy: innerHeight < 800 ? 0.36 : 0.4, quality: GE.settings.quality === 'min' ? 'lite' : GE.settings.quality });
+        eye.start();
+        at(5.0, () => title.classList.add('on'));
+        at(5.6, () => { $('#intro-rule').classList.add('on'); $('#intro-sub').classList.add('on'); });
+        const boot = ['ИНИЦИАЛИЗАЦИЯ ЯДРА', 'ЗАГРУЗКА БАЗЫ · ' + GE.db.all().length + ' ЗАПИСЕЙ', 'КАЛИБРОВКА ОКА', 'ДОБРО ПОЖАЛОВАТЬ, ' + String(GE.settings.callsign)];
+        boot.forEach((line, i) => at(6.1 + i * 0.32, () => { const d = document.createElement('div'); d.className = 'ok'; d.textContent = '> ' + line; $('#intro-boot').appendChild(d); }));
+        at(7.4, () => $('#intro-enter').classList.add('on'));
+        at(9.2, finish);
+      };
+      const onKey = e => {
+        if (!eye && needGate) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); begin(true); }
+          else if (e.key === 'Escape') { e.preventDefault(); finish(); }
+          return;
+        }
+        if (['Escape', 'Enter', ' '].includes(e.key)) { e.preventDefault(); finish(); }
+      };
       document.addEventListener('keydown', onKey, true);
       $('#intro-skip').onclick = finish;
       $('#intro-enter').onclick = finish;
-      at(9.2, finish);
+      $('#gate-go').onclick = () => begin(true);
+      $('#gate-mute').onclick = () => begin(false);
+      if (!needGate) begin(true);
     });
   }
 };
@@ -9966,6 +10521,7 @@ P.commands = () => [
   { g: 'Звук', icon: 'spark', t: 'OST: BLACK SIGNAL (Tactical Pulse)', run: () => GE.audio && GE.audio.startOst('signal') },
   { g: 'Звук', icon: 'spark', t: 'OST: GHOST TERMINAL (Cyber-Noir)', run: () => GE.audio && GE.audio.startOst('ghost') },
   { g: 'Звук', icon: 'spark', t: 'OST: RED SANCTUM (Crimson Ritual)', run: () => GE.audio && GE.audio.startOst('sanctum') },
+  { g: 'Звук', icon: 'spark', t: 'OST: CASEFILE NOIR (нуар-джаз, дождь)', run: () => GE.audio && GE.audio.startOst('noir') },
   ...['extract', 'hash', 'codec', 'time', 'url', 'coords', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
 ];
 P.render = () => {
@@ -12174,6 +12730,8 @@ function open(id) {
   R.find.value = '';
   R.root.classList.remove('v-graph', 'm-thread', 'dropping');
   R.root.classList.add('on', 'opening');
+  document.body.classList.add('board-open');
+  document.querySelectorAll('#toasts > .toast').forEach(x => x.remove());
   R.root.querySelectorAll('.bd-views button').forEach(b => b.classList.toggle('on', b.dataset.v === 'board'));
   R.root.querySelector('[data-a=mode-sel]').classList.add('on'); R.root.querySelector('[data-a=mode-thread]').classList.remove('on');
   toggleInsp(innerWidth > 900);
@@ -12198,6 +12756,7 @@ function close() {
   clearInterval(S.hintT); clearTimeout(S.nudgeT); cancelAnimationFrame(S.raf);
   if (S.changed) GE.log('CAS', `Доска обновлена — ${S.rec.title} (карточек: ${S.cards.size}, нитей: ${S.threads.length})`, S.id);
   R.root.classList.remove('on', 'opening', 'v-graph', 'm-thread', 'dropping');
+  document.body.classList.remove('board-open');
   S = null;
 }
 
