@@ -5222,7 +5222,7 @@ GE.openRecord = id => {
     </div>
     <div class="dr-f">
       <button class="btn btn-primary" data-act="edit">${GE.icon('edit')}Изменить</button>
-      ${r.type === 'case' ? `<button class="btn" data-act="board">${GE.icon('target')}Доска</button>` : ''}
+      ${r.type === 'case' ? `<button class="btn" data-act="board">${GE.icon('target')}Доска</button><button class="btn" data-act="hunt">${GE.icon('search')}Зацепки</button>` : ''}
       <button class="btn" data-act="search">${GE.icon('search')}Искать</button>
       <button class="btn" data-act="dossier" title="Сохранить автономное офлайн HTML-досье">${GE.icon('report')}HTML-досье</button>
       ${r.type === 'report' ? `<button class="btn" data-act="export">${GE.icon('down')}Экспорт</button>` : ''}
@@ -5238,6 +5238,7 @@ GE.openRecord = id => {
   act('edit').onclick = () => GE.editRecord(r.type, id);
   act('search').onclick = () => { GE.closeDrawer(); GE.searchFor(r); };
   if (act('board')) act('board').onclick = () => GE.openBoard(id);
+  if (act('hunt')) act('hunt').onclick = () => GE.autoSearch(id);
   if (act('dossier')) act('dossier').onclick = () => GE.pro && GE.pro.exportDossier(r);
   act('del').onclick = () => GE.deleteRecords([id]);
   act('link').onclick = () => GE.linkDialog(id);
@@ -5258,6 +5259,28 @@ GE.caseHints = r => {
   if (/^\+?[\d\s()-]{7,}$/.test(s)) H.push({ t: 'Телефон', a: 'Нормализация E.164 и источники', q: s });
   if (!H.length) H.push({ t: 'Текст', a: 'Полнотекстовый поиск по открытым источникам', q: s });
   return H;
+};
+
+GE.autoSearch = async id => {
+  const r = GE.db.get(id); if (!r) return;
+  const s = String(r.subject || '').trim();
+  if (!s) { GE.toast('Укажите объект/фигуранта в деле', { type: 'err' }); return; }
+  GE.toast('Ищу зацепки по открытым источникам…');
+  const found = [];
+  const add = (platform, url, info) => {
+    const src = GE.db.add('source', { title: `${platform}: ${s}`, url, source_type: 'Соцсеть', notes: info || '', tags: ['улика', 'авто'] });
+    if (src) { GE.db.link(id, src.id, 'улика'); found.push(platform); }
+  };
+  const u = encodeURIComponent(s);
+  try { const r1 = await fetch(`https://api.github.com/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r1.ok) { const j = await r1.json(); if (j && j.id) add('GitHub', j.html_url, j.name || ''); } } catch {}
+  try { const r2 = await fetch(`https://gitlab.com/api/v4/users?username=${u}`, { referrerPolicy: 'no-referrer' }); if (r2.ok) { const j = await r2.json(); if (j && j[0]) add('GitLab', j[0].web_url, j[0].name || ''); } } catch {}
+  try { const r3 = await fetch(`https://api.bitbucket.org/2.0/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r3.ok) { const j = await r3.json(); if (j && j.uuid) add('Bitbucket', `https://bitbucket.org/${j.username}/`, j.display_name || ''); } } catch {}
+  try { const r4 = await fetch(`https://codeberg.org/api/v1/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r4.ok) { const j = await r4.json(); if (j && j.id) add('Codeberg', `https://codeberg.org/${j.login}`, j.full_name || ''); } } catch {}
+  try { const r5 = await fetch(`https://god-eye-proxy.zajcevtihon09.workers.dev/?url=${encodeURIComponent('https://t.me/' + s)}`, { referrerPolicy: 'no-referrer' }); if (r5.ok) { const html = await r5.text(); if (/Telegram: View @/i.test(html)) add('Telegram', `https://t.me/${u}`, 'публичный профиль/канал'); } } catch {}
+  if (found.length) GE.toast(`Найдено улик: ${found.length} — ${found.join(', ')}`);
+  else GE.toast('Зацепок не найдено. Попробуйте другой объект или поиск вручную.');
+  GE.emit('db');
+  if (GE.drawerId === id) GE.openRecord(id);
 };
 
 GE.openBoard = id => {
