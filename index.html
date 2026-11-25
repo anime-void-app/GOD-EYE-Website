@@ -3127,7 +3127,6 @@ let master = null;
 let ostBus = null;
 let sfxBus = null;
 let reverb = null;
-let delayL = null, delayR = null, delayFb = null;
 let playing = false;
 let trackNodes = [];
 let trackTimers = [];
@@ -3213,26 +3212,6 @@ function ensureCtx() {
   revGain.gain.value = 0.46;
   reverb.connect(revGain);
   revGain.connect(sfxBus);
-
-  // Стерео-дилей для арпеджио и сонар-пинга
-  delayL = ctx.createDelay(1.5);
-  delayR = ctx.createDelay(1.5);
-  delayL.delayTime.value = 0.34;
-  delayR.delayTime.value = 0.51;
-  delayFb = ctx.createGain();
-  delayFb.gain.value = 0.34;
-  const dFilt = ctx.createBiquadFilter();
-  dFilt.type = 'lowpass';
-  dFilt.frequency.value = 1850;
-  delayL.connect(dFilt);
-  dFilt.connect(delayR);
-  delayR.connect(delayFb);
-  delayFb.connect(delayL);
-  const dWet = ctx.createGain();
-  dWet.gain.value = 0.28;
-  delayL.connect(dWet);
-  delayR.connect(dWet);
-  dWet.connect(ostBus);
 
   return ctx;
 }
