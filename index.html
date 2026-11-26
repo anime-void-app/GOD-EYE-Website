@@ -187,6 +187,73 @@ body.fx-off #bg .bg-spot { display: none; }
 .gate-mute:hover { color: var(--silver); border-color: var(--line-3); }
 .gate-hint { font: 400 11px/1.7 var(--f-mono); letter-spacing: 0.14em; color: var(--muted); max-width: 440px; }
 /* ===INTRO-CSS-END=== */
+/* ===PLUGINS-CSS-BEGIN=== */
+/* Плагины живой разведки */
+.live-sep { display: flex; align-items: center; gap: 12px; margin-top: 6px; font: 500 10px/1 var(--f-mono); letter-spacing: 0.22em; color: var(--dim); text-transform: uppercase; }
+.live-sep::before, .live-sep::after { content: ''; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, var(--line-2)); }
+.live-sep::after { background: linear-gradient(270deg, transparent, var(--line-2)); }
+.pl-chip { margin-left: 10px; padding: 3px 5px 2px; border: 1px solid rgba(226,35,46,0.4); color: var(--crimson-3); font: 500 8.5px/1 var(--f-mono); font-style: normal; letter-spacing: 0.18em; }
+.live-card.is-plugin .live-card-h { background: linear-gradient(90deg, rgba(139,0,0,0.1), transparent 55%); }
+.pl-note { margin-bottom: 8px; color: var(--dim); font-size: 11px; line-height: 1.5; }
+.pl-sub { margin: 12px 0 6px; font: 500 10px/1 var(--f-mono); letter-spacing: 0.16em; color: var(--silver-2); text-transform: uppercase; }
+.pl-list { display: grid; gap: 4px; }
+.pl-i { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border: 1px solid var(--line); color: var(--silver-2); text-decoration: none; transition: border-color 0.2s, background 0.2s, color 0.2s; }
+a.pl-i:hover { border-color: var(--line-3); background: rgba(255,255,255,0.03); color: #fff; }
+.pl-tag { flex: none; min-width: 46px; font: 500 9.5px/1.2 var(--f-mono); letter-spacing: 0.08em; color: var(--crimson-3); text-transform: uppercase; }
+.pl-main { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.pl-main b { font: 500 12.5px/1.35 var(--f-body); color: var(--white); overflow-wrap: anywhere; }
+.pl-main small { font: 400 11px/1.4 var(--f-body); color: var(--dim); overflow-wrap: anywhere; }
+.pl-r { flex: none; font-size: 11px; color: var(--dim); white-space: nowrap; }
+.pl-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.pl-th { display: grid; gap: 4px; padding: 4px; border: 1px solid var(--line); color: var(--silver-2); font-size: 10.5px; text-decoration: none; transition: border-color 0.2s; }
+a.pl-th:hover { border-color: var(--line-3); color: #fff; }
+.pl-th img { width: 100%; height: 88px; object-fit: cover; background: #000; filter: grayscale(0.2) contrast(1.05); transition: filter 0.25s; }
+a.pl-th:hover img { filter: none; }
+.pl-th span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-cover { display: block; max-width: 100%; max-height: 150px; margin-bottom: 10px; border: 1px solid var(--line); }
+.pl-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.pl-tbl th { padding: 0 10px 6px 0; text-align: left; font: 500 9.5px/1 var(--f-mono); letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+.pl-tbl td { padding: 5px 10px 5px 0; border-top: 1px solid var(--line); color: var(--silver); overflow-wrap: anywhere; vertical-align: top; }
+.pl-tbl td.diff { color: #ff8a90; }
+.link-i .pl-main small { display: block; }
+
+/* вкладка «Плагины» */
+.pl-head { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; margin-bottom: 16px; padding: 16px 18px; border: 1px solid var(--line-2); background: linear-gradient(135deg, rgba(139,0,0,0.14), rgba(0,0,0,0.4) 58%); }
+.pl-stat { display: grid; justify-items: center; gap: 4px; min-width: 84px; }
+.pl-stat b { font: 600 38px/1 var(--f-sc); color: #fff; letter-spacing: 0.03em; }
+.pl-stat span { font: 500 9px/1.3 var(--f-mono); letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; text-align: center; }
+.pl-head p { margin: 0; max-width: 72ch; font-size: 12.5px; line-height: 1.65; color: var(--silver-2); }
+.pl-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.pl-filters { display: grid; gap: 10px; margin-bottom: 16px; }
+.pl-filters .chip { padding: 5px 9px; font-size: 10.5px; }
+.pl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.pl-card { display: grid; align-content: start; gap: 9px; padding: 14px 15px; border: 1px solid var(--line); background: rgba(0,0,0,0.38); transition: border-color 0.25s, opacity 0.25s, transform 0.25s var(--ease); }
+.pl-card.on { border-color: var(--line-2); }
+.pl-card:not(.on) { opacity: 0.5; }
+.pl-card:hover { border-color: var(--line-3); transform: translateY(-1px); }
+.pl-card-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pl-card-h b { font: 500 13.5px/1.35 var(--f-body); color: #fff; }
+.pl-grp { font: 500 9px/1 var(--f-mono); letter-spacing: 0.18em; color: var(--crimson-3); text-transform: uppercase; }
+.pl-desc { margin: 0; font-size: 12px; line-height: 1.6; color: var(--silver-2); }
+.pl-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.pl-types span { padding: 2px 6px; border: 1px solid var(--line-2); font: 500 9px/1.3 var(--f-mono); letter-spacing: 0.1em; color: var(--silver-2); }
+.pl-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding-top: 9px; border-top: 1px solid var(--line); font: 400 10.5px/1.4 var(--f-mono); }
+.pl-host { color: var(--silver); overflow-wrap: anywhere; }
+.pl-sends { color: var(--dim); }
+.pl-foot2 { display: flex; align-items: center; gap: 4px; }
+.pl-health { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 10.5px/1.3 var(--f-mono); color: var(--dim); }
+.pl-health.ok { color: var(--white); }
+.pl-health.err { color: #ff6b72; }
+.pl-health.busy { color: var(--silver-2); animation: geBadgePulse 1.2s ease-in-out infinite; }
+.pl-custom { margin-top: 4px; }
+.pl-cx { display: grid; gap: 10px; }
+.pl-cx .input { width: 100%; }
+.pl-cx-list { display: grid; gap: 6px; margin-top: 12px; }
+.pl-cx-i { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--line); }
+.pl-cx-i .pl-main small { font-family: var(--f-mono); }
+.pl-bad { color: #ff6b72; font-size: 11.5px; }
+@media (max-width: 760px) { .pl-head { grid-template-columns: 1fr; justify-items: start; } .pl-acts { justify-content: flex-start; } }
+/* ===PLUGINS-CSS-END=== */
 
 /* ═══════════════════════════ КАРКАС ═══════════════════════════ */
 #app { position: relative; z-index: 1; min-height: 100vh; }
@@ -1528,6 +1595,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
           <button data-smode="batch">Пакетный скан (Batch)</button>
           <button data-smode="diff">Пересечение целей (Diff)</button>
           <button data-smode="watch">Мониторинг <span id="watch-count"></span></button>
+          <button data-smode="plugins">Плагины <span id="plugins-count"></span></button>
         </div>
 
         <div class="tab-pane on" data-spane="single">
@@ -1552,7 +1620,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
                 </span>
               </div>
               <div class="live-hud hidden" id="live-hud"></div>
-              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: Shodan InternetDB, AlienVault OTX, DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, HexDB Aviation (борты и маршруты), E.164/DEF-разбор телефонов, проверка никнеймов на 13 платформах, геокодирование OSM, Wikipedia и Wikidata. Любые IP, домены, CVE, координаты и ASN кликабельны для pivot-перехода.</div></div>
+              <div class="live" id="live-out"><div class="muted" style="font-size:13px">Здесь появятся результаты прямых запросов: Shodan InternetDB, AlienVault OTX, DNS + SPF/DMARC, RDAP, RIPEstat, crt.sh, Wayback, Gravatar, GLEIF, CIRCL CVE, Mempool BTC, HexDB Aviation (борты и маршруты), E.164/DEF-разбор телефонов, проверка никнеймов на 13 платформах, геокодирование OSM, Wikipedia и Wikidata, а также 30+ плагинов (вкладка «Плагины»). Любые IP, домены, CVE, координаты и ASN кликабельны для pivot-перехода.</div></div>
             </div>
             <div class="engines-bar">
               <input class="input eng-search" id="eng-filter" placeholder="Фильтр движков…">
@@ -1642,6 +1710,8 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
             <div id="diff-out"><div class="muted" style="font-size:12.5px">Сравнивает два домена, два IP или два никнейма через открытые API и подсвечивает общие точки инфраструктуры.</div></div>
           </div>
         </div>
+
+        <div class="tab-pane" data-spane="plugins"><div id="plugins-root"></div></div>
 
         <div class="tab-pane" data-spane="watch">
           <div class="panel">
@@ -3279,9 +3349,21 @@ GE.normQuery = (q, type) => {
 
 /** Разбор координат: «59.93, 30.31», «59°56'20.4"N 30°18'56.9"E», «N 59 56.34 E 30 18.95» */
 GE.parseCoords = s => {
-  s = String(s || '').trim().replace(/,(?=\d{3})/g, '.');
-  let m = s.match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/);
-  if (m) { const lat = +m[1], lon = +m[2]; if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) return { lat, lon }; return null; }
+  s = String(s || '').trim();
+  // «35.68,139.69» читается как есть; десятичная запятая («59,9390 30,3158») — только если прямой разбор не подошёл
+  const pair = x => {
+    const m = x.match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+    if (!m) return undefined;
+    const lat = +m[1], lon = +m[2];
+    return Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat, lon } : null;
+  };
+  const dec = s.replace(/,(?=\d{3})/g, '.');
+  const direct = pair(s);
+  if (direct) return direct;
+  const alt = pair(dec);
+  if (alt !== undefined) return alt;
+  if (direct === null) return null;
+  s = dec;
   const parts = s.toUpperCase().match(/(\d{1,3})[°\s]+(\d{1,2})?['′\s]*(\d{1,2}(?:[.,]\d+)?)?["″\s]*([NSEWСЮВЗ])?/g);
   if (!parts || parts.length < 2) return null;
   const conv = p => {
@@ -3554,6 +3636,255 @@ GE.ENGINES = [
   { n: 'AlienVault OTX File', d: 'Импульсы угроз и индикаторы по хешу', c: 'Хеши', fast: 1, reg: 'global', t: ['hash'], u: q => 'https://otx.alienvault.com/indicator/file/' + E(q) },
   { n: 'MalwareBazaar', d: 'База образцов по хешу', c: 'Хеши', fast: 1, reg: 'global', t: ['hash'], u: q => 'https://bazaar.abuse.ch/browse.php?search=' + E((q.length === 64 ? 'sha256:' : q.length === 40 ? 'sha1:' : 'md5:') + q) }
 ];
+
+
+
+/* ===ENGINES-X-BEGIN=== */
+/* Дополнительные движки: только открытые сервисы, поиск без входа и без закрытых баз данных */
+(() => {
+  const add = (c, t, rows, o = {}) => rows.forEach(([n, d, u, f]) => GE.ENGINES.push(Object.assign({ n, d, c, t, reg: o.reg || 'global', u }, o.f || {}, f || {})));
+  const TXT = ['text', 'org', 'place'], NUM = q => String(q).replace(/\D/g, '');
+  const coord = (q, fn) => { const [a, b] = LL(q); return fn(+a, +b); };
+  const hashAlg = q => q.length === 64 ? 'sha256' : q.length === 40 ? 'sha1' : 'md5';
+  const tr = q => GE.detectTransportKind(q);
+
+  // Веб-поиск
+  add('Веб-поиск', ['text', 'org', 'username', 'domain'], [
+    ['Qwant', 'Европейский поисковик без профилирования', q => 'https://www.qwant.com/?q=' + E(q)],
+    ['Marginalia', 'Небольшие независимые сайты и старый веб', q => 'https://search.marginalia.nu/search?query=' + E(q)],
+    ['Yahoo', 'Отдельный индекс на базе Bing', q => 'https://search.yahoo.com/search?p=' + E(q)],
+    ['Ecosia', 'Поиск на базе Bing с собственными алгоритмами', q => 'https://www.ecosia.org/search?q=' + E(q)]
+  ]);
+  add('Веб-поиск', ['text', 'org'], [
+    ['Baidu', 'Основной поисковик Китая', q => 'https://www.baidu.com/s?wd=' + E(q)],
+    ['Naver', 'Основной поисковик Кореи', q => 'https://search.naver.com/search.naver?query=' + E(q)],
+    ['Seznam', 'Основной поисковик Чехии', q => 'https://search.seznam.cz/?q=' + E(q)]
+  ]);
+
+  // Новости, видео и сообщества
+  add('Новости и справка', TXT, [
+    ['Bing Новости', 'Новостная лента отдельного индекса', q => 'https://www.bing.com/news/search?q=' + E(q)],
+    ['GDELT · мировые СМИ', 'Статьи мировых СМИ за последние дни, на многих языках', q => 'https://api.gdeltproject.org/api/v2/doc/doc?mode=ArtList&format=html&maxrecords=75&query=' + E(q)]
+  ]);
+  add('Новости и справка', TXT, [
+    ['Яндекс Дзен', 'Публикации и каналы Дзена', q => 'https://dzen.ru/search?query=' + E(q)]
+  ], { reg: 'ru' });
+  add('Соцсети', ['text', 'org', 'username'], [
+    ['TGStat', 'Поиск по публичным Telegram-каналам и постам', q => 'https://tgstat.ru/search?q=' + E(q)],
+    ['Rutube', 'Видео и каналы Rutube', q => 'https://rutube.ru/search/?query=' + E(q)]
+  ], { reg: 'ru' });
+
+  // Научные и открытые архивы
+  add('Научные и открытые архивы', TXT, [
+    ['Semantic Scholar', 'Научные статьи с оценкой влияния', q => 'https://www.semanticscholar.org/search?q=' + E(q)],
+    ['arXiv', 'Препринты по физике, математике, информатике', q => 'https://arxiv.org/search/?searchtype=all&query=' + E(q)],
+    ['PubMed', 'Медицинские и биологические публикации', q => 'https://pubmed.ncbi.nlm.nih.gov/?term=' + E(q)],
+    ['CORE', 'Агрегатор открытых научных работ', q => 'https://core.ac.uk/search?q=' + E(q)],
+    ['BASE', 'Поиск по академическим репозиториям', q => 'https://www.base-search.net/Search/Results?lookfor=' + E(q)],
+    ['OpenAlex', 'Открытый граф научных работ', q => 'https://openalex.org/works?search=' + E(q)],
+    ['Internet Archive Scholar', 'Полные тексты статей из архива', q => 'https://scholar.archive.org/search?q=' + E(q)],
+    ['HathiTrust', 'Полнотекстовый поиск по оцифрованным книгам', q => 'https://babel.hathitrust.org/cgi/ls?anyall1=phrase&q1=' + E(q)],
+    ['Library of Congress', 'Фонды Библиотеки Конгресса США', q => 'https://www.loc.gov/search/?q=' + E(q)],
+    ['Europeana', 'Культурное наследие европейских архивов', q => 'https://www.europeana.eu/en/search?query=' + E(q)],
+    ['Open Library', 'Каталог книг и изданий', q => 'https://openlibrary.org/search?q=' + E(q)]
+  ]);
+  add('Научные и открытые архивы', TXT, [
+    ['КиберЛенинка', 'Российские научные статьи в открытом доступе', q => 'https://cyberleninka.ru/search?q=' + E(q)]
+  ], { reg: 'ru' });
+  add('Документы', TXT, [
+    ['DocumentCloud', 'Документы журналистских расследований', q => 'https://www.documentcloud.org/app?q=' + E(q)],
+    ['Issuu', 'Публикации и журналы', q => 'https://issuu.com/search?q=' + E(q)],
+    ['SlideShare', 'Презентации и отчёты', q => 'https://www.slideshare.net/search?searchfrom=header&q=' + E(q)]
+  ]);
+
+  // Профили по нику: публичные страницы без входа
+  const prof = (n, d, u, f) => [n, d, u, f];
+  add('Профили по нику', ['username'], [
+    prof('Mastodon', 'mastodon.social/@…', q => 'https://mastodon.social/@' + E(q)),
+    prof('Bluesky', 'bsky.app/profile/….bsky.social', q => 'https://bsky.app/profile/' + E(q.includes('.') ? q : q + '.bsky.social')),
+    prof('Last.fm', 'Профиль слушателя', q => 'https://www.last.fm/user/' + E(q)),
+    prof('Letterboxd', 'Дневник фильмов', q => 'https://letterboxd.com/' + E(q) + '/'),
+    prof('Linktree', 'Страница ссылок', q => 'https://linktr.ee/' + E(q)),
+    prof('About.me', 'Визитка с контактами', q => 'https://about.me/' + E(q)),
+    prof('Itch.io', 'Страница разработчика игр', q => `https://${E(q.toLowerCase())}.itch.io/`),
+    prof('Ko-fi', 'Страница автора', q => 'https://ko-fi.com/' + E(q)),
+    prof('Product Hunt', 'Профиль мейкера', q => 'https://www.producthunt.com/@' + E(q)),
+    prof('Hashnode', 'Блог разработчика', q => 'https://hashnode.com/@' + E(q)),
+    prof('Substack', 'Рассылка автора', q => `https://${E(q.toLowerCase())}.substack.com/`),
+    prof('Bandcamp', 'Страница музыканта', q => 'https://bandcamp.com/' + E(q)),
+    prof('Mixcloud', 'Диджеи и подкасты', q => 'https://www.mixcloud.com/' + E(q) + '/'),
+    prof('Rumble', 'Видеоканал', q => 'https://rumble.com/user/' + E(q)),
+    prof('Odysee', 'Видеоканал', q => 'https://odysee.com/@' + E(q)),
+    prof('Gravatar', 'Публичный профиль Gravatar', q => 'https://gravatar.com/' + E(q)),
+    prof('Disqus', 'Комментарии по всему вебу', q => `https://disqus.com/by/${E(q)}/`),
+    prof('Imgur', 'Публикации и комментарии', q => 'https://imgur.com/user/' + E(q)),
+    prof('GitHub Gist', 'Публичные сниппеты', q => 'https://gist.github.com/' + E(q)),
+    prof('Speedrun.com', 'Рекорды и забеги', q => 'https://www.speedrun.com/users/' + E(q)),
+    prof('Genius', 'Профиль аннотатора', q => 'https://genius.com/' + E(q)),
+    prof('Wikimedia Commons', 'Страница участника', q => 'https://commons.wikimedia.org/wiki/User:' + E(q)),
+    prof('OpenStreetMap', 'Публичная история правок карты', q => 'https://www.openstreetmap.org/user/' + E(q)),
+    prof('500px', 'Фотопортфолио', q => 'https://500px.com/p/' + E(q)),
+    prof('Unsplash', 'Фотограф', q => 'https://unsplash.com/@' + E(q))
+  ]);
+  add('Профили по нику', ['username'], [
+    prof('Пикабу', 'pikabu.ru/@…', q => 'https://pikabu.ru/@' + E(q)),
+    prof('LiveJournal', '…livejournal.com', q => `https://${E(q.toLowerCase().replace(/_/g, '-'))}.livejournal.com/`)
+  ], { reg: 'ru' });
+
+  // Домен и инфраструктура
+  add('Домен и инфраструктура', ['domain'], [
+    ['Robtex', 'Связи DNS: хосты, IP, серверы имён', q => 'https://www.robtex.com/dns-lookup/' + E(q)],
+    ['DNSlytics', 'Домены на одном IP и в одной сети', q => 'https://search.dnslytics.com/search?d=domains&q=' + E(q)],
+    ['ViewDNS Whois', 'Регистрационные данные домена', q => 'https://viewdns.info/whois/?domain=' + E(q)],
+    ['Google Admin Toolbox: Dig', 'DNS-записи через Google DNS', q => 'https://toolbox.googleapps.com/apps/dig/#A/' + E(q)],
+    ['Check-Host · сведения', 'IP, страна и провайдер хоста', q => 'https://check-host.net/ip-info?host=' + E(q)],
+    ['Wayback · все адреса сайта', 'Список всего, что архивировалось на домене', q => 'https://web.archive.org/web/*/' + q + '/*'],
+    ['Google Safe Browsing', 'Отчёт о безопасности сайта (прозрачность Google)', q => 'https://transparencyreport.google.com/safe-browsing/search?url=' + E(q)],
+    ['Cisco Talos', 'Репутация домена', q => 'https://talosintelligence.com/reputation_center/lookup?search=' + E(q)],
+    ['URLhaus', 'Вредоносные адреса на домене (abuse.ch)', q => 'https://urlhaus.abuse.ch/browse.php?search=' + E(q)],
+    ['Spamhaus', 'Попадание домена в списки спама и угроз', q => 'https://check.spamhaus.org/results/?query=' + E(q)],
+    ['ScamAdviser', 'Оценка надёжности сайта', q => 'https://www.scamadviser.com/check-website/' + E(q)]
+  ]);
+
+  // IP-адрес
+  add('IP-адрес', ['ip'], [
+    ['Shodan InternetDB', 'Порты, теги и уязвимости (JSON, без ключа)', q => 'https://internetdb.shodan.io/' + E(q)],
+    ['SANS ISC', 'Отчёты сенсоров об атаках с адреса', q => 'https://isc.sans.edu/ipinfo/' + E(q)],
+    ['Robtex IP', 'Домены и сети, связанные с адресом', q => 'https://www.robtex.com/ip-lookup/' + E(q)],
+    ['Cisco Talos IP', 'Репутация адреса', q => 'https://talosintelligence.com/reputation_center/lookup?search=' + E(q)],
+    ['Spamhaus IP', 'Попадание в списки блокировки', q => 'https://check.spamhaus.org/results/?query=' + E(q)],
+    ['StopForumSpam', 'Жалобы на спам с этого адреса', q => 'https://www.stopforumspam.com/ipcheck/' + E(q)],
+    ['Project Honeypot', 'Данные ловушек для спамеров', q => 'https://www.projecthoneypot.org/ip_' + E(q)],
+    ['Scamalytics', 'Оценка риска мошенничества по адресу', q => 'https://scamalytics.com/ip/' + E(q)],
+    ['Tor Metrics', 'Узел ли это сети Tor', q => 'https://metrics.torproject.org/rs.html#search/' + E(q)]
+  ]);
+
+  // ASN
+  add('ASN и BGP', ['asn'], [
+    ['bgp.tools · ASN', 'Префиксы, соседи и данные маршрутизации', q => 'https://bgp.tools/as/' + NUM(q)],
+    ['CAIDA ASRank', 'Рейтинг и связи автономной системы', q => 'https://asrank.caida.org/asns?asn=' + NUM(q)],
+    ['Robtex ASN', 'Префиксы и хосты сети', q => `https://www.robtex.com/as/as${NUM(q)}.html`]
+  ]);
+
+  // Ссылки
+  add('Ссылка и архивы', ['url'], [
+    ['unshorten.me', 'Раскрывает сокращённые ссылки', q => 'https://unshorten.me/s/' + E(q)],
+    ['Google Safe Browsing', 'Отчёт о безопасности адреса', q => 'https://transparencyreport.google.com/safe-browsing/search?url=' + E(q)],
+    ['URLhaus', 'Есть ли адрес в базе вредоносных ссылок', q => 'https://urlhaus.abuse.ch/browse.php?search=' + E(q)],
+    ['Reddit · кто делился', 'Обсуждения, где публиковали эту ссылку', q => 'https://www.reddit.com/search/?q=' + E('url:' + q)]
+  ]);
+
+  // Фото: обратный поиск и форензика (без распознавания лиц)
+  add('Обратный поиск фото', ['image'], [
+    ['ImgOps', 'Набор инструментов для одной картинки', q => 'https://imgops.com/' + q]
+  ]);
+  add('Фото-форензика', ['image'], [
+    ['FotoForensics', 'Анализ уровня ошибок (ELA) — вставьте адрес на странице', () => 'https://fotoforensics.com/', { manual: 1 }],
+    ['Forensically', 'Клонирование, шум, ELA в браузере — откройте файл на странице', () => 'https://29a.ch/photo-forensics/', { manual: 1 }]
+  ]);
+
+  // Карты, спутники, окружение
+  add('Карты и спутники', ['coords'], [
+    ['Esri Wayback', 'Архив спутниковых снимков Esri с 2014 года', q => coord(q, (a, b) => `https://livingatlas.arcgis.com/wayback/#mapCenter=${b}%2C${a}%2C16`)],
+    ['Zoom Earth', 'Свежие спутниковые снимки и погода', q => coord(q, (a, b) => `https://zoom.earth/maps/satellite/#view=${a},${b},12z`)],
+    ['Sentinel EO Browser', 'Снимки Sentinel с выбором даты', q => coord(q, (a, b) => `https://apps.sentinel-hub.com/eo-browser/?zoom=14&lat=${a}&lng=${b}`)],
+    ['NASA Worldview', 'Ежедневные снимки Земли NASA', q => coord(q, (a, b) => `https://worldview.earthdata.nasa.gov/?v=${b - 4},${a - 4},${b + 4},${a + 4}`)],
+    ['Flickr · карта фото', 'Фото с геометками рядом с точкой', q => coord(q, (a, b) => `https://www.flickr.com/map?fLat=${a}&fLon=${b}&zl=15`)],
+    ['ShadeMap', 'Тени зданий и рельефа на нужное время', q => coord(q, (a, b) => `https://shademap.app/@${a},${b},16z`)],
+    ['timeanddate · Солнце', 'Восход, закат и длина дня в этой точке', q => coord(q, (a, b) => `https://www.timeanddate.com/sun/@${a},${b}`)],
+    ['Windy', 'Погода и радары на карте', q => coord(q, (a, b) => `https://www.windy.com/${a}/${b}?${a},${b},10`)],
+    ['OpenInfraMap', 'Линии электропередачи, связь, трубопроводы', q => coord(q, (a, b) => `https://openinframap.org/#14/${a}/${b}`)],
+    ['MarineTraffic · акватория', 'Суда вокруг точки', q => coord(q, (a, b) => `https://www.marinetraffic.com/en/ais/home/centerx:${b}/centery:${a}/zoom:11`)],
+    ['Mapy.cz', 'Чешские карты с хорошим рельефом и тропами', q => coord(q, (a, b) => `https://mapy.cz/zakladni?x=${b}&y=${a}&z=16`)],
+    ['HERE WeGo', 'Спутник и схема HERE', q => coord(q, (a, b) => `https://wego.here.com/?map=${a},${b},16,satellite`)],
+    ['Apple Maps', 'Спутник и схема Apple', q => coord(q, (a, b) => `https://maps.apple.com/?ll=${a},${b}&z=17&t=k`)],
+    ['GeoHack', 'Все карты и сервисы Википедии для точки', q => coord(q, (a, b) => `https://geohack.toolforge.org/geohack.php?params=${Math.abs(a)}_${a >= 0 ? 'N' : 'S'}_${Math.abs(b)}_${b >= 0 ? 'E' : 'W'}`)]
+  ]);
+  add('Карты и спутники', ['coords'], [
+    ['Яндекс Панорамы', 'Уличные панорамы Яндекса', q => coord(q, (a, b) => `https://yandex.ru/maps/?ll=${b},${a}&z=17&l=stv,sta&panorama%5Bpoint%5D=${b},${a}`)]
+  ], { reg: 'ru' });
+  add('Карты и спутники', ['place'], [
+    ['GeoNames', 'Справочник географических названий мира', q => 'https://www.geonames.org/search.html?q=' + E(q)]
+  ]);
+
+  // Реестры и сведения об организациях
+  add('Реестры организаций', ['org'], [
+    ['Pappers', 'Реестр компаний Франции', q => 'https://www.pappers.fr/recherche?q=' + E(q)],
+    ['North Data', 'Компании и должностные лица Европы', q => 'https://www.northdata.com/?query=' + E(q)],
+    ['OCCRP Aleph', 'Документы и реестры для расследований', q => 'https://aleph.occrp.org/search?q=' + E(q)],
+    ['Open Ownership', 'Реестр бенефициарных владельцев', q => 'https://register.openownership.org/search?q=' + E(q)],
+    ['LittleSis', 'Связи влиятельных людей и организаций', q => 'https://littlesis.org/search?q=' + E(q)],
+    ['OpenSecrets', 'Деньги в американской политике', q => 'https://www.opensecrets.org/search?q=' + E(q)],
+    ['Trustpilot', 'Отзывы клиентов о компаниях', q => 'https://www.trustpilot.com/search?query=' + E(q)]
+  ]);
+  add('Реестры организаций', ['org', 'regid'], [
+    ['Checko', 'Сведения о российских компаниях и ИП', q => 'https://checko.ru/search?query=' + E(q)],
+    ['List-Org', 'Каталог российских организаций', q => 'https://www.list-org.com/search?val=' + E(q)],
+    ['ЗаЧестныйБизнес', 'Проверка контрагента по открытым реестрам', q => 'https://zachestnyibiznes.ru/search?query=' + E(q)]
+  ], { reg: 'ru' });
+
+  // Блокчейн: публичные реестры и базы жалоб на мошеннические адреса
+  add('Блокчейн-эксплореры', ['crypto'], [
+    ['Blockstream (BTC)', 'Транзакции и баланс Bitcoin-адреса', q => 'https://blockstream.info/address/' + E(q), { sub: 'BTC' }],
+    ['WalletExplorer (BTC)', 'Кластеры адресов Bitcoin', q => 'https://www.walletexplorer.com/address/' + E(q), { sub: 'BTC' }],
+    ['BitcoinAbuse', 'Жалобы на адреса, замеченные в мошенничестве', q => 'https://www.bitcoinabuse.com/reports/' + E(q), { sub: 'BTC' }],
+    ['Blockscout (ETH)', 'Адреса, контракты и токены Ethereum', q => 'https://eth.blockscout.com/address/' + E(q), { sub: 'ETH/EVM' }],
+    ['BscScan (BSC)', 'Тот же адрес в сети BNB Chain', q => 'https://bscscan.com/address/' + E(q), { sub: 'ETH/EVM' }],
+    ['Polygonscan', 'Тот же адрес в сети Polygon', q => 'https://polygonscan.com/address/' + E(q), { sub: 'ETH/EVM' }],
+    ['Arbiscan', 'Тот же адрес в сети Arbitrum', q => 'https://arbiscan.io/address/' + E(q), { sub: 'ETH/EVM' }],
+    ['Chainabuse', 'Публичные жалобы на мошеннические адреса', q => 'https://www.chainabuse.com/address/' + E(q)]
+  ]);
+
+  // Уязвимости
+  add('Уязвимости (CVE)', ['cve'], [
+    ['OSV', 'Единая база уязвимостей open-source', q => 'https://osv.dev/vulnerability/' + E(q)],
+    ['Tenable', 'Описание и оценки уязвимости', q => 'https://www.tenable.com/cve/' + E(q)],
+    ['Red Hat', 'Влияние на продукты Red Hat', q => 'https://access.redhat.com/security/cve/' + E(q)],
+    ['Ubuntu', 'Статус исправления в Ubuntu', q => 'https://ubuntu.com/security/' + E(q)],
+    ['Debian Tracker', 'Статус исправления в Debian', q => 'https://security-tracker.debian.org/tracker/' + E(q)],
+    ['Microsoft MSRC', 'Бюллетень безопасности Microsoft', q => 'https://msrc.microsoft.com/update-guide/vulnerability/' + E(q)],
+    ['CVE Details', 'Статистика и связанные продукты', q => `https://www.cvedetails.com/cve/${E(q)}/`],
+    ['VulDB', 'Независимая база с оценками рисков', q => 'https://vuldb.com/?search=' + E(q)],
+    ['Vulners', 'Агрегатор бюллетеней и эксплойтов', q => 'https://vulners.com/search?query=' + E(q)],
+    ['Snyk', 'Уязвимости пакетов и библиотек', q => 'https://security.snyk.io/vuln?search=' + E(q)]
+  ]);
+
+  // Авиация, море, космос
+  add('Авиация (ADS-B)', ['transport'], [
+    ['adsb.lol', 'Открытый агрегатор ADS-B', q => { const t = tr(q); return t.kind === 'icao24' ? 'https://adsb.lol/?icao=' + E(t.val.toLowerCase()) : 'https://adsb.lol/'; }],
+    ['adsb.fi', 'Финский открытый ADS-B без цензуры', q => { const t = tr(q); return t.kind === 'icao24' ? 'https://globe.adsb.fi/?icao=' + E(t.val.toLowerCase()) : 'https://globe.adsb.fi/'; }],
+    ['airplanes.live', 'Открытая карта ADS-B', q => { const t = tr(q); return t.kind === 'icao24' ? 'https://globe.airplanes.live/?icao=' + E(t.val.toLowerCase()) : 'https://globe.airplanes.live/'; }],
+    ['JetPhotos', 'Фотографии борта по регистрации', q => { const t = tr(q); return t.kind === 'reg' ? 'https://www.jetphotos.com/registration/' + E(t.val) : 'https://www.jetphotos.com/'; }],
+    ['Airport-Data', 'Карточка и снимки борта', q => { const t = tr(q); return t.kind === 'reg' ? `https://www.airport-data.com/aircraft/${E(t.val)}.html` : 'https://www.airport-data.com/'; }]
+  ], { f: { sub: 'air' } });
+  add('Морские суда и Космос', ['transport'], [
+    ['BalticShipping', 'Карточка судна по IMO', q => { const t = tr(q); return t.kind === 'imo' ? `https://www.balticshipping.com/vessel/imo/${E(t.val)}` : 'https://www.balticshipping.com/'; }],
+    ['ShipSpotting', 'Фотографии судна по IMO', q => { const t = tr(q); return t.kind === 'imo' ? `https://www.shipspotting.com/photos/gallery?imo=${E(t.val)}` : 'https://www.shipspotting.com/'; }]
+  ], { f: { sub: 'sea' } });
+  add('Морские суда и Космос', ['transport'], [
+    ['Heavens-Above', 'Параметры орбиты и видимость спутника', q => { const t = tr(q); return t.kind === 'norad' ? `https://www.heavens-above.com/satinfo.aspx?satid=${E(t.val)}` : 'https://www.heavens-above.com/'; }]
+  ], { f: { sub: 'space' } });
+
+  // Хеши
+  add('Хеши', ['hash'], [
+    ['CIRCL hashlookup', 'Известные безопасные файлы (NSRL) по хешу, JSON', q => `https://hashlookup.circl.lu/lookup/${hashAlg(q)}/${E(q)}`],
+    ['Hybrid Analysis', 'Отчёты песочницы по хешу', q => 'https://hybrid-analysis.com/search?query=' + E(q)],
+    ['Triage', 'Отчёты песочницы Hatching Triage', q => 'https://tria.ge/s?q=' + E(q)],
+    ['Joe Sandbox', 'Отчёты анализа файлов по хешу', q => 'https://www.joesandbox.com/search?q=' + E(q)],
+    ['Kaspersky OpenTIP', 'Репутация файла по хешу', q => `https://opentip.kaspersky.com/${E(q)}/`]
+  ]);
+
+  // Код
+  add('Код', ['text', 'domain', 'username', 'org'], [
+    ['Searchcode', 'Поиск по открытым репозиториям', q => 'https://searchcode.com/?q=' + E(q)],
+    ['PublicWWW', 'Сайты, в исходном коде которых есть строка', q => `https://publicwww.com/websites/${E('"' + q + '"')}/`],
+    ['GitHub Gist', 'Публичные сниппеты', q => 'https://gist.github.com/search?q=' + E(q)],
+    ['GitLab', 'Публичные проекты GitLab', q => 'https://gitlab.com/search?search=' + E(q)],
+    ['Codeberg', 'Проекты на свободном хостинге', q => 'https://codeberg.org/explore/repos?q=' + E(q)],
+    ['Hugging Face', 'Модели, датасеты и демо', q => 'https://huggingface.co/search/full-text?q=' + E(q)]
+  ]);
+})();
+/* ===ENGINES-X-END=== */
 
 /* Примеры для быстрого старта */
 GE.EXAMPLES = [
@@ -6770,6 +7101,1010 @@ GE.loadDemoCase = () => {
 })();
 
 </script>
+<script id="plugins-module">
+/* embedded: plugins module — реестр плагинов живой разведки, астро-расчёты, свои источники */
+(function () {
+'use strict';
+const GE = window.GE;
+const E = encodeURIComponent, esc = GE.esc;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+/* ─────────── утилиты ─────────── */
+const num = n => (Number(n) || 0).toLocaleString('ru-RU');
+const one = v => Array.isArray(v) ? v[0] : v;
+const cut = (s, n) => { s = String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+const plain = h => { try { return (new DOMParser().parseFromString(String(h || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim(); } catch (e) { return ''; } };
+const safe = u => GE.safeUrl(u);
+const A = (u, t) => { const s = safe(u), label = t == null ? s : t; return s ? `<a href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : esc(label || ''); };
+const yr = v => { const m = String(v || '').match(/\d{4}/); return m ? m[0] : ''; };
+const dt = v => { const d = new Date(typeof v === 'number' && v < 1e12 ? v * 1000 : v); return isNaN(d) ? '' : d.toISOString().slice(0, 10); };
+const mdT = s => String(s == null ? '' : s).replace(/[\[\]\r\n]+/g, ' ').trim();
+const hav = (la1, lo1, la2, lo2) => {
+  const R = 6371, r = Math.PI / 180, dLa = (la2 - la1) * r, dLo = (lo2 - lo1) * r;
+  const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+};
+
+/* Сеть: только GET, без cookie и referrer; ошибки приводятся к понятному тексту */
+const net = async (url, o = {}) => {
+  const ms = o.ms || 12000, ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit', headers: o.headers });
+    if (r.status === 429 || r.status === 403) throw new Error(`лимит или запрет источника (HTTP ${r.status})`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return o.text ? await r.text() : await r.json();
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? `таймаут ${Math.round(ms / 1000)} с` : e instanceof TypeError ? 'нет ответа (сеть или CORS)' : (e.message || 'ошибка'));
+  } finally { clearTimeout(t); }
+};
+
+/* ─────────── разметка результатов ─────────── */
+const note = t => `<div class="pl-note">${esc(t)}</div>`;
+const kv = pairs => `<dl class="kv">${pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>`;
+const kvMd = pairs => pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v]) => `- **${k}:** ${String(v).replace(/<[^>]+>/g, '')}`).join('\n');
+const list = items => items.length ? `<div class="pl-list">${items.map(i => {
+  const inner = `${i.tag ? `<span class="pl-tag">${esc(i.tag)}</span>` : ''}<span class="pl-main"><b>${esc(i.title)}</b>${i.sub ? `<small>${esc(i.sub)}</small>` : ''}</span>${i.r ? `<span class="pl-r">${esc(i.r)}</span>` : ''}`;
+  const u = i.href && safe(i.href);
+  return u ? `<a class="pl-i" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${inner}</a>` : `<div class="pl-i">${inner}</div>`;
+}).join('')}</div>` : '<div class="muted">Ничего не найдено.</div>';
+const listMd = items => items.map(i => `- ${i.href && safe(i.href) ? `[${mdT(i.title)}](${safe(i.href)})` : mdT(i.title)}${i.sub ? ' — ' + mdT(i.sub) : ''}`).join('\n');
+const thumbs = items => items.length ? `<div class="pl-thumbs">${items.map(i => {
+  const img = safe(i.img), u = safe(i.href);
+  if (!img) return '';
+  const inner = `<img src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span>${esc(cut(i.title, 44))}</span>`;
+  return u ? `<a class="pl-th" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${esc(i.hint || i.title)}">${inner}</a>` : `<div class="pl-th" title="${esc(i.hint || i.title)}">${inner}</div>`;
+}).join('')}</div>` : '<div class="muted">Ничего не найдено.</div>';
+const table = (head, rows) => `<table class="pl-tbl"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => c && c.raw !== undefined ? `<td class="${c.cls || ''}">${c.raw}</td>` : `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const pivot = (val, type, label) => `<button class="pivot" data-pivot-q="${esc(val)}" data-pivot-t="${esc(type)}" title="Сканировать (${esc(GE.QTYPES[type] ? GE.QTYPES[type].l : type)})">${esc(label || val)}</button>`;
+
+/* ─────────── астро-расчёты (офлайн): Солнце, Луна, тени ─────────── */
+const RAD = Math.PI / 180;
+const astro = {
+  /** Склонение Солнца и уравнение времени (мин) на момент date */
+  base(date) {
+    const jd = date.getTime() / 86400000 + 2440587.5, T = (jd - 2451545) / 36525;
+    const L0 = (280.46646 + T * (36000.76983 + T * 0.0003032)) % 360;
+    const M = 357.52911 + T * (35999.05029 - 0.0001537 * T);
+    const e = 0.016708634 - T * (0.000042037 + 0.0000001267 * T);
+    const C = Math.sin(M * RAD) * (1.914602 - T * (0.004817 + 0.000014 * T)) + Math.sin(2 * M * RAD) * (0.019993 - 0.000101 * T) + Math.sin(3 * M * RAD) * 0.000289;
+    const om = 125.04 - 1934.136 * T;
+    const lam = L0 + C - 0.00569 - 0.00478 * Math.sin(om * RAD);
+    const eps = 23 + (26 + (21.448 - T * (46.815 + T * (0.00059 - T * 0.001813))) / 60) / 60 + 0.00256 * Math.cos(om * RAD);
+    const decl = Math.asin(Math.sin(eps * RAD) * Math.sin(lam * RAD)) / RAD;
+    const y = Math.tan(eps * RAD / 2) ** 2;
+    const eq = 4 * (y * Math.sin(2 * L0 * RAD) - 2 * e * Math.sin(M * RAD) + 4 * e * y * Math.sin(M * RAD) * Math.cos(2 * L0 * RAD) - 0.5 * y * y * Math.sin(4 * L0 * RAD) - 1.25 * e * e * Math.sin(2 * M * RAD)) / RAD;
+    return { decl, eq };
+  },
+  /** Высота и азимут Солнца (азимут от севера по часовой), град. Без рефракции. */
+  sun(date, lat, lon) {
+    const b = astro.base(date);
+    const utc = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
+    let H = ((utc + b.eq + 4 * lon) % 1440) / 4 - 180;
+    if (H < -180) H += 360;
+    const sa = Math.sin(lat * RAD) * Math.sin(b.decl * RAD) + Math.cos(lat * RAD) * Math.cos(b.decl * RAD) * Math.cos(H * RAD);
+    const alt = Math.asin(Math.max(-1, Math.min(1, sa))) / RAD;
+    let az = Math.atan2(Math.sin(H * RAD), Math.cos(H * RAD) * Math.sin(lat * RAD) - Math.tan(b.decl * RAD) * Math.cos(lat * RAD)) / RAD + 180;
+    az = (az + 360) % 360;
+    return { alt, az, decl: b.decl, eq: b.eq };
+  },
+  /** Восход, закат и полдень (Date, UTC) для суток UTC даты date */
+  times(date, lat, lon) {
+    const d0 = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    let noon = 720 - 4 * lon;
+    for (let i = 0; i < 3; i++) noon = 720 - 4 * lon - astro.base(new Date(d0 + noon * 60000)).eq;
+    const b = astro.base(new Date(d0 + noon * 60000));
+    const cosH = (Math.sin(-0.833 * RAD) - Math.sin(lat * RAD) * Math.sin(b.decl * RAD)) / (Math.cos(lat * RAD) * Math.cos(b.decl * RAD));
+    const at = m => new Date(d0 + m * 60000);
+    if (cosH > 1) return { polar: 'night', noon: at(noon) };
+    if (cosH < -1) return { polar: 'day', noon: at(noon) };
+    const H = Math.acos(cosH) / RAD;
+    return { rise: at(noon - 4 * H), set: at(noon + 4 * H), noon: at(noon) };
+  },
+  /** Фаза Луны по среднему синодическому месяцу (точность около ±0,5 суток) */
+  moon(date) {
+    const S = 29.530588853, ref = Date.UTC(2000, 0, 6, 18, 14);
+    let age = ((date.getTime() - ref) / 86400000) % S; if (age < 0) age += S;
+    const ph = age / S, ill = (1 - Math.cos(2 * Math.PI * ph)) / 2;
+    const name = ph < 0.03 || ph > 0.97 ? 'новолуние' : ph < 0.22 ? 'растущий серп' : ph < 0.28 ? 'первая четверть' : ph < 0.47 ? 'растущая Луна' : ph < 0.53 ? 'полнолуние' : ph < 0.72 ? 'убывающая Луна' : ph < 0.78 ? 'последняя четверть' : 'убывающий серп';
+    return { age, phase: ph, illum: ill, name };
+  },
+  /** Длина тени вертикального предмета высотой h при высоте Солнца alt */
+  shadow: (h, alt) => alt > 0.05 ? h / Math.tan(alt * RAD) : Infinity,
+  /** Моменты суток UTC, когда высота Солнца равна alt (утро и вечер) */
+  whenAlt(date, lat, lon, alt) {
+    const d0 = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()), out = [];
+    const f = m => astro.sun(new Date(d0 + m * 60000), lat, lon).alt - alt;
+    let prev = f(-720);
+    for (let m = -719; m <= 2160; m++) {
+      const cur = f(m);
+      if ((prev < 0) !== (cur < 0)) {
+        let a = m - 1, b = m;
+        for (let i = 0; i < 24; i++) { const mid = (a + b) / 2; ((f(a) < 0) === (f(mid) < 0)) ? (a = mid) : (b = mid); }
+        const t = new Date(d0 + ((a + b) / 2) * 60000);
+        if (t.getTime() >= d0 && t.getTime() < d0 + 86400000) out.push({ t, rising: cur > prev });
+      }
+      prev = cur;
+    }
+    return out;
+  },
+  /** Местное время (строка) по смещению в минутах от UTC */
+  local: (d, offMin = 0) => new Date(d.getTime() + offMin * 60000).toISOString().replace('T', ' ').slice(0, 16),
+  compass: deg => ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ'][Math.round((((deg % 360) + 360) % 360) / 45) % 8]
+};
+GE.astro = astro;
+
+const WMO = { 0: 'ясно', 1: 'преимущественно ясно', 2: 'переменная облачность', 3: 'пасмурно', 45: 'туман', 48: 'изморозевый туман', 51: 'слабая морось', 53: 'морось', 55: 'сильная морось', 56: 'ледяная морось', 57: 'сильная ледяная морось', 61: 'слабый дождь', 63: 'дождь', 65: 'сильный дождь', 66: 'ледяной дождь', 67: 'сильный ледяной дождь', 71: 'слабый снег', 73: 'снег', 75: 'сильный снег', 77: 'снежные зёрна', 80: 'ливень', 81: 'сильный ливень', 82: 'очень сильный ливень', 85: 'снегопад', 86: 'сильный снегопад', 95: 'гроза', 96: 'гроза с градом', 99: 'сильная гроза с градом' };
+GE.weatherText = code => WMO[code] || ('код ' + code);
+
+/* ─────────── настройки и реестр ─────────── */
+const cfg = () => {
+  const s = GE.settings;
+  if (!s.plugins || typeof s.plugins !== 'object') s.plugins = {};
+  if (!Array.isArray(s.plugins.off)) s.plugins.off = [];
+  if (!Array.isArray(s.plugins.custom)) s.plugins.custom = [];
+  return s.plugins;
+};
+const REG = [];
+const reg = def => { REG.push(Object.assign({ sends: 'цель поиска', grp: 'Прочее' }, def)); };
+const byId = id => REG.find(p => p.id === id);
+const isOn = id => !cfg().off.includes(id);
+const ctxFor = (h = {}, type = '') => ({ type, net, esc, A, kv, kvMd, list, listMd, thumbs, table, pivot, plain, cut, num, one, yr, dt, hav, note, mdT, astro, setHud: h.setHud || (() => {}), addNode: h.addNode || (() => {}) });
+
+/* ─────────── свои источники (ссылки-шаблоны) ─────────── */
+const CX_GROUP = 'Мои источники';
+const cleanEngine = r => {
+  const n = String(r && r.n || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+  const tpl = String(r && r.tpl || '').trim();
+  if (!n) throw new Error('Укажите название');
+  if (tpl.length > 300) throw new Error('Шаблон длиннее 300 символов');
+  if (!tpl.includes('{q}')) throw new Error('В шаблоне нужен маркер {q}');
+  let u;
+  try { u = new URL(tpl.split('{q}').join('test')); } catch (e) { throw new Error('Шаблон не похож на ссылку'); }
+  if (!/^https?:$/.test(u.protocol)) throw new Error('Разрешены только ссылки http(s)');
+  if (u.username || u.password) throw new Error('Логин и пароль в ссылке запрещены');
+  const t = (Array.isArray(r.t) ? r.t : []).filter(x => GE.QTYPES[x] && x !== 'auto');
+  if (!t.length) throw new Error('Выберите хотя бы один тип цели');
+  const id = r.id && /^cx_[a-z0-9_]+$/.test(r.id) ? r.id : GE.uid('cx');
+  return { id, n, d: String(r.d || '').trim().slice(0, 120) || u.hostname, tpl, t };
+};
+const syncEngines = () => {
+  for (let i = GE.ENGINES.length - 1; i >= 0; i--) if (GE.ENGINES[i].cid) GE.ENGINES.splice(i, 1);
+  const keep = [];
+  cfg().custom.forEach(r => {
+    try {
+      const c = cleanEngine(r);
+      keep.push(c);
+      GE.ENGINES.push({ n: c.n, d: c.d, c: CX_GROUP, reg: 'global', t: c.t.slice(), cid: c.id, u: q => safe(c.tpl.split('{q}').join(E(q))) || '#' });
+    } catch (e) { /* импортированная запись не прошла проверку — отбрасываем */ }
+  });
+  cfg().custom = keep;
+};
+
+/* ─────────── плагины ─────────── */
+const GRP = { arch: 'Архивы и наука', soc: 'Профили и сообщества', net: 'Сеть и инфраструктура', geo: 'Гео и окружающая среда', vuln: 'Уязвимости', chain: 'Блокчейн', link: 'Ссылки и организации', sky: 'Космос' };
+const quote = q => /[\s.]/.test(q) ? `"${q.replace(/"/g, '')}"` : q;
+const mailHost = (q, type) => String(type === 'email' ? q.split('@').pop() : q).toLowerCase();
+const brg = (la1, lo1, la2, lo2) => {
+  const r = Math.PI / 180, y = Math.sin((lo2 - lo1) * r) * Math.cos(la2 * r);
+  const x = Math.cos(la1 * r) * Math.sin(la2 * r) - Math.sin(la1 * r) * Math.cos(la2 * r) * Math.cos((lo2 - lo1) * r);
+  return (Math.atan2(y, x) / r + 360) % 360;
+};
+const coordsOf = q => { const c = GE.parseCoords(q); if (!c) throw new Error('не удалось разобрать координаты'); return c; };
+
+/* ── Архивы и наука ── */
+const MT = { texts: 'книга', audio: 'аудио', movies: 'видео', image: 'фото', software: 'софт', web: 'веб', data: 'данные', collection: 'коллекция', etree: 'концерт', education: 'обучение' };
+reg({
+  id: 'ia', name: 'Internet Archive · книги, документы, медиа', grp: GRP.arch, host: 'archive.org', types: ['text', 'org', 'place', 'domain', 'username'],
+  info: 'Каталог Internet Archive: оцифрованные книги, журналы, документы, аудио и видео. Сортировка по числу скачиваний.',
+  home: 'https://archive.org', site: q => 'https://archive.org/search?query=' + E(q), test: ['text', 'lighthouse keeper'],
+  run: async (q, x) => {
+    const r = await x.net(`https://archive.org/advancedsearch.php?q=${E(quote(q))}&fl[]=identifier&fl[]=title&fl[]=mediatype&fl[]=year&fl[]=downloads&rows=8&output=json&sort[]=${E('downloads desc')}`);
+    const d = r.response || {};
+    const it = (d.docs || []).map(o => ({ tag: MT[o.mediatype] || o.mediatype || '', title: x.cut(x.one(o.title) || o.identifier, 90), sub: o.year ? String(x.one(o.year)) : '', r: o.downloads ? x.num(o.downloads) + ' скач.' : '', href: 'https://archive.org/details/' + E(o.identifier) }));
+    return { html: x.note(`Найдено записей: ${x.num(d.numFound)}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'olib', name: 'Open Library · книги и издания', grp: GRP.arch, host: 'openlibrary.org', types: ['text', 'org', 'place'],
+  info: 'Каталог книг Open Library: авторы, год первого издания, число изданий.',
+  home: 'https://openlibrary.org', site: q => 'https://openlibrary.org/search?q=' + E(q), test: ['text', 'sherlock holmes'],
+  run: async (q, x) => {
+    const r = await x.net(`https://openlibrary.org/search.json?q=${E(q)}&limit=8&fields=key,title,author_name,first_publish_year,edition_count`);
+    const it = (r.docs || []).map(o => ({ tag: o.first_publish_year || 'книга', title: x.cut(o.title, 90), sub: (o.author_name || []).slice(0, 3).join(', '), r: o.edition_count ? `${o.edition_count} изд.` : '', href: 'https://openlibrary.org' + o.key }));
+    return { html: x.note(`Найдено: ${x.num(r.numFound)}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'crossref', name: 'Crossref · научные публикации', grp: GRP.arch, host: 'api.crossref.org', types: ['text', 'org'],
+  info: 'Метаданные научных статей и книг: авторы, журнал, год, DOI.',
+  home: 'https://www.crossref.org', site: q => 'https://search.crossref.org/?q=' + E(q), test: ['text', 'open source intelligence'],
+  run: async (q, x) => {
+    const r = await x.net(`https://api.crossref.org/works?query=${E(q)}&rows=6&select=DOI,title,author,issued,container-title,type`);
+    const m = r.message || {};
+    const it = (m.items || []).map(o => ({
+      tag: x.yr((((o.issued || {})['date-parts'] || [[]])[0] || [])[0]) || o.type || 'DOI',
+      title: x.cut(x.one(o.title) || o.DOI, 100),
+      sub: [(o.author || []).slice(0, 3).map(a => [a.given, a.family].filter(Boolean).join(' ')).join(', '), x.one(o['container-title'])].filter(Boolean).join(' · '),
+      href: 'https://doi.org/' + o.DOI
+    }));
+    return { html: x.note(`Всего записей: ${x.num(m['total-results'])}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'openalex', name: 'OpenAlex · научные работы', grp: GRP.arch, host: 'api.openalex.org', types: ['text', 'org'],
+  info: 'Открытый граф научных работ: авторы, год, число цитирований. Дневной лимит общий для всех анонимных запросов.',
+  home: 'https://openalex.org', site: q => 'https://openalex.org/works?search=' + E(q), test: ['text', 'open source intelligence'],
+  run: async (q, x) => {
+    const r = await x.net(`https://api.openalex.org/works?search=${E(q)}&per-page=6&select=id,display_name,publication_year,cited_by_count,doi,authorships`);
+    const it = (r.results || []).map(o => ({
+      tag: o.publication_year || 'работа', title: x.cut(o.display_name, 100),
+      sub: (o.authorships || []).slice(0, 3).map(a => a.author && a.author.display_name).filter(Boolean).join(', '),
+      r: o.cited_by_count ? `цит. ${x.num(o.cited_by_count)}` : '', href: o.doi || o.id
+    }));
+    return { html: x.note(`Найдено работ: ${x.num((r.meta || {}).count)}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'commons', name: 'Wikimedia Commons · свободные файлы', grp: GRP.arch, host: 'commons.wikimedia.org', types: ['text', 'org', 'place'],
+  info: 'Свободные фото и документы с указанием автора и лицензии (подсказка при наведении на превью). Удобно для сверки мест и объектов.',
+  home: 'https://commons.wikimedia.org', site: q => 'https://commons.wikimedia.org/w/index.php?search=' + E(q) + '&ns6=1', test: ['text', 'Eiffel Tower'],
+  run: async (q, x) => {
+    const r = await x.net(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${E(q)}&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=200&format=json&origin=*`);
+    const pages = Object.values((r.query || {}).pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+    const it = pages.map(p => {
+      const ii = (p.imageinfo || [])[0]; if (!ii) return null;
+      const m = ii.extmetadata || {};
+      return { img: ii.thumburl || ii.url, href: ii.descriptionurl, title: p.title.replace(/^File:/, '').replace(/\.[a-z0-9]+$/i, ''), hint: [x.plain((m.Artist || {}).value), (m.LicenseShortName || {}).value, x.plain((m.DateTimeOriginal || {}).value)].filter(Boolean).join(' · ') };
+    }).filter(Boolean);
+    return { html: x.note('Файлы Commons: у каждого указаны автор и лицензия.') + x.thumbs(it), md: x.listMd(it.map(i => ({ title: i.title, href: i.href, sub: i.hint }))) };
+  }
+});
+
+/* ── Профили и сообщества (только публичные профили) ── */
+reg({
+  id: 'hn', name: 'Hacker News · упоминания', grp: GRP.soc, host: 'hn.algolia.com', types: ['text', 'org', 'domain', 'url', 'username'],
+  info: 'Обсуждения и ссылки на Hacker News. Для доменов и ссылок ищет по адресу материала.',
+  home: 'https://news.ycombinator.com', site: q => 'https://hn.algolia.com/?q=' + E(q), test: ['domain', 'example.com'],
+  run: async (q, x) => {
+    const byUrl = x.type === 'domain' || x.type === 'url';
+    const query = x.type === 'url' ? q.replace(/^https?:\/\//i, '').replace(/[?#].*$/, '') : byUrl ? q : quote(q);
+    const r = await x.net(`https://hn.algolia.com/api/v1/search?query=${E(query)}&tags=story&hitsPerPage=8${byUrl ? '&restrictSearchableAttributes=url&typoTolerance=false' : ''}`);
+    const it = (r.hits || []).map(o => ({
+      tag: x.yr(o.created_at) || 'HN', title: x.cut(o.title || o.story_title || '(без заголовка)', 100),
+      sub: [o.url ? GE.host(o.url) : '', o.author ? 'автор ' + o.author : ''].filter(Boolean).join(' · '),
+      r: `${o.points || 0} · ${o.num_comments || 0} комм.`, href: 'https://news.ycombinator.com/item?id=' + o.objectID
+    }));
+    return { html: x.note(`Найдено материалов: ${x.num(r.nbHits)}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'github', name: 'GitHub · профили и репозитории', grp: GRP.soc, host: 'api.github.com', types: ['username', 'domain', 'org'],
+  info: 'Публичные профили по логину и репозитории по названию или упоминанию домена. Лимит GitHub: около 10 поисковых запросов в минуту.',
+  home: 'https://github.com', site: q => 'https://github.com/search?q=' + E(q), test: ['username', 'torvalds'],
+  run: async (q, x) => {
+    let html = '', md = '';
+    if (x.type === 'username') {
+      const u = await x.net(`https://api.github.com/search/users?q=${E(q + ' in:login')}&per_page=5`);
+      const us = (u.items || []).map(o => ({ tag: o.type === 'Organization' ? 'орг.' : 'польз.', title: o.login, href: o.html_url }));
+      html += x.note(`Профили с таким логином: ${x.num(u.total_count)}`) + x.list(us); md += x.listMd(us);
+      const exact = (u.items || []).find(o => o.login.toLowerCase() === q.toLowerCase());
+      if (exact) {
+        const r = await x.net(`https://api.github.com/search/repositories?q=${E('user:' + exact.login)}&sort=stars&per_page=5`).catch(() => null);
+        const rs = ((r && r.items) || []).map(o => ({ tag: o.language || 'repo', title: o.full_name, sub: x.cut(o.description, 100), r: `${x.num(o.stargazers_count)} ★`, href: o.html_url }));
+        if (rs.length) { html += `<div class="pl-sub">Популярные репозитории ${x.esc(exact.login)}</div>` + x.list(rs); md += '\n' + x.listMd(rs); }
+      }
+    } else {
+      const term = x.type === 'domain' ? `"${q}" in:readme` : `${q} in:name,description`;
+      const r = await x.net(`https://api.github.com/search/repositories?q=${E(term)}&sort=stars&per_page=8`);
+      const rs = (r.items || []).map(o => ({ tag: o.language || 'repo', title: o.full_name, sub: x.cut(o.description, 100), r: `${x.num(o.stargazers_count)} ★`, href: o.html_url }));
+      html = x.note(`Найдено репозиториев: ${x.num(r.total_count)}`) + x.list(rs); md = x.listMd(rs);
+    }
+    return { html, md };
+  }
+});
+
+reg({
+  id: 'so-users', name: 'Stack Overflow · пользователи', grp: GRP.soc, host: 'api.stackexchange.com', types: ['username'],
+  info: 'Публичные профили Stack Overflow по имени: репутация, год регистрации, значки.',
+  home: 'https://stackoverflow.com/users', site: q => 'https://stackoverflow.com/users?tab=Reputation&filter=all&search=' + E(q), test: ['username', 'jon skeet'],
+  run: async (q, x) => {
+    const r = await x.net(`https://api.stackexchange.com/2.3/users?inname=${E(q)}&site=stackoverflow&pagesize=6&order=desc&sort=reputation`);
+    const it = (r.items || []).map(o => ({ tag: o.creation_date ? x.yr(x.dt(o.creation_date)) : 'SO', title: x.plain(o.display_name), sub: o.badge_counts ? `значки: ${o.badge_counts.gold}з ${o.badge_counts.silver}с ${o.badge_counts.bronze}б` : '', r: `реп. ${x.num(o.reputation)}`, href: o.link }));
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'so-search', name: 'Stack Overflow · упоминания', grp: GRP.soc, host: 'api.stackexchange.com', types: ['cve', 'domain'],
+  info: 'Вопросы и ответы Stack Overflow, где встречается CVE или домен: быстро показывает, как уязвимость проявляется на практике.',
+  home: 'https://stackoverflow.com', site: q => 'https://stackoverflow.com/search?q=' + E(q), test: ['cve', 'CVE-2021-44228'],
+  run: async (q, x) => {
+    const r = await x.net(`https://api.stackexchange.com/2.3/search/excerpts?q=${E(q)}&site=stackoverflow&pagesize=6&sort=relevance`);
+    const it = (r.items || []).map(o => ({ tag: o.item_type === 'answer' ? 'ответ' : 'вопрос', title: x.cut(x.plain(o.title), 100), sub: (o.tags || []).slice(0, 4).join(', '), r: `${o.score} · ${x.dt(o.creation_date)}`, href: 'https://stackoverflow.com/q/' + o.question_id }));
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'bsky', name: 'Bluesky · поиск профилей', grp: GRP.soc, host: 'public.api.bsky.app', types: ['username'],
+  info: 'Поиск публичных профилей Bluesky по нику или имени: описание и дата индексации.',
+  home: 'https://bsky.app', site: q => 'https://bsky.app/search?q=' + E(q), test: ['username', 'bsky.app'],
+  run: async (q, x) => {
+    const r = await x.net(`https://public.api.bsky.app/xrpc/app.bsky.actor.searchActors?q=${E(q)}&limit=6`);
+    const it = (r.actors || []).map(o => ({ tag: 'bsky', title: o.displayName ? `${x.plain(o.displayName)} (@${o.handle})` : '@' + o.handle, sub: x.cut(o.description, 110), href: 'https://bsky.app/profile/' + E(o.handle) }));
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'mastodon', name: 'Mastodon · поиск аккаунтов', grp: GRP.soc, host: 'mastodon.social', types: ['username'],
+  info: 'Публичные аккаунты, известные серверу mastodon.social (в том числе с других инстансов). Показывает число подписчиков.',
+  home: 'https://mastodon.social', site: q => 'https://mastodon.social/search?q=' + E(q), test: ['username', 'gargron'],
+  run: async (q, x) => {
+    const r = await x.net(`https://mastodon.social/api/v2/search?q=${E(q)}&type=accounts&limit=6`);
+    const it = (r.accounts || []).map(o => ({ tag: 'mastodon', title: o.display_name ? `${x.plain(o.display_name)} (@${o.acct})` : '@' + o.acct, sub: x.cut(x.plain(o.note), 110), r: `${x.num(o.followers_count)} подп.`, href: o.url }));
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'lemmy', name: 'Lemmy · пользователи', grp: GRP.soc, host: 'lemmy.world', types: ['username'],
+  info: 'Публичные профили федеративной сети Lemmy (через lemmy.world): дата регистрации, число постов и комментариев.',
+  home: 'https://lemmy.world', site: q => 'https://lemmy.world/search?q=' + E(q) + '&type=Users', test: ['username', 'venite'],
+  run: async (q, x) => {
+    const r = await x.net(`https://lemmy.world/api/v3/search?q=${E(q)}&type_=Users&limit=6&sort=TopAll`);
+    const it = (r.users || []).map(o => { const p = o.person || {}, c = o.counts || {}; return { tag: x.yr(p.published) || 'lemmy', title: p.display_name ? `${x.plain(p.display_name)} (${p.name})` : p.name, sub: x.cut(x.plain(p.bio), 100), r: `${c.post_count || 0} пост. · ${c.comment_count || 0} комм.`, href: p.actor_id }; });
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'codeberg', name: 'Codeberg · пользователи', grp: GRP.soc, host: 'codeberg.org', types: ['username'],
+  info: 'Публичные профили на Codeberg (свободный хостинг кода): логин и отображаемое имя.',
+  home: 'https://codeberg.org', site: q => 'https://codeberg.org/explore/users?q=' + E(q), test: ['username', 'gitea'],
+  run: async (q, x) => {
+    const r = await x.net(`https://codeberg.org/api/v1/users/search?q=${E(q)}&limit=6`, { ms: 15000 });
+    const it = (r.data || []).map(o => ({ tag: x.yr(o.created) || 'git', title: o.full_name ? `${o.full_name} (${o.login})` : o.login, href: o.html_url }));
+    return { html: x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'npm', name: 'npm · пакеты автора', grp: GRP.soc, host: 'registry.npmjs.org', types: ['username', 'domain'],
+  info: 'Пакеты, где ник указан мейнтейнером (для доменов — пакеты, упоминающие адрес). Показывает версию и дату последнего релиза.',
+  home: 'https://www.npmjs.com', site: q => 'https://www.npmjs.com/search?q=' + E(q), test: ['username', 'sindresorhus'],
+  run: async (q, x) => {
+    const text = x.type === 'username' ? 'maintainer:' + q : q;
+    const r = await x.net(`https://registry.npmjs.org/-/v1/search?text=${E(text)}&size=8`);
+    const it = (r.objects || []).map(o => { const p = o.package || {}; return { tag: 'v' + p.version, title: p.name, sub: x.cut(p.description, 100), r: p.date ? x.dt(p.date) : '', href: (p.links || {}).npm }; });
+    return { html: x.note(`Найдено пакетов: ${x.num(r.total)}`) + x.list(it), md: x.listMd(it) };
+  }
+});
+
+/* ── Сеть и инфраструктура ── */
+reg({
+  id: 'certspotter', name: 'Cert Spotter · сертификаты и поддомены', grp: GRP.net, host: 'api.certspotter.com', types: ['domain', 'email'],
+  info: 'Журналы Certificate Transparency: поддомены, издатели и даты выпуска сертификатов. Независимая сверка с crt.sh. Лимит анонимных запросов: около 100 в час.',
+  home: 'https://sslmate.com/certspotter/', site: q => 'https://crt.sh/?q=' + E(mailHost(q, q.includes('@') ? 'email' : '')), sends: 'домен (для email — только часть после @)', test: ['domain', 'example.com'],
+  run: async (q, x) => {
+    const d = mailHost(q, x.type);
+    const r = await x.net(`https://api.certspotter.com/v1/issuances?domain=${E(d)}&include_subdomains=true&expand=dns_names&expand=issuer`, { ms: 20000 });
+    if (!Array.isArray(r) || !r.length) return { html: x.note('Выпущенных сертификатов в журналах CT не найдено.'), md: '' };
+    const names = new Set(), issuers = {};
+    let wild = 0, first = '', last = '';
+    r.forEach(c => {
+      (c.dns_names || []).forEach(n => { n = String(n).toLowerCase(); if (n.startsWith('*.')) { wild++; n = n.slice(2); } if (n === d || n.endsWith('.' + d)) names.add(n); });
+      if (c.not_before) { if (!first || c.not_before < first) first = c.not_before; if (!last || c.not_before > last) last = c.not_before; }
+      const iss = c.issuer && (c.issuer.friendly_name || (String(c.issuer.name || '').match(/O=([^,]+)/) || [])[1]);
+      if (iss) issuers[iss] = (issuers[iss] || 0) + 1;
+    });
+    const subs = [...names].filter(n => n !== d).sort();
+    const top = Object.entries(issuers).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, c]) => `${n} (${c})`).join(', ');
+    x.setHud('ct2', 'CERT SPOTTER', `${subs.length} поддоменов`);
+    subs.slice(0, 8).forEach(s => x.addNode(s, 'поддомен (Cert Spotter)', 'source', { url: 'https://' + s }));
+    const pairs = [['Выпусков в ответе', r.length], ['Первый выпуск', x.dt(first)], ['Последний выпуск', x.dt(last)], ['Уникальных имён', names.size], ['Wildcard-сертификатов (*.)', wild], ['Основные издатели', top]];
+    return {
+      html: x.kv(pairs) + (subs.length ? `<div class="dim" style="font-size:11px;margin:10px 0 6px">Поддомены из сертификатов (нажмите для скана):</div><div>${subs.slice(0, 40).map(s => x.pivot(s, 'domain')).join('')}${subs.length > 40 ? ` <span class="dim">и ещё ${subs.length - 40}</span>` : ''}</div>` : ''),
+      md: x.kvMd(pairs) + (subs.length ? '\n- **Поддомены:** ' + subs.slice(0, 40).join(', ') : '')
+    };
+  }
+});
+
+reg({
+  id: 'hackertarget', name: 'HackerTarget · хосты домена', grp: GRP.net, host: 'api.hackertarget.com', types: ['domain'],
+  info: 'Пассивные DNS-данные: известные имена хостов домена и их IP-адреса. Бесплатный лимит: около 50 запросов в сутки с одного адреса.',
+  home: 'https://hackertarget.com', site: q => 'https://hackertarget.com/find-dns-host-records/?q=' + E(q), test: ['domain', 'example.com'],
+  run: async (q, x) => {
+    const t = (await x.net(`https://api.hackertarget.com/hostsearch/?q=${E(q)}`, { text: true, ms: 15000 })).trim();
+    if (/^(error|API count exceeded)/i.test(t)) throw new Error(t.slice(0, 80));
+    if (!t || /^no records/i.test(t)) return { html: x.note('Записей не найдено.'), md: '' };
+    const rows = t.split('\n').map(l => l.split(',')).filter(a => a.length >= 2 && a[0]).slice(0, 60);
+    rows.slice(0, 8).forEach(([h]) => x.addNode(h, 'хост (HackerTarget)', 'source', { url: 'https://' + h }));
+    return {
+      html: x.note(`Хостов в ответе: ${rows.length}`) + x.table(['Хост', 'IP'], rows.map(([h, ip]) => [{ raw: x.pivot(h, 'domain') }, { raw: x.pivot(ip, 'ip') }])),
+      md: rows.map(([h, ip]) => `- ${h} → ${ip}`).join('\n')
+    };
+  }
+});
+
+reg({
+  id: 'doh', name: 'DNS · сверка Cloudflare и Google', grp: GRP.net, host: 'cloudflare-dns.com, dns.google', types: ['domain', 'email'],
+  info: 'Запрашивает A, AAAA, NS и MX у двух независимых публичных резолверов и показывает расхождения. Различия бывают у CDN и гео-DNS, но могут указывать на подмену.',
+  home: 'https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/', sends: 'домен (для email — только часть после @)', test: ['domain', 'example.com'],
+  run: async (q, x) => {
+    const d = mailHost(q, x.type), KINDS = [['A', 1], ['AAAA', 28], ['NS', 2], ['MX', 15]];
+    const ask = async (who, [t, code]) => {
+      const r = who === 'cf' ? await x.net(`https://cloudflare-dns.com/dns-query?name=${E(d)}&type=${t}`, { headers: { accept: 'application/dns-json' } }) : await x.net(`https://dns.google/resolve?name=${E(d)}&type=${t}`);
+      return { ad: !!r.AD, set: [...new Set((r.Answer || []).filter(a => a.type === code).map(a => String(a.data).replace(/\.$/, '').toLowerCase()))].sort() };
+    };
+    const rows = await Promise.all(KINDS.map(async k => { const [c, g] = await Promise.all([ask('cf', k), ask('g', k)]); return { t: k[0], c, g }; }));
+    const same = r => r.c.set.join('|') === r.g.set.join('|');
+    const diff = rows.filter(r => !same(r) && (r.c.set.length || r.g.set.length));
+    x.setHud('dnscmp', 'DNS-РЕЗОЛВЕРЫ', diff.length ? 'расхождение: ' + diff.map(r => r.t).join(', ') : 'совпадают', diff.length ? 'hi' : '');
+    const cell = s => s.length ? s.join(', ') : '—';
+    return {
+      html: x.table(['Тип', 'Cloudflare 1.1.1.1', 'Google 8.8.8.8', 'Итог'], rows.map(r => [r.t, cell(r.c.set), cell(r.g.set), { raw: same(r) ? 'совпало' : 'различается', cls: same(r) ? '' : 'diff' }]))
+        + x.note(`DNSSEC подтверждён: Cloudflare — ${rows[0].c.ad ? 'да' : 'нет'}, Google — ${rows[0].g.ad ? 'да' : 'нет'}.`),
+      md: rows.map(r => `- ${r.t}: Cloudflare [${cell(r.c.set)}] · Google [${cell(r.g.set)}] — ${same(r) ? 'совпало' : 'различается'}`).join('\n')
+    };
+  }
+});
+
+reg({
+  id: 'ipgeo', name: 'IP · сверка геолокации (ipinfo + ipwho.is)', grp: GRP.net, host: 'ipinfo.io, ipwho.is', types: ['ip'],
+  info: 'Две независимые базы геолокации рядом, с расчётом расхождения в километрах. Точность — город или провайдер, но не адрес человека.',
+  home: 'https://ipinfo.io', sends: 'IP-адрес', site: q => 'https://ipinfo.io/' + E(q), test: ['ip', '8.8.8.8'],
+  run: async (q, x) => {
+    const [a, b] = await Promise.allSettled([x.net(`https://ipinfo.io/${E(q)}/json`), x.net(`https://ipwho.is/${E(q)}`)]);
+    const I = a.status === 'fulfilled' && !a.value.error ? a.value : null;
+    const W = b.status === 'fulfilled' && b.value.success !== false ? b.value : null;
+    if (!I && !W) throw new Error((a.reason && a.reason.message) || (b.reason && b.reason.message) || 'обе базы недоступны');
+    const il = I && I.loc ? I.loc.split(',').map(Number) : null;
+    const wl = W && isFinite(W.latitude) && W.latitude !== null ? [+W.latitude, +W.longitude] : null;
+    const ll = (p, tag) => p ? { raw: x.pivot(`${p[0]}, ${p[1]}`, 'coords', `${p[0].toFixed(3)}, ${p[1].toFixed(3)}`) } : '—';
+    const c = W && W.connection || {};
+    const rows = [
+      ['Страна', I ? I.country : '—', W ? `${W.country} (${W.country_code})` : '—'],
+      ['Регион', I ? I.region : '—', W ? W.region : '—'],
+      ['Город', I ? I.city : '—', W ? W.city : '—'],
+      ['Индекс', I ? I.postal : '—', W ? W.postal : '—'],
+      ['Координаты', ll(il), ll(wl)],
+      ['Организация / ASN', I ? I.org : '—', W ? [c.org, c.asn ? 'AS' + c.asn : ''].filter(Boolean).join(' · ') : '—'],
+      ['Провайдер', '—', c.isp || '—'],
+      ['Домен / hostname', I ? I.hostname : '—', c.domain || '—'],
+      ['Часовой пояс', I ? I.timezone : '—', W && W.timezone ? W.timezone.id : '—']
+    ].map(r => r.map(v => v === undefined || v === null || v === '' ? '—' : v));
+    const dist = il && wl ? hav(il[0], il[1], wl[0], wl[1]) : null;
+    const where = [I ? I.city : W && W.city, I ? I.country : W && W.country_code].filter(Boolean).join(', ');
+    if (where) { x.setHud('ipgeo', 'IP-ГЕО (≈)', where); x.addNode(where, 'геолокация IP (≈ город)', 'geo'); }
+    if (I && I.bogon) x.setHud('bogon', 'АДРЕС', 'частный / зарезервированный', 'hi');
+    return {
+      html: x.table(['Параметр', 'ipinfo.io', 'ipwho.is'], rows)
+        + x.note((dist !== null ? `Расхождение координат двух баз: ${dist < 1 ? '<1' : Math.round(dist)} км. ` : '') + 'Геолокация IP показывает регион провайдера: по ней нельзя определить, где находится человек.'),
+      md: rows.map(r => `- ${r[0]}: ${[r[1], r[2]].map(v => (v && v.raw ? v.raw.replace(/<[^>]+>/g, '') : v)).join(' | ')}`).join('\n') + (dist !== null ? `\n- Расхождение баз: ${Math.round(dist)} км` : '')
+    };
+  }
+});
+
+reg({
+  id: 'tor', name: 'Tor Project · это узел сети Tor?', grp: GRP.net, host: 'onionoo.torproject.org', types: ['ip'],
+  info: 'Проверка IP по официальному списку узлов Tor (Onionoo): роль (входной, выходной, мост), страна, даты наблюдения. Контакты операторов не показываются.',
+  home: 'https://metrics.torproject.org', sends: 'IP-адрес', site: q => 'https://metrics.torproject.org/rs.html#search/' + E(q), test: ['ip', '185.220.101.1'],
+  run: async (q, x) => {
+    const r = await x.net(`https://onionoo.torproject.org/details?search=${E(q)}&fields=nickname,flags,country,first_seen,last_seen,running,as_name,or_addresses,exit_addresses&limit=25`, { ms: 20000 });
+    const mine = (r.relays || []).filter(rl => (rl.exit_addresses || []).includes(q) || (rl.or_addresses || []).some(a => a.startsWith(q + ':') || a.startsWith('[' + q + ']:')));
+    if (!mine.length) { x.setHud('tor', 'TOR', 'не узел'); return { html: x.note('Этот IP не найден среди узлов Tor в текущем консенсусе.'), md: '- Не является узлом Tor (по текущему консенсусу)' }; }
+    const o = mine[0], roles = (o.flags || []).filter(f => ['Exit', 'Guard', 'HSDir', 'Authority', 'BadExit'].includes(f));
+    x.setHud('tor', 'TOR', roles.includes('Exit') ? 'ВЫХОДНОЙ УЗЕЛ' : 'узел сети', roles.includes('Exit') ? 'alert' : 'hi');
+    const pairs = [['Позывной узла', o.nickname], ['Роли', roles.join(', ') || 'ретранслятор'], ['Страна', (o.country || '').toUpperCase()], ['Автономная система', o.as_name], ['Первое наблюдение', o.first_seen], ['Последнее наблюдение', o.last_seen], ['Сейчас в сети', o.running ? 'да' : 'нет'], ['Узлов с этим IP', mine.length]];
+    return { html: x.kv(pairs) + x.note('Адрес Tor-узла не означает, что за ним стоит конкретный человек: через него ходят тысячи пользователей.'), md: x.kvMd(pairs) };
+  }
+});
+
+reg({
+  id: 'peeringdb', name: 'PeeringDB · сеть и точки обмена', grp: GRP.net, host: 'www.peeringdb.com', types: ['asn'], when: q => /^AS\d+$/i.test(q),
+  info: 'Карточка автономной системы: название, сайт, тип сети, политика пиринга, число префиксов и точки обмена трафиком (IX).',
+  home: 'https://www.peeringdb.com', sends: 'номер ASN', site: q => 'https://www.peeringdb.com/asn/' + E(q.replace(/\D/g, '')), test: ['asn', 'AS13335'],
+  run: async (q, x) => {
+    const n = q.replace(/\D/g, '');
+    const r = await x.net(`https://www.peeringdb.com/api/net?asn=${n}`);
+    const o = (r.data || [])[0];
+    if (!o) return { html: x.note('Эта сеть не зарегистрирована в PeeringDB.'), md: '' };
+    const ix = await x.net(`https://www.peeringdb.com/api/netixlan?asn=${n}&limit=250&fields=ix_id,name`).catch(() => null);
+    const ixs = ix ? [...new Map((ix.data || []).map(i => [i.ix_id, i.name])).values()] : [];
+    x.setHud('pdb', 'PEERINGDB', o.name);
+    x.addNode(o.name, 'оператор сети (PeeringDB)', 'org');
+    const pairs = [['Название', o.name], ['Также известна как', o.aka], ['Сайт', o.website && x.A(o.website), 1], ['Тип сети', o.info_type], ['Охват', o.info_scope], ['Трафик', o.info_traffic], ['Политика пиринга', o.policy_general], ['Префиксов IPv4 / IPv6', `${o.info_prefixes4 || 0} / ${o.info_prefixes6 || 0}`], ['IRR as-set', o.irr_as_set], ['Точек обмена (IX)', ix ? ixs.length : ''], ['Примеры IX', ixs.slice(0, 6).join(' · ')], ['Обновлено', x.dt(o.updated)]];
+    return { html: x.kv(pairs), md: x.kvMd(pairs.map(p => p[2] ? [p[0], o.website] : p)) };
+  }
+});
+
+reg({
+  id: 'disposable', name: 'Kickbox · одноразовый домен почты', grp: GRP.net, host: 'open.kickbox.com', types: ['email'],
+  info: 'Определяет, относится ли домен адреса к сервисам временной почты. Отправляется только домен, имя ящика остаётся у вас.',
+  home: 'https://open.kickbox.com', sends: 'только домен из адреса', test: ['email', 'user@mailinator.com'],
+  run: async (q, x) => {
+    const d = mailHost(q, 'email');
+    const r = await x.net('https://open.kickbox.com/v1/disposable/' + E(d));
+    x.setHud('disp', 'ПОЧТОВЫЙ ДОМЕН', r.disposable ? 'ОДНОРАЗОВЫЙ' : 'обычный', r.disposable ? 'hi' : '');
+    const pairs = [['Домен', d], ['Временная (одноразовая) почта', r.disposable ? 'ДА' : 'нет в списке']];
+    return { html: x.kv(pairs), md: x.kvMd(pairs) };
+  }
+});
+
+/* ── Гео и окружающая среда ── */
+reg({
+  id: 'wiki-near', name: 'Википедия · статьи рядом с точкой', grp: GRP.geo, host: 'ru.wikipedia.org, en.wikipedia.org', types: ['coords'],
+  info: 'Статьи Википедии с координатами в радиусе 5 км: названия объектов, расстояние и направление от вашей точки. Основа для проверки места.',
+  home: 'https://www.wikipedia.org', sends: 'координаты', site: q => { const c = GE.parseCoords(q); return c ? `https://geohack.toolforge.org/geohack.php?params=${Math.abs(c.lat)}_${c.lat >= 0 ? 'N' : 'S'}_${Math.abs(c.lon)}_${c.lon >= 0 ? 'E' : 'W'}` : 'https://www.wikipedia.org'; }, test: ['coords', '48.8584,2.2945'],
+  run: async (q, x) => {
+    const c = coordsOf(q);
+    const get = lang => x.net(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${c.lat}|${c.lon}&gsradius=5000&gslimit=8&format=json&origin=*`).then(r => ((r.query || {}).geosearch || []).map(o => ({ lang, o })));
+    let rows = await get('ru');
+    if (rows.length < 4) rows = rows.concat(await get('en').catch(() => []));
+    const it = rows.slice(0, 12).map(({ lang, o }) => ({ tag: lang.toUpperCase(), title: o.title, sub: `${Math.round(o.dist)} м, направление ${x.astro.compass(brg(c.lat, c.lon, o.lat, o.lon))}`, href: `https://${lang}.wikipedia.org/?curid=${o.pageid}` }));
+    return { html: x.note('Статьи с координатами в радиусе 5 км.') + x.list(it), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'commons-near', name: 'Commons · фото рядом с точкой', grp: GRP.geo, host: 'commons.wikimedia.org', types: ['coords'],
+  info: 'Свободные фотографии, привязанные к координатам в радиусе 1 км. Сверьте ракурс, рельеф и застройку со своим снимком.',
+  home: 'https://commons.wikimedia.org', sends: 'координаты', site: q => { const c = GE.parseCoords(q); return c ? `https://commons.wikimedia.org/w/index.php?ns6=1&search=${E(`nearcoord:1km,${c.lat},${c.lon}`)}` : 'https://commons.wikimedia.org'; }, test: ['coords', '48.8584,2.2945'],
+  run: async (q, x) => {
+    const c = coordsOf(q);
+    const r = await x.net(`https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${c.lat}|${c.lon}&ggsradius=1000&ggslimit=12&ggsnamespace=6&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=200&format=json&origin=*`);
+    const pages = Object.values((r.query || {}).pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+    const it = pages.map(p => {
+      const ii = (p.imageinfo || [])[0]; if (!ii) return null;
+      const m = ii.extmetadata || {};
+      return { img: ii.thumburl || ii.url, href: ii.descriptionurl, title: p.title.replace(/^File:/, '').replace(/\.[a-z0-9]+$/i, ''), hint: [x.plain((m.DateTimeOriginal || {}).value), x.plain((m.Artist || {}).value), (m.LicenseShortName || {}).value].filter(Boolean).join(' · ') };
+    }).filter(Boolean);
+    return { html: x.note('Фото в радиусе 1 км от точки (источник — Wikimedia Commons).') + x.thumbs(it), md: x.listMd(it.map(i => ({ title: i.title, href: i.href, sub: i.hint }))) };
+  }
+});
+
+reg({
+  id: 'meteo', name: 'Open-Meteo · высота, пояс, Солнце и Луна', grp: GRP.geo, host: 'api.open-meteo.com', types: ['coords'],
+  info: 'Высота над уровнем моря, часовой пояс, погода сейчас, восход и закат плюс расчёт положения Солнца и фазы Луны. Основа для хронолокации по теням.',
+  home: 'https://open-meteo.com', sends: 'координаты', site: q => { const c = GE.parseCoords(q); return c ? `https://www.suncalc.org/#/${c.lat},${c.lon},16/` : 'https://www.suncalc.org'; }, test: ['coords', '48.8584,2.2945'],
+  run: async (q, x) => {
+    const c = coordsOf(q);
+    const r = await x.net(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,is_day,precipitation&daily=sunrise,sunset&timezone=auto&forecast_days=1`);
+    const cur = r.current || {}, off = (r.utc_offset_seconds || 0) / 60, now = new Date();
+    const sun = x.astro.sun(now, c.lat, c.lon), moon = x.astro.moon(now);
+    const sgn = off < 0 ? '−' : '+', ao = Math.abs(off), tz = `${r.timezone} (UTC${sgn}${String(Math.floor(ao / 60)).padStart(2, '0')}:${String(ao % 60).padStart(2, '0')})`;
+    x.setHud('elev', 'ВЫСОТА', `${Math.round(r.elevation)} м`);
+    x.setHud('tzc', 'ЧАСОВОЙ ПОЯС', r.timezone);
+    const pairs = [
+      ['Высота над уровнем моря', `${Math.round(r.elevation)} м (цифровая модель рельефа, ±10 м)`], ['Часовой пояс', tz], ['Местное время сейчас', x.astro.local(now, off)],
+      ['Погода сейчас', `${GE.weatherText(cur.weather_code)}, ${cur.temperature_2m} °C, облачность ${cur.cloud_cover}%`], ['Ветер', `${cur.wind_speed_10m} км/ч, ${x.astro.compass(cur.wind_direction_10m)}`],
+      ['Восход / закат сегодня', r.daily ? `${(r.daily.sunrise[0] || '').slice(11)} / ${(r.daily.sunset[0] || '').slice(11)} (местное)` : ''],
+      ['Солнце сейчас (расчёт)', `высота ${sun.alt.toFixed(1)}°, азимут ${sun.az.toFixed(0)}° (${x.astro.compass(sun.az)})`],
+      ['Луна сейчас (расчёт)', `${moon.name}, освещено ≈ ${Math.round(moon.illum * 100)}%`]
+    ];
+    return { html: x.kv(pairs) + x.note('Для даты и времени снимка используйте «Лабораторию фото»: там тот же расчёт Солнца и Луны на момент съёмки.'), md: x.kvMd(pairs) };
+  }
+});
+
+reg({
+  id: 'inat', name: 'iNaturalist · виды рядом', grp: GRP.geo, host: 'api.inaturalist.org', types: ['coords'],
+  info: 'Какие растения и животные регулярно наблюдаются в радиусе 5 км (проверенные наблюдения). Помогает проверить регион и биом на снимке.',
+  home: 'https://www.inaturalist.org', sends: 'координаты', site: q => { const c = GE.parseCoords(q); return c ? `https://www.inaturalist.org/observations?lat=${c.lat}&lng=${c.lon}&radius=5` : 'https://www.inaturalist.org'; }, test: ['coords', '48.8584,2.2945'],
+  run: async (q, x) => {
+    const c = coordsOf(q);
+    const r = await x.net(`https://api.inaturalist.org/v1/observations/species_counts?lat=${c.lat}&lng=${c.lon}&radius=5&per_page=12&quality_grade=research&locale=ru`, { ms: 15000 });
+    const it = (r.results || []).map(o => { const t = o.taxon || {}; return { img: (t.default_photo || {}).square_url, href: 'https://www.inaturalist.org/taxa/' + t.id, title: t.preferred_common_name || t.name, hint: `${t.name} · наблюдений: ${o.count}` }; }).filter(i => i.img);
+    return { html: x.note(`Всего видов в радиусе 5 км: ${x.num(r.total_results)}. Показаны самые частые.`) + x.thumbs(it), md: x.listMd(it.map(i => ({ title: i.title, href: i.href, sub: i.hint }))) };
+  }
+});
+
+reg({
+  id: 'usgs', name: 'USGS · землетрясения рядом', grp: GRP.geo, host: 'earthquake.usgs.gov', types: ['coords'],
+  info: 'Землетрясения магнитудой от 2,5 в радиусе 250 км за последние 30 дней. Полезно для проверки дат и событий.',
+  home: 'https://earthquake.usgs.gov', sends: 'координаты', site: q => 'https://earthquake.usgs.gov/earthquakes/map/', test: ['coords', '35.68,139.69'],
+  run: async (q, x) => {
+    const c = coordsOf(q), from = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+    const r = await x.net(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&latitude=${c.lat}&longitude=${c.lon}&maxradiuskm=250&starttime=${from}&minmagnitude=2.5&orderby=time&limit=8`);
+    const it = (r.features || []).map(f => { const p = f.properties || {}; return { tag: 'M' + (p.mag != null ? Number(p.mag).toFixed(1) : '?'), title: p.place || 'без названия', sub: x.dt(p.time), href: p.url }; });
+    return { html: it.length ? x.list(it) : x.note('За 30 дней землетрясений M2,5+ в радиусе 250 км не зафиксировано.'), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'eonet', name: 'NASA EONET · природные события', grp: GRP.geo, host: 'eonet.gsfc.nasa.gov', types: ['coords'],
+  info: 'Пожары, штормы, вулканы и другие события NASA в окне около 3° вокруг точки за последние 90 дней.',
+  home: 'https://eonet.gsfc.nasa.gov', sends: 'координаты', site: q => 'https://worldview.earthdata.nasa.gov/', test: ['coords', '38.6,-120.5'],
+  run: async (q, x) => {
+    const c = coordsOf(q);
+    const r = await x.net(`https://eonet.gsfc.nasa.gov/api/v3/events?bbox=${(c.lon - 1.5).toFixed(3)},${(c.lat + 1.5).toFixed(3)},${(c.lon + 1.5).toFixed(3)},${(c.lat - 1.5).toFixed(3)}&days=90&status=all&limit=10`, { ms: 15000 });
+    const it = (r.events || []).map(e => { const g = (e.geometry || []).slice(-1)[0] || {}; return { tag: ((e.categories || [])[0] || {}).title || 'событие', title: x.cut(e.title, 100), sub: [x.dt(g.date), e.closed ? 'закрыто ' + x.dt(e.closed) : 'открыто'].filter(Boolean).join(' · '), href: ((e.sources || [])[0] || {}).url || e.link }; });
+    return { html: it.length ? x.list(it) : x.note('Событий EONET в этом окне за 90 дней нет.'), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'photon', name: 'Photon · второй геокодер', grp: GRP.geo, host: 'photon.komoot.io', types: ['place'],
+  info: 'Независимый геокодер на данных OpenStreetMap: другие варианты написания и другая сортировка, чем у Nominatim. Нажмите результат, чтобы просканировать координаты.',
+  home: 'https://photon.komoot.io', site: q => 'https://photon.komoot.io/api/?q=' + E(q), test: ['place', 'Eiffel Tower'],
+  run: async (q, x) => {
+    const r = await x.net(`https://photon.komoot.io/api/?q=${E(q)}&limit=6&lang=en`);
+    const OT = { N: 'node', W: 'way', R: 'relation' };
+    const f = (r.features || []).map(o => {
+      const p = o.properties || {}, g = (o.geometry || {}).coordinates || [];
+      return { lat: g[1], lon: g[0], name: p.name || p.street || '—', addr: [p.street && (p.street + (p.housenumber ? ' ' + p.housenumber : '')), p.district, p.city || p.county, p.state, p.country].filter(Boolean).join(', '), kind: [p.osm_key, p.osm_value].filter(Boolean).join('/') };
+    }).filter(i => isFinite(i.lat) && isFinite(i.lon));
+    return {
+      html: f.length ? `<div class="link-list">${f.map(p => `<div class="link-i" data-pivot-q="${p.lat}, ${p.lon}" data-pivot-t="coords"><span class="rel">${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}</span><span class="pl-main"><b>${esc(p.name)}</b><small>${esc(p.addr)}${p.kind ? ' · ' + esc(p.kind) : ''}</small></span></div>`).join('')}</div>` : '<div class="muted">Ничего не найдено.</div>',
+      md: f.map(p => `- \`${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}\` — ${p.name}${p.addr ? ', ' + p.addr : ''}`).join('\n')
+    };
+  }
+});
+
+/* ── Уязвимости ── */
+reg({
+  id: 'epss', name: 'FIRST EPSS · вероятность эксплуатации', grp: GRP.vuln, host: 'api.first.org', types: ['cve'],
+  info: 'Статистическая оценка вероятности эксплуатации уязвимости в ближайшие 30 дней и перцентиль среди всех CVE.',
+  home: 'https://www.first.org/epss/', sends: 'номер CVE', site: q => 'https://www.first.org/epss/data_stats', test: ['cve', 'CVE-2021-44228'],
+  run: async (q, x) => {
+    const r = await x.net('https://api.first.org/data/v1/epss?cve=' + E(q));
+    const o = (r.data || [])[0];
+    if (!o) return { html: x.note('Для этой CVE нет оценки EPSS (слишком новая или не опубликована).'), md: '' };
+    const p = +o.epss, pc = +o.percentile;
+    x.setHud('epss', 'EPSS (30 ДН.)', (p * 100).toFixed(p < 0.01 ? 2 : 1) + '%', p >= 0.5 ? 'alert' : p >= 0.1 ? 'hi' : '');
+    const pairs = [['Вероятность эксплуатации (30 дней)', (p * 100).toFixed(2) + '%'], ['Перцентиль среди всех CVE', (pc * 100).toFixed(1) + '%'], ['Дата оценки', o.date]];
+    return { html: x.kv(pairs) + x.note('EPSS — оценка, а не факт эксплуатации. Сопоставляйте с CVSS и каталогом CISA KEV.'), md: x.kvMd(pairs) };
+  }
+});
+
+reg({
+  id: 'nvd', name: 'NVD · CVSS, CWE и каталог KEV', grp: GRP.vuln, host: 'services.nvd.nist.gov', types: ['cve'], when: q => /^CVE-\d{4}-\d{4,}$/.test(q),
+  info: 'Официальная карточка NVD: оценка CVSS, тип слабости (CWE), даты, ссылки и отметка о включении в каталог CISA KEV (эксплуатируется в реальных атаках).',
+  home: 'https://nvd.nist.gov', sends: 'номер CVE', site: q => 'https://nvd.nist.gov/vuln/detail/' + E(q), test: ['cve', 'CVE-2021-44228'],
+  run: async (q, x) => {
+    const r = await x.net('https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=' + E(q), { ms: 20000 });
+    const c = ((r.vulnerabilities || [])[0] || {}).cve;
+    if (!c) return { html: x.note('NVD не знает эту CVE (ещё не опубликована, отклонена или опечатка).'), md: '' };
+    const m = c.metrics || {}, v = (m.cvssMetricV40 || m.cvssMetricV31 || m.cvssMetricV30 || m.cvssMetricV2 || [])[0];
+    const d = v && v.cvssData || {}, sev = d.baseSeverity || (v && v.baseSeverity) || '';
+    const en = (c.descriptions || []).find(t => t.lang === 'en');
+    const cwe = [...new Set((c.weaknesses || []).flatMap(w => (w.description || []).map(t => t.value)).filter(t => /^CWE-\d+/.test(t)))];
+    if (d.baseScore != null) x.setHud('nvd', 'CVSS (NVD)', `${d.baseScore} ${sev}`.trim(), d.baseScore >= 9 ? 'alert' : d.baseScore >= 7 ? 'hi' : '');
+    if (c.cisaExploitAdd) x.setHud('kev', 'CISA KEV', 'В КАТАЛОГЕ', 'alert');
+    const refs = (c.references || []).slice(0, 6).map(t => ({ tag: ((t.tags || [])[0] || 'ссылка').slice(0, 14), title: x.cut(t.url.replace(/^https?:\/\//, ''), 90), href: t.url }));
+    const pairs = [
+      ['Описание', x.cut(en && en.value, 420)], ['CVSS', d.baseScore != null ? `${d.baseScore} ${sev} · v${d.version || '?'}` : 'нет оценки'], ['Вектор', d.vectorString], ['Тип слабости', cwe.join(', ')],
+      ['Опубликована', x.dt(c.published)], ['Изменена', x.dt(c.lastModified)], ['Статус NVD', c.vulnStatus],
+      ['CISA KEV', c.cisaExploitAdd ? `В каталоге с ${c.cisaExploitAdd}, срок устранения ${c.cisaActionDue || '—'}` : 'в каталоге не найдена'], ['Требуемые действия CISA', c.cisaRequiredAction]
+    ];
+    return { html: x.kv(pairs) + (refs.length ? '<div class="pl-sub">Ссылки NVD</div>' + x.list(refs) : ''), md: x.kvMd(pairs) + (refs.length ? '\n' + x.listMd(refs) : '') };
+  }
+});
+
+/* ── Блокчейн (публичные реестры) ── */
+reg({
+  id: 'blockscout', name: 'Blockscout · адрес Ethereum / EVM', grp: GRP.chain, host: 'eth.blockscout.com', types: ['crypto'], when: q => /^0x[a-f0-9]{40}$/i.test(q),
+  info: 'Баланс, тип адреса (кошелёк или контракт), число транзакций и переводов токенов, публичные метки и ENS-имя. Ответ может занять до 20 секунд.',
+  home: 'https://eth.blockscout.com', sends: 'адрес кошелька', site: q => 'https://eth.blockscout.com/address/' + E(q), test: ['crypto', '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe'],
+  run: async (q, x) => {
+    const [a, c] = await Promise.all([x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}`, { ms: 25000 }), x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}/counters`, { ms: 25000 }).catch(() => null)]);
+    let wei = 0n; try { wei = BigInt(a.coin_balance || '0'); } catch (e) { /* пустой баланс */ }
+    const eth = Number(wei / 10n ** 12n) / 1e6;
+    const tags = (a.public_tags || []).map(t => t.display_name).filter(Boolean);
+    x.setHud('eth', 'ETH БАЛАНС', eth.toLocaleString('ru-RU', { maximumFractionDigits: 4 }) + ' ETH');
+    const pairs = [
+      ['Адрес', a.hash], ['Тип', a.is_contract ? 'смарт-контракт' + (a.is_verified ? ' (исходный код проверен)' : '') : 'обычный адрес (EOA)'], ['Имя', a.name], ['ENS', a.ens_domain_name], ['Публичные метки', tags.join(', ')],
+      ['Токен', a.token && `${a.token.name || ''} (${a.token.symbol || ''})`], ['Баланс', eth.toLocaleString('ru-RU', { maximumFractionDigits: 6 }) + ' ETH'],
+      ['Транзакций', c && x.num(c.transactions_count)], ['Переводов токенов', c && x.num(c.token_transfers_count)],
+      ['Создатель контракта', a.creator_address_hash && x.pivot(a.creator_address_hash, 'crypto', a.creator_address_hash.slice(0, 10) + '…'), 1]
+    ];
+    return { html: x.kv(pairs), md: x.kvMd(pairs.map(p => p[2] ? [p[0], a.creator_address_hash] : p)) };
+  }
+});
+
+reg({
+  id: 'toncenter', name: 'TON Center · адрес TON', grp: GRP.chain, host: 'toncenter.com', types: ['crypto'], when: q => /^(EQ|UQ)[A-Za-z0-9_-]{46}$/.test(q),
+  info: 'Баланс и состояние адреса в сети TON (активен, не инициализирован, заморожен). Лимит анонимных запросов: около 1 в секунду.',
+  home: 'https://toncenter.com', sends: 'адрес кошелька', site: q => 'https://tonviewer.com/' + E(q), test: ['crypto', 'EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N'],
+  run: async (q, x) => {
+    const r = await x.net('https://toncenter.com/api/v2/getAddressInformation?address=' + E(q));
+    if (!r.ok) throw new Error(String(r.error || 'ответ без результата').slice(0, 80));
+    const o = r.result || {}, ton = Number(o.balance || 0) / 1e9;
+    x.setHud('ton', 'TON БАЛАНС', ton.toLocaleString('ru-RU', { maximumFractionDigits: 3 }) + ' TON');
+    const pairs = [['Адрес', q], ['Состояние', { active: 'активен', uninit: 'не инициализирован', frozen: 'заморожен', nonexist: 'не существует' }[o.state] || o.state], ['Баланс', ton.toLocaleString('ru-RU', { maximumFractionDigits: 6 }) + ' TON'], ['Последняя транзакция (lt)', o.last_transaction_id && o.last_transaction_id.lt]];
+    return { html: x.kv(pairs), md: x.kvMd(pairs) };
+  }
+});
+
+/* ── Ссылки и организации ── */
+reg({
+  id: 'oembed', name: 'oEmbed · карточка ссылки', grp: GRP.link, host: 'noembed.com', types: ['url'], when: q => /^https?:\/\//i.test(q),
+  info: 'Название, автор и превью для ссылок на YouTube, Vimeo, SoundCloud, Flickr, X и других платформ без загрузки самой страницы.',
+  home: 'https://noembed.com', sends: 'адрес ссылки целиком', test: ['url', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
+  run: async (q, x) => {
+    const r = await x.net('https://noembed.com/embed?url=' + E(q));
+    if (r.error) return { html: x.note('Для этой ссылки нет oEmbed-провайдера (поддерживаются YouTube, Vimeo, SoundCloud, Flickr и другие).'), md: '' };
+    const th = safe(r.thumbnail_url);
+    const pairs = [['Заголовок', r.title], ['Автор', r.author_name], ['Страница автора', r.author_url && x.A(r.author_url), 1], ['Платформа', r.provider_name], ['Тип', r.type]];
+    return {
+      html: (th ? `<img class="pl-cover" src="${esc(th)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '') + x.kv(pairs),
+      md: x.kvMd(pairs.map(p => p[2] ? [p[0], r.author_url] : p))
+    };
+  }
+});
+
+const wdGet = p => net(`https://www.wikidata.org/w/api.php?${p}&format=json&origin=*`);
+const wdVals = (e, p) => ((e.claims || {})[p] || []).map(c => c.mainsnak && c.mainsnak.datavalue && c.mainsnak.datavalue.value).filter(v => v !== undefined && v !== null);
+reg({
+  id: 'wd-card', name: 'Wikidata · карточка организации', grp: GRP.link, host: 'www.wikidata.org', types: ['org', 'text', 'regid'],
+  info: 'Структурированные факты об организации: тип, страна, штаб-квартира, основатели, материнская компания, сайт, LEI и ОГРН. Для LEI и ОГРН ищет точное совпадение.',
+  home: 'https://www.wikidata.org', site: q => 'https://www.wikidata.org/w/index.php?search=' + E(q), test: ['org', 'Wikimedia Foundation'],
+  run: async (q, x) => {
+    let ids = [];
+    if (x.type === 'regid') {
+      const prop = /^[A-Z0-9]{18}\d{2}$/.test(q) ? 'P1278' : /^(\d{13}|\d{15})$/.test(q) ? 'P7011' : '';
+      if (!prop) return { html: x.note('В Wikidata ищутся только LEI (20 символов) и ОГРН (13 или 15 цифр).'), md: '' };
+      const r = await wdGet(`action=query&list=search&srsearch=${E(`haswbstatement:${prop}=${q}`)}&srlimit=3`);
+      ids = ((r.query || {}).search || []).map(s => s.title);
+    } else {
+      const r = await wdGet(`action=wbsearchentities&search=${E(q.replace(/"/g, ''))}&language=ru&uselang=ru&limit=3`);
+      ids = (r.search || []).map(s => s.id);
+    }
+    if (!ids.length) return { html: x.note('Сущности Wikidata не найдены.'), md: '' };
+    const r2 = await wdGet(`action=wbgetentities&ids=${ids.join('|')}&props=labels|descriptions|claims&languages=ru|en`);
+    const ents = ids.map(id => (r2.entities || {})[id]).filter(Boolean);
+    const PROPS = [['P31', 'Тип'], ['P17', 'Страна'], ['P159', 'Штаб-квартира'], ['P571', 'Основана'], ['P112', 'Основатели'], ['P749', 'Материнская организация'], ['P452', 'Отрасль'], ['P856', 'Сайт'], ['P1278', 'LEI'], ['P7011', 'ОГРН']];
+    const refs = new Set();
+    ents.forEach(e => PROPS.forEach(([p]) => wdVals(e, p).forEach(v => { if (v && v.id) refs.add(v.id); })));
+    const lab = {};
+    if (refs.size) {
+      const r3 = await wdGet(`action=wbgetentities&ids=${[...refs].slice(0, 50).join('|')}&props=labels&languages=ru|en`).catch(() => ({}));
+      Object.entries(r3.entities || {}).forEach(([id, en]) => { lab[id] = ((en.labels || {}).ru || (en.labels || {}).en || {}).value || id; });
+    }
+    const fmt = v => v && v.id ? (lab[v.id] || v.id) : v && v.time ? x.yr(v.time) : typeof v === 'string' ? v : '';
+    let html = '', md = '';
+    ents.slice(0, 2).forEach(e => {
+      const name = ((e.labels || {}).ru || (e.labels || {}).en || {}).value || e.id, desc = ((e.descriptions || {}).ru || (e.descriptions || {}).en || {}).value;
+      const site = wdVals(e, 'P856')[0];
+      const pairs = [['Описание', desc], ...PROPS.filter(([p]) => p !== 'P856').map(([p, t]) => [t, [...new Set(wdVals(e, p).map(fmt).filter(Boolean))].slice(0, 4).join(', ')]), ['Сайт', site && x.A(site), 1], ['Wikidata', x.A('https://www.wikidata.org/wiki/' + e.id, e.id), 1]];
+      html += `<div class="pl-sub">${esc(name)}</div>` + x.kv(pairs);
+      md += `**${name}**\n` + x.kvMd(pairs.map(p => p[2] ? [p[0], p[0] === 'Сайт' ? site : 'https://www.wikidata.org/wiki/' + e.id] : p)) + '\n';
+      x.addNode(name, 'сущность Wikidata', 'org', { url: 'https://www.wikidata.org/wiki/' + e.id });
+    });
+    return { html, md: md.trim() };
+  }
+});
+
+reg({
+  id: 'wd-site', name: 'Wikidata · кому принадлежит сайт', grp: GRP.link, host: 'query.wikidata.org', types: ['domain', 'url'],
+  info: 'Ищет в Wikidata организации и проекты, у которых этот сайт указан как официальный. Быстро связывает домен с юридическим или публичным владельцем.',
+  home: 'https://www.wikidata.org', site: q => 'https://www.wikidata.org/w/index.php?search=' + E(GE.host(q) || q), test: ['domain', 'wikimedia.org'],
+  run: async (q, x) => {
+    const d = String(x.type === 'url' ? GE.host(q) : q).toLowerCase().replace(/^www\./, '');
+    if (!/^[a-z0-9.-]+$/.test(d)) throw new Error('недопустимые символы в домене');
+    const forms = ['https://', 'http://'].flatMap(p => [`${p}${d}`, `${p}${d}/`, `${p}www.${d}`, `${p}www.${d}/`]);
+    const sparql = `SELECT ?item ?itemLabel ?itemDescription WHERE { VALUES ?site { ${forms.map(f => `<${f}>`).join(' ')} } ?item wdt:P856 ?site. SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". } } LIMIT 6`;
+    const r = await x.net('https://query.wikidata.org/sparql?format=json&query=' + E(sparql), { ms: 15000 });
+    const it = ((r.results || {}).bindings || []).map(b => ({ tag: b.item.value.split('/').pop(), title: (b.itemLabel || {}).value || '—', sub: x.cut((b.itemDescription || {}).value, 110), href: b.item.value.replace(/^http:/, 'https:') }));
+    it.forEach(i => x.addNode(i.title, 'владелец сайта (Wikidata)', 'org', { url: i.href }));
+    return { html: it.length ? x.list(it) : x.note('Ни у одного объекта Wikidata этот сайт не указан как официальный.'), md: x.listMd(it) };
+  }
+});
+
+reg({
+  id: 'wiki-ext', name: 'Википедия · кто ссылается на сайт', grp: GRP.link, host: 'ru.wikipedia.org, en.wikipedia.org', types: ['domain', 'url'],
+  info: 'Статьи Википедии (русской и английской), в которых есть ссылка на этот сайт. Косвенный признак известности и заметности источника.',
+  home: 'https://www.wikipedia.org', site: q => 'https://ru.wikipedia.org/wiki/Служебная:Ссылки_сюда?target=' + E(GE.host(q) || q), test: ['domain', 'archive.org'],
+  run: async (q, x) => {
+    const h = String(x.type === 'url' ? GE.host(q) : q).toLowerCase().replace(/^www\./, '');
+    const get = lang => x.net(`https://${lang}.wikipedia.org/w/api.php?action=query&list=exturlusage&euquery=${E(h)}&euprotocol=https&eunamespace=0&eulimit=6&format=json&origin=*`, { ms: 8000 }).then(r => ({ lang, rows: (r.query || {}).exturlusage || [] }), err => ({ lang, err: err.message }));
+    const parts = await Promise.all(['ru', 'en'].map(get));
+    if (parts.every(p => p.err)) throw new Error(parts[0].err);
+    const slow = parts.filter(p => p.err).map(p => p.lang.toUpperCase());
+    const it = parts.flatMap(p => (p.rows || []).map(o => ({ tag: p.lang.toUpperCase(), title: o.title, sub: x.cut(o.url, 90), href: `https://${p.lang}.wikipedia.org/wiki/${E(o.title.replace(/ /g, '_'))}` })));
+    const warn = slow.length ? x.note(`Не ответили вовремя: ${slow.join(', ')} (для очень популярных доменов запрос к Википедии тяжёлый).`) : '';
+    return { html: (it.length ? x.note('Статьи со ссылкой на домен (до шести на язык):') + x.list(it) : x.note('В статьях Википедии ссылок на этот домен не найдено (по https).')) + warn, md: x.listMd(it) };
+  }
+});
+
+/* ── Космос ── */
+reg({
+  id: 'celestrak', name: 'CelesTrak · орбита спутника', grp: GRP.sky, host: 'celestrak.org', types: ['transport'], when: q => GE.detectTransportKind(q).kind === 'norad',
+  info: 'Параметры орбиты по номеру NORAD: международное обозначение, период обращения, наклонение, перигей и апогей. Данные обновляются несколько раз в сутки.',
+  home: 'https://celestrak.org', sends: 'номер NORAD', site: q => 'https://celestrak.org/satcat/table-satcat.php?CATNR=' + E(GE.detectTransportKind(q).val), test: ['transport', 'NORAD 25544'],
+  run: async (q, x) => {
+    const id = GE.detectTransportKind(q).val;
+    const r = await x.net(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${E(id)}&FORMAT=json`, { ms: 20000 });
+    const o = Array.isArray(r) ? r[0] : null;
+    if (!o) return { html: x.note('Объект не найден в каталоге CelesTrak.'), md: '' };
+    const n = +o.MEAN_MOTION, ecc = +o.ECCENTRICITY, nr = n * 2 * Math.PI / 86400, a = Math.cbrt(398600.4418 / (nr * nr));
+    const peri = a * (1 - ecc) - 6378.137, apo = a * (1 + ecc) - 6378.137, intl = String(o.OBJECT_ID || '').match(/^(\d{4})-(\d{3})(\w+)$/);
+    const age = (Date.now() - new Date(o.EPOCH + 'Z').getTime()) / 864e5;
+    x.setHud('sat', 'ОРБИТА', `${Math.round((peri + apo) / 2)} км · ${(1440 / n).toFixed(1)} мин`);
+    const pairs = [['Название', o.OBJECT_NAME], ['Номер NORAD', o.NORAD_CAT_ID], ['Международное обозначение', o.OBJECT_ID], ['Запуск', intl ? `${intl[1]} год, №${+intl[2]} в году, объект ${intl[3]}` : ''], ['Эпоха элементов', `${o.EPOCH} UTC (${age.toFixed(1)} сут. назад)`],
+      ['Период обращения', `${(1440 / n).toFixed(2)} мин`], ['Наклонение', `${(+o.INCLINATION).toFixed(2)}°`], ['Перигей / апогей', `${Math.round(peri)} / ${Math.round(apo)} км`], ['Эксцентриситет', ecc.toFixed(5)], ['Витков на эпоху', x.num(o.REV_AT_EPOCH)]];
+    return { html: x.kv(pairs) + x.note('Высота рассчитана по среднему движению: это приближение, не результат траекторного расчёта.'), md: x.kvMd(pairs) };
+  }
+});
+
+/* ─────────── API реестра и вкладка «Плагины» ─────────── */
+const typeLabel = t => GE.QTYPES[t] ? GE.QTYPES[t].l : t;
+const SHORT = { text: 'ТЕКСТ', username: 'НИК', domain: 'ДОМЕН', ip: 'IP', asn: 'ASN', email: 'EMAIL', url: 'ССЫЛКА', image: 'ФОТО', coords: 'КООРД.', place: 'МЕСТО', org: 'ОРГ.', regid: 'ИНН/LEI', crypto: 'КРИПТО', cve: 'CVE', transport: 'БОРТ', phone: 'ТЕЛ.', hash: 'ХЕШ' };
+const view = { q: '', type: 'all', grp: 'all', health: new Map(), cxTypes: new Set(['text']), busy: false };
+const sfx = n => { try { GE.audio && GE.audio.sfx(n); } catch (e) { /* звук не обязателен */ } };
+const refreshSearch = () => { try { if (GE.search && GE.search.render) GE.search.render(); } catch (e) { /* вкладка поиска ещё не готова */ } };
+const badge = () => { const el = $('#plugins-count'); if (el) el.textContent = REG.filter(p => isOn(p.id)).length; };
+const siteOf = (p, q) => { try { return (p.site ? p.site(q) : p.home) || p.home; } catch (e) { return p.home; } };
+
+GE.plugins = {
+  list: () => REG.slice(),
+  get: byId,
+  isOn,
+  setOn(id, on) {
+    const off = cfg().off, i = off.indexOf(id);
+    if (on && i >= 0) off.splice(i, 1);
+    if (!on && i < 0 && byId(id)) off.push(id);
+    GE.saveSettings(); badge();
+  },
+  setAll(on) { cfg().off = on ? [] : REG.map(p => p.id); GE.saveSettings(); badge(); },
+  forType: (type, q) => REG.filter(p => { try { return isOn(p.id) && p.types.includes(type) && (!p.when || p.when(q)); } catch (e) { return false; } }),
+  /** Подключает включённые плагины к текущему скану: h = { job, setHud, addNode } из S.live */
+  attach(type, q, h) {
+    const x = ctxFor(h, type), ps = GE.plugins.forType(type, q);
+    ps.forEach(p => h.job(p.name, () => p.run(q, x), siteOf(p, q), { tag: 'ПЛАГИН', host: p.host }));
+    return ps.length;
+  },
+  /** Выполняет плагин на своём тестовом запросе (для самопроверки и тестов) */
+  run: (id, q, type) => { const p = byId(id); if (!p) return Promise.reject(new Error('нет такого плагина')); return p.run(q == null ? p.test[1] : q, ctxFor({}, type || p.test[0])); },
+  engines: () => cfg().custom.slice(),
+  addEngine(raw) {
+    const c = cleanEngine(raw);
+    if (cfg().custom.length >= 40) throw new Error('Не больше 40 своих источников');
+    cfg().custom.push(c); GE.saveSettings(); syncEngines(); refreshSearch();
+    return c;
+  },
+  removeEngine(id) { cfg().custom = cfg().custom.filter(c => c.id !== id); GE.saveSettings(); syncEngines(); refreshSearch(); },
+  validateEngine: cleanEngine,
+  render: () => render()
+};
+
+/* самопроверка: безобидные тестовые запросы к каждому источнику */
+const healthText = h => !h ? 'не проверялся' : h.pending ? 'проверка…' : h.ok ? `работает · ${h.ms} мс` : 'ошибка: ' + cut(h.err, 46);
+const paintHealth = id => {
+  const el = $(`[data-ph="${id}"]`), h = view.health.get(id);
+  if (!el) return;
+  el.textContent = healthText(h);
+  el.className = 'pl-health' + (h && !h.pending ? (h.ok ? ' ok' : ' err') : h ? ' busy' : '');
+};
+const checkOne = async p => {
+  view.health.set(p.id, { pending: 1 }); paintHealth(p.id);
+  const t0 = performance.now();
+  try {
+    const res = await Promise.race([p.run(p.test[1], ctxFor({}, p.test[0])), new Promise((_, no) => setTimeout(() => no(new Error('таймаут 30 с')), 30000))]);
+    if (!res || typeof res.html !== 'string') throw new Error('пустой ответ плагина');
+    view.health.set(p.id, { ok: 1, ms: Math.round(performance.now() - t0) });
+  } catch (e) { view.health.set(p.id, { ok: 0, err: e.message || 'ошибка' }); }
+  paintHealth(p.id);
+};
+const checkAll = async () => {
+  if (view.busy) return;
+  view.busy = true;
+  const btn = $('#pl-test-all'); if (btn) { btn.disabled = true; btn.textContent = 'Проверяю…'; }
+  const queue = REG.filter(p => isOn(p.id));
+  await Promise.all(Array.from({ length: 4 }, async () => { while (queue.length) await checkOne(queue.shift()); }));
+  view.busy = false;
+  if (btn) { btn.disabled = false; btn.textContent = 'Проверить доступность'; }
+  const ok = REG.filter(p => (view.health.get(p.id) || {}).ok).length, bad = REG.filter(p => view.health.get(p.id) && !view.health.get(p.id).ok && !view.health.get(p.id).pending).length;
+  GE.toast(`Проверка завершена: работает ${ok}, не отвечает ${bad}`, { type: bad ? 'warn' : 'ok' });
+  sfx('found');
+};
+
+const cardHtml = p => {
+  const on = isOn(p.id), h = view.health.get(p.id);
+  return `<div class="pl-card${on ? ' on' : ''}" data-pid="${esc(p.id)}">
+    <div class="pl-card-h"><b>${esc(p.name)}</b><label class="switch" title="${on ? 'Выключить плагин' : 'Включить плагин'}"><input type="checkbox" data-pl-sw="${esc(p.id)}" ${on ? 'checked' : ''} aria-label="Плагин ${esc(p.name)}"><i></i></label></div>
+    <div class="pl-grp">${esc(p.grp)}</div>
+    <p class="pl-desc">${esc(p.info)}</p>
+    <div class="pl-types">${p.types.map(t => `<span>${esc(SHORT[t] || t.toUpperCase())}</span>`).join('')}</div>
+    <div class="pl-foot"><span class="pl-host" title="Куда уходит запрос">→ ${esc(p.host)}</span><span class="pl-sends" title="Что именно отправляется">${esc(p.sends)}</span></div>
+    <div class="pl-foot2"><span class="pl-health${h && !h.pending ? (h.ok ? ' ok' : ' err') : ''}" data-ph="${esc(p.id)}">${esc(healthText(h))}</span><button class="btn btn-sm btn-ghost" data-pl-test="${esc(p.id)}">Проверить</button><a class="btn btn-sm btn-ghost" href="${esc(p.home)}" target="_blank" rel="noopener noreferrer">Сайт</a></div>
+  </div>`;
+};
+const visible = () => REG.filter(p => (view.type === 'all' || p.types.includes(view.type)) && (view.grp === 'all' || p.grp === view.grp) && (!view.q || (p.name + ' ' + p.info + ' ' + p.host + ' ' + p.grp).toLowerCase().includes(view.q)));
+const paintGrid = () => {
+  const grid = $('#pl-grid'); if (!grid) return;
+  const vs = visible(), on = REG.filter(p => isOn(p.id)).length;
+  grid.innerHTML = vs.map(cardHtml).join('') || '<div class="empty"><p>Под этот фильтр плагинов нет.</p></div>';
+  const n = $('#pl-on'), of = $('#pl-of');
+  if (n) n.textContent = on;
+  if (of) of.textContent = `из ${REG.length} включено`;
+  $$('#pl-types [data-pl-type]').forEach(b => b.classList.toggle('on', b.dataset.plType === view.type));
+  $$('#pl-groups [data-pl-grp]').forEach(b => b.classList.toggle('on', b.dataset.plGrp === view.grp));
+  badge();
+};
+const paintCustom = () => {
+  const box = $('#pl-cx-list'); if (!box) return;
+  const cs = cfg().custom;
+  box.innerHTML = cs.length ? cs.map(c => `<div class="pl-cx-i"><div class="pl-main"><b>${esc(c.n)}</b><small>${esc(c.tpl)}</small></div><div class="pl-types">${c.t.map(t => `<span>${esc(SHORT[t] || t.toUpperCase())}</span>`).join('')}</div><button class="btn btn-sm btn-ghost" data-cx-del="${esc(c.id)}" title="Удалить источник">${GE.icon ? GE.icon('x') : '×'}</button></div>`).join('') : '<div class="dim" style="font-size:12px">Своих источников пока нет. Они появятся в общем списке движков, в группе «Мои источники».</div>';
+};
+const skeleton = () => {
+  const types = [...new Set(REG.flatMap(p => p.types))], groups = [...new Set(REG.map(p => p.grp))], all = Object.keys(GE.QTYPES).filter(t => t !== 'auto');
+  return `<div class="pl-head">
+    <div class="pl-stat"><b id="pl-on">0</b><span id="pl-of">из 0 включено</span></div>
+    <p>Плагины добавляют открытые источники в «Живую разведку». Каждый включённый плагин при скане отправляет вашу цель прямо из браузера в стороннюю службу (хост указан на карточке). Только публичные данные: без ключей и закрытых баз. Общий выключатель — «Живая разведка» в настройках приватности.</p>
+    <div class="pl-acts">
+      <button class="btn btn-sm" id="pl-all-on">Включить все</button>
+      <button class="btn btn-sm" id="pl-all-off">Выключить все</button>
+      <button class="btn btn-sm btn-primary" id="pl-test-all" title="Отправляет безобидные тестовые запросы (example.com, 8.8.8.8 и т. п.), ваши цели не используются">Проверить доступность</button>
+    </div>
+  </div>
+  <div class="pl-filters">
+    <input class="input" id="pl-q" placeholder="Найти плагин по названию, хосту или описанию…" autocomplete="off" aria-label="Фильтр плагинов">
+    <div class="chips" id="pl-types"><button class="chip on" data-pl-type="all">Все цели</button>${types.map(t => `<button class="chip" data-pl-type="${esc(t)}">${esc(typeLabel(t))}</button>`).join('')}</div>
+    <div class="chips" id="pl-groups"><button class="chip on" data-pl-grp="all">Все группы</button>${groups.map(g => `<button class="chip" data-pl-grp="${esc(g)}">${esc(g)}</button>`).join('')}</div>
+  </div>
+  <div class="pl-grid" id="pl-grid"></div>
+  <div class="panel pl-custom">
+    <div class="panel-h">Мои источники<small>свои ссылки-шаблоны для списка движков: вместо {q} подставляется цель</small></div>
+    <form class="pl-cx" id="pl-cx-form" autocomplete="off">
+      <input class="input" name="n" placeholder="Название, например «Мой архив»" maxlength="40" aria-label="Название источника">
+      <input class="input" name="tpl" placeholder="https://example.org/search?q={q}" maxlength="300" aria-label="Шаблон ссылки">
+      <div class="chips" id="pl-cx-types">${all.map(t => `<button type="button" class="chip${view.cxTypes.has(t) ? ' on' : ''}" data-cx-type="${esc(t)}">${esc(typeLabel(t))}</button>`).join('')}</div>
+      <div class="row"><button class="btn btn-sm btn-primary" type="submit">Добавить источник</button><span class="dim" id="pl-cx-msg" style="font-size:11.5px"></span></div>
+    </form>
+    <div class="pl-cx-list" id="pl-cx-list"></div>
+  </div>`;
+};
+const bind = root => {
+  root.addEventListener('change', e => {
+    const sw = e.target.closest('[data-pl-sw]'); if (!sw) return;
+    GE.plugins.setOn(sw.dataset.plSw, sw.checked);
+    const card = sw.closest('.pl-card'); if (card) card.classList.toggle('on', sw.checked);
+    const n = $('#pl-on'); if (n) n.textContent = REG.filter(p => isOn(p.id)).length;
+    sfx('click');
+  });
+  root.addEventListener('input', e => { if (e.target.id === 'pl-q') { view.q = e.target.value.trim().toLowerCase(); paintGrid(); } });
+  root.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.plType) { view.type = b.dataset.plType; paintGrid(); return; }
+    if (b.dataset.plGrp) { view.grp = b.dataset.plGrp; paintGrid(); return; }
+    if (b.dataset.plTest) { const p = byId(b.dataset.plTest); if (p) checkOne(p); return; }
+    if (b.dataset.cxType) { const t = b.dataset.cxType; view.cxTypes.has(t) ? view.cxTypes.delete(t) : view.cxTypes.add(t); b.classList.toggle('on', view.cxTypes.has(t)); return; }
+    if (b.dataset.cxDel) { GE.plugins.removeEngine(b.dataset.cxDel); paintCustom(); sfx('click'); return; }
+    if (b.id === 'pl-all-on') { GE.plugins.setAll(true); paintGrid(); sfx('click'); }
+    else if (b.id === 'pl-all-off') { GE.plugins.setAll(false); paintGrid(); sfx('click'); }
+    else if (b.id === 'pl-test-all') checkAll();
+  });
+  root.addEventListener('submit', e => {
+    if (e.target.id !== 'pl-cx-form') return;
+    e.preventDefault();
+    const f = e.target, msg = $('#pl-cx-msg');
+    try {
+      const c = GE.plugins.addEngine({ n: f.n.value, tpl: f.tpl.value, t: [...view.cxTypes] });
+      f.reset(); paintCustom();
+      if (msg) { msg.textContent = `Добавлено: ${c.n}`; msg.className = 'dim'; }
+      sfx('stamp');
+    } catch (err) { if (msg) { msg.textContent = err.message; msg.className = 'pl-bad'; } }
+  });
+};
+function render() {
+  const root = $('#plugins-root'); if (!root) return;
+  syncEngines();
+  if (!root.dataset.ready) { root.innerHTML = skeleton(); root.dataset.ready = '1'; bind(root); }
+  paintGrid(); paintCustom();
+}
+
+syncEngines();
+badge();
+})();
+
+</script>
 <script>
 /* embedded: js/search.js */
 /* ═══════════════════════════════════════════════════════════════
@@ -6858,6 +8193,7 @@ S.setMode = mode => {
   $$('[data-smode]').forEach(b => b.classList.toggle('on', b.dataset.smode === mode));
   $$('[data-spane]').forEach(p => p.classList.toggle('on', p.dataset.spane === mode));
   if (mode === 'watch' && GE.pro) GE.pro.renderWatch();
+  if (mode === 'plugins' && GE.plugins) GE.plugins.render();
 };
 
 S.setQuery = (q, type = 'auto', run = true) => {
@@ -7100,7 +8436,7 @@ S.renderSide = () => {
 };
 
 /* ─────────── Помощники «Живой разведки» ─────────── */
-const card = (title, id, canRetry = true, idx = 0) => `<div class="live-card" id="lc-${id}" data-loading="1" style="--i:${Math.min(idx, 10)}"><div class="live-card-h"><span>${esc(title)}</span><span class="st"><span class="spinner"></span></span>${canRetry ? `<button class="live-retry" data-retry="${id}" title="Повторить запрос (без кэша)">↻</button>` : ''}</div><div class="live-card-b scanline">Запрос…</div></div>`;
+const card = (title, id, canRetry = true, idx = 0, tag = '', host = '') => `<div class="live-card${tag ? ' is-plugin' : ''}" id="lc-${id}" data-loading="1" style="--i:${Math.min(idx, 10)}"><div class="live-card-h"><span>${esc(title)}${tag ? `<em class="pl-chip" title="Запрос уходит на: ${esc(host)}">${esc(tag)}</em>` : ''}</span><span class="st"><span class="spinner"></span></span>${canRetry ? `<button class="live-retry" data-retry="${id}" title="Повторить запрос (без кэша)">↻</button>` : ''}</div><div class="live-card-b scanline">Запрос…</div></div>`;
 const done = (id, html, ok = true, status) => {
   const el = $('#lc-' + id); if (!el) return;
   el.removeAttribute('data-loading');
@@ -7179,7 +8515,7 @@ S.live = (forceRefresh = false) => {
   const out = $('#live-out'), type = S.eff, q = GE.normQuery(S.q, type), id = ++S.runId;
   const ok = () => id === S.runId;
   const jobs = [];
-  const job = (title, fn, url, opts = {}) => { jobs.push({ title, fn, idx: jobs.length, url, cacheable: opts.cacheable !== false }); };
+  const job = (title, fn, url, opts = {}) => { jobs.push({ title, fn, idx: jobs.length, url, cacheable: opts.cacheable !== false, tag: opts.tag, host: opts.host }); };
 
   S.lastScan = { q: S.q, normQ: q, type, ts: GE.now(), order: [], sections: new Map(), graphNodes: [], hud: new Map(), snap: {} };
   const hudBox = $('#live-hud');
@@ -7976,8 +9312,12 @@ S.live = (forceRefresh = false) => {
     md: `- URL изображения: ${q}`
   }), null, { cacheable: false });
 
+  // Плагины из реестра GE.plugins (вкладка «Плагины»): подключаются, если включены для этого типа цели
+  if (GE.settings.live && GE.plugins) GE.plugins.attach(type, q, { job, setHud, addNode });
+
   S.lastScan.order = jobs.map(j => j.title);
-  out.innerHTML = jobs.map(j => card(j.title, id + '-' + j.idx, j.cacheable, j.idx)).join('');
+  const plugN = jobs.filter(j => j.tag).length;
+  out.innerHTML = jobs.map((j, i) => (j.tag && !(jobs[i - 1] && jobs[i - 1].tag) ? `<div class="live-sep">Плагины · ${plugN}</div>` : '') + card(j.title, id + '-' + j.idx, j.cacheable, j.idx, j.tag, j.host)).join('');
 
   const runJob = async (j, bypassCache) => {
     const cid = id + '-' + j.idx;
@@ -10510,6 +11850,7 @@ P.commands = () => [
   { g: 'Действия', icon: 'target', t: 'Пакетный скан (Batch Scan до 30 целей)', run: () => { GE.go('search'); GE.search.setMode('batch'); } },
   { g: 'Действия', icon: 'link', t: 'Пересечение двух целей (Diff)', run: () => { GE.go('search'); GE.search.setMode('diff'); } },
   { g: 'Действия', icon: 'eye', t: 'Мониторинг целей (Watchlist)', run: () => { GE.go('search'); GE.search.setMode('watch'); } },
+  { g: 'Действия', icon: 'target', t: 'Плагины поиска (источники и переключатели)', run: () => { GE.go('search'); GE.search.setMode('plugins'); } },
   { g: 'Действия', icon: 'report', t: 'OSINT-плейбуки (сценарии проверки)', run: () => { GE.go('reports'); setTimeout(() => $('#playbooks-panel')?.scrollIntoView({ behavior: 'smooth' }), 100); } },
   { g: 'Действия', icon: 'settings', t: 'Настроить API-ключи Live Recon', run: () => { GE.go('settings'); setTimeout(() => $('#panel-api-keys')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); } },
   { g: 'Действия', icon: 'eye', t: 'Запустить заставку', run: () => GE.intro.run(true) },
