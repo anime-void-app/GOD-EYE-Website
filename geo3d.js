@@ -90,73 +90,115 @@ function status(message) {
 }
 
 function loadCesium() {
-  if (window.Cesium) return Promise.resolve(window.Cesium);
+  if (window.Cesium && typeof window.Cesium.Viewer === 'function') return Promise.resolve(window.Cesium);
   if (loadPromise) return loadPromise;
 
   const sources = [
     {
       name: 'cdnjs',
-      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.147.0/'
+      version: '1.146',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.146.0/'
     },
     {
       name: 'jsDelivr',
-      base: 'https://cdn.jsdelivr.net/npm/cesium@1.147.0/Build/Cesium/'
+      version: '1.146',
+      base: 'https://cdn.jsdelivr.net/npm/cesium@1.146.0/Build/Cesium/'
     },
     {
       name: 'Cesium official',
+      version: '1.146',
       base: CESIUM_BASE
+    },
+    {
+      name: 'unpkg',
+      version: '1.146',
+      base: 'https://unpkg.com/cesium@1.146.0/Build/Cesium/'
+    },
+    {
+      name: 'cdnjs fallback',
+      version: '1.147',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.147.0/'
     }
   ];
+
+  const removeElement = id => {
+    const element = $('#' + id);
+    if (element) element.remove();
+  };
+
+  const loadAsset = (element, timeoutMessage, errorMessage) => new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => finish(new Error(timeoutMessage)), 15000);
+    const finish = error => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (error) {
+        element.remove();
+        reject(error);
+      } else {
+        resolve();
+      }
+    };
+    element.onload = () => finish();
+    element.onerror = () => finish(new Error(errorMessage));
+    document.head.appendChild(element);
+  });
 
   loadPromise = (async () => {
     const errors = [];
 
     for (const source of sources) {
-      status('Подключаю CesiumJS через ' + source.name + '…');
       window.CESIUM_BASE_URL = source.base;
-
-      const previousCss = $('#ge3d-cesium-css');
-      if (previousCss) previousCss.remove();
-      const css = document.createElement('link');
-      css.id = 'ge3d-cesium-css';
-      css.rel = 'stylesheet';
-      css.href = source.base + 'Widgets/widgets.css';
+      removeElement('ge3d-cesium-css');
+      removeElement('ge3d-cesium-script');
+      status('Подключаю CesiumJS ' + source.version + ' через ' + source.name + '…');
 
       try {
-        await new Promise((resolve, reject) => {
-          css.onload = resolve;
-          css.onerror = () => reject(new Error('Не загрузились стили CesiumJS'));
-          document.head.appendChild(css);
-        });
+        const css = document.createElement('link');
+        css.id = 'ge3d-cesium-css';
+        css.rel = 'stylesheet';
+        css.href = source.base + 'Widgets/widgets.css';
+        await loadAsset(css, 'Тайм-аут загрузки стилей CesiumJS', 'Не загрузились стили CesiumJS');
 
-        const previousScript = $('#ge3d-cesium-script');
-        if (previousScript) previousScript.remove();
+        let loaded = false;
+        const scriptNames = ['Cesium.js', 'Cesium.min.js'];
+        let scriptError = null;
 
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.id = 'ge3d-cesium-script';
-          script.src = source.base + 'Cesium.js';
-          script.async = true;
-          script.onload = () => {
-            if (window.Cesium) resolve();
-            else reject(new Error('Скрипт загрузился, но объект Cesium не создан'));
-          };
-          script.onerror = () => reject(new Error('Браузер не смог загрузить Cesium.js'));
-          document.head.appendChild(script);
-        });
+        for (const scriptName of scriptNames) {
+          removeElement('ge3d-cesium-script');
+          try {
+            const script = document.createElement('script');
+            script.id = 'ge3d-cesium-script';
+            script.src = source.base + scriptName;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            await loadAsset(script, 'Тайм-аут загрузки ' + scriptName, 'Браузер не смог загрузить ' + scriptName);
 
-        status('CesiumJS ' + VERSION + ' подключён через ' + source.name);
+            if (window.Cesium && typeof window.Cesium.Viewer === 'function') {
+              loaded = true;
+              break;
+            }
+
+            scriptError = new Error(scriptName + ' загрузился, но Cesium.Viewer не создан');
+          } catch (error) {
+            scriptError = error;
+          }
+        }
+
+        if (!loaded) throw scriptError || new Error('CesiumJS не создал объект Viewer');
+
+        status('CesiumJS ' + source.version + ' подключён через ' + source.name);
         return window.Cesium;
       } catch (error) {
-        errors.push(source.name + ': ' + (error.message || 'ошибка сети'));
-        const failedScript = $('#ge3d-cesium-script');
-        if (failedScript) failedScript.remove();
-        const failedCss = $('#ge3d-cesium-css');
-        if (failedCss) failedCss.remove();
+        errors.push(source.name + ' ' + source.version + ': ' + (error.message || 'ошибка сети'));
+        removeElement('ge3d-cesium-script');
+        removeElement('ge3d-cesium-css');
+        try { delete window.Cesium; } catch (_) { window.Cesium = undefined; }
       }
     }
 
-    throw new Error('Не удалось загрузить CesiumJS. Проверены cdnjs, jsDelivr и официальный CDN. ' + errors.join(' | '));
+    throw new Error('Не удалось загрузить CesiumJS. Проверены резервные CDN и версии 1.146/1.147. ' + errors.join(' | '));
   })().catch(error => {
     loadPromise = null;
     throw error;
