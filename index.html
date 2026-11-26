@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>GOD EYE — OSINT INTELLIGENCE</title>
@@ -9,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
 <style>
 /* ═══════════════════════════════════════════════════════════════
    GOD EYE — OSINT INTELLIGENCE · style.css
@@ -2071,7 +2073,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
 <div id="toasts"></div>
 <input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 <script>
 /* embedded: js/core.js */
 /* ═══════════════════════════════════════════════════════════════
@@ -2388,13 +2390,92 @@ const _refCache = {};
 GE.refFields = type => _refCache[type] || (_refCache[type] = (GE.TYPES[type]?.fields || []).filter(f => f.t === 'ref'));
 GE.fmtYmd = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v).split('-').reverse().join('.') : String(v ?? '');
 
+
+/* ===SANITIZE-BEGIN=== */
+/* ─────────── Проверка данных: импорт резервных копий и загрузка базы ───────────
+   Только известные типы записей, безопасные идентификаторы и ключи, ожидаемые формы полей.
+   Любая «чужая» форма (строка вместо массива, объект вместо текста, javascript:-адрес) приводится к безопасной. */
+const SAFE_ID = /^[A-Za-z0-9_.:-]{1,80}$/;
+const SAFE_KEY = /^[A-Za-z0-9_.:-]{1,80}$/;
+const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const ISO_DT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+const clip = (s, n) => String(s == null ? '' : s).replace(/\u0000/g, '').slice(0, n);
+const cleanValue = (v, depth = 0) => {
+  if (v === null) return null;
+  if (typeof v === 'string') return clip(v, 4000000);
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  if (typeof v === 'boolean') return v;
+  if (depth > 8) return undefined;
+  if (Array.isArray(v)) return v.slice(0, 20000).map(x => cleanValue(x, depth + 1)).filter(x => x !== undefined);
+  if (typeof v === 'object') {
+    const o = {};
+    Object.keys(v).slice(0, 500).forEach(k => { if (SAFE_KEY.test(k) && !BAD_KEYS.has(k)) { const c = cleanValue(v[k], depth + 1); if (c !== undefined) o[k] = c; } });
+    return o;
+  }
+  return undefined;
+};
+const strList = (v, n, each) => (Array.isArray(v) ? v : v == null || v === '' ? [] : typeof v === 'string' ? GE.toList(v) : []).filter(x => typeof x === 'string' && x).map(x => clip(x, each)).slice(0, n);
+GE.sanitizeRecord = r => {
+  if (!r || typeof r !== 'object' || Array.isArray(r)) return null;
+  const T = GE.TYPES[r.type];
+  if (!T || typeof r.id !== 'string' || !SAFE_ID.test(r.id)) return null;
+  const out = {};
+  Object.keys(r).forEach(k => { if (SAFE_KEY.test(k) && !BAD_KEYS.has(k)) { const c = cleanValue(r[k]); if (c !== undefined) out[k] = c; } });
+  out.id = r.id; out.type = r.type;
+  out.title = clip(r.title, 2000);
+  out.created = typeof r.created === 'string' && ISO_DT.test(r.created) ? r.created : GE.now();
+  out.updated = typeof r.updated === 'string' && ISO_DT.test(r.updated) ? r.updated : out.created;
+  T.fields.forEach(f => {
+    const v = out[f.k];
+    if (f.k === 'title' || v === undefined) return;
+    switch (f.t) {
+      case 'number': { const n = typeof v === 'number' ? v : parseFloat(v); out[f.k] = isFinite(n) ? n : ''; break; }
+      case 'url': out[f.k] = typeof v === 'string' ? GE.safeUrl(v) : ''; break;
+      case 'urls': out[f.k] = strList(v, 500, 2000).map(GE.safeUrl).filter(Boolean); break;
+      case 'tags': out[f.k] = strList(v, 100, 120); break;
+      case 'refs': out[f.k] = strList(v, 1000, 80); break;
+      case 'textarea': out[f.k] = typeof v === 'string' ? v : Array.isArray(v) ? v.filter(x => typeof x === 'string').join('\n') : typeof v === 'number' ? String(v) : ''; break;
+      default: out[f.k] = typeof v === 'string' || typeof v === 'number' ? v : Array.isArray(v) ? v.filter(x => typeof x === 'string' || typeof x === 'number').join(', ') : '';
+    }
+  });
+  if (out.tags !== undefined) out.tags = strList(out.tags, 100, 120);
+  if (out.linked !== undefined) out.linked = strList(out.linked, 1000, 80);
+  if (out._wikilinks !== undefined) out._wikilinks = strList(out._wikilinks, 1000, 300);
+  ['sources'].forEach(k => { if (out[k] !== undefined) out[k] = strList(out[k], 500, 2000).map(GE.safeUrl).filter(Boolean); });
+  return out;
+};
+GE.sanitizeLink = (l, ids) => {
+  if (!l || typeof l !== 'object' || Array.isArray(l) || typeof l.id !== 'string' || !SAFE_ID.test(l.id) || !ids.has(l.from) || !ids.has(l.to)) return null;
+  const out = cleanValue(l);
+  out.id = l.id; out.from = l.from; out.to = l.to; out.relation = clip(l.relation, 300);
+  return out;
+};
+const objList = (a, n, need) => (Array.isArray(a) ? a : []).slice(0, n).map(x => (x && typeof x === 'object' && !Array.isArray(x) ? cleanValue(x) : null)).filter(x => x && (!need || typeof x[need] === 'string'));
+/** Возвращает очищенную копию базы и число отброшенных записей и связей */
+GE.sanitizeDB = (db, opts = {}) => {
+  const src = db && typeof db === 'object' ? db : {};
+  const max = opts.maxRecords || 100000;
+  const records = [], seen = new Set();
+  let droppedRecords = 0, droppedLinks = 0;
+  (Array.isArray(src.records) ? src.records : []).slice(0, max).forEach(r => {
+    const c = GE.sanitizeRecord(r);
+    if (!c || seen.has(c.id)) { droppedRecords++; return; }
+    seen.add(c.id); records.push(c);
+  });
+  const links = [];
+  (Array.isArray(src.links) ? src.links : []).slice(0, max * 4).forEach(l => { const c = GE.sanitizeLink(l, seen); if (c) links.push(c); else droppedLinks++; });
+  const out = Object.assign({ v: 2 }, { records, links, activity: objList(src.activity, 5000), history: objList(src.history, 2000, 'q'), saved: objList(src.saved, 2000, 'q'), watchlist: objList(src.watchlist, 2000, 'q'), savedFilters: objList(src.savedFilters, 500, 'q') });
+  return { db: out, droppedRecords, droppedLinks };
+};
+/* ===SANITIZE-END=== */
+
 /* ─────────── IndexedDB + База данных ─────────── */
 const KEY = 'godeye.v2';
 const IDB_NAME = 'godeye_storage';
 const IDB_STORE = 'kv';
 const LS_MIRROR_LIMIT = 2 * 1024 * 1024; // 2 МБ: зеркалируем в localStorage только пока база компактная
 const empty = () => ({ v: 2, records: [], links: [], activity: [], history: [], saved: [], watchlist: [], savedFilters: [] });
-GE.DB = Object.assign(empty(), GE.ls.get(KEY, {}));
+GE.DB = GE.sanitizeDB(Object.assign(empty(), GE.ls.get(KEY, {}))).db;
 
 GE.storage = {
   backend: 'localStorage',
@@ -2526,9 +2607,9 @@ GE.initStorage = async () => {
     }
     const lsDb = GE.ls.get(KEY, null);
     if (savedDb && typeof savedDb === 'object' && Array.isArray(savedDb.records)) {
-      GE.DB = Object.assign(empty(), savedDb);
+      GE.DB = GE.sanitizeDB(Object.assign(empty(), savedDb)).db;
     } else if (lsDb && Array.isArray(lsDb.records) && (lsDb.records.length || (lsDb.history && lsDb.history.length))) {
-      GE.DB = Object.assign(empty(), lsDb);
+      GE.DB = GE.sanitizeDB(Object.assign(empty(), lsDb)).db;
       await GE.idb.set('db', GE.DB);
       setTimeout(() => GE.toast('База перенесена в IndexedDB (лимит 5 МБ снят)', { type: 'ok', timeout: 5000 }), 1000);
     } else {
@@ -2661,7 +2742,7 @@ GE.db = {
     GE.DB.records.forEach(r => {
       if (r.affiliation && ids.has(r.affiliation)) out.push({ from: r.id, to: r.affiliation, rel: 'состоит в', kind: 'ref' });
       GE.refFields(r.type).forEach(f => { if (f.k !== 'affiliation' && r[f.k] && ids.has(r[f.k])) out.push({ from: r.id, to: r[f.k], rel: f.rel || 'связан с', kind: 'ref' }); });
-      (r.linked || []).forEach(x => { if (ids.has(x)) out.push({ from: r.id, to: x, rel: 'включает', kind: 'ref' }); });
+      (Array.isArray(r.linked) ? r.linked : []).forEach(x => { if (ids.has(x)) out.push({ from: r.id, to: x, rel: 'включает', kind: 'ref' }); });
       (r._wikilinks || []).forEach(t => { const x = GE.db.findTitle(t); if (x && x.id !== r.id) out.push({ from: r.id, to: x.id, rel: 'упоминает', kind: 'wiki' }); });
     });
     return out;
@@ -2962,13 +3043,15 @@ GE.crypto = {
   }
 };
 
-GE.importBackupData = async data => {
-  if (!data || !Array.isArray(data.records)) throw new Error('это не резервная копия GOD EYE');
+GE.importBackupData = async raw => {
+  if (!raw || !Array.isArray(raw.records)) throw new Error('это не резервная копия GOD EYE');
+  const san = GE.sanitizeDB(raw), data = san.db, skipped = san.droppedRecords + san.droppedLinks;
+  if (!data.records.length && raw.records.length) throw new Error('в файле нет ни одной корректной записи GOD EYE');
   const mode = await new Promise(res => {
     let done = false;
     GE.modal({
       title: 'Импорт резервной копии', size: 'narrow',
-      body: `<p style="color:var(--silver)">В файле найдено <b>${data.records.length}</b> записей и <b>${(data.links || []).length}</b> связей. Как выполнить импорт?</p>`,
+      body: `<p style="color:var(--silver)">В файле найдено <b>${data.records.length}</b> записей и <b>${(data.links || []).length}</b> связей. Как выполнить импорт?</p>${skipped ? `<p class="dim" style="font-size:12px">Проверка отбросила некорректных элементов: ${skipped} (неизвестный тип, небезопасный идентификатор или разорванная связь).</p>` : ''}`,
       onClose: () => { if (!done) res(null); },
       actions: [
         { label: 'Отмена', left: true, fn: () => { done = true; res(null); } },
@@ -2998,9 +3081,9 @@ GE.importBackupData = async data => {
     const wq = new Set((GE.DB.watchlist || []).map(w => w.q));
     (data.watchlist || []).forEach(w => { if (!wq.has(w.q)) GE.DB.watchlist.push(w); });
   }
-  GE.log('IMPORT', `Импорт резервной копии (${mode === 'replace' ? 'замена' : 'объединение'}): ${data.records.length} записей`);
+  GE.log('IMPORT', `Импорт резервной копии (${mode === 'replace' ? 'замена' : 'объединение'}): ${data.records.length} записей${skipped ? ', отброшено ' + skipped : ''}`);
   GE.save(true);
-  GE.toast('Импорт завершён', { type: 'ok' });
+  GE.toast(skipped ? `Импорт завершён, отброшено некорректных элементов: ${skipped}` : 'Импорт завершён', { type: 'ok' });
   return true;
 };
 
@@ -6968,7 +7051,12 @@ GE.linkDialog = (fromId, toId) => {
 GE.exportCSV = (recs, name) => {
   if (!recs.length) return GE.toast('Нет записей для экспорта', { type: 'err' });
   const keys = GE.uniq(['type', 'title', ...recs.flatMap(r => Object.keys(r))]).filter(k => !['thumb', '_wikilinks', '_path', 'board'].includes(k));
-  const q = v => { v = Array.isArray(v) ? v.join('; ') : v == null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  // защита от формул Excel / Google Таблиц: строки на «=», «+», «-», «@» получают ведущий апостроф (обычные числа и телефоны не трогаем)
+  const q = v => {
+    v = Array.isArray(v) ? v.join('; ') : v == null ? '' : String(v);
+    if (/^[=+\-@\t\r]/.test(v) && !/^[+-]?[\d\s().-]+$/.test(v)) v = "'" + v;
+    return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  };
   const isRef = (r, k) => k === 'affiliation' || GE.refFields(r.type).some(f => f.k === k);
   const rows = [keys.join(','), ...recs.map(r => keys.map(k => q(isRef(r, k) ? (GE.db.get(r[k])?.title || '') : k === 'linked' ? (r[k] || []).map(x => GE.db.get(x)?.title).join('; ') : r[k])).join(','))];
   GE.download(name, '﻿' + rows.join('\r\n'), 'text/csv;charset=utf-8');
@@ -8484,7 +8572,12 @@ const fetchAPI = async (url, headers = {}, ms = 10000) => {
 const kv = pairs => `<dl class="kv">${pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>`;
 const kvMd = pairs => pairs.filter(p => p[1] !== undefined && p[1] !== null && p[1] !== '').map(([k, v]) => `- **${k}:** ${String(v).replace(/<[^>]+>/g, '')}`).join('\n');
 const fail = (url, err) => `<div class="muted">Сервис не ответил из браузера (${esc(err && err.message || 'сеть/CORS')}). Откройте вручную: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//, '').slice(0, 64))}</a></div>`;
-const link = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t || u)}</a>`;
+const link = (u, t) => { const s = GE.safeUrl(u); return s ? `<a href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(t || u)}</a>` : esc(t || u); };
+// Запасной текст для картинок, которые не загрузились (вместо inline-onerror)
+document.addEventListener('error', e => {
+  const im = e.target;
+  if (im && im.tagName === 'IMG' && im.dataset && im.dataset.fallback) im.replaceWith(document.createTextNode(im.dataset.fallback));
+}, true);
 const pivot = (val, type, label) => `<button class="pivot" data-pivot-q="${esc(val)}" data-pivot-t="${esc(type)}" title="Сканировать (${esc(GE.QTYPES[type]?.l || type)})">${esc(label || val)}</button>`;
 
 /* Разбор почтовых / облачных провайдеров по MX, NS, TXT */
@@ -8781,7 +8874,7 @@ S.live = (forceRefresh = false) => {
           const html = `<div class="link-list">${list.map(it => {
             const p = it.page || {}, t = it.task || {};
             const meta = [p.ip, p.server, p.status && ('HTTP ' + p.status), t.time && GE.fmtDate(t.time, false)].filter(Boolean).join(' · ');
-            return `<a class="link-i" target="_blank" rel="noopener" href="${esc(it.result || '#')}"><span class="rel">SCAN</span><span><b style="color:#fff;font-weight:500">${esc(p.title || t.url || d)}</b><br><span class="dim" style="font-size:11px">${esc(meta)}</span></span></a>`;
+            return `<a class="link-i" target="_blank" rel="noopener" href="${esc(GE.safeUrl(it.result) || '#')}"><span class="rel">SCAN</span><span><b style="color:#fff;font-weight:500">${esc(p.title || t.url || d)}</b><br><span class="dim" style="font-size:11px">${esc(meta)}</span></span></a>`;
           }).join('')}</div>`;
           return { html, md: list.map(it => `- [${it.page?.title || it.task?.url}](${it.result}) (${it.page?.ip || '—'})`).join('\n') };
         }, `https://urlscan.io/domain/${E(d)}`);
@@ -9328,7 +9421,7 @@ S.live = (forceRefresh = false) => {
   }
 
   if (type === 'image') job('Предпросмотр', async () => ({
-    html: `<img src="${esc(GE.safeUrl(q))}" alt="" style="max-height:220px;border:1px solid var(--line)" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('Изображение не загрузилось (защита сайта или неверная ссылка).'))"><div class="muted" style="margin-top:8px;font-size:12px">Для анализа метаданных скачайте файл и откройте его в разделе «Изображения».</div>`,
+    html: `<img src="${esc(GE.safeUrl(q))}" alt="" style="max-height:220px;border:1px solid var(--line)" referrerpolicy="no-referrer" data-fallback="Изображение не загрузилось (защита сайта или неверная ссылка)."><div class="muted" style="margin-top:8px;font-size:12px">Для анализа метаданных скачайте файл и откройте его в разделе «Изображения».</div>`,
     md: `- URL изображения: ${q}`
   }), null, { cacheable: false });
 
@@ -10211,6 +10304,7 @@ const TRACK = /^(utm_[a-z]+|fbclid|gclid|gclsrc|dclid|yclid|ysclid|msclkid|igshi
 L.urlReport = raw => {
   let u;
   try { u = new URL(raw.trim()); } catch (e) { return '<div class="muted">Некорректная ссылка.</div>'; }
+  if (!/^https?:$/.test(u.protocol)) return `<div class="flag warn"><div><b>Протокол «${esc(u.protocol.replace(':', ''))}» не разбирается.</b> Анализируются только ссылки http(s); адреса вида javascript: и data: не превращаются в кликабельные.</div></div>`;
   const params = Array.from(u.searchParams.entries());
   const clean = new URL(u.href);
   params.forEach(([k]) => { if (TRACK.test(k)) clean.searchParams.delete(k); });
@@ -11882,6 +11976,7 @@ V.merge = recs => {
     });
     (n._links || []).forEach(l => { const to = GE.db.findTitle(l.to); if (to && !GE.DB.links.some(x => x.from === r.id && x.to === to.id && x.relation === l.rel)) { GE.DB.links.push({ id: GE.uid('lnk'), from: r.id, to: to.id, relation: l.rel, created: now }); linksN++; } });
   });
+  Object.assign(GE.DB, GE.sanitizeDB(GE.DB).db);
   GE.log('VAULT', `Импорт из Obsidian: +${added}, обновлено ${updated}, связей ${linksN}`);
   GE.save();
   return { added, updated, linksN };
@@ -12274,6 +12369,7 @@ A.init = () => {
   $('#ar-import').onclick = () => $('#json-file').click();
   $('#json-file').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
+    if (f.size > 200 * 1024 * 1024) { GE.toast('Файл больше 200 МБ: импорт отменён', { type: 'err' }); e.target.value = ''; return; }
     try {
       let data = JSON.parse(await GE.readAs(f, 'text'));
       if (GE.crypto.isEncrypted(data)) {
