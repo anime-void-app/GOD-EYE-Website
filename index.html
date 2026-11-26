@@ -3647,6 +3647,111 @@ const isImageUrl = q => {
 };
 
 /** Автоопределение типа цели */
+/* ===LOOKUPS-CORE-BEGIN=== */
+/* Банковские реквизиты (IBAN / BIC / BIN), VIN и MAC: офлайн-разбор структуры и контрольных сумм.
+   Сеть здесь не нужна: название банка, данные об автомобиле и производителя сетевой карты подтягивают плагины «Живой разведки».
+   Полные номера платёжных карт не принимаются: для карты допустим только префикс BIN (6–8 цифр). */
+GE.QTYPES.bank = { l: 'Банк: IBAN / BIC / BIN', ex: 'DE89 3704 0044 0532 0130 00 · BIC DEUTDEFF · BIN 457173' };
+GE.QTYPES.vin = { l: 'VIN автомобиля', ex: '1HGCM82633A004352' };
+GE.QTYPES.mac = { l: 'MAC-адрес', ex: '3C:5A:B4:00:00:00 · OUI 3C5AB4' };
+
+GE.IBAN_LEN = { AD: 24, AE: 23, AL: 28, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BI: 27, BR: 29, BY: 28, CH: 21, CR: 22, CY: 28, CZ: 24, DE: 22, DJ: 27, DK: 18, DO: 28, EE: 20, EG: 29, ES: 24, FI: 18, FK: 18, FO: 18, FR: 27, GB: 22, GE: 22, GI: 23, GL: 18, GR: 27, GT: 28, HR: 21, HU: 28, IE: 22, IL: 23, IQ: 23, IS: 26, IT: 27, JO: 30, KW: 30, KZ: 20, LB: 28, LC: 32, LI: 21, LT: 20, LU: 20, LV: 21, LY: 25, MC: 27, MD: 24, ME: 22, MK: 19, MN: 20, MR: 27, MT: 31, MU: 30, NI: 28, NL: 18, NO: 15, OM: 23, PK: 24, PL: 28, PS: 29, PT: 25, QA: 29, RO: 24, RS: 22, RU: 33, SA: 24, SC: 31, SD: 18, SE: 24, SI: 19, SK: 24, SM: 27, SO: 23, ST: 25, SV: 28, TL: 23, TN: 24, TR: 26, UA: 29, VA: 22, VG: 24, XK: 20, YE: 30 };
+/** IBAN: длина по стране (ISO 13616) и контрольная сумма mod 97; null, если строка на IBAN не похожа */
+GE.parseIban = s => {
+  const raw = String(s || '').replace(/[\s-]+/g, '').toUpperCase();
+  const m = raw.match(/^([A-Z]{2})(\d{2})([A-Z0-9]{11,30})$/);
+  if (!m || GE.IBAN_LEN[m[1]] !== raw.length) return null;
+  const re = raw.slice(4) + raw.slice(0, 4);
+  let rem = 0;
+  for (const ch of re) { const v = ch >= 'A' ? ch.charCodeAt(0) - 55 : +ch; rem = (v > 9 ? rem * 100 + v : rem * 10 + v) % 97; }
+  return { iban: raw, cc: m[1], check: m[2], bban: raw.slice(4), len: raw.length, valid: rem === 1 };
+};
+/** Что за банковский реквизит: IBAN, BIC (только с пометкой BIC/SWIFT) или BIN карты (только с пометкой BIN, 6–8 цифр) */
+GE.bankKind = s => {
+  const q = String(s || '').trim();
+  let m = q.match(/^(?:BIC|SWIFT)[\s:#-]*([A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?)$/i);
+  if (m) return { kind: 'bic', norm: 'BIC ' + m[1].toUpperCase() };
+  m = q.match(/^(?:BIN|IIN)[\s:#-]*(\d{6,8})$/i);
+  if (m) return { kind: 'bin', norm: 'BIN ' + m[1] };
+  const ib = GE.parseIban(q.replace(/^IBAN[\s:#-]*/i, ''));
+  return ib ? { kind: 'iban', norm: ib.iban, iban: ib, explicit: /^IBAN/i.test(q) } : null;
+};
+
+/** VIN (ISO 3779): 17 знаков без I, O, Q; контрольная цифра обязательна в Северной Америке */
+const VIN_VAL = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9, S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9 };
+const VIN_W = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
+GE.parseVin = s => {
+  const v = String(s || '').replace(/^VIN[\s:#-]*/i, '').replace(/[\s-]+/g, '').toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) return null;
+  let sum = 0;
+  for (let i = 0; i < 17; i++) sum += (/\d/.test(v[i]) ? +v[i] : VIN_VAL[v[i]]) * VIN_W[i];
+  const r = sum % 11, exp = r === 10 ? 'X' : String(r);
+  return { vin: v, wmi: v.slice(0, 3), vds: v.slice(3, 9), vis: v.slice(9), checkOk: exp === v[8], checkExp: exp, na: /[1-5]/.test(v[0]) };
+};
+const VIN_ORD = 'ABCDEFGHJKLMNPRSTUVWXYZ1234567890';
+const VIN_CC = {
+  A: [['A', 'H', 'ЮАР'], ['J', 'K', 'Кот-д’Ивуар']], B: [['A', 'E', 'Ангола'], ['F', 'K', 'Кения'], ['L', 'R', 'Танзания']],
+  C: [['A', 'E', 'Бенин'], ['F', 'K', 'Мадагаскар'], ['L', 'R', 'Тунис']], D: [['A', 'E', 'Египет'], ['F', 'K', 'Марокко'], ['L', 'R', 'Замбия']],
+  E: [['A', 'E', 'Эфиопия'], ['F', 'K', 'Мозамбик']], F: [['A', 'E', 'Гана'], ['F', 'K', 'Нигерия']],
+  J: [['A', 'T', 'Япония']], K: [['A', 'E', 'Шри-Ланка'], ['F', 'K', 'Израиль'], ['L', 'R', 'Южная Корея'], ['S', '0', 'Казахстан']],
+  L: [['A', '0', 'Китай']], M: [['A', 'E', 'Индия'], ['F', 'K', 'Индонезия'], ['L', 'R', 'Таиланд'], ['S', '0', 'Мьянма']],
+  N: [['A', 'E', 'Иран'], ['F', 'K', 'Пакистан'], ['L', 'R', 'Турция']], P: [['A', 'E', 'Филиппины'], ['F', 'K', 'Сингапур'], ['L', 'R', 'Малайзия']],
+  R: [['A', 'E', 'ОАЭ'], ['F', 'K', 'Тайвань'], ['L', 'R', 'Вьетнам'], ['S', '0', 'Саудовская Аравия']],
+  S: [['A', 'M', 'Великобритания'], ['N', 'T', 'Германия (ГДР)'], ['U', 'Z', 'Польша'], ['1', '4', 'Латвия']],
+  T: [['A', 'H', 'Швейцария'], ['J', 'P', 'Чехия'], ['R', 'V', 'Венгрия'], ['W', '1', 'Португалия']],
+  U: [['H', 'M', 'Дания'], ['N', 'T', 'Ирландия'], ['U', 'Z', 'Румыния'], ['5', '7', 'Словакия']],
+  V: [['A', 'E', 'Австрия'], ['F', 'R', 'Франция'], ['S', 'W', 'Испания'], ['X', '2', 'Сербия'], ['3', '5', 'Хорватия'], ['6', '0', 'Эстония']],
+  W: [['A', '0', 'Германия']], X: [['A', 'E', 'Болгария'], ['F', 'K', 'Греция'], ['L', 'R', 'Нидерланды'], ['S', 'W', 'Россия / СНГ'], ['X', '2', 'Люксембург'], ['3', '0', 'Россия']],
+  Y: [['A', 'E', 'Бельгия'], ['F', 'K', 'Финляндия'], ['L', 'R', 'Мальта'], ['S', 'W', 'Швеция'], ['X', '2', 'Норвегия'], ['3', '5', 'Беларусь'], ['6', '0', 'Украина']],
+  Z: [['A', 'R', 'Италия'], ['X', '2', 'Словения'], ['3', '5', 'Литва']],
+  1: [['A', '0', 'США']], 2: [['A', '0', 'Канада']], 3: [['A', 'W', 'Мексика'], ['X', '7', 'Коста-Рика'], ['8', '0', 'Каймановы острова']],
+  4: [['A', '0', 'США']], 5: [['A', '0', 'США']], 6: [['A', 'W', 'Австралия']], 7: [['A', 'E', 'Новая Зеландия']],
+  8: [['A', 'E', 'Аргентина'], ['F', 'K', 'Чили'], ['L', 'R', 'Эквадор'], ['S', 'W', 'Перу'], ['X', '2', 'Венесуэла']],
+  9: [['A', 'E', 'Бразилия'], ['F', 'K', 'Колумбия'], ['L', 'R', 'Парагвай'], ['S', 'W', 'Уругвай'], ['X', '2', 'Тринидад и Тобаго'], ['3', '9', 'Бразилия']]
+};
+/** Страна и регион по первым двум знакам VIN (ISO 3780) */
+GE.vinOrigin = v => {
+  const a = String(v || '').toUpperCase(), c1 = a[0], i2 = VIN_ORD.indexOf(a[1]);
+  const hit = (VIN_CC[c1] || []).find(r => i2 >= VIN_ORD.indexOf(r[0]) && i2 <= VIN_ORD.indexOf(r[1]));
+  const region = /[A-H]/.test(c1) ? 'Африка' : /[J-R]/.test(c1) ? 'Азия' : /[S-Z]/.test(c1) ? 'Европа' : /[1-5]/.test(c1) ? 'Северная Америка' : /[67]/.test(c1) ? 'Океания' : /[89]/.test(c1) ? 'Южная Америка' : '';
+  return { country: hit ? hit[2] : '', region };
+};
+const VIN_YR = 'ABCDEFGHJKLMNPRSTVWXY123456789';
+/** Модельный год по 10-му знаку: цикл 30 лет, поэтому возможны два значения (в Северной Америке различает 7-й знак) */
+GE.vinYears = v => {
+  const a = String(v || '').toUpperCase(), i = VIN_YR.indexOf(a[9]);
+  if (i < 0) return [];
+  const lim = new Date().getFullYear() + 1;
+  let ys = [1980 + i, 2010 + i].filter(y => y <= lim);
+  if (/[1-5]/.test(a[0])) ys = /[A-Z]/.test(a[6]) && 2010 + i <= lim ? [2010 + i] : [1980 + i];
+  return ys;
+};
+
+/** MAC: AA:BB:CC:DD:EE:FF, AA-BB-…, AABB.CCDD.EEFF; 12 или 6 hex-знаков — только с пометкой MAC / OUI */
+GE.parseMac = s => {
+  const raw = String(s || '').trim(), pre = raw.match(/^(MAC|OUI)[\s:#-]*(.+)$/i), body = pre ? pre[2].trim() : raw;
+  let hex = '';
+  if (/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(body) || /^[0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}$/i.test(body)) hex = body.replace(/[^0-9a-f]/gi, '');
+  else if (pre && /^[0-9a-f]{12}$/i.test(body)) hex = body;
+  else if (pre && /^(([0-9a-f]{2}[:-]){2}[0-9a-f]{2}|[0-9a-f]{6})$/i.test(body)) hex = body.replace(/[^0-9a-f]/gi, '');
+  else return null;
+  hex = hex.toUpperCase();
+  const first = parseInt(hex.slice(0, 2), 16);
+  return { hex, full: hex.length === 12, oui: hex.slice(0, 6), norm: hex.match(/../g).join(':'), multicast: !!(first & 1), local: !!(first & 2) };
+};
+
+/** Тип запроса для банковских реквизитов, VIN и MAC (вызывается из detectType), '' — не подходит */
+GE.detectLookupType = q => {
+  if (/\s/.test(q) && !/^(IBAN|BIC|SWIFT|BIN|IIN|VIN|MAC|OUI)\b/i.test(q) && !GE.parseIban(q)) return '';
+  const m = GE.parseMac(q);
+  if (m) return 'mac';
+  const b = GE.bankKind(q);
+  if (b && (b.kind !== 'iban' || b.explicit || b.iban.valid)) return 'bank';
+  const v = GE.parseVin(q);
+  if (v && (/^VIN\b/i.test(q) || (/^[A-HJ-NPR-Z0-9]{17}$/i.test(q) && (v.vin.match(/\d/g) || []).length >= 4 && (v.vin.match(/[A-Z]/g) || []).length >= 2))) return 'vin';
+  return '';
+};
+/* ===LOOKUPS-CORE-END=== */
 GE.detectType = raw => {
   const q = String(raw || '').trim();
   if (!q) return 'text';
@@ -3657,6 +3762,8 @@ GE.detectType = raw => {
   if (/^AS\d{1,10}$/i.test(q)) return 'asn';
   if (/^(IMO[\s:-]?\d{7}|MMSI[\s:-]?\d{9}|(NORAD|SAT|CATNR)[\s:-]?\d{4,6})$/i.test(q)) return 'transport';
   if (/^(RA-\d{5}|RF-\d{5}|EW-\d{3}[A-Z]{2}|VP-[BC][A-Z]{2}|VQ-[BC][A-Z]{2}|EI-[A-Z]{3}|[DFGHIOPST]-[A-Z]{4}|OE-[A-Z]{3}|HB-[A-Z]{3}|PH-[A-Z]{3}|SP-[A-Z]{3}|TC-[A-Z]{3}|A6-[A-Z]{3}|A7-[A-Z]{3}|VH-[A-Z]{3}|C-[FG][A-Z]{3}|B-\d{4}[A-Z]?)$/i.test(q)) return 'transport';
+  const lk = GE.detectLookupType(q);
+  if (lk) return lk;
   if (/^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(q)) return 'ip';
   if (isIPv6(q)) return 'ip';
   if (/^-?\d{1,2}(\.\d+)?\s*[,;\s]\s*-?\d{1,3}(\.\d+)?$/.test(q) && GE.parseCoords(q)) return 'coords';
@@ -3685,6 +3792,9 @@ GE.normQuery = (q, type) => {
   if (type === 'asn') return 'AS' + q.replace(/^AS/i, '').replace(/\D/g, '');
   if (type === 'cve') return q.toUpperCase();
   if (type === 'transport') return q.toUpperCase().replace(/\s+/g, ' ');
+  if (type === 'bank') { const b = GE.bankKind(q); return b ? b.norm : q; }
+  if (type === 'vin') { const p = GE.parseVin(q); return p ? p.vin : q.toUpperCase(); }
+  if (type === 'mac') { const p = GE.parseMac(q); return p ? p.norm : q; }
   if (type === 'regid') return q.replace(/^(ИНН|ОГРН|ОГРНИП|LEI)[:\s#№-]+/i, '').trim().toUpperCase();
   if (type === 'phone') { const p = GE.analyzePhone(q); return p ? p.e164 : ('+' + q.replace(/\D/g, '')); }
   if (type === 'coords') { const c = GE.parseCoords(q); return c ? `${c.lat.toFixed(6)},${c.lon.toFixed(6)}` : q; }
@@ -4233,7 +4343,8 @@ GE.ENGINES = [
 /* Примеры для быстрого старта */
 GE.EXAMPLES = [
   ['domain', 'wikipedia.org'], ['username', '@torvalds'], ['coords', '59.9390, 30.3158'],
-  ['ip', '1.1.1.1'], ['transport', 'RA-89001'], ['cve', 'CVE-2024-3094'], ['org', 'Wikimedia Foundation']
+  ['ip', '1.1.1.1'], ['transport', 'RA-89001'], ['cve', 'CVE-2024-3094'], ['org', 'Wikimedia Foundation'],
+  ['bank', 'DE89 3704 0044 0532 0130 00'], ['vin', '1HGCM82633A004352']
 ];
 
 /* Пресеты конструктора операторов */
@@ -4901,14 +5012,14 @@ function noirEngine(ac, bus, rev, seed, solo, reg) {
     send(rev, o.hall); send(room, o.room); send(eIn, o.echo);
     return g;
   };
-  E.bass = mk(0.42, { n: 'bass', room: 0.06, pan: -0.12 });
-  E.kit = mk(0.8, { n: 'kit', room: 0.28, hall: 0.05 });
-  E.keys = mk(0.68, { n: 'keys', hall: 0.34, room: 0.12, echo: 0.08, autopan: 4.6, trem: [4.6, 0.16] });
-  E.lead = mk(0.52, { n: 'lead', hall: 0.5, echo: 0.3, pan: 0.1 });
-  E.vib = mk(0.55, { n: 'vib', hall: 0.5, echo: 0.28, pan: -0.18, trem: [5.4, 0.2] });
-  E.pad = mk(0.2, { n: 'pad', hall: 0.6 });
-  E.amb = mk(1.2, { n: 'amb', hall: 0.2 });
-  E.type = mk(0.34, { n: 'type', hall: 0.3, room: 0.1, pan: 0.35 });
+  E.bass = mk(0.53, { n: 'bass', room: 0.06, pan: -0.12 });
+  E.kit = mk(1.0, { n: 'kit', room: 0.28, hall: 0.05 });
+  E.keys = mk(0.86, { n: 'keys', hall: 0.34, room: 0.12, echo: 0.08, autopan: 4.6, trem: [4.6, 0.16] });
+  E.lead = mk(0.66, { n: 'lead', hall: 0.5, echo: 0.3, pan: 0.1 });
+  E.vib = mk(0.69, { n: 'vib', hall: 0.5, echo: 0.28, pan: -0.18, trem: [5.4, 0.2] });
+  E.pad = mk(0.25, { n: 'pad', hall: 0.6 });
+  E.amb = mk(1.5, { n: 'amb', hall: 0.2 });
+  E.type = mk(0.43, { n: 'type', hall: 0.3, room: 0.1, pan: 0.35 });
   E.nextTick = E.t0 + 0.5; E.nextPop = E.t0 + 1.2;
   return E;
 }
@@ -6441,6 +6552,7 @@ GE.audio = {
   __noir: (ac, dest, secs, seed, solo) => noirOffline(ac, dest, secs, seed, solo),
   __fx: FX,
   setAtm, setAtmVol, atm: () => Object.assign({}, atmCfg()), autoTick: autoNoirTick,
+  __nodes: () => ({ ctx, master, ostBus, ambBus: AMB.bus }),
   __amb: ambOffline, __live: () => ({ amb: Object.assign({}, AMB.live), auto: Object.assign({}, AUTO), track: activeTrackId, playing }),
 };
 })();
@@ -8952,8 +9064,271 @@ reg({
 });
 
 /* ─────────── API реестра и вкладка «Плагины» ─────────── */
+/* ===LOOKUPS-BEGIN=== */
+/* ── Реестры и юрлица, банки, транспорт и устройства, проверка ника: только открытые справочники без ключей ── */
+GRP.reg = 'Реестры и юрлица'; GRP.fin = 'Банки и платежи'; GRP.veh = 'Транспорт и устройства';
+const cname = cc => { try { return new Intl.DisplayNames(['ru'], { type: 'region' }).of(cc) || cc; } catch (e) { return cc; } };
+const grp4 = s => String(s).replace(/(.{4})/g, '$1 ').trim();
+
+/* IBAN: разбор BBAN по странам (сумма длин частей = длина IBAN − 4) */
+const IBAN_PARTS = {
+  DE: [['Код банка (BLZ)', 8], ['Номер счёта', 10]], GB: [['Код банка', 4], ['Sort code', 6], ['Номер счёта', 8]], FR: [['Код банка', 5], ['Код отделения', 5], ['Номер счёта', 11], ['Ключ RIB', 2]],
+  ES: [['Банк', 4], ['Отделение', 4], ['Контрольные цифры', 2], ['Номер счёта', 10]], IT: [['CIN', 1], ['ABI (банк)', 5], ['CAB (отделение)', 5], ['Номер счёта', 12]], NL: [['Код банка', 4], ['Номер счёта', 10]],
+  AT: [['Код банка', 5], ['Номер счёта', 11]], CH: [['Clearing (банк)', 5], ['Номер счёта', 12]], BE: [['Банк', 3], ['Номер счёта', 7], ['Контрольные цифры', 2]], PL: [['Банк и отделение', 8], ['Номер счёта', 16]],
+  PT: [['Банк', 4], ['Отделение', 4], ['Номер счёта', 11], ['Контрольные цифры', 2]], SE: [['Код банка', 3], ['Номер счёта', 17]], NO: [['Код банка', 4], ['Номер счёта', 6], ['Контрольная цифра', 1]],
+  DK: [['Код банка', 4], ['Номер счёта', 9], ['Контрольная цифра', 1]], FI: [['Код банка', 6], ['Номер счёта', 8]], CZ: [['Код банка', 4], ['Префикс счёта', 6], ['Номер счёта', 10]], SK: [['Код банка', 4], ['Префикс счёта', 6], ['Номер счёта', 10]],
+  UA: [['МФО банка', 6], ['Номер счёта', 19]], KZ: [['Код банка', 3], ['Номер счёта', 13]], LT: [['Код банка', 5], ['Номер счёта', 11]], LV: [['BIC банка', 4], ['Номер счёта', 13]], EE: [['Банк', 2], ['Отделение', 2], ['Номер счёта', 11], ['Контрольная цифра', 1]],
+  IE: [['BIC банка', 4], ['Sort code', 6], ['Номер счёта', 8]], LU: [['Код банка', 3], ['Номер счёта', 13]], GR: [['Банк', 3], ['Отделение', 4], ['Номер счёта', 16]], TR: [['Код банка', 5], ['Резерв', 1], ['Номер счёта', 16]],
+  RO: [['BIC банка', 4], ['Номер счёта', 16]], BG: [['BIC банка', 4], ['Отделение', 4], ['Тип счёта', 2], ['Номер счёта', 8]], HU: [['Банк', 3], ['Отделение', 4], ['Контрольная цифра', 1], ['Номер счёта', 15], ['Контрольная цифра', 1]],
+  HR: [['Код банка', 7], ['Номер счёта', 10]], SI: [['Код банка', 5], ['Номер счёта', 8], ['Контрольные цифры', 2]]
+};
+const binScheme = d => {
+  const n2 = +d.slice(0, 2), n3 = +d.slice(0, 3), n4 = +d.slice(0, 4);
+  if (d[0] === '4') return 'Visa';
+  if ((n2 >= 51 && n2 <= 55) || (n4 >= 2221 && n4 <= 2720)) return 'Mastercard';
+  if (n2 === 34 || n2 === 37) return 'American Express';
+  if (n4 >= 2200 && n4 <= 2204) return 'МИР';
+  if (n4 === 6011 || n2 === 65 || (n3 >= 644 && n3 <= 649)) return 'Discover';
+  if (n4 >= 3528 && n4 <= 3589) return 'JCB';
+  if (n2 === 62) return 'UnionPay';
+  if ((n3 >= 300 && n3 <= 305) || n2 === 36 || n2 === 38 || n2 === 39) return 'Diners Club';
+  if (n2 === 50 || (n2 >= 56 && n2 <= 69)) return 'Maestro или местная система';
+  return 'не определена';
+};
+reg({
+  id: 'bank-iban', name: 'Банк · IBAN, BIC, BIN: разбор и проверка', grp: GRP.fin, host: 'openiban.com', types: ['bank'],
+  info: 'IBAN: контрольная сумма (mod 97), страна, разбор на код банка и номер счёта; для стран со справочником (Германия, Австрия, Бельгия, Нидерланды и др.) — название банка, BIC и город через openiban.com. BIC: страна, код банка, филиал. BIN: платёжная система по диапазону. Полные номера карт не принимаются.',
+  home: 'https://openiban.com', sends: 'IBAN целиком (для поиска банка); BIC и BIN остаются в браузере',
+  site: q => { const b = GE.bankKind(q); return b && b.kind === 'iban' ? 'https://openiban.com/validate/' + E(b.norm) + '?getBIC=true&validateBankCode=true' : 'https://openiban.com'; },
+  test: ['bank', 'DE89370400440532013000'],
+  run: async (q, x) => {
+    const b = GE.bankKind(q);
+    if (!b) throw new Error('не похоже на IBAN, BIC или BIN');
+    if (b.kind === 'bic') {
+      const c = b.norm.slice(4), loc = c.slice(6, 8), pairs = [['BIC', c + (c.length === 8 ? ' (головной офис)' : '')], ['Код банка', c.slice(0, 4)], ['Страна', `${cname(c.slice(4, 6))} (${c.slice(4, 6)})`], ['Город / код местоположения', loc], ['Филиал', c.length === 11 ? c.slice(8) + (c.slice(8) === 'XXX' ? ' (головной офис)' : '') : 'головной офис'],
+        ['Особый режим', loc[1] === '0' ? 'тестовый BIC (не для реальных платежей)' : loc[1] === '1' ? 'пассивный участник сети SWIFT' : loc[1] === '2' ? 'платит получатель (reverse billing)' : '']];
+      x.setHud('bic', 'BIC', c);
+      return { html: x.kv(pairs) + x.note('Название банка по BIC даёт справочник SWIFT; открытого справочника без ключа для браузера нет — сверьте на сайте банка.'), md: x.kvMd(pairs) };
+    }
+    if (b.kind === 'bin') {
+      const d = b.norm.slice(4), pairs = [['BIN (первые цифры карты)', d], ['Платёжная система', binScheme(d)], ['Первая цифра', { 3: 'путешествия и развлечения (Amex, JCB, Diners)', 4: 'банки и финансы (Visa)', 5: 'банки и финансы (Mastercard и др.)', 6: 'торговля и банки (Discover, UnionPay, Maestro)', 2: 'Mastercard / МИР', 7: 'нефтяные компании', 8: 'здравоохранение и связь', 9: 'государственные программы' }[d[0]] || 'не определена']];
+      x.setHud('bin', 'BIN', binScheme(d));
+      return { html: x.kv(pairs) + x.note('Банк-эмитент по BIN определяют справочники платёжных систем (у них нет открытого API без ключа). Полные номера карт сюда вводить не нужно и не следует.'), md: x.kvMd(pairs) };
+    }
+    const ib = b.iban, parts = IBAN_PARTS[ib.cc];
+    x.setHud('iban', 'IBAN', ib.valid ? 'СУММА ВЕРНА' : 'СУММА НЕ СХОДИТСЯ', ib.valid ? 'hi' : 'alert');
+    const pairs = [['IBAN', grp4(ib.iban)], ['Страна', `${cname(ib.cc)} (${ib.cc})`], ['Контрольная сумма (mod 97)', ib.valid ? 'верна' : 'НЕ СХОДИТСЯ — опечатка или подделка реквизитов'], ['Контрольные цифры', ib.check], ['Длина', `${ib.len} знаков (для страны положено ${GE.IBAN_LEN[ib.cc]})`]];
+    if (parts) { let at = 0; parts.forEach(([n, l]) => { pairs.push([n, ib.bban.slice(at, at + l)]); at += l; }); } else pairs.push(['BBAN (внутренний номер)', ib.bban]);
+    let bank = null, err = '';
+    if (ib.valid) {
+      try { const r = await x.net(`https://openiban.com/validate/${E(ib.iban)}?getBIC=true&validateBankCode=true`, { ms: 15000 }); bank = r && r.bankData && (r.bankData.name || r.bankData.bic) ? r.bankData : null; } catch (e) { err = e.message; }
+    }
+    if (bank) {
+      pairs.push(['Банк (справочник)', bank.name], ['BIC', bank.bic], ['Город', [bank.zip, bank.city].filter(Boolean).join(' ')]);
+      x.addNode(bank.name, 'банк по IBAN (openiban)', 'org');
+    }
+    const tail = !ib.valid ? 'Название банка не запрашивалось: сумма не сходится.' : bank ? '' : err ? `Название банка не получено (${err}).` : 'Для этой страны в открытом справочнике нет названия банка: ищите по коду банка выше.';
+    return { html: x.kv(pairs) + (tail ? x.note(tail) : '') + x.note('IBAN не раскрывает владельца счёта. Проверка показывает только формат и банк.'), md: x.kvMd(pairs) };
+  }
+});
+
+/* VIN */
+reg({
+  id: 'vin-nhtsa', name: 'VIN · расшифровка автомобиля (NHTSA vPIC)', grp: GRP.veh, host: 'vpic.nhtsa.dot.gov', types: ['vin'],
+  info: 'Офлайн: страна и регион сборки по первым знакам, год (десятый знак), контрольная цифра. Онлайн: марка, модель, комплектация, двигатель и завод из справочника NHTSA (США; для машин других рынков данных меньше). Владельцев и историю пробега по VIN открытые источники не дают.',
+  home: 'https://vpic.nhtsa.dot.gov/decoder/', sends: 'VIN целиком (справочник NHTSA)', site: q => 'https://vpic.nhtsa.dot.gov/decoder/Decoder?VIN=' + E(q), test: ['vin', '1HGCM82633A004352'],
+  run: async (q, x) => {
+    const p = GE.parseVin(q);
+    if (!p) throw new Error('VIN — 17 знаков, латиница и цифры без I, O, Q');
+    const org = GE.vinOrigin(p.vin), ys = GE.vinYears(p.vin);
+    const base = [['VIN', p.vin], ['WMI (изготовитель)', p.wmi], ['Регион сборки', org.region], ['Страна по WMI', org.country || 'не определена по таблице'], ['Модельный год (10-й знак)', ys.join(' или ') || 'не определён'], ['Серийная часть (VIS)', p.vis],
+      ['Контрольная цифра (9-й знак)', p.na ? (p.checkOk ? 'верна' : `НЕ СХОДИТСЯ (ожидалась ${p.checkExp})`) : p.checkOk ? 'сходится' : 'вне Северной Америки не обязательна']];
+    x.setHud('vin', 'VIN', p.na && !p.checkOk ? 'ЦИФРА НЕ СХОДИТСЯ' : (org.country || p.wmi), p.na && !p.checkOk ? 'alert' : '');
+    let r = null, err = '';
+    try { r = ((await x.net(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${E(p.vin)}?format=json`, { ms: 20000 })).Results || [])[0]; } catch (e) { err = e.message; }
+    const pairs = base.slice();
+    if (r && (r.Make || r.Model)) {
+      const eng = [r.EngineModel, r.DisplacementL && (Math.round(r.DisplacementL * 10) / 10) + ' л', r.EngineCylinders && r.EngineCylinders + ' цил.', r.FuelTypePrimary].filter(Boolean).join(' · ');
+      pairs.splice(1, 0, ['Марка', r.Make], ['Модель', r.Model], ['Год модели (NHTSA)', r.ModelYear], ['Комплектация', [r.Trim, r.Series].filter(Boolean).join(' · ')], ['Кузов', r.BodyClass], ['Тип ТС', r.VehicleType], ['Привод', r.DriveType], ['Двигатель', eng],
+        ['Изготовитель (юрлицо)', r.Manufacturer], ['Завод', [r.PlantCity, r.PlantState, r.PlantCountry].filter(Boolean).join(', ')]);
+      x.setHud('vin', 'ТС', `${r.Make} ${r.Model} ${r.ModelYear}`.trim());
+      if (r.Manufacturer || r.Make) x.addNode(r.Manufacturer || r.Make, 'изготовитель ТС (NHTSA)', 'org');
+    }
+    const tail = r && (r.Make || r.Model) ? '' : err ? `Справочник NHTSA недоступен (${err}), показан офлайн-разбор.` : 'NHTSA не знает эту машину (справочник в основном по рынку США); показан офлайн-разбор.';
+    return { html: x.kv(pairs) + (tail ? x.note(tail) : '') + x.note('По VIN открыты только заводские данные: владелец, регистрация и пробег в бесплатных открытых источниках не публикуются.'), md: x.kvMd(pairs) };
+  }
+});
+
+/* MAC / OUI: база IEEE в формате Wireshark manuf, один раз за сеанс */
+let OUI_DB = null;
+const ouiLoad = async x => {
+  if (OUI_DB) return OUI_DB;
+  const txt = await x.net('https://www.wireshark.org/download/automated/data/manuf', { text: true, ms: 60000 });
+  const m24 = new Map(), m28 = new Map(), m36 = new Map();
+  txt.split('\n').forEach(line => {
+    if (!line || line[0] === '#') return;
+    const c = line.split('\t');
+    if (c.length < 2) return;
+    const mm = c[0].trim().match(/^([0-9A-F:]+)(?:\/(\d+))?$/i);
+    if (!mm) return;
+    const bits = mm[2] ? +mm[2] : 24, key = mm[1].replace(/:/g, '').toUpperCase().slice(0, bits / 4), rec = { short: c[1].trim(), name: (c[2] || c[1]).trim() };
+    (bits === 36 ? m36 : bits === 28 ? m28 : m24).set(key, rec);
+  });
+  return (OUI_DB = { m24, m28, m36, n: m24.size + m28.size + m36.size });
+};
+reg({
+  id: 'mac-oui', name: 'MAC · производитель по базе IEEE OUI', grp: GRP.veh, host: 'www.wireshark.org', types: ['mac'],
+  info: 'Определяет производителя сетевой карты по первым трём байтам (база IEEE в формате Wireshark, около 3 МБ, загружается один раз за сеанс) и разбирает флаги адреса: групповой или индивидуальный, заводской или локально назначенный (часто это случайный MAC телефона, тогда производитель не определяется).',
+  home: 'https://www.wireshark.org/tools/oui-lookup.html', sends: 'ничего: база скачивается целиком, адрес остаётся в браузере', site: q => 'https://www.wireshark.org/tools/oui-lookup.html', test: ['mac', '3C:5A:B4:00:00:00'],
+  run: async (q, x) => {
+    const m = GE.parseMac(q);
+    if (!m) throw new Error('не похоже на MAC-адрес (AA:BB:CC:DD:EE:FF)');
+    const db = await ouiLoad(x), rec = m.full ? (db.m36.get(m.hex.slice(0, 9)) || db.m28.get(m.hex.slice(0, 7)) || db.m24.get(m.hex.slice(0, 6))) : db.m24.get(m.hex.slice(0, 6));
+    const flags = [m.multicast ? 'групповой (multicast)' : 'индивидуальный (unicast)', m.local ? 'назначен локально (часто случайный MAC)' : 'заводской (универсальный)'];
+    x.setHud('mac', 'MAC', m.local ? 'ЛОКАЛЬНЫЙ' : rec ? rec.short : 'не найден', m.local ? 'hi' : '');
+    const pairs = [['Адрес', m.norm], ['OUI (первые 3 байта)', m.oui.match(/../g).join(':')], ['Производитель', rec ? rec.name : m.local ? 'не определяется: адрес назначен локально' : 'нет в базе IEEE'], ['Краткое имя', rec && rec.short], ['Флаги', flags.join(' · ')], ['Записей в базе', num(db.n)]];
+    if (rec) x.addNode(rec.name, 'производитель сетевой карты (IEEE OUI)', 'org');
+    return { html: x.kv(pairs) + (m.local ? x.note('Современные телефоны и ноутбуки подставляют случайные MAC-адреса при подключении к Wi-Fi: по ним производителя не установить.') : ''), md: x.kvMd(pairs) };
+  }
+});
+
+/* Реестры юрлиц: GLEIF (весь мир), Sirene (Франция), Brønnøysund (Норвегия) */
+const gAddr = a => a ? [...(a.addressLines || []), a.postalCode, a.city, a.country].filter(Boolean).join(', ') : '';
+const gl = 'https://api.gleif.org/api/v1/';
+reg({
+  id: 'gleif', name: 'GLEIF · юрлицо по названию или LEI, материнские структуры', grp: GRP.reg, host: 'api.gleif.org', types: ['org', 'regid'], when: q => /^[A-Z0-9]{18}\d{2}$/i.test(q) || /[A-Za-zА-Яа-яЁё]{3}/.test(q),
+  info: 'Глобальный реестр идентификаторов юрлиц (LEI): официальное название, адреса, регистрационный номер в национальном реестре, статус, прямая и конечная материнская компания, дочерние структуры. По названию — до шести похожих записей.',
+  home: 'https://search.gleif.org', sends: 'название организации или LEI', site: q => 'https://search.gleif.org/#/search/simpleSearch=' + E(q), test: ['org', 'Siemens'],
+  run: async (q, x) => {
+    const isLei = /^[A-Z0-9]{18}\d{2}$/i.test(q) && /\d/.test(q.slice(0, 18));
+    if (!isLei) {
+      const r = await x.net(`${gl}lei-records?filter%5Bfulltext%5D=${E(q.replace(/"/g, ''))}&page%5Bsize%5D=6`, { ms: 20000 });
+      const items = (r.data || []).map(d => { const e = d.attributes.entity; return { lei: d.id, title: e.legalName.name, sub: `${d.id} · ${gAddr(e.legalAddress)} · ${e.status}`, tag: e.legalAddress.country, href: 'https://search.gleif.org/#/record/' + d.id }; });
+      const total = r.meta && r.meta.pagination ? r.meta.pagination.total : items.length;
+      if (items[0]) x.setHud('gleif', 'GLEIF', `${num(total)} записей`);
+      return { html: x.list(items) + (items.length ? `<div class="pl-pivots">${items.slice(0, 4).map(i => x.pivot(i.lei, 'regid', 'LEI ' + i.lei.slice(0, 6) + '…')).join(' ')}</div>` + x.note('Выберите LEI, чтобы увидеть адреса, статус и структуру владения.') : ''), md: x.listMd(items) };
+    }
+    const lei = q.toUpperCase();
+    const rec = await x.net(`${gl}lei-records/${E(lei)}`, { ms: 20000 });
+    const [up, dp, ch] = await Promise.all([`${gl}lei-records/${lei}/ultimate-parent`, `${gl}lei-records/${lei}/direct-parent`, `${gl}lei-records/${lei}/direct-children?page%5Bsize%5D=5`].map(u => x.net(u, { ms: 15000 }).catch(() => null)));
+    const a = rec.data.attributes, e = a.entity, g = a.registration || {}, nm = e.legalName.name;
+    x.setHud('gleif', 'LEI', e.status === 'ACTIVE' ? 'ДЕЙСТВУЕТ' : e.status, e.status === 'ACTIVE' ? 'hi' : 'alert');
+    x.addNode(nm, 'юрлицо (GLEIF)', 'org');
+    const par = r => r && r.data && r.data.attributes ? { lei: r.data.id, name: r.data.attributes.entity.legalName.name } : null, P1 = par(dp), P2 = par(up);
+    [P1, P2].forEach(p => { if (p) x.addNode(p.name, 'материнская структура (GLEIF)', 'org'); });
+    const kids = ch && ch.data ? ch.data.map(d => ({ lei: d.id, name: d.attributes.entity.legalName.name })) : [];
+    const kidTotal = ch && ch.meta && ch.meta.pagination ? ch.meta.pagination.total : kids.length;
+    const pv = p => p ? x.pivot(p.lei, 'regid', p.name) : '';
+    const pairs = [['Название', nm], ['LEI', lei], ['Статус юрлица', e.status], ['Статус LEI', g.status], ['Юрисдикция', e.jurisdiction], ['Регистрационный номер', e.registeredAs], ['Реестр (код)', e.registeredAt && e.registeredAt.id], ['Юридический адрес', gAddr(e.legalAddress)], ['Фактический адрес', gAddr(e.headquartersAddress)],
+      ['Категория', e.category], ['Первая регистрация LEI', dt(g.initialRegistrationDate)], ['Обновлено', dt(g.lastUpdateDate)], ['BIC', (a.bic || []).join(', ')],
+      ['Прямая материнская', pv(P1), 1], ['Конечная материнская', pv(P2), 1], ['Дочерних структур', kidTotal ? num(kidTotal) : ''], ['Примеры дочерних', kids.map(pv).join(' '), 1]];
+    return { html: x.kv(pairs.filter(p => p[1] !== '' && p[1] != null)) + x.note('LEI есть не у всех компаний: он обязателен для участников финансовых рынков, поэтому небольшие фирмы здесь обычно не найдутся.'), md: x.kvMd(pairs.map(p => p[2] ? [p[0], (p[1].match(/data-pivot-q="([^"]+)"/g) || []).map(s => s.slice(15, -1)).join(', ')] : p)) };
+  }
+});
+reg({
+  id: 'fr-sirene', name: 'Франция · реестр компаний Sirene', grp: GRP.reg, host: 'recherche-entreprises.api.gouv.fr', types: ['org', 'regid'], when: q => /^(\d{9}|\d{14})$/.test(q.replace(/\s/g, '')) || /[A-Za-zÀ-ÿ]{3}/.test(q),
+  info: 'Официальный открытый реестр французских юрлиц и предпринимателей: SIREN/SIRET, адрес, вид деятельности, статус, дата создания, численность и руководители компании (по данным государственного реестра). Для организаций других стран ничего не найдёт.',
+  home: 'https://annuaire-entreprises.data.gouv.fr', sends: 'название организации или SIREN/SIRET', site: q => 'https://annuaire-entreprises.data.gouv.fr/rechercher?terme=' + E(q), test: ['org', 'Airbus'],
+  run: async (q, x) => {
+    const d = q.replace(/\s/g, ''), id = /^(\d{9}|\d{14})$/.test(d), r = await x.net(`https://recherche-entreprises.api.gouv.fr/search?q=${E(id ? d : q)}&per_page=5`, { ms: 20000 }), res = r.results || [];
+    if (!res.length) return { html: x.note('В реестре Франции ничего не найдено (реестр охватывает только французские компании).'), md: '' };
+    const items = res.map(o => ({ title: o.nom_complet, sub: `SIREN ${o.siren} · ${(o.siege && o.siege.libelle_commune) || ''} · ${o.etat_administratif === 'A' ? 'действует' : 'прекратила деятельность'}`, tag: 'FR', href: 'https://annuaire-entreprises.data.gouv.fr/entreprise/' + o.siren }));
+    const o = res[0], s = o.siege || {}, boss = (o.dirigeants || []).slice(0, 6).map(p => p.type_dirigeant === 'personne morale' ? `${p.denomination} (${p.qualite})` : `${[p.prenoms, p.nom].filter(Boolean).join(' ')} (${p.qualite})`).join('; ');
+    x.setHud('sirene', 'SIRENE', o.etat_administratif === 'A' ? 'ДЕЙСТВУЕТ' : 'ПРЕКРАЩЕНА', o.etat_administratif === 'A' ? 'hi' : 'alert');
+    x.addNode(o.nom_complet, 'юрлицо Франции (Sirene)', 'org');
+    const pairs = [['Название', o.nom_complet], ['SIREN', o.siren], ['SIRET штаб-квартиры', s.siret], ['Адрес', s.adresse], ['Вид деятельности (код NAF)', o.activite_principale], ['Дата создания', o.date_creation], ['Статус', o.etat_administratif === 'A' ? 'действует' : 'прекратила деятельность'], ['Филиалов', o.nombre_etablissements], ['Руководство (по реестру)', boss]];
+    return { html: x.kv(pairs) + (res.length > 1 ? '<div class="muted" style="margin:10px 0 6px">Другие совпадения</div>' + x.list(items.slice(1)) : ''), md: x.kvMd(pairs) };
+  }
+});
+reg({
+  id: 'no-brreg', name: 'Норвегия · реестр организаций Brønnøysund', grp: GRP.reg, host: 'data.brreg.no', types: ['org'],
+  info: 'Открытый реестр организаций Норвегии: номер, форма, адрес, вид деятельности, число работников, сайт и признаки банкротства или ликвидации. Для организаций других стран ничего не найдёт.',
+  home: 'https://www.brreg.no/en/', sends: 'название организации', site: q => 'https://virksomhet.brreg.no/nb/oppslag/enheter?navn=' + E(q), test: ['org', 'Equinor'],
+  run: async (q, x) => {
+    const r = await x.net(`https://data.brreg.no/enhetsregisteret/api/enheter?navn=${E(q.replace(/"/g, ''))}&size=5`, { ms: 20000 }), res = (r._embedded && r._embedded.enheter) || [];
+    if (!res.length) return { html: x.note('В реестре Норвегии ничего не найдено (реестр охватывает только норвежские организации).'), md: '' };
+    const addr = a => a ? [...(a.adresse || []), a.postnummer, a.poststed, a.land].filter(Boolean).join(', ') : '';
+    const items = res.map(o => ({ title: o.navn, sub: `${o.organisasjonsnummer} · ${o.organisasjonsform && o.organisasjonsform.beskrivelse || ''} · ${(o.forretningsadresse && o.forretningsadresse.poststed) || ''}`, tag: 'NO', href: 'https://virksomhet.brreg.no/nb/oppslag/enheter/' + o.organisasjonsnummer }));
+    const o = res[0], bad = o.konkurs ? 'банкротство' : o.underAvvikling || o.underTvangsavviklingEllerTvangsopplosning ? 'ликвидация' : '';
+    x.setHud('brreg', 'BRREG', bad ? bad.toUpperCase() : 'ДЕЙСТВУЕТ', bad ? 'alert' : 'hi');
+    x.addNode(o.navn, 'организация Норвегии (Brønnøysund)', 'org');
+    const pairs = [['Название', o.navn], ['Номер организации', o.organisasjonsnummer], ['Форма', o.organisasjonsform && o.organisasjonsform.beskrivelse], ['Адрес', addr(o.forretningsadresse || o.postadresse)], ['Вид деятельности', o.naeringskode1 && `${o.naeringskode1.kode} · ${o.naeringskode1.beskrivelse}`], ['Работников', o.antallAnsatte], ['Зарегистрирована', o.registreringsdatoEnhetsregisteret], ['Сайт', o.hjemmeside && x.A(/^https?:/i.test(o.hjemmeside) ? o.hjemmeside : 'https://' + o.hjemmeside, o.hjemmeside), 1], ['Особый статус', bad]];
+    return { html: x.kv(pairs) + (res.length > 1 ? '<div class="muted" style="margin:10px 0 6px">Другие совпадения</div>' + x.list(items.slice(1)) : ''), md: x.kvMd(pairs.map(p => p[2] ? [p[0], o.hjemmeside] : p)) };
+  }
+});
+
+/* Проверка никнейма по открытому списку WhatsMyName */
+const WMN_URL = 'https://raw.githubusercontent.com/WebBreacher/WhatsMyName/main/wmn-data.json', WMN_PROXY = 'https://god-eye-proxy.zajcevtihon09.workers.dev';
+const WMN_SKIP = new Set(['xx NSFW xx', 'dating', 'health', 'political']);
+const WMN_ORDER = ['social', 'coding', 'gaming', 'video', 'music', 'blog', 'art', 'images', 'tech', 'hobby', 'business', 'news', 'misc', 'archived', 'shopping', 'finance', 'search'];
+let WMN = null, wmnRun = 0;
+const WMN_TOP = ['Instagram', 'TikTok', 'YouTube User', 'YouTube Channel', 'Pinterest', 'Medium', 'Steam', 'Twitch', 'SoundCloud', 'Behance', 'Dribbble', 'Flickr', 'Vimeo', 'Telegram', 'Keybase', 'Docker Hub (User)', 'npm', 'pypi', 'Replit', 'Patreon', 'Bluesky Username', 'Livejournal', 'Habr (User)', 'Facebook', 'tumblr', 'Snapchat', 'DeviantArt', 'Last.fm', 'Bandcamp', 'Imgur', 'Gravatar', 'Substack', 'Kaggle', 'Codeforces', 'Roblox', 'lichess.org', 'Strava', 'Letterboxd', 'MyAnimeList', 'Producthunt', 'about.me', 'Linktree', 'Flipboard', 'gumroad', 'Etsy', 'ok.ru', 'Pastebin', 'Codeberg', 'Gitee', 'GitLab', 'Duolingo', 'OpenStreetMap'];
+/* сначала известные сайты, затем по кругу из категорий, чтобы набралось max */
+const wmnPick = (sites, max) => {
+  const top = WMN_TOP.map(n => sites.find(s => s.name === n)).filter(Boolean), by = new Map();
+  sites.filter(s => !top.includes(s)).forEach(s => { if (!by.has(s.cat)) by.set(s.cat, []); by.get(s.cat).push(s); });
+  const out = top.slice(0, max), cats = WMN_ORDER.filter(c => by.has(c));
+  for (let i = 0; out.length < max; i++) { let any = false; cats.forEach(c => { const s = by.get(c)[i]; if (s && out.length < max) { out.push(s); any = true; } }); if (!any) break; }
+  return out;
+};
+const wmnProbe = async (s, acct) => {
+  const clean = s.strip_bad_char ? acct.split('').filter(c => !s.strip_bad_char.includes(c)).join('') : acct;
+  const url = s.uri_check.replace('{account}', E(clean)), ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 11000);
+  try {
+    const r = await fetch(`${WMN_PROXY}/?url=${E(url)}`, { signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' }), body = await r.text();
+    const hit = r.status === s.e_code && (!s.e_string || body.includes(s.e_string)), miss = (s.m_string && body.includes(s.m_string)) || (s.m_code != null && r.status === s.m_code);
+    return hit && !(s.m_string && body.includes(s.m_string)) ? { s, st: 'found', url: (s.uri_pretty || s.uri_check).replace('{account}', E(clean)) } : miss || r.status === 404 ? { s, st: 'none' } : { s, st: 'unknown' };
+  } catch (e) { return { s, st: 'unknown' }; } finally { clearTimeout(t); }
+};
+reg({
+  id: 'wmn', name: 'WhatsMyName · проверка никнейма на сотнях сайтов', grp: GRP.soc, host: 'raw.githubusercontent.com и ваш прокси', types: ['username'],
+  info: 'Берёт открытый список WhatsMyName (около 700 сайтов) и проверяет, есть ли публичная страница с таким именем. За один запуск — до 90 сайтов, в первую очередь соцсети, код, игры, видео, музыка, блоги. Запросы идут через ваш прокси (Cloudflare Worker). Категории знакомств, 18+, здоровья и политики исключены. Совпадение имени — это только кандидат: оно не доказывает, что аккаунты принадлежат одному человеку.',
+  home: 'https://github.com/WebBreacher/WhatsMyName', sends: 'никнейм уходит на проверяемые сайты (через ваш прокси)', site: q => 'https://whatsmyname.app/?q=' + E(q), test: ['username', 'torvalds'],
+  run: async (q, x) => {
+    const acct = q.replace(/^@/, '');
+    if (!/^[\w.-]{2,40}$/.test(acct)) throw new Error('никнейм: латиница, цифры, _ . -');
+    if (!WMN) { const d = await x.net(WMN_URL, { ms: 25000 }); WMN = (d.sites || []).filter(s => s && s.uri_check && /\{account\}/.test(s.uri_check) && /^https:\/\//.test(s.uri_check) && !s.post_body && !s.headers && !s.protection && s.e_code != null && s.e_string && !WMN_SKIP.has(s.cat)); }
+    const list = wmnPick(WMN, 90), me = ++wmnRun, hits = [], cnt = { found: 0, none: 0, unknown: 0 };
+    let next = 0;
+    const worker = async () => {
+      while (next < list.length && me === wmnRun) {
+        const s = list[next++], r = await wmnProbe(s, acct);
+        cnt[r.st]++; if (r.st === 'found') hits.push(r);
+        x.setHud('wmn', 'ПРОВЕРКА НИКА', `${cnt.found + cnt.none + cnt.unknown}/${list.length} · найдено ${cnt.found}`);
+      }
+    };
+    await Promise.all(Array.from({ length: 6 }, worker));
+    if (me !== wmnRun) return { html: x.note('Проверка прервана новым запуском.'), md: '' };
+    hits.sort((a, b) => WMN_ORDER.indexOf(a.s.cat) - WMN_ORDER.indexOf(b.s.cat));
+    hits.slice(0, 10).forEach(h => x.addNode(`${h.s.name} · ${acct}`, 'профиль-кандидат (WhatsMyName)', 'source'));
+    x.setHud('wmn', 'ПРОВЕРКА НИКА', `найдено ${cnt.found} из ${list.length}`, cnt.found ? 'hi' : '');
+    const items = hits.map(h => ({ title: h.s.name, sub: h.s.cat, tag: 'кандидат', href: h.url }));
+    const sum = `Проверено ${list.length}: найдено ${cnt.found}, нет ${cnt.none}, не удалось определить ${cnt.unknown}.`;
+    return { html: x.note(sum) + x.list(items) + x.note('Это кандидаты: одинаковое имя на разных сайтах не значит, что это один человек. Откройте страницу и сверьте аватар, даты, язык и связи.'), md: `- ${sum}\n` + x.listMd(items) };
+  }
+});
+
+/* Bitcoin: публичный реестр блокчейна через Blockstream Esplora */
+reg({
+  id: 'blockstream', name: 'Blockstream · адрес Bitcoin', grp: GRP.chain, host: 'blockstream.info', types: ['crypto'], when: q => GE.detectCryptoNet(q) === 'BTC',
+  info: 'Баланс, всего получено и потрачено, число транзакций, дата последней операции и список недавних транзакций с итогом для этого адреса. Это данные публичного реестра блокчейна: владельца адреса они не раскрывают.',
+  home: 'https://blockstream.info', sends: 'адрес кошелька', site: q => 'https://blockstream.info/address/' + E(q), test: ['crypto', 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'],
+  run: async (q, x) => {
+    const [a, txs] = await Promise.all([x.net(`https://blockstream.info/api/address/${E(q)}`, { ms: 25000 }), x.net(`https://blockstream.info/api/address/${E(q)}/txs`, { ms: 25000 }).catch(() => [])]);
+    const c = a.chain_stats, m = a.mempool_stats, btc = v => (v / 1e8).toLocaleString('ru-RU', { maximumFractionDigits: 8 }), bal = c.funded_txo_sum - c.spent_txo_sum;
+    x.setHud('btc', 'BTC БАЛАНС', btc(bal) + ' BTC');
+    const rows = (Array.isArray(txs) ? txs : []).slice(0, 8).map(t => {
+      const spent = t.vin.filter(v => v.prevout && v.prevout.scriptpubkey_address === q).reduce((s, v) => s + v.prevout.value, 0), got = t.vout.filter(o => o.scriptpubkey_address === q).reduce((s, o) => s + o.value, 0), net = got - spent;
+      return { title: (net >= 0 ? '+' : '−') + btc(Math.abs(net)) + ' BTC', sub: `${t.status.confirmed ? dt(t.status.block_time) : 'ожидает подтверждения'} · ${t.txid.slice(0, 18)}…`, tag: net >= 0 ? 'вход' : 'выход', href: 'https://blockstream.info/tx/' + t.txid };
+    });
+    const last = Array.isArray(txs) && txs[0] && txs[0].status.confirmed ? dt(txs[0].status.block_time) : '';
+    const pairs = [['Адрес', q], ['Баланс', btc(bal) + ' BTC'], ['Всего получено', btc(c.funded_txo_sum) + ' BTC'], ['Всего потрачено', btc(c.spent_txo_sum) + ' BTC'], ['Транзакций в блокчейне', num(c.tx_count)], ['В очереди (мемпул)', m.tx_count ? num(m.tx_count) : ''], ['Последняя подтверждённая операция', last]];
+    return { html: x.kv(pairs) + (rows.length ? '<div class="muted" style="margin:10px 0 6px">Последние транзакции</div>' + x.list(rows) : '') + x.note('Адрес в блокчейне — это не личность. Связь адреса с человеком или организацией устанавливается только по независимым источникам.'), md: x.kvMd(pairs) + (rows.length ? '\n' + x.listMd(rows) : '') };
+  }
+});
+/* ===LOOKUPS-END=== */
 const typeLabel = t => GE.QTYPES[t] ? GE.QTYPES[t].l : t;
-const SHORT = { text: 'ТЕКСТ', username: 'НИК', domain: 'ДОМЕН', ip: 'IP', asn: 'ASN', email: 'EMAIL', url: 'ССЫЛКА', image: 'ФОТО', coords: 'КООРД.', place: 'МЕСТО', org: 'ОРГ.', regid: 'ИНН/LEI', crypto: 'КРИПТО', cve: 'CVE', transport: 'БОРТ', phone: 'ТЕЛ.', hash: 'ХЕШ' };
+const SHORT = { text: 'ТЕКСТ', username: 'НИК', domain: 'ДОМЕН', ip: 'IP', asn: 'ASN', email: 'EMAIL', url: 'ССЫЛКА', image: 'ФОТО', coords: 'КООРД.', place: 'МЕСТО', org: 'ОРГ.', regid: 'ИНН/LEI', crypto: 'КРИПТО', cve: 'CVE', transport: 'БОРТ', phone: 'ТЕЛ.', hash: 'ХЕШ', bank: 'БАНК', vin: 'VIN', mac: 'MAC' };
 const view = { q: '', type: 'all', grp: 'all', health: new Map(), cxTypes: new Set(['text']), busy: false };
 const sfx = n => { try { GE.audio && GE.audio.sfx(n); } catch (e) { /* звук не обязателен */ } };
 const refreshSearch = () => { try { if (GE.search && GE.search.render) GE.search.render(); } catch (e) { /* вкладка поиска ещё не готова */ } };
