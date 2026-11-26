@@ -332,6 +332,109 @@ a.pl-th:hover img { filter: none; }
 .ph-box { position: absolute; border: 1.5px solid var(--crimson-3); background: rgba(226,35,46,0.16); box-shadow: 0 0 0 9999px rgba(0,0,0,0.45); pointer-events: none; }
 @media (max-width: 900px) { .ph-cols, .ph-cols2 { grid-template-columns: 1fr; } .ph-form { grid-template-columns: 1fr; } }
 /* ===PHOTO-CSS-END=== */
+/* ===GEO2-CSS-BEGIN=== */
+/* Гео-центр: карта, панели и живые слои */
+.map-wrap.geo2{height:clamp(560px,76vh,900px);border:1px solid rgba(205,205,218,.2);background:#07070a}
+.map-wrap.geo2.b-dark .leaflet-base-pane{filter:grayscale(1) invert(1) contrast(1.12) brightness(.98)}
+.map-wrap.geo2.b-sat .leaflet-base-pane{filter:grayscale(.5) contrast(1.08) brightness(.88)}
+.map-wrap.geo2.b-topo .leaflet-base-pane{filter:grayscale(.55) contrast(1.05) brightness(.86)}
+.gm-top{position:absolute;z-index:600;top:12px;left:56px;right:12px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
+.gm-top>*{pointer-events:auto}
+.gm-search{position:relative;flex:1 1 auto;max-width:440px}
+.gm-search>.ic{position:absolute;left:11px;top:11px;width:15px;height:15px;color:var(--muted);pointer-events:none;z-index:2}
+.gm-search .input{padding-left:34px;background:rgba(8,8,11,.9);backdrop-filter:blur(8px);border-color:rgba(205,205,218,.2)}
+.gm-sugg{position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:280px;overflow:auto;background:rgba(9,9,12,.97);border:1px solid rgba(205,205,218,.22);box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:700}
+.gm-sugg button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--silver);cursor:pointer}
+.gm-sugg button b{display:block;font:500 13px/1.3 var(--f-body);color:#fff}
+.gm-sugg button small{display:block;margin-top:2px;font:400 11px/1.3 var(--f-body);color:var(--dim)}
+.gm-sugg button:hover{background:var(--crimson-soft)}
+.gm-btns{display:flex;gap:6px;margin-left:auto}
+.gm-b{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border:1px solid rgba(205,205,218,.2);background:rgba(8,8,11,.9);backdrop-filter:blur(8px);color:var(--silver);font:500 12px/1 var(--f-body);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.gm-b.ico{width:36px;padding:0;justify-content:center}
+.gm-b:hover{border-color:var(--crimson-3);color:#fff}
+.gm-b.on{border-color:var(--crimson-3);color:#fff;background:var(--crimson-soft)}
+.gm-rail{position:absolute;z-index:600;left:12px;top:96px;display:flex;flex-direction:column;gap:4px}
+.gm-rail>button{width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(205,205,218,.2);background:rgba(8,8,11,.9);backdrop-filter:blur(8px);color:var(--silver);cursor:pointer}
+.gm-rail>button:hover{border-color:var(--crimson-3);color:#fff}
+.gm-rail>button.on{border-color:var(--crimson-3);color:#fff;background:var(--crimson-soft);box-shadow:0 0 14px rgba(226,35,46,.3)}
+.gm-rad{position:absolute;left:44px;top:80px;padding:8px 10px;background:rgba(8,8,11,.95);border:1px solid rgba(205,205,218,.22);white-space:nowrap}
+.gm-rad label{display:flex;align-items:center;gap:8px;font:500 9.5px/1 var(--f-mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.gm-rad .select{min-height:28px;padding:3px 8px;font-size:12px;width:auto}
+.gm-pop{position:absolute;z-index:650;top:56px;right:12px;min-width:220px;display:flex;flex-direction:column;background:rgba(9,9,12,.97);border:1px solid rgba(205,205,218,.24);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.gm-pop button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--silver);font:500 12.5px/1 var(--f-body);text-align:left;cursor:pointer}
+.gm-pop button small{margin-left:auto;font:400 10.5px/1 var(--f-mono);color:var(--dim)}
+.gm-pop button:hover,.gm-pop button.on{background:var(--crimson-soft);color:#fff}
+.gm-pop hr{border:0;border-top:1px solid var(--line-2);margin:0}
+.gm-sw{width:30px;height:20px;border:1px solid rgba(205,205,218,.3);display:inline-block;flex:none}
+.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm{background:linear-gradient(135deg,#dcd9d1,#b6b3aa)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}
+.gm-panel{position:absolute;z-index:620;top:56px;right:12px;bottom:12px;width:312px;display:flex;flex-direction:column;background:rgba(9,9,12,.95);backdrop-filter:blur(10px);border:1px solid rgba(205,205,218,.22);box-shadow:0 22px 56px rgba(0,0,0,.7);transition:transform .32s var(--ease),opacity .25s}
+.gm-panel.off{transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none}
+.gm-panel-h{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.gm-panel-h b{font:600 10.5px/1 var(--f-mono);letter-spacing:.24em;color:var(--crimson-3);text-transform:uppercase}
+.gm-panel-b{flex:1;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.gm-ly{padding:12px 14px;border-bottom:1px solid var(--line)}
+.gm-ly.on{background:linear-gradient(90deg,rgba(139,0,0,.12),transparent)}
+.gm-ly-h{display:flex;align-items:center;gap:10px;cursor:pointer}
+.gm-ly-h b{font:500 13px/1.2 var(--f-body);color:#fff}
+.gm-ly p{margin:7px 0 0;font-size:11.5px;line-height:1.5;color:var(--dim)}
+.gm-ly-b{margin-top:10px;display:grid;gap:9px}
+.gm-ly-s{margin-top:7px;font:400 10.5px/1.45 var(--f-mono);color:var(--silver-2)}
+.gm-f{display:flex;flex-direction:column;gap:4px}
+.gm-f>span{font:500 9.5px/1 var(--f-mono);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.gm-f .select,.gm-f .input{min-height:32px;padding:5px 9px;font-size:12px}
+.gm-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gm-row input[type=range],.gm-f input[type=range]{flex:1;accent-color:#e2232e;min-width:0}
+.gm-chk{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--silver-2)}
+.gm-chk input{accent-color:#e2232e}
+.gm-chips{display:flex;flex-wrap:wrap;gap:4px}
+.gm-chips button{padding:4px 8px;border:1px solid var(--line-2);background:rgba(255,255,255,.02);color:var(--silver);font:500 10.5px/1 var(--f-mono);cursor:pointer}
+.gm-chips button.on,.gm-chips button:hover{border-color:var(--crimson-3);color:#fff}
+.gm-note{font-size:11.5px;line-height:1.5;color:var(--silver-2)}
+.gm-legend{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--silver-2)}
+.gm-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;border:1px solid #0a0a0c}
+.gm-time{font-size:11.5px;color:var(--silver);white-space:nowrap}
+.gm-hud{position:absolute;z-index:560;left:12px;bottom:40px;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 350px);pointer-events:none}
+.gm-chip{padding:6px 10px;background:rgba(8,8,11,.92);border:1px solid rgba(205,205,218,.22);font:500 11px/1.25 var(--f-mono);letter-spacing:.03em;color:var(--silver);backdrop-filter:blur(6px)}
+.gm-alert{color:#ff4b55}
+.gm-chart{position:absolute;z-index:580;left:60px;right:340px;bottom:12px;background:rgba(8,8,11,.95);border:1px solid rgba(205,205,218,.22);backdrop-filter:blur(8px);padding:7px 12px 2px}
+.gm-chart-h{display:flex;align-items:center;gap:12px;margin-bottom:4px;font:500 11px/1 var(--f-mono);color:var(--silver-2)}
+.gm-chart-h b{color:#fff;letter-spacing:.16em;text-transform:uppercase;font-size:10px}
+.gm-chart-h span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-x{margin-left:auto;color:var(--muted);background:none;border:0;cursor:pointer}
+.gm-x:hover{color:#fff}
+.gm-chart canvas{display:block;width:100%;height:120px;cursor:crosshair}
+.gm-menu{position:absolute;z-index:700;min-width:250px;max-width:330px;background:rgba(9,9,12,.98);border:1px solid rgba(205,205,218,.3);box-shadow:0 20px 44px rgba(0,0,0,.72)}
+.gm-menu>button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--silver);font:500 12.5px/1.2 var(--f-body);cursor:pointer}
+.gm-menu>button:hover{background:var(--crimson-soft);color:#fff}
+.gm-menu-h{display:flex;flex-direction:column;border-bottom:1px solid var(--line-2)}
+.gm-menu-h button{display:block;width:100%;text-align:left;padding:7px 12px;border:0;background:transparent;color:#fff;font:500 11.5px/1.3 var(--f-mono);cursor:pointer}
+.gm-menu-h button:hover{background:var(--crimson-soft)}
+.gm-menu-h small{display:inline-block;width:64px;color:var(--dim);font-size:9.5px;letter-spacing:.12em}
+.gm-menu-l{display:flex;flex-wrap:wrap;gap:4px;padding:9px 10px}
+.gm-menu-l a{padding:4px 7px;border:1px solid var(--line-2);font:500 10.5px/1 var(--f-body);color:var(--silver);text-decoration:none}
+.gm-menu-l a:hover{border-color:var(--crimson-3);color:#fff}
+.gm-lbl{background:none!important;border:0!important;white-space:nowrap;pointer-events:none}
+.gm-lbl span{display:inline-block;transform:translate(-50%,-130%);padding:2px 6px;background:rgba(8,8,11,.93);border:1px solid rgba(226,35,46,.55);color:#fff;font:600 10px/1.2 var(--f-mono);letter-spacing:.04em}
+.gm-lbl.big span{font-size:11px;padding:3px 8px;border-color:#e2232e;background:rgba(40,4,8,.95)}
+.gm-plane{background:none!important;border:0!important;filter:drop-shadow(0 1px 2px rgba(0,0,0,.75))}
+.gm-plane svg{width:22px;height:22px;display:block}
+.gm-plane.emerg svg{animation:gmPulse 1s ease-in-out infinite}
+@keyframes gmPulse{0%,100%{filter:drop-shadow(0 0 2px #ff4b55)}50%{filter:drop-shadow(0 0 9px #ff4b55)}}
+.gm-wk{background:rgba(8,8,11,.93)!important;border:1px solid #cacad2!important;color:#fff;font:700 11px/18px var(--f-mono);text-align:center}
+.gm-ph{border:2px solid #f2f2f6!important;background:#000!important;box-shadow:0 2px 8px rgba(0,0,0,.7);overflow:hidden}
+.gm-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.gm-tip{background:rgba(8,8,11,.95)!important;border:1px solid rgba(205,205,218,.3)!important;color:#fff!important;font:600 10.5px/1.2 var(--f-mono)!important;border-radius:0!important;box-shadow:none!important}
+.gm-tip::before{display:none!important}
+.leaflet-container.gm-draw{cursor:crosshair!important}
+.leaflet-container.gm-draw .leaflet-interactive{pointer-events:none!important}
+@media (max-width:760px){
+  .gm-b span{display:none}
+  .gm-top{left:52px}
+  .gm-panel{left:12px;width:auto;top:56px}
+  .gm-chart{left:12px;right:12px}
+  .gm-hud{max-width:calc(100% - 24px);bottom:70px}
+}
+/* ===GEO2-CSS-END=== */
 
 /* ═══════════════════════════ КАРКАС ═══════════════════════════ */
 #app { position: relative; z-index: 1; min-height: 100vh; }
@@ -845,14 +948,9 @@ mark.hl { background: rgba(226,35,46,0.22); color: #fff; padding: 0 2px; border-
 /* ═══════════════════════════ КАРТА ═══════════════════════════ */
 .map-wrap { position: relative; height: 520px; border: 1px solid var(--line); background: #070708; }
 #geo-map { position: absolute; inset: 0; }
-.map-ui { position: absolute; z-index: 500; top: 12px; left: 56px; right: 12px; display: flex; gap: 8px; pointer-events: none; }
-.map-ui > * { pointer-events: auto; }
-.map-ui .input { background: rgba(5,5,6,0.88); backdrop-filter: blur(6px); max-width: 420px; }
 .map-coords { position: absolute; z-index: 500; left: 12px; bottom: 12px; font: 400 11px/1 var(--f-mono); letter-spacing: 0.1em; color: var(--silver-2); background: rgba(5,5,6,0.85); border: 1px solid var(--line-2); padding: 7px 10px; pointer-events: none; }
 .map-fallback { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; color: var(--muted); font-size: 13px; }
 .leaflet-container { background: #070708 !important; font-family: var(--f-body) !important; }
-.leaflet-tile-pane { filter: grayscale(1) invert(1) contrast(1.08) brightness(0.82); }
-.map-wrap.sat .leaflet-tile-pane { filter: grayscale(0.85) contrast(1.1) brightness(0.8); }
 .leaflet-control-zoom a, .leaflet-bar a { background: rgba(8,8,10,0.92) !important; color: var(--silver) !important; border-color: var(--line-2) !important; }
 .leaflet-bar { border: 1px solid var(--line-2) !important; border-radius: 0 !important; box-shadow: none !important; }
 .leaflet-bar a:hover { color: #fff !important; background: var(--crimson-2) !important; }
@@ -11297,133 +11395,6 @@ const bearingDeg = (a, b) => {
   const x = Math.cos(rad(a.lat)) * Math.sin(rad(b.lat)) - Math.sin(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.cos(rad(b.lng - a.lng));
   return deg(Math.atan2(y, x));
 };
-GEO.init = () => {
-  const slot = $('.view[data-entity="geo"] .ent-extra'); if (!slot) return;
-  slot.innerHTML = `
-    <div class="map-wrap" id="map-wrap" style="margin-bottom:16px">
-      <div id="geo-map"></div>
-      <div class="map-ui">
-        <input class="input" id="map-search" placeholder="Найти место или вставить координаты…">
-        <div class="seg" style="background:rgba(5,5,6,.88)"><button class="on" data-layer="osm">СХЕМА</button><button data-layer="sat">СПУТНИК</button></div>
-        <div class="seg" id="map-modes" style="background:rgba(5,5,6,.88)">
-          <button class="on" data-mmode="pick" title="Поставить точку">ТОЧКА</button>
-          <button data-mmode="radius" title="Триангуляция: клик ставит круг радиуса">РАДИУС</button>
-          <button data-mmode="ruler" title="Линейка: два клика измеряют расстояние и азимут">АЗИМУТ</button>
-        </div>
-        <select class="select" id="map-rad-km" style="width:auto;min-height:30px;padding:4px 8px;background:rgba(5,5,6,.88)" title="Радиус круга (км)">
-          <option value="0.5">0.5 км</option><option value="1">1 км</option><option value="2" selected>2 км</option><option value="5">5 км</option><option value="10">10 км</option><option value="25">25 км</option><option value="50">50 км</option>
-        </select>
-        <select class="select" id="map-overpass" style="width:auto;min-height:30px;padding:4px 8px;background:rgba(5,5,6,.88)" title="Найти объекты OpenStreetMap в видимой области">
-          <option value="">Overpass OSM…</option>
-          ${Object.entries(OVERPASS_TAGS).map(([k, v]) => `<option value="${k}">${esc(v.l)}</option>`).join('')}
-        </select>
-        <button class="btn btn-sm" id="map-clear-tools" style="background:rgba(5,5,6,.88)" title="Очистить круги, линейки и слой Overpass">Сброс слоёв</button>
-        <button class="btn btn-sm" id="map-fit" style="background:rgba(5,5,6,.88)">Все точки</button>
-      </div>
-      <div class="map-coords" id="map-coords">—</div>
-    </div>`;
-};
-GEO.ensure = () => {
-  if (GEO.map) { setTimeout(() => GEO.map.invalidateSize(), 50); return; }
-  const el = $('#geo-map'); if (!el) return;
-  if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи локаций и ссылки на внешние карты продолжают работать.</div>'; return; }
-  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true }).setView([55.75, 37.62], 4);
-  GEO.tiles = {
-    osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }),
-    sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri World Imagery' })
-  };
-  map.attributionControl.setPrefix('Leaflet');
-  GEO.tiles.osm.addTo(map);
-  GEO.layer = L.layerGroup().addTo(map);
-  GEO.toolsLayer = L.layerGroup().addTo(map);
-  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`; });
-  map.on('click', e => {
-    if (GEO.mode === 'radius') {
-      const km = +($('#map-rad-km')?.value || 2);
-      L.circle(e.latlng, { radius: km * 1000, color: '#e2232e', weight: 1.5, dashArray: '6 4', fillColor: '#8b0000', fillOpacity: 0.12 }).addTo(GEO.toolsLayer)
-        .bindPopup(`<b>Радиус ${km} км</b><div class="mono" style="font-size:11px;color:#a5a5af">${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}</div>`);
-      L.circleMarker(e.latlng, { radius: 4, color: '#e2232e', fillColor: '#fff', fillOpacity: 1 }).addTo(GEO.toolsLayer);
-      GE.toast(`Круг радиуса ${km} км добавлен (ставьте 2–3 для триангуляции)`);
-      return;
-    }
-    if (GEO.mode === 'ruler') {
-      if (!GEO.rulerStart) {
-        GEO.rulerStart = e.latlng;
-        L.circleMarker(e.latlng, { radius: 5, color: '#e2232e', fillColor: '#e2232e', fillOpacity: 1 }).addTo(GEO.toolsLayer);
-        GE.toast('Точка A поставлена — кликните точку B для расчёта расстояния и азимута');
-      } else {
-        const a = GEO.rulerStart, b = e.latlng;
-        const dist = haversine(a, b);
-        const az = bearingDeg(a, b), rev = (az + 180) % 360;
-        const dTxt = dist >= 1000 ? (dist / 1000).toFixed(2) + ' км' : Math.round(dist) + ' м';
-        L.circleMarker(b, { radius: 5, color: '#fff', fillColor: '#e2232e', fillOpacity: 1 }).addTo(GEO.toolsLayer);
-        L.polyline([a, b], { color: '#e2232e', weight: 2, dashArray: '5 4' }).addTo(GEO.toolsLayer)
-          .bindPopup(`<b>Замер GEOINT</b><div class="mono" style="font-size:11.5px;margin-top:4px">Расстояние: <b>${dTxt}</b><br>Азимут A→B: <b>${az.toFixed(1)}°</b><br>Обратный B→A: <b>${rev.toFixed(1)}°</b></div>`).openPopup();
-        GEO.rulerStart = null;
-      }
-      return;
-    }
-    GEO.pick(e.latlng.lat, e.latlng.lng);
-  });
-  $$('#map-modes [data-mmode]').forEach(b => b.onclick = () => {
-    $$('#map-modes [data-mmode]').forEach(x => x.classList.toggle('on', x === b));
-    GEO.mode = b.dataset.mmode;
-    GEO.rulerStart = null;
-    GE.toast({ pick: 'Режим: выбор точки', radius: 'Режим триангуляции: кликайте по карте для кругов радиуса', ruler: 'Режим азимута: кликните точку A, затем точку B' }[GEO.mode]);
-  });
-  if ($('#map-clear-tools')) $('#map-clear-tools').onclick = () => { GEO.toolsLayer.clearLayers(); GEO.rulerStart = null; GE.toast('Оверлеи карты очищены'); };
-  if ($('#map-overpass')) $('#map-overpass').addEventListener('change', async e => {
-    const k = e.target.value; if (!k) return;
-    e.target.value = '';
-    if (map.getZoom() < 11) return GE.toast('Приблизьте карту (zoom ≥ 11), чтобы запросить объекты Overpass OSM', { type: 'err' });
-    const b = map.getBounds();
-    const bbox = `${b.getSouth().toFixed(4)},${b.getWest().toFixed(4)},${b.getNorth().toFixed(4)},${b.getEast().toFixed(4)}`;
-    const spec = OVERPASS_TAGS[k];
-    const query = `[out:json][timeout:12];(${spec.q.replace(/;/g, `(${bbox});`)});out center 60;`;
-    GE.toast(`Overpass OSM: ищем «${spec.l}»…`);
-    const mirrors = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
-    let data = null;
-    for (const m of mirrors) {
-      try {
-        const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 14000);
-        const r = await fetch(m, { method: 'POST', body: 'data=' + encodeURIComponent(query), signal: ctl.signal, referrerPolicy: 'no-referrer' });
-        clearTimeout(tm);
-        if (r.ok) { data = await r.json(); break; }
-      } catch (err) { /* try next mirror */ }
-    }
-    if (!data || !data.elements) return GE.toast('Overpass API не ответил — попробуйте позже или уменьшите область', { type: 'err' });
-    let count = 0;
-    data.elements.slice(0, 60).forEach(el => {
-      const lat = el.lat ?? (el.center && el.center.lat), lon = el.lon ?? (el.center && el.center.lon);
-      if (lat == null || lon == null) return;
-      count++;
-      const name = (el.tags && (el.tags.name || el.tags.operator || el.tags.ref)) || spec.l;
-      L.circleMarker([lat, lon], { radius: 5, color: '#e2232e', weight: 1.5, fillColor: '#050505', fillOpacity: 0.9 }).addTo(GEO.toolsLayer)
-        .bindPopup(`<div class="mono" style="font-size:10px;color:#e2232e">OSM · ${esc(spec.l)}</div><b>${esc(name)}</b><div class="mono" style="font-size:11px;color:#a5a5af">${lat.toFixed(5)}, ${lon.toFixed(5)}</div>`);
-    });
-    GE.toast(count ? `Overpass OSM: найдено ${count} объектов (${spec.l})` : `В этой области объектов «${spec.l}» не найдено`, { type: count ? 'ok' : '' });
-  });
-  $$('#map-wrap [data-layer]').forEach(b => b.onclick = () => {
-    $$('#map-wrap [data-layer]').forEach(x => x.classList.toggle('on', x === b));
-    Object.values(GEO.tiles).forEach(t => map.removeLayer(t));
-    GEO.tiles[b.dataset.layer].addTo(map);
-    $('#map-wrap').classList.toggle('sat', b.dataset.layer === 'sat');
-  });
-  $('#map-fit').onclick = () => GEO.fit();
-  $('#map-search').addEventListener('keydown', async e => {
-    if (e.key !== 'Enter') return;
-    const v = e.target.value.trim(); if (!v) return;
-    const c = GE.parseCoords(v);
-    if (c) { map.setView([c.lat, c.lon], 16); GEO.pick(c.lat, c.lon); return; }
-    try {
-      const r = await GE.fetchJSON(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=ru&q=${encodeURIComponent(v)}`);
-      if (!r.length) return GE.toast('Место не найдено');
-      map.setView([+r[0].lat, +r[0].lon], 15); GEO.pick(+r[0].lat, +r[0].lon, r[0].display_name);
-    } catch (err) { GE.toast('Геокодер недоступен — введите координаты', { type: 'err' }); }
-  });
-  setTimeout(() => map.invalidateSize(), 60);
-  GEO.refresh(); GEO.fit();
-};
 const icon = cls => window.L && L.divIcon({ className: '', html: `<div class="ge-marker ${cls || ''}"><i></i></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 GEO.pick = (lat, lon, name) => {
   if (GEO.tmp) GEO.map.removeLayer(GEO.tmp);
@@ -11457,6 +11428,955 @@ GEO.fit = () => {
   else if (pts.length) GEO.map.fitBounds(pts.map(r => [+r.lat, +r.lon]), { padding: [40, 40], maxZoom: 15 });
 };
 GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, +r.lon], 16); } };
+GEO.util = { haversine, bearingDeg, icon, OVERPASS_TAGS };
+})();
+
+</script>
+<script id="geo2-module">
+/* embedded: geo2 module — «Гео-центр»: подложки, поиск с подсказками, замеры, контекстное меню, импорт и экспорт, живые слои */
+(function () {
+'use strict';
+const GE = window.GE, GEO = GE.geo, esc = GE.esc, E = encodeURIComponent;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const U = GEO.util, toast = (m, o) => GE.toast(m, o);
+const RAD = Math.PI / 180, PROXY = 'https://god-eye-proxy.zajcevtihon09.workers.dev';
+const num = (v, d = 0) => (typeof v === 'number' && isFinite(v) ? v : d);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const fmtDist = m => m >= 1000 ? (m / 1000).toFixed(m >= 100000 ? 0 : 2) + ' км' : Math.round(m) + ' м';
+const fmtArea = m2 => m2 >= 1e6 ? (m2 / 1e6).toFixed(2) + ' км²' : m2 >= 1e4 ? (m2 / 1e4).toFixed(2) + ' га' : Math.round(m2) + ' м²';
+const ok = (lat, lon) => isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+
+const ICON = {
+  search: '<circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3.5 3.5"/>',
+  layers: '<path d="m8 2 6 3-6 3-6-3z"/><path d="m2 8 6 3 6-3"/><path d="m2 11 6 3 6-3"/>',
+  live: '<circle cx="8" cy="8" r="1.8"/><path d="M4.4 4.4a5 5 0 0 0 0 7.2M11.6 4.4a5 5 0 0 1 0 7.2M2.3 2.3a8 8 0 0 0 0 11.4M13.7 2.3a8 8 0 0 1 0 11.4"/>',
+  share: '<path d="M8 2v8M5 5l3-3 3 3M3 10v4h10v-4"/>',
+  locate: '<circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/>',
+  fit: '<path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/>',
+  point: '<path d="M8 14s4.5-4 4.5-7.5a4.5 4.5 0 0 0-9 0C3.5 10 8 14 8 14z"/><circle cx="8" cy="6.5" r="1.6"/>',
+  radius: '<circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="1.2"/><path d="M8 8l4-4"/>',
+  ruler: '<path d="m2.5 11.5 9-9 2 2-9 9z"/><path d="M5 9l1.4 1.4M7 7l1.4 1.4M9 5l1.4 1.4"/>',
+  area: '<path d="M3 5l5-3 5 4-2 7H4z"/>',
+  clear: '<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/>',
+  close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+  play: '<path d="M5 3l8 5-8 5z"/>',
+  pause: '<path d="M5.5 3v10M10.5 3v10"/>'
+};
+const ic = n => `<svg class="ic ic-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICON[n] || ''}</svg>`;
+
+/* ─────────── подложки ─────────── */
+// Подложки без ключей: тёмная получается из карт OSM фильтром (подписи остаются на местных языках)
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+const BASES = {
+  dark: { n: 'Тёмная', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxZoom: 19, attribution: '© OpenStreetMap' } },
+  canvas: { n: 'Графит', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: 19, attribution: 'Esri · HERE · Garmin · OpenStreetMap' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}' },
+  osm: { n: 'Схема OSM', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxZoom: 19, attribution: '© OpenStreetMap' } },
+  sat: { n: 'Спутник', u: ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', o: { maxZoom: 19, attribution: 'Esri World Imagery' }, lab: ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}' },
+  topo: { n: 'Рельеф', u: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', o: { subdomains: 'abc', maxZoom: 17, attribution: '© OpenStreetMap · SRTM · OpenTopoMap' } }
+};
+
+const S = GEO.s = { mode: 'pick', base: 'dark', shapes: [], path: null, live: {}, hud: new Map(), radius: 2 };
+
+/* ─────────── разметка ─────────── */
+GEO.init = () => {
+  const slot = $('.view[data-entity="geo"] .ent-extra'); if (!slot) return;
+  slot.innerHTML = `
+    <div class="map-wrap geo2 b-dark" id="map-wrap">
+      <div id="geo-map"></div>
+      <div class="gm-top">
+        <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, место или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
+        <div class="gm-btns">
+          <button class="gm-b" id="gm-base-btn" title="Подложка карты">${ic('layers')}<span>Карта</span></button>
+          <button class="gm-b" id="gm-live-btn" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
+          <button class="gm-b" id="gm-io-btn" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
+          <button class="gm-b ico" id="gm-me" title="Моя позиция (запросит разрешение браузера)">${ic('locate')}</button>
+          <button class="gm-b ico" id="map-fit" title="Показать все точки">${ic('fit')}</button>
+        </div>
+      </div>
+      <div class="gm-rail" id="map-modes">
+        <button class="on" data-mmode="pick" title="Точка: клик ставит маркер">${ic('point')}</button>
+        <button data-mmode="radius" title="Радиус: клик рисует круг (для триангуляции)">${ic('radius')}</button>
+        <button data-mmode="ruler" title="Линейка: расстояния и азимуты по ломаной (двойной клик завершает)">${ic('ruler')}</button>
+        <button data-mmode="area" title="Площадь: многоугольник (двойной клик завершает)">${ic('area')}</button>
+        <button id="map-clear-tools" title="Убрать круги, линейки и слои Overpass">${ic('clear')}</button>
+        <div class="gm-rad hidden" id="gm-rad"><label>Радиус<select class="select" id="map-rad-km">${[0.5, 1, 2, 5, 10, 25, 50, 100, 250].map(v => `<option value="${v}"${v === 2 ? ' selected' : ''}>${v} км</option>`).join('')}</select></label></div>
+      </div>
+      <div class="gm-pop hidden" id="gm-base-pop"></div>
+      <div class="gm-pop hidden" id="gm-io-pop"></div>
+      <aside class="gm-panel off" id="gm-panel"></aside>
+      <div class="gm-hud" id="gm-hud"></div>
+      <div class="map-coords" id="map-coords">—</div>
+      <div class="gm-chart hidden" id="gm-chart"><div class="gm-chart-h"><b>Профиль высоты</b><span id="gm-chart-info"></span><button class="gm-x" id="gm-chart-x" title="Закрыть">${ic('close')}</button></div><canvas></canvas></div>
+      <div class="gm-menu hidden" id="gm-menu"></div>
+      <input type="file" id="gm-file" accept=".geojson,.json,.kml,.gpx,application/json,application/gpx+xml,application/vnd.google-earth.kml+xml" hidden>
+    </div>`;
+};
+
+/* ─────────── подсказки HUD (бегущая сводка по живым слоям) ─────────── */
+const hud = (key, html) => {
+  if (html) S.hud.set(key, html); else S.hud.delete(key);
+  const el = $('#gm-hud'); if (!el) return;
+  el.innerHTML = [...S.hud.values()].map(h => `<span class="gm-chip">${h}</span>`).join('');
+};
+
+/* ─────────── карта ─────────── */
+GEO.ensure = () => {
+  if (GEO.map) { setTimeout(() => GEO.map.invalidateSize(), 60); return; }
+  const el = $('#geo-map'); if (!el) return;
+  if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи с координатами по-прежнему доступны в списке ниже.</div>'; return; }
+  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, zoomSnap: 0.5, wheelPxPerZoomLevel: 90 }).setView([55.75, 37.62], 4);
+  map.attributionControl.setPrefix('Leaflet');
+  map.createPane('base'); map.getPane('base').style.zIndex = 190;
+  GEO.layer = L.layerGroup().addTo(map);
+  GEO.toolsLayer = L.layerGroup().addTo(map);
+  S.live = {};
+  setBase((GE.settings.view && GE.settings.view.geoBase) || 'dark');
+  bindSearch(map); bindTools(map); bindMenu(map); bindPopups(map); bindFiles(map);
+  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`; });
+  $('#map-fit').onclick = () => GEO.fit();
+  $('#gm-me').onclick = () => locate(map);
+  buildPanel(map);
+  setTimeout(() => map.invalidateSize(), 60);
+  GEO.refresh(); GEO.fit();
+};
+
+function setBase(key) {
+  const map = GEO.map; if (!map || !BASES[key]) return;
+  if (S.baseLayer) map.removeLayer(S.baseLayer);
+  if (S.labelLayer) { map.removeLayer(S.labelLayer); S.labelLayer = null; }
+  const b = BASES[key];
+  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base' }, b.o)).addTo(map);
+  if (b.lab) S.labelLayer = L.tileLayer(b.lab, { pane: 'base', maxNativeZoom: 16, maxZoom: 19, opacity: key === 'sat' ? 0.85 : 1 }).addTo(map);
+  S.base = key;
+  const w = $('#map-wrap'); if (w) w.className = w.className.replace(/\bb-\w+/g, '').trim() + ' b-' + key;
+  GE.settings.view = GE.settings.view || {}; GE.settings.view.geoBase = key; GE.saveSettings();
+  const pop = $('#gm-base-pop'); if (pop) $$('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
+}
+
+/* ─────────── всплывающие панели ─────────── */
+function bindPopups(map) {
+  const base = $('#gm-base-pop'), io = $('#gm-io-pop'), panel = $('#gm-panel');
+  base.innerHTML = Object.entries(BASES).map(([k, b]) => `<button data-base="${k}" class="${k === S.base ? 'on' : ''}"><i class="gm-sw sw-${k}"></i><span>${esc(b.n)}</span></button>`).join('');
+  io.innerHTML = `<button data-io="geojson">${ic('share')}<span>Экспорт GeoJSON</span><small>записи и фигуры</small></button><button data-io="kml">${ic('share')}<span>Экспорт KML</span><small>Google Earth</small></button><button data-io="gpx">${ic('share')}<span>Экспорт GPX</span><small>точки и маршруты</small></button><hr><button data-io="import">${ic('layers')}<span>Импорт файла</span><small>GeoJSON, KML, GPX</small></button><button data-io="unimport">${ic('clear')}<span>Убрать импортированное</span></button>`;
+  const hideAll = except => [base, io].forEach(p => { if (p !== except) p.classList.add('hidden'); });
+  $('#gm-base-btn').onclick = e => { e.stopPropagation(); hideAll(base); base.classList.toggle('hidden'); };
+  $('#gm-io-btn').onclick = e => { e.stopPropagation(); hideAll(io); io.classList.toggle('hidden'); };
+  $('#gm-live-btn').onclick = e => { e.stopPropagation(); hideAll(null); panel.classList.toggle('off'); $('#gm-live-btn').classList.toggle('on', !panel.classList.contains('off')); };
+  base.onclick = e => { const b = e.target.closest('[data-base]'); if (b) { setBase(b.dataset.base); base.classList.add('hidden'); } };
+  io.onclick = e => {
+    const b = e.target.closest('[data-io]'); if (!b) return;
+    io.classList.add('hidden');
+    if (b.dataset.io === 'import') $('#gm-file').click();
+    else if (b.dataset.io === 'unimport') { if (S.importLayer) { map.removeLayer(S.importLayer); S.importLayer = null; toast('Импортированные данные убраны с карты'); } }
+    else exportAs(b.dataset.io);
+  };
+  document.addEventListener('click', e => { if (!e.target.closest('.gm-pop,.gm-menu')) { base.classList.add('hidden'); io.classList.add('hidden'); $('#gm-menu').classList.add('hidden'); } });
+}
+
+/* ─────────── поиск с подсказками ─────────── */
+function bindSearch(map) {
+  const inp = $('#map-search'), box = $('#gm-sugg');
+  let timer = 0, seq = 0, items = [];
+  const hide = () => box.classList.add('hidden');
+  const go = (lat, lon, label, ext) => {
+    hide();
+    if (ext && ext.length === 4) { try { map.fitBounds([[ext[3], ext[0]], [ext[1], ext[2]]], { maxZoom: 17, padding: [40, 40] }); } catch (e) { map.setView([lat, lon], 15); } } else map.setView([lat, lon], Math.max(map.getZoom(), 15));
+    GEO.pick(lat, lon, label);
+  };
+  const show = list => {
+    items = list;
+    box.innerHTML = list.map((x, i) => `<button data-i="${i}"><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></button>`).join('');
+    box.classList.toggle('hidden', !list.length);
+  };
+  const suggest = async v => {
+    const id = ++seq;
+    try {
+      const r = await GE.fetchJSON(`https://photon.komoot.io/api/?q=${E(v)}&limit=6&lang=en`, 8000);
+      if (id !== seq) return;
+      show((r.features || []).map(f => {
+        const p = f.properties || {}, g = (f.geometry || {}).coordinates || [];
+        return { lat: g[1], lon: g[0], ext: p.extent, title: p.name || p.street || '—', sub: [p.street && p.name ? p.street + (p.housenumber ? ' ' + p.housenumber : '') : '', p.city || p.county, p.state, p.country].filter(Boolean).join(', ') };
+      }).filter(x => ok(x.lat, x.lon)));
+    } catch (e) { /* подсказки необязательны */ }
+  };
+  inp.addEventListener('input', () => {
+    clearTimeout(timer);
+    const v = inp.value.trim();
+    if (!v) return show([]);
+    const c = GE.parseCoords(v);
+    if (c) return show([{ lat: c.lat, lon: c.lon, title: 'Перейти к координатам', sub: `${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}` }]);
+    if (v.length < 3) return show([]);
+    timer = setTimeout(() => suggest(v), 380);
+  });
+  box.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; const x = items[+b.dataset.i]; inp.value = x.title; go(x.lat, x.lon, x.title, x.ext); });
+  inp.addEventListener('keydown', async e => {
+    if (e.key === 'Escape') return hide();
+    if (e.key !== 'Enter') return;
+    const v = inp.value.trim(); if (!v) return;
+    if (items.length) { const x = items[0]; go(x.lat, x.lon, x.title, x.ext); return; }
+    try {
+      const r = await GE.fetchJSON(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=ru&q=${E(v)}`);
+      if (!r.length) return toast('Место не найдено');
+      go(+r[0].lat, +r[0].lon, r[0].display_name);
+    } catch (err) { toast('Геокодер недоступен: введите координаты', { type: 'err' }); }
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.gm-search')) hide(); });
+}
+
+/* ─────────── инструменты: точка, радиус, линейка, площадь ─────────── */
+const sphArea = pts => {
+  if (pts.length < 3) return 0;
+  const R = 6371008.8; let s = 0;
+  for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; s += (b.lng - a.lng) * RAD * (2 + Math.sin(a.lat * RAD) + Math.sin(b.lat * RAD)); }
+  return Math.abs(s * R * R / 2);
+};
+const pathLen = pts => pts.reduce((s, p, i) => (i ? s + U.haversine(pts[i - 1], p) : 0), 0);
+const dot = (ll, col = '#e2232e') => L.circleMarker(ll, { radius: 4.5, color: '#0a0a0c', weight: 1.5, fillColor: col, fillOpacity: 1 });
+const lbl = (ll, html, cls = '') => L.marker(ll, { interactive: false, icon: L.divIcon({ className: 'gm-lbl ' + cls, html: `<span>${html}</span>`, iconSize: null }) });
+
+function addShape(sh) { S.shapes.push(sh); return sh; }
+function bindTools(map) {
+  const rail = $('#map-modes'), radBox = $('#gm-rad');
+  const setMode = m => {
+    S.mode = m; cancelPath();
+    $$('[data-mmode]', rail).forEach(b => b.classList.toggle('on', b.dataset.mmode === m));
+    radBox.classList.toggle('hidden', m !== 'radius');
+    const draw = m === 'ruler' || m === 'area';
+    map.doubleClickZoom[draw ? 'disable' : 'enable']();
+    map.getContainer().classList.toggle('gm-draw', draw || m === 'radius');
+    toast({ pick: 'Режим: точка', radius: 'Радиус: кликайте по карте, чтобы рисовать круги (2–3 круга дают триангуляцию)', ruler: 'Линейка: кликайте по вершинам, двойной клик завершает, Esc отменяет', area: 'Площадь: кликайте по вершинам, двойной клик замыкает контур' }[m]);
+  };
+  S.setMode = setMode;
+  $$('[data-mmode]', rail).forEach(b => b.onclick = () => setMode(b.dataset.mmode));
+  $('#map-rad-km').onchange = e => { S.radius = +e.target.value || 2; };
+  $('#map-clear-tools').onclick = () => { GEO.toolsLayer.clearLayers(); S.shapes = []; cancelPath(); $('#gm-chart').classList.add('hidden'); toast('Круги, линейки и слои очищены'); };
+  map.on('click', e => {
+    if (e.originalEvent && e.originalEvent.detail > 1 && (S.mode === 'ruler' || S.mode === 'area')) return;
+    if (S.mode === 'radius') return addCircle(e.latlng, S.radius);
+    if (S.mode === 'ruler' || S.mode === 'area') return addVertex(e.latlng);
+    GEO.pick(e.latlng.lat, e.latlng.lng);
+  });
+  map.on('dblclick', e => { if (S.mode === 'ruler' || S.mode === 'area') { if (e.originalEvent) L.DomEvent.stop(e.originalEvent); finishPath(); } });
+  map.on('mousemove', e => { if (S.path && S.path.pts.length) { S.path.ghost.setLatLngs([...S.path.pts, e.latlng]); } });
+  document.addEventListener('keydown', e => {
+    if (!GEO.map || !$('#geo-map') || !$('#geo-map').offsetParent) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName)) return;
+    if (e.key === 'Escape') { cancelPath(); setMode('pick'); $('#gm-menu').classList.add('hidden'); }
+    if (e.key === 'Enter') finishPath();
+  });
+}
+function addCircle(ll, km) {
+  const c = L.circle(ll, { radius: km * 1000, color: '#e2232e', weight: 1.5, dashArray: '6 4', fillColor: '#8b0000', fillOpacity: 0.12 }).addTo(GEO.toolsLayer);
+  c.bindPopup(`<b>Радиус ${km} км</b><div class="mono" style="font-size:11px;color:#a5a5af">${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</div><div style="font-size:11.5px;margin-top:4px;color:#a5a5af">Площадь круга: ${fmtArea(Math.PI * (km * 1000) ** 2)}</div>`);
+  dot(ll).addTo(GEO.toolsLayer);
+  addShape({ type: 'circle', ll: [ll.lat, ll.lng], r: km * 1000, name: `Радиус ${km} км` });
+}
+function cancelPath() { if (S.path) { S.path.layers.forEach(l => GEO.toolsLayer.removeLayer(l)); S.path = null; } }
+function addVertex(ll) {
+  if (!S.path) {
+    const ghost = L.polyline([], { color: '#e2232e', weight: 2, dashArray: '5 5', interactive: false }).addTo(GEO.toolsLayer);
+    S.path = { pts: [], layers: [ghost], ghost, kind: S.mode };
+  }
+  const P = S.path;
+  P.pts.push(ll);
+  P.layers.push(dot(ll).addTo(GEO.toolsLayer));
+  if (P.kind === 'ruler' && P.pts.length > 1) {
+    const a = P.pts[P.pts.length - 2], d = U.haversine(a, ll), az = U.bearingDeg(a, ll);
+    P.layers.push(lbl([(a.lat + ll.lat) / 2, (a.lng + ll.lng) / 2], `${fmtDist(d)} · ${az.toFixed(0)}°`).addTo(GEO.toolsLayer));
+    P.layers.push(L.polyline([a, ll], { color: '#e2232e', weight: 2.2, interactive: false }).addTo(GEO.toolsLayer));
+  }
+}
+function finishPath() {
+  const P = S.path; if (!P) return;
+  const need = P.kind === 'area' ? 3 : 2;
+  if (P.pts.length < need) { cancelPath(); return; }
+  const pts = P.pts.slice();
+  P.layers.forEach(l => GEO.toolsLayer.removeLayer(l)); S.path = null;
+  if (P.kind === 'area') {
+    const poly = L.polygon(pts, { color: '#e2232e', weight: 2, fillColor: '#8b0000', fillOpacity: 0.16 }).addTo(GEO.toolsLayer);
+    const area = sphArea(pts), per = pathLen([...pts, pts[0]]);
+    poly.bindPopup(`<b>Площадь: ${fmtArea(area)}</b><div style="font-size:11.5px;margin-top:4px;color:#a5a5af">Периметр: ${fmtDist(per)} · вершин: ${pts.length}</div>`);
+    pts.forEach(p => dot(p).addTo(GEO.toolsLayer));
+    lbl(poly.getBounds().getCenter(), fmtArea(area), 'big').addTo(GEO.toolsLayer);
+    addShape({ type: 'poly', pts: pts.map(p => [p.lat, p.lng]), name: `Участок ${fmtArea(area)}` });
+    poly.openPopup();
+  } else {
+    const line = L.polyline(pts, { color: '#e2232e', weight: 2.4 }).addTo(GEO.toolsLayer), total = pathLen(pts);
+    const div = document.createElement('div');
+    div.innerHTML = `<b>Маршрут: ${fmtDist(total)}</b><div style="font-size:11.5px;margin:4px 0 8px;color:#a5a5af">Вершин: ${pts.length} · азимут начало→конец ${U.bearingDeg(pts[0], pts[pts.length - 1]).toFixed(0)}°</div><button class="btn btn-sm btn-primary" data-a="prof">Профиль высоты</button>`;
+    div.querySelector('[data-a=prof]').onclick = () => { line.closePopup(); elevationProfile(pts); };
+    line.bindPopup(div);
+    pts.forEach(p => dot(p).addTo(GEO.toolsLayer));
+    lbl(pts[pts.length - 1], `Σ ${fmtDist(total)}`, 'big').addTo(GEO.toolsLayer);
+    addShape({ type: 'line', pts: pts.map(p => [p.lat, p.lng]), name: `Маршрут ${fmtDist(total)}` });
+    line.openPopup();
+  }
+}
+
+/* ─────────── контекстное меню ─────────── */
+function bindMenu(map) {
+  const menu = $('#gm-menu');
+  const open = (ll, pt) => {
+    const lat = ll.lat, lon = ll.lng, q = `${lat.toFixed(6)},${lon.toFixed(6)}`;
+    const fmts = GE.coordFormats ? GE.coordFormats(lat, lon).slice(0, 3) : [];
+    const link = (t, u) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t)}</a>`;
+    menu.innerHTML = `
+      <div class="gm-menu-h"><button data-copy="${q}" title="Копировать">${q}</button>${fmts.map(([k, v]) => `<button data-copy="${esc(v)}" title="Копировать ${esc(k)}"><small>${esc(k)}</small>${esc(v)}</button>`).join('')}</div>
+      <button data-m="add">+ Локация в базу</button>
+      <button data-m="ruler">Замер от этой точки</button>
+      <button data-m="addr">Адрес и высота здесь</button>
+      <button data-m="scan">Скан точки в «Поиске» (плагины)</button>
+      <button data-m="near">Что рядом: объекты OSM в 300 м</button>
+      <div class="gm-menu-l">${link('Street View', `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${q}`)}${link('Mapillary', `https://www.mapillary.com/app/?lat=${lat}&lng=${lon}&z=17`)}${link('Яндекс.Панорамы', `https://yandex.ru/maps/?ll=${lon},${lat}&z=17&l=stv,sta&panorama%5Bpoint%5D=${lon},${lat}`)}${link('KartaView', `https://kartaview.org/map/@${lat},${lon},17z`)}${link('SunCalc', `https://www.suncalc.org/#/${lat},${lon},17/`)}${link('ShadeMap', `https://shademap.app/@${lat},${lon},17z`)}${link('Google Earth', `https://earth.google.com/web/@${lat},${lon},300a,1200d,35y,0h,0t,0r`)}</div>`;
+    const wrap = $('#map-wrap').getBoundingClientRect();
+    menu.classList.remove('hidden');
+    const w = menu.offsetWidth, h = menu.offsetHeight;
+    menu.style.left = clamp(pt.x, 6, wrap.width - w - 6) + 'px'; menu.style.top = clamp(pt.y, 6, wrap.height - h - 6) + 'px';
+    menu.onclick = async e => {
+      const c = e.target.closest('[data-copy]'); if (c) { GE.copy(c.dataset.copy); menu.classList.add('hidden'); return; }
+      const b = e.target.closest('[data-m]'); if (!b) return;
+      menu.classList.add('hidden');
+      if (b.dataset.m === 'add') GE.editRecord('geo', null, { title: 'Точка ' + q, lat: +lat.toFixed(6), lon: +lon.toFixed(6), retrieved: GE.today() });
+      else if (b.dataset.m === 'ruler') { S.setMode('ruler'); addVertex(ll); }
+      else if (b.dataset.m === 'scan') location.hash = `#/search?q=${E(q)}&t=coords`;
+      else if (b.dataset.m === 'addr') whatHere(ll);
+      else if (b.dataset.m === 'near') nearby(ll);
+    };
+  };
+  map.on('contextmenu', e => { L.DomEvent.preventDefault(e.originalEvent); open(e.latlng, e.containerPoint); });
+  map.on('movestart zoomstart click', () => menu.classList.add('hidden'));
+}
+async function whatHere(ll) {
+  const pop = L.popup({ maxWidth: 320 }).setLatLng(ll).setContent('<span class="spinner"></span> Запрашиваю адрес и высоту…').openOn(GEO.map);
+  const [a, el] = await Promise.allSettled([
+    GE.fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${ll.lat}&lon=${ll.lng}&accept-language=ru&zoom=18`, 10000),
+    GE.fetchJSON(`https://api.open-elevation.com/api/v1/lookup?locations=${ll.lat.toFixed(5)},${ll.lng.toFixed(5)}`, 10000)
+  ]);
+  const r = a.status === 'fulfilled' ? a.value : null, h = el.status === 'fulfilled' && el.value.results ? el.value.results[0].elevation : null;
+  pop.setContent(`<b>${esc(r && (r.name || (r.display_name || '').split(',')[0]) || 'Точка')}</b><div style="font-size:12px;margin:5px 0;color:#a5a5af">${esc(r ? r.display_name : 'Адрес не получен')}</div><div class="mono" style="font-size:11.5px">${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}${h != null ? ` · высота ${Math.round(h)} м` : ''}</div>`);
+}
+async function nearby(ll) {
+  toast('Overpass OSM: ищу объекты рядом…');
+  const query = `[out:json][timeout:12];(node(around:300,${ll.lat},${ll.lng})[name];way(around:300,${ll.lat},${ll.lng})[name];);out center 40;`;
+  let data = null;
+  for (const m of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']) {
+    try {
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 14000);
+      const r = await fetch(m, { method: 'POST', body: 'data=' + E(query), signal: ctl.signal, referrerPolicy: 'no-referrer' });
+      clearTimeout(tm);
+      if (r.ok) { data = await r.json(); break; }
+    } catch (e) { /* следующее зеркало */ }
+  }
+  if (!data || !data.elements) return toast('Overpass не ответил: попробуйте позже', { type: 'err' });
+  const rows = data.elements.map(el => { const p = { lat: el.lat ?? (el.center && el.center.lat), lng: el.lon ?? (el.center && el.center.lon) }; if (!ok(p.lat, p.lng)) return null; const t = el.tags || {}; return { name: t.name, kind: t.amenity || t.shop || t.building || t.highway || t.tourism || t.man_made || t.railway || 'объект', d: U.haversine(ll, p), p }; }).filter(Boolean).sort((a, b) => a.d - b.d).slice(0, 25);
+  rows.forEach(r => dot([r.p.lat, r.p.lng], '#cacad2').addTo(GEO.toolsLayer).bindPopup(`<b>${esc(r.name)}</b><div style="font-size:12px;color:#a5a5af">${esc(r.kind)} · ${Math.round(r.d)} м</div>`));
+  L.popup({ maxWidth: 320 }).setLatLng(ll).setContent(rows.length ? `<b>Рядом (300 м): ${rows.length}</b><div style="font-size:12px;margin-top:6px;max-height:180px;overflow:auto">${rows.map(r => `${esc(r.name)} <span style="color:#8b8b96">· ${esc(r.kind)} · ${Math.round(r.d)} м</span>`).join('<br>')}</div>` : 'Именованных объектов OSM в радиусе 300 м нет').openOn(GEO.map);
+}
+
+/* ─────────── моя позиция ─────────── */
+function locate(map) {
+  if (!navigator.geolocation) return toast('Браузер не поддерживает геолокацию', { type: 'err' });
+  toast('Запрашиваю вашу позицию: разрешите доступ в браузере');
+  navigator.geolocation.getCurrentPosition(p => {
+    const ll = [p.coords.latitude, p.coords.longitude];
+    if (S.me) GEO.toolsLayer.removeLayer(S.me);
+    S.me = L.layerGroup([L.circle(ll, { radius: p.coords.accuracy, color: '#cacad2', weight: 1, fillColor: '#cacad2', fillOpacity: 0.1, interactive: false }), dot(ll, '#ffffff').bindPopup(`<b>Вы здесь</b><div class="mono" style="font-size:11.5px;color:#a5a5af">${ll[0].toFixed(6)}, ${ll[1].toFixed(6)}<br>точность ±${Math.round(p.coords.accuracy)} м</div>`)]).addTo(GEO.toolsLayer);
+    map.setView(ll, Math.max(map.getZoom(), 16));
+  }, err => toast('Позиция недоступна: ' + (err.code === 1 ? 'доступ запрещён' : 'не удалось определить'), { type: 'err' }), { enableHighAccuracy: true, timeout: 12000 });
+}
+
+/* ─────────── экспорт и импорт: GeoJSON, KML, GPX ─────────── */
+const xml = s => String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c]));
+const ringOf = (ll, r, n = 64) => {
+  const out = [], R = 6371008.8, la = ll[0] * RAD, lo = ll[1] * RAD, d = r / R;
+  for (let i = 0; i <= n; i++) {
+    const b = i / n * 2 * Math.PI, la2 = Math.asin(Math.sin(la) * Math.cos(d) + Math.cos(la) * Math.sin(d) * Math.cos(b));
+    const lo2 = lo + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(la), Math.cos(d) - Math.sin(la) * Math.sin(la2));
+    out.push([+(((lo2 / RAD + 540) % 360) - 180).toFixed(6), +(la2 / RAD).toFixed(6)]);
+  }
+  return out;
+};
+function collect() {
+  const f = [];
+  GEO.points().forEach(r => f.push({ t: 'Point', c: [+r.lon, +r.lat], n: r.title, d: String(GE.recSub(r) || ''), k: r.type }));
+  S.shapes.forEach(sh => {
+    if (sh.type === 'circle') f.push({ t: 'Polygon', c: [ringOf(sh.ll, sh.r)], n: sh.name, d: `центр ${sh.ll[0].toFixed(5)}, ${sh.ll[1].toFixed(5)}`, k: 'circle' });
+    else if (sh.type === 'line') f.push({ t: 'LineString', c: sh.pts.map(p => [p[1], p[0]]), n: sh.name, d: '', k: 'line' });
+    else f.push({ t: 'Polygon', c: [[...sh.pts.map(p => [p[1], p[0]]), [sh.pts[0][1], sh.pts[0][0]]]], n: sh.name, d: '', k: 'polygon' });
+  });
+  return f;
+}
+function exportAs(kind) {
+  const f = collect();
+  if (!f.length) return toast('Нечего экспортировать: нет локаций с координатами и нарисованных фигур', { type: 'err' });
+  const base = `GODEYE_GEO_${GE.today()}`;
+  if (kind === 'geojson') {
+    GE.download(base + '.geojson', JSON.stringify({ type: 'FeatureCollection', features: f.map(x => ({ type: 'Feature', geometry: { type: x.t, coordinates: x.c }, properties: { name: x.n, description: x.d, kind: x.k } })) }, null, 2), 'application/geo+json');
+  } else if (kind === 'kml') {
+    const co = a => a.map(p => `${p[0]},${p[1]},0`).join(' ');
+    const geom = x => x.t === 'Point' ? `<Point><coordinates>${x.c[0]},${x.c[1]},0</coordinates></Point>` : x.t === 'LineString' ? `<LineString><tessellate>1</tessellate><coordinates>${co(x.c)}</coordinates></LineString>` : `<Polygon><outerBoundaryIs><LinearRing><coordinates>${co(x.c[0])}</coordinates></LinearRing></outerBoundaryIs></Polygon>`;
+    GE.download(base + '.kml', `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>GOD EYE ${xml(GE.today())}</name>\n${f.map(x => `<Placemark><name>${xml(x.n)}</name><description>${xml(x.d)}</description>${geom(x)}</Placemark>`).join('\n')}\n</Document></kml>`, 'application/vnd.google-earth.kml+xml');
+  } else {
+    const wpt = f.filter(x => x.t === 'Point').map(x => `<wpt lat="${x.c[1]}" lon="${x.c[0]}"><name>${xml(x.n)}</name><desc>${xml(x.d)}</desc></wpt>`);
+    const trk = f.filter(x => x.t !== 'Point').map(x => `<trk><name>${xml(x.n)}</name><trkseg>${(x.t === 'Polygon' ? x.c[0] : x.c).map(p => `<trkpt lat="${p[1]}" lon="${p[0]}"/>`).join('')}</trkseg></trk>`);
+    GE.download(base + '.gpx', `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="GOD EYE" xmlns="http://www.topografix.com/GPX/1/1">\n${[...wpt, ...trk].join('\n')}\n</gpx>`, 'application/gpx+xml');
+  }
+  toast(`Экспортировано объектов: ${f.length}`, { type: 'ok' });
+}
+// проверка чужих данных перед показом на карте
+const okPos = p => Array.isArray(p) && p.length >= 2 && ok(+p[1], +p[0]);
+const cleanGeom = (g, budget) => {
+  if (!g || typeof g !== 'object') return [];
+  const lineOk = a => Array.isArray(a) && a.length >= 2 && a.every(okPos) && (budget.n -= a.length) > 0;
+  switch (g.type) {
+    case 'Point': return okPos(g.coordinates) && --budget.n > 0 ? [{ type: 'Point', coordinates: [+g.coordinates[0], +g.coordinates[1]] }] : [];
+    case 'MultiPoint': return (Array.isArray(g.coordinates) ? g.coordinates : []).filter(okPos).slice(0, 2000).map(c => ({ type: 'Point', coordinates: [+c[0], +c[1]] }));
+    case 'LineString': return lineOk(g.coordinates) ? [{ type: 'LineString', coordinates: g.coordinates.map(c => [+c[0], +c[1]]) }] : [];
+    case 'MultiLineString': return (Array.isArray(g.coordinates) ? g.coordinates : []).filter(lineOk).map(l => ({ type: 'LineString', coordinates: l.map(c => [+c[0], +c[1]]) }));
+    case 'Polygon': return Array.isArray(g.coordinates) && g.coordinates.every(lineOk) && g.coordinates.length ? [{ type: 'Polygon', coordinates: g.coordinates.map(r => r.map(c => [+c[0], +c[1]])) }] : [];
+    case 'MultiPolygon': return (Array.isArray(g.coordinates) ? g.coordinates : []).flatMap(p => cleanGeom({ type: 'Polygon', coordinates: p }, budget));
+    case 'GeometryCollection': return (Array.isArray(g.geometries) ? g.geometries : []).flatMap(x => cleanGeom(x, budget));
+    default: return [];
+  }
+};
+function sanitizeGeo(fc) {
+  const src = fc && fc.type === 'FeatureCollection' ? fc.features : fc && fc.type === 'Feature' ? [fc] : fc && fc.type ? [{ type: 'Feature', geometry: fc, properties: {} }] : [];
+  const budget = { n: 200000 }, out = [];
+  (Array.isArray(src) ? src : []).slice(0, 5000).forEach(f => {
+    const p = (f && f.properties) || {};
+    cleanGeom(f && f.geometry, budget).forEach(g => out.push({ type: 'Feature', geometry: g, properties: { name: String(p.name || p.Name || p.title || '').slice(0, 200), description: String(p.description || p.desc || p.cmt || '').replace(/<[^>]*>/g, ' ').slice(0, 800) } }));
+  });
+  return { type: 'FeatureCollection', features: out };
+}
+const kmlCoords = s => String(s || '').trim().split(/\s+/).map(t => t.split(',').map(Number)).filter(a => a.length >= 2);
+function kmlToGeo(doc) {
+  const feats = [], q = (el, n) => Array.from(el.getElementsByTagNameNS('*', n));
+  q(doc, 'Placemark').forEach(pm => {
+    const txt = n => { const e = q(pm, n)[0]; return e ? e.textContent : ''; };
+    const props = { name: txt('name'), description: txt('description') };
+    const ct = e => { const c = e.getElementsByTagNameNS('*', 'coordinates')[0]; return c ? kmlCoords(c.textContent) : []; };
+    q(pm, 'Point').forEach(e => { const c = ct(e)[0]; if (c) feats.push({ type: 'Feature', properties: props, geometry: { type: 'Point', coordinates: c } }); });
+    q(pm, 'LineString').forEach(e => feats.push({ type: 'Feature', properties: props, geometry: { type: 'LineString', coordinates: ct(e) } }));
+    q(pm, 'Polygon').forEach(e => { const rings = q(e, 'LinearRing').map(ct); if (rings.length) feats.push({ type: 'Feature', properties: props, geometry: { type: 'Polygon', coordinates: rings } }); });
+  });
+  return { type: 'FeatureCollection', features: feats };
+}
+function gpxToGeo(doc) {
+  const feats = [], q = (el, n) => Array.from(el.getElementsByTagNameNS('*', n));
+  const pt = e => [+e.getAttribute('lon'), +e.getAttribute('lat')];
+  q(doc, 'wpt').forEach(e => { const n = q(e, 'name')[0], d = q(e, 'desc')[0]; feats.push({ type: 'Feature', properties: { name: n ? n.textContent : '', description: d ? d.textContent : '' }, geometry: { type: 'Point', coordinates: pt(e) } }); });
+  q(doc, 'trk').forEach(t => { const n = q(t, 'name')[0]; q(t, 'trkseg').forEach(sg => feats.push({ type: 'Feature', properties: { name: n ? n.textContent : 'Трек' }, geometry: { type: 'LineString', coordinates: q(sg, 'trkpt').map(pt) } })); });
+  q(doc, 'rte').forEach(t => { const n = q(t, 'name')[0]; feats.push({ type: 'Feature', properties: { name: n ? n.textContent : 'Маршрут' }, geometry: { type: 'LineString', coordinates: q(t, 'rtept').map(pt) } }); });
+  return { type: 'FeatureCollection', features: feats };
+}
+function bindFiles(map) {
+  const inp = $('#gm-file');
+  inp.addEventListener('change', async () => {
+    const f = inp.files[0]; inp.value = ''; if (!f) return;
+    if (f.size > 20e6) return toast('Файл больше 20 МБ', { type: 'err' });
+    try {
+      const text = await GE.readAs(f, 'text');
+      let fc;
+      if (/\.(geojson|json)$/i.test(f.name) || text.trimStart().startsWith('{')) fc = JSON.parse(text);
+      else {
+        const doc = new DOMParser().parseFromString(text, 'application/xml');
+        if (doc.querySelector('parsererror')) throw new Error('XML повреждён');
+        fc = doc.documentElement.localName === 'gpx' ? gpxToGeo(doc) : kmlToGeo(doc);
+      }
+      const clean = sanitizeGeo(fc);
+      if (!clean.features.length) return toast('В файле нет объектов с корректными координатами', { type: 'warn' });
+      if (S.importLayer) map.removeLayer(S.importLayer);
+      S.importLayer = L.geoJSON(clean, {
+        style: () => ({ color: '#f2f2f6', weight: 2.2, fillColor: '#f2f2f6', fillOpacity: 0.1 }),
+        pointToLayer: (ft, ll) => dot(ll, '#ffffff'),
+        onEachFeature: (ft, layer) => { const p = ft.properties || {}; layer.bindPopup(`<b>${esc(p.name || 'Объект')}</b>${p.description ? `<div style="font-size:12px;margin-top:5px;color:#a5a5af">${esc(p.description)}</div>` : ''}`); }
+      }).addTo(map);
+      try { map.fitBounds(S.importLayer.getBounds(), { maxZoom: 15, padding: [40, 40] }); } catch (e) { /* пустые границы */ }
+      toast(`Импортировано объектов: ${clean.features.length}`, { type: 'ok' });
+    } catch (e) { toast('Не удалось прочитать файл: ' + (e.message || 'неизвестный формат'), { type: 'err' }); }
+  });
+}
+
+/* ─────────── профиль высоты ─────────── */
+async function elevationProfile(pts) {
+  const total = pathLen(pts);
+  if (total < 50) return toast('Маршрут слишком короткий для профиля', { type: 'err' });
+  const N = clamp(Math.round(total / 150), 24, 80), cum = [0];
+  pts.forEach((p, i) => { if (i) cum.push(cum[i - 1] + U.haversine(pts[i - 1], p)); });
+  const samples = [];
+  for (let i = 0; i < N; i++) {
+    const d = total * i / (N - 1); let k = 1;
+    while (k < cum.length - 1 && cum[k] < d) k++;
+    const f = (d - cum[k - 1]) / Math.max(1e-6, cum[k] - cum[k - 1]);
+    samples.push({ d, lat: pts[k - 1].lat + (pts[k].lat - pts[k - 1].lat) * f, lng: pts[k - 1].lng + (pts[k].lng - pts[k - 1].lng) * f });
+  }
+  toast('Запрашиваю высоты вдоль маршрута…');
+  let el = null;
+  try {
+    const r = await GE.fetchJSON(`https://api.open-elevation.com/api/v1/lookup?locations=${samples.map(s => s.lat.toFixed(5) + ',' + s.lng.toFixed(5)).join('|')}`, 22000);
+    el = (r.results || []).map(x => x.elevation);
+  } catch (e) {
+    try {
+      const r = await GE.fetchJSON(`https://api.open-meteo.com/v1/elevation?latitude=${samples.map(s => s.lat.toFixed(4)).join(',')}&longitude=${samples.map(s => s.lng.toFixed(4)).join(',')}`, 15000);
+      el = r.elevation;
+    } catch (e2) { /* оба сервиса недоступны */ }
+  }
+  if (!el || el.length !== samples.length) return toast('Сервисы высот не ответили: попробуйте позже', { type: 'err' });
+  const box = $('#gm-chart'), cv = $('canvas', box), info = $('#gm-chart-info');
+  box.classList.remove('hidden');
+  const W = cv.width = box.clientWidth - 24, H = cv.height = 120, g = cv.getContext('2d');
+  const lo = Math.min(...el), hi = Math.max(...el), span = Math.max(10, hi - lo);
+  const X = i => 8 + i / (N - 1) * (W - 16), Y = v => H - 18 - (v - lo) / span * (H - 38);
+  let up = 0, down = 0, maxSlope = 0;
+  el.forEach((v, i) => { if (i) { const dv = v - el[i - 1]; dv > 0 ? up += dv : down -= dv; maxSlope = Math.max(maxSlope, Math.abs(dv) / Math.max(1, samples[i].d - samples[i - 1].d) * 100); } });
+  info.textContent = `${fmtDist(total)} · мин ${Math.round(lo)} м · макс ${Math.round(hi)} м · подъём ${Math.round(up)} м · спуск ${Math.round(down)} м · круче всего ${maxSlope.toFixed(1)}%`;
+  const draw = hover => {
+    g.clearRect(0, 0, W, H);
+    const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, 'rgba(226,226,236,.42)'); gr.addColorStop(1, 'rgba(226,226,236,.02)');
+    g.beginPath(); g.moveTo(X(0), H - 18); el.forEach((v, i) => g.lineTo(X(i), Y(v))); g.lineTo(X(N - 1), H - 18); g.closePath(); g.fillStyle = gr; g.fill();
+    g.beginPath(); el.forEach((v, i) => (i ? g.lineTo(X(i), Y(v)) : g.moveTo(X(i), Y(v)))); g.strokeStyle = '#f2f2f6'; g.lineWidth = 1.6; g.stroke();
+    g.fillStyle = '#8b8b96'; g.font = '10px "JetBrains Mono",monospace'; g.fillText(Math.round(hi) + ' м', 10, 12); g.fillText(Math.round(lo) + ' м', 10, H - 22); g.textAlign = 'right'; g.fillText(fmtDist(total), W - 8, H - 4); g.textAlign = 'left'; g.fillText('0', 8, H - 4);
+    if (hover != null) { g.strokeStyle = 'rgba(226,35,46,.9)'; g.lineWidth = 1; g.beginPath(); g.moveTo(X(hover), 4); g.lineTo(X(hover), H - 18); g.stroke(); g.fillStyle = '#ff4b55'; g.beginPath(); g.arc(X(hover), Y(el[hover]), 3.6, 0, 7); g.fill(); g.fillStyle = '#fff'; g.fillText(`${Math.round(el[hover])} м · ${fmtDist(samples[hover].d)}`, clamp(X(hover) + 8, 8, W - 120), 12); }
+  };
+  draw(null);
+  if (S.profMarker) GEO.toolsLayer.removeLayer(S.profMarker);
+  S.profMarker = dot([samples[0].lat, samples[0].lng], '#ffffff').addTo(GEO.toolsLayer);
+  cv.onmousemove = e => { const r = cv.getBoundingClientRect(), i = clamp(Math.round((e.clientX - r.left - 8) / (W - 16) * (N - 1)), 0, N - 1); draw(i); S.profMarker.setLatLng([samples[i].lat, samples[i].lng]); };
+  cv.onmouseleave = () => draw(null);
+  $('#gm-chart-x').onclick = () => { box.classList.add('hidden'); if (S.profMarker) { GEO.toolsLayer.removeLayer(S.profMarker); S.profMarker = null; } };
+}
+
+/* ─────────── живые слои ─────────── */
+const active = () => GE.currentView === 'geolocation' && !document.hidden;
+const LY = {};
+const lyStatus = (id, t) => { const el = $(`[data-ly="${id}"] .gm-ly-s`); if (el) el.textContent = t || ''; };
+const ago = ts => { const s = Math.max(0, (Date.now() - ts) / 1000); return s < 90 ? Math.round(s) + ' с назад' : s < 5400 ? Math.round(s / 60) + ' мин назад' : (s / 3600).toFixed(1) + ' ч назад'; };
+const popupBtn = (html, fn) => { const d = document.createElement('div'); d.innerHTML = html; fn && fn(d); return d; };
+
+/* Спутники: орбиты считаются в браузере (satellite.js, элементы CelesTrak) */
+const SAT_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/satellite.js/5.0.0/satellite.min.js', SAT_SRI = 'sha384-e6V1JVpc+kVNTxT0gEOla7yL4c92Romsw7itPoipfzHbEjzUwPhTv6oeVDMHHzqT';
+const SAT_GROUPS = [['25544', 'МКС (ISS)', 'CATNR=25544'], ['stations', 'Космические станции', 'GROUP=stations'], ['gps', 'GPS (навигация)', 'GROUP=gps-ops'], ['weather', 'Метеоспутники', 'GROUP=weather'], ['custom', 'Свой номер NORAD', '']];
+LY.sat = {
+  n: 'Спутники', d: 'Орбиты в реальном времени: МКС, станции, GPS. Клик по точке показывает трассу на 95 минут и зону видимости.',
+  ctl: `<label class="gm-f"><span>Набор</span><select class="select" data-k="grp">${SAT_GROUPS.map(g => `<option value="${g[0]}">${g[1]}</option>`).join('')}</select></label><label class="gm-f hidden" data-k="custom-row"><span>NORAD</span><input class="input mono" data-k="norad" placeholder="например 20580 (Hubble)" inputmode="numeric"></label><label class="gm-chk"><input type="checkbox" data-k="follow"> следить за выбранным</label><div class="gm-chips" data-k="list"></div>`,
+  async start() {
+    const st = this.st = { list: [], sel: null, layer: L.layerGroup().addTo(GEO.map), grp: '25544', follow: false };
+    await this.load(st.grp);
+  },
+  stop() { const st = this.st; if (!st) return; clearInterval(st.timer); clearInterval(st.trackT); GEO.map.removeLayer(st.layer); this.st = null; hud('sat'); lyStatus('sat', ''); },
+  lib() {
+    if (window.satellite) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = SAT_SRC; s.integrity = SAT_SRI; s.crossOrigin = 'anonymous';
+      s.onload = res; s.onerror = () => rej(new Error('не удалось загрузить satellite.js')); document.head.appendChild(s);
+    });
+  },
+  async load(grp, custom) {
+    const st = this.st; if (!st) return;
+    lyStatus('sat', 'Загружаю элементы орбит…');
+    try {
+      await this.lib();
+      const param = grp === 'custom' ? 'CATNR=' + E(String(custom || '').replace(/\D/g, '')) : SAT_GROUPS.find(g => g[0] === grp)[2];
+      const r = await fetch(`https://celestrak.org/NORAD/elements/gp.php?${param}&FORMAT=TLE`, { referrerPolicy: 'no-referrer' });
+      if (!r.ok) throw new Error('CelesTrak: HTTP ' + r.status);
+      const lines = (await r.text()).split(/\r?\n/).map(s => s.trimEnd()).filter(Boolean), list = [];
+      for (let i = 0; i + 2 < lines.length; i += 3) {
+        if (!/^1 /.test(lines[i + 1]) || !/^2 /.test(lines[i + 2])) continue;
+        try { list.push({ name: lines[i].trim(), rec: satellite.twoline2satrec(lines[i + 1], lines[i + 2]), id: lines[i + 1].slice(2, 7).trim() }); } catch (e) { /* битый набор */ }
+      }
+      if (!list.length) throw new Error(grp === 'custom' ? 'спутник с таким номером не найден' : 'пустой ответ');
+      st.layer.clearLayers(); st.list = list.slice(0, 120); st.grp = grp;
+      st.list.forEach(s => {
+        s.mk = L.circleMarker([0, 0], { radius: 3.4, color: '#0a0a0c', weight: 1, fillColor: '#e8e8ee', fillOpacity: 1 }).addTo(st.layer);
+        s.mk.bindTooltip(s.name, { direction: 'top', className: 'gm-tip' });
+        s.mk.on('click', () => this.select(s));
+      });
+      const chips = $('[data-ly="sat"] [data-k=list]');
+      if (chips) chips.innerHTML = st.list.length > 1 ? st.list.slice(0, 14).map((s, i) => `<button data-i="${i}">${esc(s.name.replace(/\s*\(.*$/, '').slice(0, 18))}</button>`).join('') : '';
+      clearInterval(st.timer); clearInterval(st.trackT);
+      st.timer = setInterval(() => this.tick(), 1000); st.trackT = setInterval(() => this.drawTrack(), 60000);
+      this.select(st.list[0]); this.tick();
+    } catch (e) { lyStatus('sat', 'Ошибка: ' + (e.message || 'нет ответа')); }
+  },
+  pos(rec, date) {
+    const pv = satellite.propagate(rec, date);
+    if (!pv.position) return null;
+    const g = satellite.eciToGeodetic(pv.position, satellite.gstime(date)), v = pv.velocity;
+    return { lat: satellite.degreesLat(g.latitude), lon: satellite.degreesLong(g.longitude), h: g.height, v: Math.hypot(v.x, v.y, v.z) };
+  },
+  select(s) {
+    const st = this.st; if (!st) return;
+    st.sel = s;
+    st.list.forEach(x => { x.mk.setStyle({ radius: x === s ? 6 : 3.4, fillColor: x === s ? '#ff4b55' : '#e8e8ee' }); if (x === s) x.mk.openTooltip(); });
+    $$('[data-ly="sat"] [data-k=list] button').forEach((b, i) => b.classList.toggle('on', st.list[i] === s));
+    this.drawTrack();
+  },
+  drawTrack() {
+    const st = this.st; if (!st || !st.sel) return;
+    if (st.track) st.layer.removeLayer(st.track);
+    const segs = [[]], t0 = Date.now(); let prev = null;
+    for (let i = 0; i <= 190; i++) {
+      const p = this.pos(st.sel.rec, new Date(t0 + i * 30000)); if (!p) continue;
+      if (prev && Math.abs(p.lon - prev.lon) > 180) segs.push([]);
+      segs[segs.length - 1].push([p.lat, p.lon]); prev = p;
+    }
+    st.track = L.polyline(segs, { color: '#ff4b55', weight: 1.6, dashArray: '2 5', opacity: 0.85, interactive: false }).addTo(st.layer);
+  },
+  tick() {
+    const st = this.st; if (!st || !active()) return;
+    const now = new Date();
+    st.list.forEach(s => { const p = this.pos(s.rec, now); s.p = p; if (p) s.mk.setLatLng([p.lat, p.lon]); });
+    const s = st.sel, p = s && s.p;
+    if (p) {
+      const rad = 6371 * Math.acos(6371 / (6371 + p.h)) * 1000;
+      if (!st.fp) st.fp = L.circle([p.lat, p.lon], { radius: rad, color: '#ff4b55', weight: 1, fillColor: '#e2232e', fillOpacity: 0.07, interactive: false }).addTo(st.layer);
+      else { st.fp.setLatLng([p.lat, p.lon]); st.fp.setRadius(rad); }
+      hud('sat', `${esc(s.name.replace(/\s*\(.*$/, ''))} · ${p.lat.toFixed(2)}°, ${p.lon.toFixed(2)}° · ${Math.round(p.h)} км · ${(p.v * 3600).toFixed(0)} км/ч`);
+      lyStatus('sat', `${st.list.length} объектов · обновление раз в секунду · источник CelesTrak`);
+      if (st.follow) GEO.map.panTo([p.lat, p.lon], { animate: true, duration: 0.9, noMoveStart: true });
+    }
+  },
+  bind(root) {
+    const sel = $('[data-k=grp]', root), custom = $('[data-k=custom-row]', root), inp = $('[data-k=norad]', root);
+    sel.onchange = () => { custom.classList.toggle('hidden', sel.value !== 'custom'); if (sel.value !== 'custom') this.load(sel.value); else inp.focus(); };
+    inp.onkeydown = e => { if (e.key === 'Enter' && inp.value.trim()) this.load('custom', inp.value); };
+    $('[data-k=follow]', root).onchange = e => { if (this.st) this.st.follow = e.target.checked; };
+    $('[data-k=list]', root).onclick = e => { const b = e.target.closest('button'); if (b && this.st) this.select(this.st.list[+b.dataset.i]); };
+  }
+};
+
+/* Самолёты ADS-B: данные идут через ваш прокси на Cloudflare */
+const PLANE = '<svg viewBox="0 0 24 24"><path d="M12 2c.8 0 1.3.6 1.3 1.4v5.2l7.4 4.6v2l-7.4-2.2v4l2 1.6V21l-3.3-1-3.3 1v-1.6l2-1.6v-4L3.3 15.2v-2l7.4-4.6V3.4C10.7 2.6 11.2 2 12 2z" fill="currentColor" stroke="#0a0a0c" stroke-width="0.8"/></svg>';
+const altCol = ft => ft <= 0 ? '#8b8b96' : ft < 10000 ? '#f2f2f6' : ft < 28000 ? '#cacad2' : '#ff5a62';
+LY.air = {
+  n: 'Самолёты (ADS-B)', d: 'Борта в видимой области: позывной, высота, скорость, курс. Работает при масштабе от 6. Запросы идут через ваш воркер Cloudflare.',
+  ctl: '<div class="gm-note" data-k="note">Нажмите на самолёт, чтобы следить за ним и вести трек.</div><button class="btn btn-sm hidden" data-k="unfollow">Прекратить слежение</button>',
+  start() {
+    const st = this.st = { ac: new Map(), layer: L.layerGroup().addTo(GEO.map), follow: null, busy: false, miss: 0 };
+    st.timer = setInterval(() => this.poll(), 9000);
+    st.drT = setInterval(() => this.dead(), 1000);
+    st.mv = () => { clearTimeout(st.mvT); st.mvT = setTimeout(() => this.poll(), 700); };
+    GEO.map.on('moveend', st.mv);
+    this.poll();
+  },
+  stop() {
+    const st = this.st; if (!st) return;
+    clearInterval(st.timer); clearInterval(st.drT); GEO.map.off('moveend', st.mv); GEO.map.removeLayer(st.layer);
+    this.st = null; hud('air'); lyStatus('air', '');
+  },
+  async poll() {
+    const st = this.st; if (!st || st.busy || !active()) return;
+    const map = GEO.map;
+    if (map.getZoom() < 6) { lyStatus('air', 'Приблизьте карту: масштаб от 6'); st.layer.clearLayers(); st.ac.clear(); hud('air'); return; }
+    const c = map.getCenter(), nm = clamp(Math.ceil(U.haversine(c, map.getBounds().getNorthEast()) / 1852), 20, 250);
+    st.busy = true;
+    try {
+      const url = `${PROXY}/?url=${E(`https://api.adsb.lol/v2/point/${c.lat.toFixed(3)}/${c.lng.toFixed(3)}/${nm}`)}`;
+      const r = await GE.fetchJSON(url, 14000), list = (r.ac || []).filter(a => ok(+a.lat, +a.lon));
+      st.miss = 0;
+      const seen = new Set(), now = Date.now(), b = map.getBounds().pad(0.1);
+      list.slice(0, 700).forEach(a => {
+        const hex = String(a.hex || '').toLowerCase(); if (!/^[0-9a-f~]{6,7}$/.test(hex)) return;
+        seen.add(hex);
+        const alt = typeof a.alt_baro === 'number' ? a.alt_baro : a.alt_baro === 'ground' ? 0 : num(a.alt_geom), trk = num(a.track, num(a.true_heading)), gs = num(a.gs);
+        let o = st.ac.get(hex);
+        const emerg = /^(7500|7600|7700)$/.test(String(a.squawk || ''));
+        if (!o) {
+          o = { hex, trail: [] };
+          o.mk = L.marker([a.lat, a.lon], { icon: L.divIcon({ className: 'gm-plane', html: PLANE, iconSize: [22, 22], iconAnchor: [11, 11] }), keyboard: false }).addTo(st.layer);
+          o.mk.on('click', () => this.card(o));
+          st.ac.set(hex, o);
+        }
+        Object.assign(o, { a, lat: +a.lat, lon: +a.lon, trk, gs, alt, t: now, emerg });
+        const el = o.mk.getElement(); if (el) { el.style.color = altCol(alt); el.firstChild.style.transform = `rotate(${trk}deg)`; el.classList.toggle('emerg', emerg); el.title = `${String(a.flight || '').trim() || hex}`; }
+        o.mk.setLatLng([o.lat, o.lon]);
+        if (st.follow === hex) { o.trail.push([o.lat, o.lon]); if (o.trail.length > 600) o.trail.shift(); if (!o.line) o.line = L.polyline(o.trail, { color: '#ff4b55', weight: 2, opacity: 0.9, interactive: false }).addTo(st.layer); else o.line.setLatLngs(o.trail); map.panTo([o.lat, o.lon], { animate: true, duration: 1 }); }
+      });
+      st.ac.forEach((o, hex) => { if (!seen.has(hex) && now - o.t > 25000 && st.follow !== hex) { st.layer.removeLayer(o.mk); st.ac.delete(hex); } });
+      const em = list.filter(a => /^(7500|7600|7700)$/.test(String(a.squawk || '')));
+      hud('air', `ADS-B: ${seen.size} бортов${em.length ? ` · <b class="gm-alert">ТРЕВОГА ${esc(String(em[0].squawk))}: ${esc(String(em[0].flight || em[0].hex).trim())}</b>` : ''}`);
+      lyStatus('air', `${seen.size} бортов в радиусе ${nm} миль · обновлено ${new Date().toLocaleTimeString('ru-RU')}${list.length > 700 ? ' · показаны первые 700' : ''}`);
+      if (em.length && !st.alerted) { st.alerted = true; try { GE.audio && GE.audio.sfx('alert'); } catch (e) { /* звук необязателен */ } }
+    } catch (e) { st.miss++; lyStatus('air', 'Нет ответа от ADS-B (' + (e.message || 'сеть') + '). Проверьте воркер Cloudflare.'); }
+    st.busy = false;
+  },
+  dead() {
+    const st = this.st; if (!st || !active()) return;
+    const now = Date.now();
+    st.ac.forEach(o => {
+      if (!o.gs || o.alt <= 0) return;
+      const d = o.gs * 0.514444 * Math.min(40, (now - o.t) / 1000), tr = o.trk * RAD;
+      o.mk.setLatLng([o.lat + d * Math.cos(tr) / 111320, o.lon + d * Math.sin(tr) / (111320 * Math.max(0.2, Math.cos(o.lat * RAD)))]);
+    });
+  },
+  card(o) {
+    const a = o.a, name = String(a.flight || '').trim() || o.hex.toUpperCase(), ft = o.alt;
+    const div = popupBtn(`<b>${esc(name)}</b>${a.r ? ` · ${esc(a.r)}` : ''}${a.t ? ` · ${esc(a.t)}` : ''}
+      <div style="font-size:12px;margin:6px 0;color:#a5a5af;line-height:1.55">Высота ${ft > 0 ? `${Math.round(ft * 0.3048)} м (${ft} ft)` : 'на земле'}<br>Скорость ${Math.round(o.gs * 1.852)} км/ч · курс ${Math.round(o.trk)}°${a.squawk ? `<br>Squawk ${esc(String(a.squawk))}${o.emerg ? ' <b class="gm-alert">АВАРИЙНЫЙ КОД</b>' : ''}` : ''}<br>ICAO24 <span class="mono">${esc(o.hex)}</span></div>
+      <div class="row" style="gap:6px"><button class="btn btn-sm btn-primary" data-a="follow">Следить</button><button class="btn btn-sm" data-a="scan">Скан борта</button><a class="btn btn-sm" target="_blank" rel="noopener noreferrer" href="https://globe.adsbexchange.com/?icao=${E(o.hex)}">ADSBx</a>${a.r ? `<a class="btn btn-sm" target="_blank" rel="noopener noreferrer" href="https://www.jetphotos.com/registration/${E(a.r)}">Фото</a>` : ''}</div>`, d => {
+      d.querySelector('[data-a=follow]').onclick = () => { this.follow(o.hex); o.mk.closePopup(); };
+      d.querySelector('[data-a=scan]').onclick = () => { location.hash = `#/search?q=${E(o.hex.toUpperCase())}&t=transport`; };
+    });
+    o.mk.bindPopup(div).openPopup();
+  },
+  follow(hex) {
+    const st = this.st; if (!st) return;
+    st.ac.forEach(o => { if (o.line) { st.layer.removeLayer(o.line); o.line = null; o.trail = []; } });
+    st.follow = hex;
+    const n = $('[data-ly="air"] [data-k=note]'), u = $('[data-ly="air"] [data-k=unfollow]');
+    if (n) n.textContent = hex ? `Слежение за ${hex.toUpperCase()}: трек пишется, карта следует за бортом.` : 'Нажмите на самолёт, чтобы следить за ним и вести трек.';
+    if (u) u.classList.toggle('hidden', !hex);
+    if (hex) toast('Слежение включено: трек борта пишется на карте');
+  },
+  bind(root) { $('[data-k=unfollow]', root).onclick = () => this.follow(null); }
+};
+
+/* Землетрясения USGS */
+LY.quake = {
+  n: 'Землетрясения', d: 'USGS: размер круга показывает магнитуду. Клик открывает карточку события.',
+  ctl: `<label class="gm-f"><span>Период</span><select class="select" data-k="per"><option value="hour">час</option><option value="day" selected>сутки</option><option value="week">неделя</option><option value="month">месяц</option></select></label><label class="gm-f"><span>Магнитуда от</span><select class="select" data-k="mag"><option value="1.0">1.0</option><option value="2.5" selected>2.5</option><option value="4.5">4.5</option></select></label>`,
+  start() { this.st = { layer: L.layerGroup().addTo(GEO.map), per: 'day', mag: '2.5' }; this.load(); this.st.timer = setInterval(() => active() && this.load(), 300000); },
+  stop() { const st = this.st; if (!st) return; clearInterval(st.timer); GEO.map.removeLayer(st.layer); this.st = null; hud('quake'); lyStatus('quake', ''); },
+  async load() {
+    const st = this.st; if (!st) return;
+    try {
+      const r = await GE.fetchJSON(`https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${st.mag}_${st.per}.geojson`, 15000);
+      st.layer.clearLayers();
+      let max = 0;
+      (r.features || []).forEach(f => {
+        const p = f.properties || {}, c = (f.geometry || {}).coordinates || []; if (!ok(c[1], c[0])) return;
+        const m = num(p.mag); max = Math.max(max, m);
+        L.circleMarker([c[1], c[0]], { radius: 3 + m * 1.9, color: m >= 6 ? '#ffffff' : '#ff4b55', weight: 1.2, fillColor: '#e2232e', fillOpacity: 0.32 }).addTo(st.layer)
+          .bindPopup(`<b>M ${m.toFixed(1)}</b> · ${esc(p.place || '')}<div style="font-size:12px;color:#a5a5af;margin:5px 0">${new Date(p.time).toLocaleString('ru-RU')} · глубина ${Math.round(num(c[2]))} км${p.tsunami ? ' · <b class="gm-alert">риск цунами</b>' : ''}</div>${GE.safeUrl(p.url) ? `<a href="${esc(GE.safeUrl(p.url))}" target="_blank" rel="noopener noreferrer">Карточка USGS</a>` : ''}`);
+      });
+      hud('quake', `Землетрясений: ${(r.features || []).length}${max ? ` · макс. M${max.toFixed(1)}` : ''}`);
+      lyStatus('quake', `${(r.features || []).length} событий · данные USGS, обновление раз в 5 минут`);
+    } catch (e) { lyStatus('quake', 'USGS не ответил: ' + (e.message || 'сеть')); }
+  },
+  bind(root) {
+    $('[data-k=per]', root).onchange = e => { if (this.st) { this.st.per = e.target.value; this.load(); } };
+    $('[data-k=mag]', root).onchange = e => { if (this.st) { this.st.mag = e.target.value; this.load(); } };
+  }
+};
+
+/* Природные события NASA EONET */
+const EO_COL = { wildfires: '#ff4b55', severeStorms: '#f2f2f6', volcanoes: '#ffffff', floods: '#a8aebb', seaLakeIce: '#d8dbe6', drought: '#c9a98a', dustHaze: '#b9a78a', landslides: '#9c8f86', manmade: '#ff8a90', snow: '#e8ecf6', tempExtremes: '#ffb3b8', waterColor: '#9aa6b3', earthquakes: '#ff4b55' };
+LY.eonet = {
+  n: 'Природные события', d: 'NASA EONET: пожары, штормы, вулканы, наводнения, ледовая обстановка. Открытые события за последние 30 дней.',
+  ctl: '<div class="gm-legend"><span><i style="background:#ff4b55"></i>пожары</span><span><i style="background:#f2f2f6"></i>штормы</span><span><i style="background:#fff"></i>вулканы</span><span><i style="background:#a8aebb"></i>наводнения</span><span><i style="background:#d8dbe6"></i>лёд</span></div>',
+  start() { this.st = { layer: L.layerGroup().addTo(GEO.map) }; this.load(); this.st.timer = setInterval(() => active() && this.load(), 900000); },
+  stop() { const st = this.st; if (!st) return; clearInterval(st.timer); GEO.map.removeLayer(st.layer); this.st = null; hud('eonet'); lyStatus('eonet', ''); },
+  async load() {
+    const st = this.st; if (!st) return;
+    lyStatus('eonet', 'Загружаю события…');
+    try {
+      const r = await GE.fetchJSON('https://eonet.gsfc.nasa.gov/api/v3/events/geojson?status=open&days=30&limit=120', 25000);
+      st.layer.clearLayers();
+      const byId = new Map();
+      (r.features || []).forEach(f => {
+        const p = f.properties || {}, g = f.geometry || {};
+        const c = g.type === 'Point' ? g.coordinates : g.type === 'Polygon' && g.coordinates[0] ? g.coordinates[0][0] : null;
+        if (!c || !ok(c[1], c[0])) return;
+        const e = byId.get(p.id) || { p, pts: [] };
+        e.pts.push({ c, d: Date.parse(p.date) || 0, p }); byId.set(p.id, e);
+      });
+      let n = 0;
+      byId.forEach(e => {
+        e.pts.sort((x, y) => x.d - y.d);
+        const last = e.pts[e.pts.length - 1], p = last.p, cat = (p.categories || [])[0] || {}, col = EO_COL[cat.id] || '#cacad2';
+        if (e.pts.length > 1) L.polyline(e.pts.map(x => [x.c[1], x.c[0]]), { color: col, weight: 1.4, opacity: 0.55, dashArray: '3 4', interactive: false }).addTo(st.layer);
+        n++;
+        const src = (p.sources || []).map(s => GE.safeUrl(s.url)).filter(Boolean)[0];
+        L.circleMarker([last.c[1], last.c[0]], { radius: 6.5, color: '#0a0a0c', weight: 1.4, fillColor: col, fillOpacity: 0.95 }).addTo(st.layer)
+          .bindPopup(`<div class="mono" style="font-size:10px;letter-spacing:.14em;color:#e2232e">${esc(cat.title || 'СОБЫТИЕ')}</div><b>${esc(p.title || '')}</b><div style="font-size:12px;color:#a5a5af;margin:5px 0">${p.date ? new Date(p.date).toLocaleString('ru-RU') : ''}${p.magnitudeValue ? ` · ${esc(String(p.magnitudeValue))} ${esc(p.magnitudeUnit || '')}` : ''}${e.pts.length > 1 ? ` · точек трека: ${e.pts.length}` : ''}</div>${src ? `<a href="${esc(src)}" target="_blank" rel="noopener noreferrer">Источник</a>` : ''}`);
+      });
+      hud('eonet', `Событий NASA: ${n}`);
+      lyStatus('eonet', `${n} событий · данные NASA EONET`);
+    } catch (e) { lyStatus('eonet', 'EONET не ответил: ' + (e.message || 'сеть')); }
+  }
+};
+
+/* Радар осадков RainViewer */
+LY.radar = {
+  n: 'Радар осадков', d: 'RainViewer: последние два часа и ближайший прогноз. Анимация и прозрачность настраиваются.',
+  ctl: `<div class="gm-row"><button class="btn btn-sm" data-k="play">${ic('pause')}</button><input type="range" min="0" max="0" value="0" data-k="frame" aria-label="Кадр радара"><span class="mono gm-time" data-k="time">—</span></div><label class="gm-f"><span>Прозрачность</span><input type="range" min="20" max="100" value="70" data-k="op"></label>`,
+  async start() {
+    const st = this.st = { layers: new Map(), i: 0, play: true, op: 0.7 };
+    try {
+      const r = await GE.fetchJSON('https://api.rainviewer.com/public/weather-maps.json', 12000);
+      st.host = r.host; st.frames = [...(r.radar.past || []).map(f => ({ ...f, fc: false })), ...(r.radar.nowcast || []).map(f => ({ ...f, fc: true }))];
+      if (!st.frames.length) throw new Error('нет кадров');
+      st.i = Math.max(0, (r.radar.past || []).length - 1);
+      const sl = $('[data-ly="radar"] [data-k=frame]'); sl.max = st.frames.length - 1; sl.value = st.i;
+      this.show(st.i);
+      st.timer = setInterval(() => { if (st.play && active()) this.show((st.i + 1) % st.frames.length); }, 850);
+      lyStatus('radar', `${st.frames.length} кадров · источник RainViewer`);
+    } catch (e) { lyStatus('radar', 'RainViewer не ответил: ' + (e.message || 'сеть')); }
+  },
+  stop() { const st = this.st; if (!st) return; clearInterval(st.timer); st.layers.forEach(l => GEO.map.removeLayer(l)); this.st = null; lyStatus('radar', ''); },
+  show(i) {
+    const st = this.st; if (!st || !st.frames) return;
+    st.i = i;
+    if (!st.layers.has(i)) {
+      const f = st.frames[i];
+      st.layers.set(i, L.tileLayer(`${st.host}${f.path}/256/{z}/{x}/{y}/4/1_1.png`, { opacity: 0, maxNativeZoom: 7, maxZoom: 20, zIndex: 380 }).addTo(GEO.map));
+    }
+    st.layers.forEach((l, k) => l.setOpacity(k === i ? st.op : 0));
+    const f = st.frames[i], tm = $('[data-ly="radar"] [data-k=time]'), sl = $('[data-ly="radar"] [data-k=frame]');
+    if (tm) tm.textContent = new Date(f.time * 1000).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) + (f.fc ? ' прогноз' : '');
+    if (sl) sl.value = i;
+  },
+  bind(root) {
+    const play = $('[data-k=play]', root);
+    play.onclick = () => { const st = this.st; if (!st) return; st.play = !st.play; play.innerHTML = ic(st.play ? 'pause' : 'play'); };
+    $('[data-k=frame]', root).oninput = e => { const st = this.st; if (!st) return; st.play = false; play.innerHTML = ic('play'); this.show(+e.target.value); };
+    $('[data-k=op]', root).oninput = e => { const st = this.st; if (!st) return; st.op = +e.target.value / 100; st.layers.get(st.i) && st.layers.get(st.i).setOpacity(st.op); };
+  }
+};
+
+/* День и ночь: освещённость Земли на любой момент */
+LY.night = {
+  n: 'День и ночь', d: 'Затемнение ночной стороны с плавными сумерками. Задайте момент съёмки фото, чтобы проверить, мог ли в этой точке быть свет.',
+  ctl: `<label class="gm-f"><span>Момент (ваше время)</span><input class="input mono" type="datetime-local" data-k="t"></label><div class="gm-row"><button class="btn btn-sm" data-k="now">Сейчас</button><button class="btn btn-sm" data-k="m1">−1 ч</button><button class="btn btn-sm" data-k="p1">+1 ч</button></div><div class="gm-note" data-k="sun"></div>`,
+  start() {
+    const st = this.st = { t: null };
+    this.draw();
+    st.timer = setInterval(() => { if (!st.t && active()) this.draw(); }, 60000);
+    st.mv = () => this.sunAtCenter(); GEO.map.on('moveend', st.mv);
+  },
+  stop() { const st = this.st; if (!st) return; clearInterval(st.timer); GEO.map.off('moveend', st.mv); [st.ov, st.sunMk].forEach(l => l && GEO.map.removeLayer(l)); this.st = null; hud('night'); lyStatus('night', ''); },
+  render(date) {
+    const A = GE.astro, b = A.base(date), dec = b.decl * RAD, utc = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
+    const lonS = (720 - utc - b.eq) / 4, SZ = 720, cv = this.cv || (this.cv = document.createElement('canvas'));
+    cv.width = cv.height = SZ;
+    const g = cv.getContext('2d'), img = g.createImageData(SZ, SZ), d = img.data, sd = Math.sin(dec), cd = Math.cos(dec), cH = new Float32Array(SZ);
+    for (let x = 0; x < SZ; x++) cH[x] = Math.cos((-180 + (x + 0.5) / SZ * 360 - lonS) * RAD);
+    for (let y = 0; y < SZ; y++) {
+      const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / SZ))), sl = Math.sin(lat), cl = Math.cos(lat);
+      for (let x = 0; x < SZ; x++) {
+        const alt = Math.asin(clamp(sl * sd + cl * cd * cH[x], -1, 1)) / RAD, t = clamp((2.5 - alt) / 20.5, 0, 1), i = (y * SZ + x) * 4;
+        d[i + 2] = 4; d[i + 3] = 168 * Math.pow(t, 0.85);
+      }
+    }
+    g.putImageData(img, 0, 0);
+    return { url: cv.toDataURL(), lat: b.decl, lon: ((lonS + 540) % 360) - 180 };
+  },
+  draw() {
+    const st = this.st; if (!st) return;
+    const date = st.t || new Date(), r = this.render(date), B = [[-85.0511, -180], [85.0511, 180]];
+    if (!st.ov) st.ov = L.imageOverlay(r.url, B, { interactive: false, zIndex: 360, opacity: 1 }).addTo(GEO.map); else st.ov.setUrl(r.url);
+    if (!st.sunMk) st.sunMk = L.circleMarker([r.lat, r.lon], { radius: 7, color: '#ffffff', weight: 2, fillColor: '#ffd9a0', fillOpacity: 0.95 }).addTo(GEO.map).bindTooltip('Подсолнечная точка: Солнце в зените', { direction: 'top', className: 'gm-tip' }); else st.sunMk.setLatLng([r.lat, r.lon]);
+    hud('night', `Освещённость на ${date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`);
+    lyStatus('night', `Солнце в зените над ${r.lat.toFixed(1)}°, ${r.lon.toFixed(1)}°`);
+    this.sunAtCenter();
+  },
+  sunAtCenter() {
+    const st = this.st, el = $('[data-ly="night"] [data-k=sun]'); if (!st || !el) return;
+    const c = GEO.map.getCenter(), date = st.t || new Date(), s = GE.astro.sun(date, c.lat, c.lng), ev = GE.astro.times(date, c.lat, c.lng);
+    const ph = s.alt > 6 ? 'день' : s.alt > 0 ? 'у горизонта' : s.alt > -6 ? 'гражданские сумерки' : s.alt > -12 ? 'навигационные сумерки' : s.alt > -18 ? 'астрономические сумерки' : 'ночь';
+    el.innerHTML = `В центре карты (${c.lat.toFixed(2)}°, ${c.lng.toFixed(2)}°): Солнце ${s.alt.toFixed(1)}° над горизонтом, азимут ${s.az.toFixed(0)}°. Сейчас ${ph}.${ev.rise ? `<br>Восход ${ev.rise.toISOString().slice(11, 16)}, закат ${ev.set.toISOString().slice(11, 16)} UTC` : ''}`;
+  },
+  bind(root) {
+    const inp = $('[data-k=t]', root), setT = d => { if (!this.st) return; this.st.t = d; inp.value = d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''; this.draw(); };
+    inp.onchange = () => setT(inp.value ? new Date(inp.value) : null);
+    $('[data-k=now]', root).onclick = () => setT(null);
+    $('[data-k=m1]', root).onclick = () => setT(new Date(((this.st && this.st.t) || new Date()).getTime() - 3600000));
+    $('[data-k=p1]', root).onclick = () => setT(new Date(((this.st && this.st.t) || new Date()).getTime() + 3600000));
+  }
+};
+
+/* Спутниковый архив Esri Wayback */
+LY.wayback = {
+  n: 'Спутниковый архив', d: 'Esri Wayback: снимки разных лет в одной точке. Сдвигайте ползунок и сравнивайте стройки, разрушения и изменения местности.',
+  ctl: `<div class="gm-row"><button class="btn btn-sm" data-k="prev">←</button><input type="range" min="0" max="0" value="0" data-k="rel" aria-label="Дата снимка"><button class="btn btn-sm" data-k="next">→</button></div><div class="mono gm-time" data-k="date">—</div><label class="gm-f"><span>Прозрачность</span><input type="range" min="0" max="100" value="100" data-k="op"></label>`,
+  async start() {
+    const st = this.st = { items: null, i: 0, layer: null, op: 1 };
+    lyStatus('wayback', 'Загружаю список снимков…');
+    try {
+      const cfg = await GE.fetchJSON('https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json', 20000);
+      const items = Object.entries(cfg).map(([id, v]) => ({ id, date: ((v.itemTitle || '').match(/(\d{4}-\d{2}-\d{2})/) || [])[1], url: v.itemURL })).filter(x => x.date && /^https:\/\/wayback\.maptiles\.arcgis\.com\//.test(x.url || '')).sort((a, b) => (a.date < b.date ? -1 : 1));
+      if (!items.length) throw new Error('пустой список');
+      st.items = items; st.i = items.length - 1;
+      const sl = $('[data-ly="wayback"] [data-k=rel]'); sl.max = items.length - 1; sl.value = st.i;
+      if (GE.settings.view.geoBase !== 'sat') toast('Для сравнения удобнее подложка «Спутник»: выберите её в меню «Карта»');
+      this.show(st.i);
+      lyStatus('wayback', `${items.length} выпусков с ${items[0].date.slice(0, 4)} года · Esri Wayback`);
+    } catch (e) { lyStatus('wayback', 'Esri Wayback не ответил: ' + (e.message || 'сеть')); }
+  },
+  stop() { const st = this.st; if (!st) return; if (st.layer) GEO.map.removeLayer(st.layer); this.st = null; lyStatus('wayback', ''); },
+  show(i) {
+    const st = this.st; if (!st || !st.items) return;
+    i = clamp(i, 0, st.items.length - 1); st.i = i;
+    clearTimeout(st.t);
+    const it = st.items[i], d = $('[data-ly="wayback"] [data-k=date]'), sl = $('[data-ly="wayback"] [data-k=rel]');
+    if (d) d.textContent = it.date; if (sl) sl.value = i;
+    st.t = setTimeout(() => {
+      if (st.layer) GEO.map.removeLayer(st.layer);
+      st.layer = L.tileLayer(it.url.replace('{level}', '{z}').replace('{row}', '{y}').replace('{col}', '{x}'), { maxNativeZoom: 19, maxZoom: 20, opacity: st.op, zIndex: 340, attribution: 'Esri Wayback ' + it.date }).addTo(GEO.map);
+    }, 220);
+  },
+  bind(root) {
+    $('[data-k=rel]', root).oninput = e => this.show(+e.target.value);
+    $('[data-k=prev]', root).onclick = () => this.st && this.show(this.st.i - 1);
+    $('[data-k=next]', root).onclick = () => this.st && this.show(this.st.i + 1);
+    $('[data-k=op]', root).oninput = e => { const st = this.st; if (!st) return; st.op = +e.target.value / 100; if (st.layer) st.layer.setOpacity(st.op); };
+  }
+};
+
+/* Википедия и Commons вокруг центра карты */
+LY.wiki = {
+  n: 'Википедия и Commons', d: 'Статьи и фотографии с координатами вокруг центра карты: быстро проверить место и найти опорные объекты.',
+  ctl: '<div class="gm-row"><button class="btn btn-sm btn-primary" data-k="go">Показать вокруг центра</button><button class="btn btn-sm" data-k="clear">Убрать</button></div>',
+  start() { this.st = { layer: L.layerGroup().addTo(GEO.map) }; lyStatus('wiki', 'Нажмите «Показать вокруг центра»'); },
+  stop() { const st = this.st; if (!st) return; GEO.map.removeLayer(st.layer); this.st = null; lyStatus('wiki', ''); },
+  async go() {
+    const st = this.st; if (!st) return;
+    const c = GEO.map.getCenter(), rad = clamp(Math.round(U.haversine(c, GEO.map.getBounds().getNorthEast()) * 0.8), 500, 10000);
+    lyStatus('wiki', 'Ищу вокруг…'); st.layer.clearLayers();
+    const [w, m] = await Promise.allSettled([
+      GE.fetchJSON(`https://ru.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${c.lat}|${c.lng}&gsradius=${rad}&gslimit=40&format=json&origin=*`, 12000),
+      GE.fetchJSON(`https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${c.lat}|${c.lng}&ggsradius=${rad}&ggslimit=30&ggsnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=120&format=json&origin=*`, 12000)
+    ]);
+    let nw = 0, nm = 0;
+    if (w.status === 'fulfilled') ((w.value.query || {}).geosearch || []).forEach(o => { if (!ok(o.lat, o.lon)) return; nw++; L.marker([o.lat, o.lon], { icon: L.divIcon({ className: 'gm-wk', html: '<span>W</span>', iconSize: [20, 20] }) }).addTo(st.layer).bindPopup(`<b>${esc(o.title)}</b><div style="font-size:12px;color:#a5a5af;margin:4px 0">${Math.round(o.dist)} м от центра</div><a href="https://ru.wikipedia.org/?curid=${+o.pageid}" target="_blank" rel="noopener noreferrer">Открыть статью</a>`); });
+    if (m.status === 'fulfilled') Object.values((m.value.query || {}).pages || {}).forEach(p => {
+      const ii = (p.imageinfo || [])[0], co = (p.coordinates || [])[0]; const th = ii && GE.safeUrl(ii.thumburl);
+      const lat = co ? co.lat : null, lon = co ? co.lon : null;
+      if (!th || !ok(lat, lon)) return; nm++;
+      L.marker([lat, lon], { icon: L.divIcon({ className: 'gm-ph', html: `<img src="${esc(th)}" alt="" referrerpolicy="no-referrer" loading="lazy">`, iconSize: [44, 44] }) }).addTo(st.layer).bindPopup(`<b>${esc(p.title.replace(/^File:/, ''))}</b><div style="margin:6px 0"><img src="${esc(th)}" alt="" style="max-width:200px" referrerpolicy="no-referrer"></div><a href="${esc(GE.safeUrl(ii.descriptionurl) || '#')}" target="_blank" rel="noopener noreferrer">Файл на Commons</a>`);
+    });
+    lyStatus('wiki', `Статей: ${nw} · фото: ${nm} в радиусе ${rad >= 1000 ? (rad / 1000).toFixed(1) + ' км' : rad + ' м'}`);
+  },
+  bind(root) { $('[data-k=go]', root).onclick = () => this.go(); $('[data-k=clear]', root).onclick = () => { if (this.st) { this.st.layer.clearLayers(); lyStatus('wiki', ''); } }; }
+};
+
+/* Мои записи: переключатель существующего слоя */
+LY.mine = {
+  n: 'Мои записи', d: 'Локации и фото с координатами из вашей базы.',
+  ctl: '',
+  start() { if (GEO.layer && !GEO.map.hasLayer(GEO.layer)) GEO.map.addLayer(GEO.layer); },
+  stop() { if (GEO.layer) GEO.map.removeLayer(GEO.layer); }
+};
+
+const ORDER = ['mine', 'sat', 'air', 'quake', 'eonet', 'radar', 'night', 'wayback', 'wiki'];
+function buildPanel(map) {
+  const panel = $('#gm-panel');
+  panel.innerHTML = `<div class="gm-panel-h"><b>Живые слои</b><button class="btn btn-sm btn-ghost" id="gm-all-off">Выключить все</button></div><div class="gm-panel-b">${ORDER.map(id => {
+    const l = LY[id];
+    return `<section class="gm-ly" data-ly="${id}"><label class="gm-ly-h"><span class="switch"><input type="checkbox" ${id === 'mine' ? 'checked' : ''} aria-label="${esc(l.n)}"><i></i></span><b>${esc(l.n)}</b></label><p>${esc(l.d)}</p><div class="gm-ly-b hidden">${l.ctl}</div><div class="gm-ly-s"></div></section>`;
+  }).join('')}</div>`;
+  ORDER.forEach(id => {
+    const sec = $(`[data-ly="${id}"]`, panel), l = LY[id], box = $('.gm-ly-b', sec), cb = $('input[type=checkbox]', sec);
+    if (l.bind) l.bind(box);
+    cb.onchange = async () => {
+      box.classList.toggle('hidden', !cb.checked || !l.ctl);
+      sec.classList.toggle('on', cb.checked);
+      try { cb.checked ? await l.start() : l.stop(); } catch (e) { lyStatus(id, 'Ошибка: ' + (e.message || 'не удалось запустить')); }
+    };
+  });
+  $('#gm-all-off').onclick = () => ORDER.forEach(id => { const cb = $(`[data-ly="${id}"] input[type=checkbox]`, panel); if (id !== 'mine' && cb.checked) { cb.checked = false; cb.dispatchEvent(new Event('change')); } });
+  $(`[data-ly="mine"]`, panel).classList.add('on');
+}
 })();
 
 </script>
