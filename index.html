@@ -12953,9 +12953,9 @@ const MAP_MAX_ZOOM = 22;
 const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
 const ESRI_REF = name => ESRI + 'Reference/' + name + '/MapServer/tile/{z}/{y}/{x}';
 const BASES = {
-  dark: { n: 'Графит', d: 'Тёмная карта CARTO для ночной работы', u: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }, z: 20 },
+  dark: { n: 'Графит Esri', d: 'Тёмная карта Esri для ночной работы', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
   canvas: { n: 'Графит', d: 'Минималистичная тёмная карта Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
-  osm: { n: 'Схема CARTO', d: 'Подробная схема улиц и объектов на данных OpenStreetMap', u: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', o: { maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }, z: 20 },
+  osm: { n: 'Улицы Esri', d: 'Подробная схема улиц и объектов', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
   street: { n: 'Улицы Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
   sat: { n: 'Спутник', d: 'Спутниковые и аэрофотоснимки с названиями мест', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
   hybrid: { n: 'Гибрид', d: 'Спутник + границы, подписи и транспортная сеть', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, labs: [
