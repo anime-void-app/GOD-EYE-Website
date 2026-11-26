@@ -840,6 +840,29 @@ button.chip:hover, a.chip:hover { border-color: rgba(226,35,46,0.6); color: #fff
 .ap-sliders input[type=range], .audio-range { -webkit-appearance: none; appearance: none; height: 4px; background: rgba(255,255,255,0.14); border-radius: 2px; outline: none; width: 100%; max-width: 170px; cursor: pointer; }
 .ap-sliders input[type=range]::-webkit-slider-thumb, .audio-range::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--crimson-3); border: 2px solid #fff; box-shadow: 0 0 10px rgba(226,35,46,0.75); cursor: pointer; }
 .ap-sliders input[type=range]::-moz-range-thumb, .audio-range::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: var(--crimson-3); border: 2px solid #fff; box-shadow: 0 0 10px rgba(226,35,46,0.75); cursor: pointer; }
+/* ===ATM-CSS-BEGIN=== */
+.audio-pop { max-height: calc(100vh - 84px); overflow-y: auto; }
+.ap-atm { padding: 2px 0 10px; border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; }
+.ap-sub { font: 500 10px/1 var(--f-mono); letter-spacing: 0.18em; color: var(--muted); margin-bottom: 8px; }
+.ap-sub i { font-style: normal; letter-spacing: 0.04em; color: var(--dim); margin-left: 8px; }
+.ap-chips { display: flex; gap: 6px; margin-bottom: 8px; }
+.ap-chips button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px; border: 1px solid var(--line); background: rgba(255,255,255,0.015); font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.1em; color: var(--silver-2); transition: border-color 0.15s, background 0.15s, color 0.15s; }
+.ap-chips button i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: background 0.15s, box-shadow 0.15s; }
+.ap-chips button:hover { border-color: var(--line-3); background: rgba(255,255,255,0.04); }
+.ap-chips button.on { border-color: rgba(226,35,46,0.7); background: rgba(139,0,0,0.14); color: var(--white); }
+.ap-chips button.on i { background: var(--crimson-3); box-shadow: 0 0 8px rgba(226,35,46,0.8); }
+.ap-atm .ap-sliders { border: 0; padding: 0 0 8px; margin: 0; }
+.ap-atm .check { font-size: 12px; }
+.set-fx-tests { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+#atm { position: fixed; inset: 0; z-index: 295; pointer-events: none; }
+#atm-rain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+#atm-rain.on { opacity: 1; }
+#atm-lamp { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; background: radial-gradient(ellipse 62% 50% at 16% -8%, rgba(255,224,176,0.17), rgba(255,206,150,0.06) 46%, rgba(255,200,140,0) 74%), radial-gradient(ellipse 130% 105% at 50% 38%, rgba(0,0,0,0) 44%, rgba(0,0,0,0.5) 100%); }
+#atm-lamp.on { opacity: 1; }
+#atm-lamp.flick { animation: atmFlick 0.38s linear; }
+@keyframes atmFlick { 0%, 100% { opacity: 1; } 10% { opacity: 0.5; } 26% { opacity: 0.92; } 40% { opacity: 0.42; } 62% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #atm-rain, #atm-lamp { transition: none; } }
+/* ===ATM-CSS-END=== */
 .ap-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
 @media (max-width: 680px) { .audio-lbl { display: none; } }
 .eng a.go { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line-2); color: var(--muted); transition: all 0.2s; }
@@ -1703,7 +1726,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
             <button data-track="signal"><b>BLACK PROTOCOL</b><small>Industrial Threat · 88 BPM</small></button>
             <button data-track="ghost"><b>GHOST ARCHIVE</b><small>Paranormal Signal · Haunted Air</small></button>
             <button data-track="sanctum"><b>RED SANCTUM</b><small>Crimson Ritual · Heartbeat + Choir</small></button>
-            <button data-track="noir"><b>CASEFILE NOIR</b><small>Noir Jazz · Rain · Typewriter · 68 BPM</small></button>
+            <button data-track="noir"><b>CASEFILE NOIR</b><small>Noir Jazz · Muted Trumpet · Brushes · 64 BPM</small></button>
           </div>
           <div class="ap-sliders">
             <label><span>OST</span><input type="range" id="ap-ost-vol" min="0" max="100" value="38"><b id="ap-ost-pct">38%</b></label>
@@ -1716,6 +1739,16 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
           <div class="ap-row">
             <label class="check"><input type="checkbox" id="ap-eye-on" checked><span>Звуки глаза</span></label>
             <button class="btn btn-sm btn-ghost" id="ap-test-intro">Звук заставки</button>
+          </div>
+          <div class="ap-atm">
+            <div class="ap-sub">АТМОСФЕРА<i>с любым треком</i></div>
+            <div class="ap-chips" id="ap-atm">
+              <button type="button" data-atm="rain" title="Дождь за окном: капли, ветер, далёкий гром"><i></i>Дождь</button>
+              <button type="button" data-atm="lamp" title="Настольная лампа: гул, редкое мерцание, тёплое пятно света"><i></i>Лампа</button>
+              <button type="button" data-atm="city" title="Ночной город: машины по мокрому асфальту, сирена вдали"><i></i>Город</button>
+            </div>
+            <div class="ap-sliders"><label><span>ATM</span><input type="range" id="ap-atm-vol" min="0" max="100" value="60"><b id="ap-atm-pct">60%</b></label></div>
+            <label class="check"><input type="checkbox" id="ap-atm-auto"><span>Нуар в делах (автоматически)</span></label>
           </div>
         </div>
       </div>
@@ -2169,12 +2202,18 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
                   <option value="signal">BLACK PROTOCOL (Industrial Threat · 88 BPM)</option>
                   <option value="ghost">GHOST ARCHIVE (Paranormal Signal)</option>
                   <option value="sanctum">RED SANCTUM (Crimson Ritual)</option>
-                  <option value="noir">CASEFILE NOIR (Noir Jazz · дождь · печатная машинка)</option>
+                  <option value="noir">CASEFILE NOIR (нуар-джаз · труба с сурдиной · щётки · 64 BPM)</option>
                 </select>
               </div>
               <div class="set-row"><div class="l"><b>Громкость саундтрека</b><span>Плавная регулировка уровня OST.</span></div><input type="range" class="audio-range" id="set-audio-ost-vol" min="0" max="100" value="38"></div>
               <div class="set-row"><div class="l"><b>Тактильные звуки интерфейса (SFX)</b><span>Щелчки вкладок, сканирование, сигналы находок и тревоги CVE.</span></div><label class="switch"><input type="checkbox" id="set-audio-sfx" checked><i></i></label></div>
               <div class="set-row"><div class="l"><b>Громкость SFX</b><span>Уровень звуковых откликов интерфейса.</span></div><input type="range" class="audio-range" id="set-audio-sfx-vol" min="0" max="100" value="55"></div>
+              <div class="set-row"><div class="l"><b>Атмосфера: дождь за окном</b><span>Капли, ветер и далёкий гром, на экране — капли на стекле. Работает с любым треком и без него.</span></div><label class="switch"><input type="checkbox" id="set-atm-rain"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Атмосфера: настольная лампа</b><span>Тихий гул, редкое мерцание, тёплое пятно света и затемнённые края экрана.</span></div><label class="switch"><input type="checkbox" id="set-atm-lamp"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Атмосфера: ночной город</b><span>Машины по мокрому асфальту, сирена вдали.</span></div><label class="switch"><input type="checkbox" id="set-atm-city"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Громкость атмосферы</b><span>Отдельный уровень для дождя, лампы и города.</span></div><input type="range" class="audio-range" id="set-atm-vol" min="0" max="100" value="60"></div>
+              <div class="set-row"><div class="l"><b>Нуар в делах</b><span>В разделе «Дела», в карточке дела и на доске музыка плавно переходит в CASEFILE NOIR, на выходе возвращается прежний трек. Работает, пока включён саундтрек.</span></div><label class="switch"><input type="checkbox" id="set-atm-auto"><i></i></label></div>
+              <div class="set-row"><div class="l"><b>Звуки дел</b><span>«Раскрыто» и «Закрыто» звучат при смене статуса дела, «Диктофон» — при сохранении правок, «Телефон» — когда дело получает статус «Горячий след». Здесь их можно прослушать.</span></div><div class="set-fx-tests" id="set-fx-tests"><button class="btn btn-sm" data-fx="solved">Раскрыто</button><button class="btn btn-sm" data-fx="closed">Закрыто</button><button class="btn btn-sm" data-fx="recorder">Диктофон</button><button class="btn btn-sm" data-fx="phone">Телефон</button></div></div>
             </div>
             <div class="panel">
               <div class="panel-h">Приватность</div>
@@ -4313,7 +4352,7 @@ const TRACKS = {
   signal: { name: 'BLACK PROTOCOL', sub: 'Industrial Threat · 88 BPM' },
   ghost:  { name: 'GHOST ARCHIVE',  sub: 'Paranormal Signal · Haunted Air' },
   sanctum:{ name: 'RED SANCTUM',    sub: 'Crimson Ritual · Heartbeat + Choir' },
-  noir:   { name: 'CASEFILE NOIR',  sub: 'Noir Jazz · Rain · Typewriter · 68 BPM' },
+  noir:   { name: 'CASEFILE NOIR',  sub: 'Noir Jazz · Muted Trumpet · Brushes · 64 BPM' },
 };
 
 let ctx = null;
@@ -4321,6 +4360,7 @@ let master = null;
 let ostBus = null;
 let sfxBus = null;
 let reverb = null;
+let compNode = null;
 let playing = false;
 let trackNodes = [];
 let trackTimers = [];
@@ -4389,6 +4429,7 @@ function ensureCtx() {
   master = ctx.createGain();
   master.gain.value = 0.9;
   comp.connect(master);
+  compNode = comp;
   master.connect(ctx.destination);
 
   ostBus = ctx.createGain();
@@ -4410,9 +4451,10 @@ function ensureCtx() {
   return ctx;
 }
 
-function createTrackFX(ac) {
+function createTrackFX(ac, fadeIn) {
   trackBus = ac.createGain();
-  trackBus.gain.value = 1;
+  trackBus.gain.value = fadeIn ? 0.0001 : 1;
+  if (fadeIn) trackBus.gain.setTargetAtTime(1, ac.currentTime, fadeIn / 3);
   trackBus.connect(ostBus);
 
   trackRev = ac.createConvolver();
@@ -4439,14 +4481,15 @@ function createTrackFX(ac) {
   dWet.connect(trackBus);
 }
 
-function stopTrackNodes() {
+function stopTrackNodes(fade) {
+  const f = fade || 0;
   trackTimers.forEach(id => { clearInterval(id); clearTimeout(id); });
   trackTimers = [];
   const now = ctx ? ctx.currentTime : 0;
   trackNodes.forEach(n => {
     try {
-      if (n.gain && n.gain.setTargetAtTime) n.gain.setTargetAtTime(0.0001, now, 0.12);
-      if (n.stop) n.stop(now + 0.4);
+      if (n.gain && n.gain.setTargetAtTime) n.gain.setTargetAtTime(0.0001, now, f ? f / 3 : 0.12);
+      if (n.stop) n.stop(now + (f ? f + 0.5 : 0.4));
     } catch {}
   });
   trackNodes = [];
@@ -4454,9 +4497,9 @@ function stopTrackNodes() {
     try {
       trackBus.gain.cancelScheduledValues(now);
       trackBus.gain.setValueAtTime(Math.max(0.0001, trackBus.gain.value), now);
-      trackBus.gain.setTargetAtTime(0.0001, now, 0.08);
+      trackBus.gain.setTargetAtTime(0.0001, now, f ? f / 3 : 0.08);
       const b = trackBus;
-      setTimeout(() => { try { b.disconnect(); } catch {} }, 900);
+      setTimeout(() => { try { b.disconnect(); } catch {} }, f ? (f + 1.5) * 1000 : 900);
     } catch {}
     trackBus = null; trackRev = null; trackDL = null;
   }
@@ -4774,101 +4817,263 @@ function startSanctum(ac, token) {
 }
 
 /* ===NOIR-BEGIN=== */
-/* ─────────── ТРЕК 5: CASEFILE NOIR (нуар-джаз · дождь · печатная машинка · 68 BPM) ───────────
-   Живая игра по партитуре: ходящий контрабас, щётки и райд, электропиано (FM), приглушённая труба,
-   дождь за окном, треск винила, часы, пишущая машинка и далёкий ревун. Ноты ставятся заранее по
-   часам звука (а не по таймеру страницы), поэтому темп не плывёт, даже когда браузер занят. */
+/* ─────────── ТРЕК 5: CASEFILE NOIR · «Дождь над Рэйн-стрит» (нуар-джаз · ре минор · 64 BPM · свинг) ───────────
+   Партитура написана вручную: вступление в 4 такта и форма AABA на 32 такта. В первой «А» тему играет электропиано,
+   во второй вступает труба с сурдиной, в «мостике» добавляются вибрафон и струнный пэд. Контрабас ходит по аккордам
+   (подход к корню следующего такта полутоном), щётки и райд меняются по разделам, филлы закрывают фразы. Каждый новый
+   проход формы слегка меняется: орнаменты, кто ведёт тему, плотность ритм-секции. Ноты ставятся заранее по часам звука,
+   поэтому темп не плывёт, даже когда страница занята. Дождь, лампа и город — отдельные переключатели «Атмосфера»
+   (блок AMB ниже), в сам трек они не входят. */
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
-const NOIR_BARS = [
-  { n: 'Dm9', root: 38, bass: [38, 41, 45, 48], keys: [53, 57, 60, 64], tones: [2, 5, 9, 0, 4] },
-  { n: 'Dm9', root: 38, bass: [38, 41, 45, 50], keys: [53, 57, 60, 64], tones: [2, 5, 9, 0, 4] },
-  { n: 'Bbmaj7#11', root: 34, bass: [34, 38, 41, 45], keys: [58, 62, 64, 69], tones: [10, 2, 5, 9, 4] },
-  { n: 'Bbmaj7#11', root: 34, bass: [34, 38, 41, 45], keys: [58, 62, 64, 69], tones: [10, 2, 5, 9, 4] },
-  { n: 'Gm9', root: 43, bass: [43, 46, 50, 41], keys: [58, 62, 65, 69], tones: [7, 10, 2, 5, 9] },
-  { n: 'Em7b5', root: 40, bass: [40, 43, 46, 50], keys: [55, 58, 62, 64], tones: [4, 7, 10, 2] },
-  { n: 'A7b9', root: 45, bass: [45, 49, 52, 43], keys: [55, 58, 61, 64], tones: [9, 1, 4, 7, 10] },
-  { n: 'A7b9', root: 33, bass: [33, 37, 40, 43], keys: [55, 58, 61, 64], tones: [9, 1, 4, 7, 10] }
+const NB = 60 / 64, NU = NB / 3, NBAR = NB * 4, NINTRO = 4;
+const nrng = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+/* аккорды: bs — тоны для баса (корень, терция, квинта, цвет), k — голосоведение электропиано без корня,
+   ct — аккордовые ноты (высоты по модулю 12), sc — лад для проходящих звуков, dw — нисходящая линия баса */
+const NCH = {
+  Dmm: { bs: [38, 41, 45, 49], k: [53, 57, 61, 64], ct: [2, 5, 9, 1], sc: [2, 4, 5, 7, 9, 11, 1] },
+  Dm7: { bs: [38, 41, 45, 48], k: [53, 57, 60, 64], ct: [2, 5, 9, 0], sc: [2, 4, 5, 7, 9, 11, 0] },
+  Dm6: { bs: [38, 41, 45, 47], k: [53, 57, 59, 64], ct: [2, 5, 9, 11], sc: [2, 4, 5, 7, 9, 11, 0] },
+  Gm9: { bs: [43, 46, 50, 41], k: [58, 62, 65, 69], ct: [7, 10, 2, 5], sc: [7, 9, 10, 0, 2, 4, 5] },
+  Gm6: { bs: [43, 46, 50, 40], k: [58, 62, 64, 69], ct: [7, 10, 2, 4], sc: [7, 9, 10, 0, 2, 4, 5] },
+  Em7b5: { bs: [40, 43, 46, 50], k: [55, 58, 62, 64], ct: [4, 7, 10, 2], sc: [4, 5, 7, 9, 10, 0, 2] },
+  A7b9: { bs: [45, 37, 40, 43], k: [55, 58, 61, 64], ct: [9, 1, 4, 7, 10], sc: [9, 10, 1, 2, 4, 5, 7], dw: [45, 43, 40, 37] },
+  Fmaj7: { bs: [41, 45, 48, 52], k: [57, 60, 64, 67], ct: [5, 9, 0, 4], sc: [5, 7, 9, 10, 0, 2, 4] },
+  Gm7: { bs: [43, 46, 50, 53], k: [58, 62, 65, 69], ct: [7, 10, 2, 5], sc: [7, 9, 10, 0, 2, 4, 5] },
+  C7: { bs: [36, 40, 43, 46], k: [52, 55, 58, 62], ct: [0, 4, 7, 10], sc: [0, 2, 4, 5, 7, 9, 10] },
+  Bbmaj7: { bs: [34, 38, 41, 45], k: [57, 62, 65, 69], ct: [10, 2, 5, 9], sc: [10, 0, 2, 4, 5, 7, 9] }
+};
+const NF_A = ['Dmm', 'Dm7', 'Dm6', 'Dm7', 'Gm9', 'Gm6', 'Em7b5', 'A7b9'];
+const NF_B = ['Fmaj7', 'Fmaj7', 'Gm7', 'C7', 'Fmaj7', 'Bbmaj7', 'Em7b5', 'A7b9'];
+const NSEC = [NF_A, NF_A, NF_B, NF_A];
+/* тема: [начало в долях триоли 0–11, длина, нота MIDI]; 12 долей на такт, свинговая восьмая — доля 2 */
+const NTA = [
+  [[2, 4, 69], [6, 2, 73], [8, 4, 74]],
+  [[0, 3, 72], [3, 3, 69], [6, 2, 70], [8, 4, 69]],
+  [[2, 4, 65], [6, 3, 69], [9, 3, 71]],
+  [[0, 8, 72]],
+  [[2, 4, 70], [6, 2, 74], [8, 4, 77]],
+  [[0, 3, 76], [3, 3, 74], [6, 3, 70], [9, 3, 67]],
+  [[2, 4, 67], [6, 3, 70], [9, 3, 74]],
+  [[0, 3, 73], [3, 3, 76], [6, 3, 70], [9, 3, 69]]
 ];
-const NOIR_SCALE = [2, 4, 5, 7, 9, 10, 0];
-function noirEngine(ac, bus, rev, dl) {
-  const E = { ac, bus, rev, dl, beat: 60 / 68, swing: 0.667, t0: ac.currentTime + 0.3, i: 0, nextDrop: 0, nextPop: 0, nextTick: 0, tick: 0, rnd: Math.random };
-  const mk = (v, wr, wd) => {
-    const g = ac.createGain(); g.gain.value = v; g.connect(bus);
-    if (wr && rev) { const r = ac.createGain(); r.gain.value = wr; g.connect(r); r.connect(rev); }
-    if (wd && dl) { const d = ac.createGain(); d.gain.value = wd; g.connect(d); d.connect(dl); }
+const NTB = [
+  [[0, 6, 72], [6, 3, 76], [9, 3, 77]],
+  [[0, 6, 77], [6, 3, 76], [9, 3, 72]],
+  [[2, 4, 70], [6, 3, 74], [9, 3, 72]],
+  [[0, 6, 70], [6, 3, 67], [9, 3, 64]],
+  [[2, 4, 65], [6, 3, 69], [9, 3, 72]],
+  [[0, 6, 74], [6, 3, 72], [9, 3, 70]],
+  [[2, 4, 67], [6, 3, 70], [9, 3, 67]],
+  [[0, 4, 73], [4, 2, 70], [6, 6, 69]]
+];
+const NKP = [
+  [[0], [0], [0, 5]],
+  [[0, 5], [0], [3, 8], [0, 8]],
+  [[0, 5], [5, 11], [0, 6], [0, 8]],
+  [[0, 5], [0, 8], [5, 11], [3, 8]]
+];
+
+function noirEngine(ac, bus, rev, seed, solo, reg) {
+  const sd = seed == null ? Math.floor(Math.random() * 4294967296) : seed >>> 0;
+  const E = { ac, bus, rev, seed: sd, R: nrng(sd), R2: nrng(sd ^ 0x9e3779b9), q: [], bar: 0, t0: ac.currentTime + 0.35, nextRoot: null, tick: 0, wave: null, log: null };
+  const keep = o => { if (reg) reg.push(o); return o; };
+  // комната для ударных, клавиш и баса; эхо в долю с точкой для трубы и вибрафона
+  const room = ac.createConvolver(); room.buffer = makeReverbImpulse(ac, 0.85, 3.2);
+  const rg = ac.createGain(); rg.gain.value = 0.55; room.connect(rg); rg.connect(bus);
+  const eIn = ac.createGain(), dA = ac.createDelay(2), dB = ac.createDelay(2), fb = ac.createGain(), lpf = ac.createBiquadFilter(), eOut = ac.createGain();
+  dA.delayTime.value = NB * 0.75; dB.delayTime.value = NB * 0.75; fb.gain.value = 0.34; lpf.type = 'lowpass'; lpf.frequency.value = 2300; eOut.gain.value = 0.5;
+  eIn.connect(dA); dA.connect(lpf); lpf.connect(dB); dB.connect(fb); fb.connect(dA);
+  if (ac.createStereoPanner) {
+    const pl = ac.createStereoPanner(), pr = ac.createStereoPanner(); pl.pan.value = -0.55; pr.pan.value = 0.55;
+    dA.connect(pl); dB.connect(pr); pl.connect(eOut); pr.connect(eOut);
+  } else { dA.connect(eOut); dB.connect(eOut); }
+  eOut.connect(bus);
+  const mk = (v, o = {}) => {
+    const g = ac.createGain(); g.gain.value = solo && !solo.includes(o.n) ? 0 : v;
+    let out = g;
+    if (ac.createStereoPanner && (o.pan || o.autopan)) {
+      const p = ac.createStereoPanner(); p.pan.value = o.pan || 0; g.connect(p); out = p;
+      if (o.autopan) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = o.autopan; lg.gain.value = 0.3; l.connect(lg); lg.connect(p.pan); l.start(E.t0 - 0.3); keep(l); }
+    }
+    if (o.trem) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = o.trem[0]; lg.gain.value = v * o.trem[1]; l.connect(lg); lg.connect(g.gain); l.start(E.t0 - 0.3); keep(l); }
+    out.connect(bus);
+    const send = (dest, amt) => { if (!dest || !amt) return; const s = ac.createGain(); s.gain.value = amt; out.connect(s); s.connect(dest); };
+    send(rev, o.hall); send(room, o.room); send(eIn, o.echo);
     return g;
   };
-  E.bass = mk(0.55); E.kit = mk(0.36, 0.1); E.keys = mk(0.34, 0.4, 0.12); E.lead = mk(0.3, 0.55, 0.3); E.amb = mk(0.5, 0.2); E.type = mk(0.3, 0.3);
-  E.nextDrop = E.t0; E.nextPop = E.t0 + 1.2; E.nextTick = E.t0 + 0.5;
+  E.bass = mk(0.42, { n: 'bass', room: 0.06, pan: -0.12 });
+  E.kit = mk(0.8, { n: 'kit', room: 0.28, hall: 0.05 });
+  E.keys = mk(0.68, { n: 'keys', hall: 0.34, room: 0.12, echo: 0.08, autopan: 4.6, trem: [4.6, 0.16] });
+  E.lead = mk(0.52, { n: 'lead', hall: 0.5, echo: 0.3, pan: 0.1 });
+  E.vib = mk(0.55, { n: 'vib', hall: 0.5, echo: 0.28, pan: -0.18, trem: [5.4, 0.2] });
+  E.pad = mk(0.2, { n: 'pad', hall: 0.6 });
+  E.amb = mk(1.2, { n: 'amb', hall: 0.2 });
+  E.type = mk(0.34, { n: 'type', hall: 0.3, room: 0.1, pan: 0.35 });
+  E.nextTick = E.t0 + 0.5; E.nextPop = E.t0 + 1.2;
   return E;
 }
-const nzSrc = (E, t, dur, kind = 'white') => { const s = E.ac.createBufferSource(); s.buffer = nzBuf(E.ac, Math.max(1, dur + 0.2), kind); s.start(t); s.stop(t + dur + 0.05); return s; };
+/* шум из общего четырёхсекундного буфера со случайным сдвигом: без роста кэша при разной длине нот */
+const nzSrc = (E, t, dur, kind = 'white') => {
+  const s = E.ac.createBufferSource(); s.buffer = nzBuf(E.ac, 4, kind);
+  if (dur > 3.4) { s.loop = true; s.start(t); } else s.start(t, Math.random() * (3.95 - dur));
+  s.stop(t + dur + 0.05);
+  return s;
+};
+const noirOut = (E, node, dest, pan) => {
+  if (pan && E.ac.createStereoPanner) { const p = E.ac.createStereoPanner(); p.pan.value = pan; node.connect(p); p.connect(dest); } else node.connect(dest);
+};
+const noirLog = (E, k, t, m, d) => { if (E.log) E.log.push({ k, t, m, d }); };
+/* контрабас: тело (синус с «шлепком» высоты) + треугольник через ФНЧ + вторая и третья гармоники для малых динамиков, щипок пальцем */
 function noirBass(E, t, m, vel, dur) {
-  const ac = E.ac, f = mtof(m), o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter(), g2 = ac.createGain();
-  o.type = 'triangle'; o2.type = 'sine';
-  o.frequency.setValueAtTime(f * 1.03, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.03); o2.frequency.value = f * 2; g2.gain.value = 0.3;
-  lp.type = 'lowpass'; lp.Q.value = 1.1; lp.frequency.setValueAtTime(1600, t); lp.frequency.exponentialRampToValueAtTime(430, t + 0.2);
-  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel, t + 0.01); g.gain.exponentialRampToValueAtTime(vel * 0.4, t + dur * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(E.bass);
-  o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
-  const n = nzSrc(E, t, 0.04), nf = ac.createBiquadFilter(), ng = ac.createGain(); nf.type = 'lowpass'; nf.frequency.value = 1100;
-  ng.gain.setValueAtTime(vel * 0.5, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.035); n.connect(nf); nf.connect(ng); ng.connect(E.bass);
+  const ac = E.ac, f = mtof(m);
+  const o1 = ac.createOscillator(), o2 = ac.createOscillator(), o3 = ac.createOscillator(), g1 = ac.createGain(), g2 = ac.createGain(), g3 = ac.createGain(), lp = ac.createBiquadFilter(), env = ac.createGain();
+  o1.type = 'sine'; o2.type = 'triangle'; o3.type = 'sine';
+  o1.frequency.setValueAtTime(f * 1.025, t); o1.frequency.exponentialRampToValueAtTime(f, t + 0.035);
+  o2.frequency.value = f; o3.frequency.value = f * 3;
+  g1.gain.value = 0.8; g2.gain.value = 0.4; g3.gain.setValueAtTime(0.1, t); g3.gain.exponentialRampToValueAtTime(0.002, t + 0.22);
+  lp.type = 'lowpass'; lp.Q.value = 0.9; lp.frequency.setValueAtTime(1500, t); lp.frequency.exponentialRampToValueAtTime(380, t + 0.28);
+  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(vel, t + 0.008); env.gain.exponentialRampToValueAtTime(vel * 0.5, t + dur * 0.45); env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o1.connect(g1); o2.connect(g2); o3.connect(g3); g1.connect(lp); g2.connect(lp); g3.connect(lp); lp.connect(env); env.connect(E.bass);
+  [o1, o2, o3].forEach(o => { o.start(t); o.stop(t + dur + 0.05); });
+  const n = nzSrc(E, t, 0.05), nf = ac.createBiquadFilter(), ng = ac.createGain();
+  nf.type = 'bandpass'; nf.frequency.value = 820; nf.Q.value = 0.9; ng.gain.setValueAtTime(vel * 0.4, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+  n.connect(nf); nf.connect(ng); ng.connect(E.bass);
+  noirLog(E, 'bass', t, m, dur);
 }
+/* электропиано: две FM-пары (тело и «клевок» язычка), индекс модуляции затухает, чувствительность к силе удара */
 function noirKey(E, t, m, vel, dur) {
-  const ac = E.ac, f = mtof(m), car = ac.createOscillator(), mod = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain(), tine = ac.createOscillator(), tg = ac.createGain();
+  const ac = E.ac, f = mtof(m);
+  const car = ac.createOscillator(), mod = ac.createOscillator(), mg = ac.createGain(), tine = ac.createOscillator(), tg = ac.createGain(), g = ac.createGain(), lp = ac.createBiquadFilter();
   car.type = 'sine'; mod.type = 'sine'; tine.type = 'sine';
-  car.frequency.value = f; mod.frequency.value = f; tine.frequency.value = f * 2.005;
-  mg.gain.setValueAtTime(f * (1.6 + vel * 1.4), t); mg.gain.exponentialRampToValueAtTime(f * 0.12, t + 0.55);
-  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.42, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  tg.gain.setValueAtTime(0.0001, t); tg.gain.linearRampToValueAtTime(vel * 0.08, t + 0.003); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
-  mod.connect(mg); mg.connect(car.frequency); car.connect(g); tine.connect(tg); g.connect(E.keys); tg.connect(E.keys);
+  car.frequency.value = f; mod.frequency.value = f; tine.frequency.value = Math.min(f * 8, 11000);
+  mg.gain.setValueAtTime(f * (0.8 + vel * 2.1), t); mg.gain.exponentialRampToValueAtTime(f * 0.1, t + 0.5);
+  tg.gain.setValueAtTime(0.0001, t); tg.gain.linearRampToValueAtTime(vel * 0.05, t + 0.002); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.52, t + 0.004); g.gain.exponentialRampToValueAtTime(vel * 0.2, t + 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  lp.type = 'lowpass'; lp.frequency.value = 1800 + vel * 4200; lp.Q.value = 0.4;
+  mod.connect(mg); mg.connect(car.frequency); car.connect(g); tine.connect(tg); tg.connect(g); g.connect(lp); lp.connect(E.keys);
   [car, mod, tine].forEach(o => { o.start(t); o.stop(t + dur + 0.1); });
+  noirLog(E, 'key', t, m, dur);
 }
-function noirRide(E, t, vel) {
-  const ac = E.ac, n = nzSrc(E, t, 0.7), hp = ac.createBiquadFilter(), g = ac.createGain();
-  hp.type = 'highpass'; hp.frequency.value = 6200; g.gain.setValueAtTime(vel * 0.04, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-  n.connect(hp); hp.connect(g); g.connect(E.kit);
-  [3180, 4730, 6410].forEach((f, k) => { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = f; og.gain.setValueAtTime(vel * 0.013, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.4 + k * 0.05); o.connect(og); og.connect(E.kit); o.start(t); o.stop(t + 0.6); });
+/* вибрафон: синус и вторая парциальная (×4) с короткой жизнью, длинный затухающий хвост */
+function noirVibe(E, t, m, vel, dur) {
+  const ac = E.ac, f = mtof(m);
+  const o1 = ac.createOscillator(), o2 = ac.createOscillator(), o3 = ac.createOscillator(), g1 = ac.createGain(), g2 = ac.createGain(), g3 = ac.createGain();
+  o1.type = o2.type = o3.type = 'sine';
+  o1.frequency.value = f; o2.frequency.value = f * 4.0; o3.frequency.value = Math.min(f * 10.1, 12000);
+  g1.gain.setValueAtTime(0.0001, t); g1.gain.linearRampToValueAtTime(vel * 0.5, t + 0.003); g1.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  g2.gain.setValueAtTime(0.0001, t); g2.gain.linearRampToValueAtTime(vel * 0.09, t + 0.002); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+  g3.gain.setValueAtTime(0.0001, t); g3.gain.linearRampToValueAtTime(vel * 0.025, t + 0.002); g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  o1.connect(g1); o2.connect(g2); o3.connect(g3); g1.connect(E.vib); g2.connect(E.vib); g3.connect(E.vib);
+  [o1, o2, o3].forEach(o => { o.start(t); o.stop(t + dur + 0.05); });
+  noirLog(E, 'vib', t, m, dur);
 }
-function noirBrush(E, t, vel) {
-  const ac = E.ac, n = nzSrc(E, t, 0.5), bp = ac.createBiquadFilter(), g = ac.createGain();
-  bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 0.6;
-  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.05, t + 0.1); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+/* струнный пэд: две слегка расстроенные пилы через ФНЧ, медленная атака */
+function noirPad(E, t, m, vel, dur, pan) {
+  const ac = E.ac, f = mtof(m), lp = ac.createBiquadFilter(), env = ac.createGain();
+  lp.type = 'lowpass'; lp.Q.value = 0.3; lp.frequency.setValueAtTime(520, t); lp.frequency.linearRampToValueAtTime(1250, t + 1.3); lp.frequency.linearRampToValueAtTime(700, t + dur);
+  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(vel, t + 1.1); env.gain.setValueAtTime(vel, t + Math.max(1.2, dur - 1.5)); env.gain.linearRampToValueAtTime(0.0001, t + dur);
+  [-7, 7].forEach(c => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(t + dur + 0.05); });
+  lp.connect(env); noirOut(E, env, E.pad, pan);
+}
+function noirDrone(E, t, dur) {
+  const ac = E.ac;
+  [[38, 0.5], [45, 0.32], [50, 0.14]].forEach(([m, v]) => {
+    const o = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter();
+    o.type = 'sawtooth'; o.frequency.value = mtof(m); lp.type = 'lowpass'; lp.frequency.value = 230; lp.Q.value = 0.5;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v * 0.5, t + 3); g.gain.setValueAtTime(v * 0.5, t + dur - 2); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+    o.connect(lp); lp.connect(g); g.connect(E.pad); o.start(t); o.stop(t + dur + 0.1);
+  });
+}
+/* ударные: райд, щётки по малому барабану, ножной хэт, лёгкий бас-барабан */
+function noirRide(E, t, vel, pan) {
+  const ac = E.ac, n = nzSrc(E, t, 0.9), hp = ac.createBiquadFilter(), g = ac.createGain(), sum = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 6000; g.gain.setValueAtTime(vel * 0.115, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  n.connect(hp); hp.connect(g); g.connect(sum);
+  [[2830, 1], [3640, 0.8], [4730, 0.7], [6410, 0.5], [7920, 0.3]].forEach(([f, a], k) => {
+    const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = f * (1 + (Math.random() - 0.5) * 0.004);
+    og.gain.setValueAtTime(vel * 0.03 * a, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.3 + k * 0.08); o.connect(og); og.connect(sum); o.start(t); o.stop(t + 0.8);
+  });
+  const s = nzSrc(E, t, 0.01), sh = ac.createBiquadFilter(), sg = ac.createGain();
+  sh.type = 'highpass'; sh.frequency.value = 3200; sg.gain.setValueAtTime(vel * 0.23, t); sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
+  s.connect(sh); sh.connect(sg); sg.connect(sum);
+  noirOut(E, sum, E.kit, pan);
+}
+function noirBrush(E, t, dur, vel, pan) {
+  const ac = E.ac, n = nzSrc(E, t, dur), hp = ac.createBiquadFilter(), bp = ac.createBiquadFilter(), g = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 1800; bp.type = 'bandpass'; bp.frequency.value = 4200; bp.Q.value = 0.5;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel * 0.16, t + dur * 0.38); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(hp); hp.connect(bp); bp.connect(g); noirOut(E, g, E.kit, pan);
+}
+function noirTap(E, t, vel) {
+  const ac = E.ac, n = nzSrc(E, t, 0.06), bp = ac.createBiquadFilter(), g = ac.createGain(), o = ac.createOscillator(), og = ac.createGain();
+  bp.type = 'bandpass'; bp.frequency.value = 2300; bp.Q.value = 0.7; g.gain.setValueAtTime(vel * 0.37, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
   n.connect(bp); bp.connect(g); g.connect(E.kit);
+  o.type = 'sine'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(150, t + 0.05); og.gain.setValueAtTime(vel * 0.32, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+  o.connect(og); og.connect(E.kit); o.start(t); o.stop(t + 0.09);
 }
 function noirChick(E, t, vel) {
   const ac = E.ac, n = nzSrc(E, t, 0.06), hp = ac.createBiquadFilter(), g = ac.createGain();
-  hp.type = 'highpass'; hp.frequency.value = 7600; g.gain.setValueAtTime(vel * 0.07, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
-  n.connect(hp); hp.connect(g); g.connect(E.kit);
+  hp.type = 'highpass'; hp.frequency.value = 7200 + Math.random() * 600; g.gain.setValueAtTime(vel * 0.17, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+  n.connect(hp); hp.connect(g); noirOut(E, g, E.kit, 0.2);
 }
-/* приглушённая труба: пила и квадрат через резонанс, вибрато вступает не сразу, дыхание */
-function noirLead(E, t, m, dur, vel, slide) {
-  const ac = E.ac, f = mtof(m), o = ac.createOscillator(), o2 = ac.createOscillator(), mix = ac.createGain(), g2 = ac.createGain(), bp = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), env = ac.createGain();
-  o.type = 'sawtooth'; o2.type = 'square'; o2.frequency.value = f * 1.004; g2.gain.value = 0.35;
-  if (slide) { o.frequency.setValueAtTime(f * Math.pow(2, -slide / 12), t); o.frequency.exponentialRampToValueAtTime(f, t + 0.09); } else o.frequency.value = f;
-  const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 5.4; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * 0.009, t + Math.min(dur * 0.55, 0.55)); lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
-  bp.type = 'bandpass'; bp.Q.value = 1.1; bp.frequency.setValueAtTime(Math.min(1700, Math.max(900, f * 2.2)), t);
-  lp.type = 'lowpass'; lp.frequency.value = 3000;
-  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(vel, t + 0.06); env.gain.linearRampToValueAtTime(vel * 0.78, t + 0.22); env.gain.setValueAtTime(vel * 0.78, t + Math.max(0.25, dur - 0.3)); env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(mix); o2.connect(g2); g2.connect(mix); mix.connect(bp); bp.connect(lp); lp.connect(env); env.connect(E.lead);
-  const n = nzSrc(E, t, dur), nb = ac.createBiquadFilter(), ng = ac.createGain(); nb.type = 'bandpass'; nb.frequency.value = 2200; nb.Q.value = 0.8;
-  ng.gain.setValueAtTime(0.0001, t); ng.gain.linearRampToValueAtTime(vel * 0.06, t + 0.05); ng.gain.exponentialRampToValueAtTime(0.0001, t + dur); n.connect(nb); nb.connect(ng); ng.connect(E.lead);
-  [o, o2, lfo].forEach(x => { x.start(t); x.stop(t + dur + 0.05); });
-}
-function noirTick(E, t, hi) {
+function noirKick(E, t, vel) {
   const ac = E.ac, o = ac.createOscillator(), g = ac.createGain();
-  o.type = 'sine'; o.frequency.value = hi ? 1900 : 1450; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.014, t + 0.001); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
-  o.connect(g); g.connect(E.amb); o.start(t); o.stop(t + 0.03);
+  o.type = 'sine'; o.frequency.setValueAtTime(92, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.07);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vel, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  o.connect(g); g.connect(E.kit); o.start(t); o.stop(t + 0.2);
 }
-function noirDrop(E, t) {
-  const ac = E.ac, n = nzSrc(E, t, 0.01), bp = ac.createBiquadFilter(), g = ac.createGain(), p = ac.createStereoPanner ? ac.createStereoPanner() : null;
-  bp.type = 'bandpass'; bp.frequency.value = 2400 + E.rnd() * 4600; bp.Q.value = 4; g.gain.setValueAtTime(0.012 + E.rnd() * 0.026, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
-  n.connect(bp); bp.connect(g); if (p) { p.pan.value = E.rnd() * 2 - 1; g.connect(p); p.connect(E.amb); } else g.connect(E.amb);
+/* труба с сурдиной: гармонический ряд с провалом основного тона, форманты 1.2 и 2.4 кГц, вибрато вступает не сразу,
+   подъезд снизу (slide), «падение» в конце фразы (fall), дыхание и «язык» в атаке */
+function noirWave(E) {
+  if (E.wave) return E.wave;
+  const H = [0, 0.55, 0.95, 1, 0.8, 0.6, 0.42, 0.3, 0.2, 0.13, 0.08, 0.05], re = new Float32Array(H.length), im = new Float32Array(H.length);
+  for (let i = 1; i < H.length; i++) im[i] = H[i];
+  return (E.wave = E.ac.createPeriodicWave(re, im));
+}
+function noirLead(E, t, m, dur, vel, o = {}) {
+  const ac = E.ac, f = mtof(m);
+  const a = ac.createOscillator(), b = ac.createOscillator(), mix = ac.createGain(), hp = ac.createBiquadFilter(), p1 = ac.createBiquadFilter(), p2 = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), env = ac.createGain();
+  const w = noirWave(E); a.setPeriodicWave(w); b.setPeriodicWave(w); a.frequency.value = f; b.frequency.value = f;
+  const d0 = (Math.random() - 0.5) * 6;
+  [[a, -4 + d0], [b, 4 + d0]].forEach(([x, base]) => {
+    if (o.slide) { x.detune.setValueAtTime(base - 100 * o.slide, t); x.detune.linearRampToValueAtTime(base, t + 0.075); } else x.detune.setValueAtTime(base, t);
+    if (o.fall && dur > 0.45) { x.detune.setValueAtTime(base, t + dur - 0.28); x.detune.linearRampToValueAtTime(base - 330, t + dur); }
+  });
+  if (dur > 0.7) {
+    const lfo = ac.createOscillator(), lg = ac.createGain(), vd = Math.min(0.55, dur * 0.4);
+    lfo.frequency.value = 5.1 + Math.random() * 0.7;
+    lg.gain.setValueAtTime(0, t); lg.gain.setValueAtTime(0, t + vd * 0.6); lg.gain.linearRampToValueAtTime(9 + vel * 16, t + vd * 0.6 + 0.5);
+    lfo.connect(lg); lg.connect(a.detune); lg.connect(b.detune); lfo.start(t); lfo.stop(t + dur + 0.1);
+  }
+  mix.gain.value = 0.5;
+  hp.type = 'highpass'; hp.frequency.value = 320; hp.Q.value = 0.7;
+  p1.type = 'peaking'; p1.frequency.value = 1250; p1.Q.value = 2.2; p1.gain.value = 8;
+  p2.type = 'peaking'; p2.frequency.value = 2450; p2.Q.value = 3; p2.gain.value = 6;
+  lp.type = 'lowpass'; lp.Q.value = 0.6; lp.frequency.setValueAtTime(2300 + vel * 3200, t);
+  if (o.fall && dur > 0.45) { lp.frequency.setValueAtTime(2300 + vel * 3200, t + dur - 0.28); lp.frequency.linearRampToValueAtTime(900, t + dur); }
+  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(vel, t + 0.045);
+  if (dur > 0.5) { env.gain.linearRampToValueAtTime(vel * 0.86, t + 0.17); env.gain.linearRampToValueAtTime(vel * 0.97, t + dur * 0.6); env.gain.setValueAtTime(vel * 0.97, t + Math.max(0.2, dur - 0.16)); }
+  env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  a.connect(mix); b.connect(mix); mix.connect(hp); hp.connect(p1); p1.connect(p2); p2.connect(lp); lp.connect(env); env.connect(E.lead);
+  [a, b].forEach(x => { x.start(t); x.stop(t + dur + 0.05); });
+  const n = nzSrc(E, t, dur), nb = ac.createBiquadFilter(), ng = ac.createGain();
+  nb.type = 'bandpass'; nb.frequency.value = 2300; nb.Q.value = 0.7;
+  ng.gain.setValueAtTime(0.0001, t); ng.gain.linearRampToValueAtTime(vel * 0.1, t + 0.03); ng.gain.exponentialRampToValueAtTime(vel * 0.03, t + 0.12); ng.gain.setValueAtTime(vel * 0.03, t + Math.max(0.13, dur - 0.14)); ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(nb); nb.connect(ng); ng.connect(E.lead);
+  noirLog(E, 'lead', t, m, dur);
+}
+/* комната: часы, треск винила, ревун, пишущая машинка */
+function noirTick(E, t, hi) {
+  const ac = E.ac, n = nzSrc(E, t, 0.03), bp = ac.createBiquadFilter(), g = ac.createGain(), o = ac.createOscillator(), og = ac.createGain();
+  bp.type = 'bandpass'; bp.frequency.value = hi ? 2300 : 1750; bp.Q.value = 3; g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
+  n.connect(bp); bp.connect(g); g.connect(E.amb);
+  o.type = 'sine'; o.frequency.value = hi ? 820 : 640; og.gain.setValueAtTime(0.0001, t); og.gain.linearRampToValueAtTime(0.012, t + 0.001); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+  o.connect(og); og.connect(E.amb); o.start(t); o.stop(t + 0.06);
 }
 function noirPop(E, t) {
   const ac = E.ac, n = nzSrc(E, t, 0.01), hp = ac.createBiquadFilter(), g = ac.createGain();
-  hp.type = 'highpass'; hp.frequency.value = 1400; g.gain.setValueAtTime(0.03 + E.rnd() * 0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
-  n.connect(hp); hp.connect(g); g.connect(E.amb);
+  hp.type = 'highpass'; hp.frequency.value = 1400; g.gain.setValueAtTime(0.025 + E.R2() * 0.045, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
+  n.connect(hp); hp.connect(g); noirOut(E, g, E.amb, E.R2() * 1.6 - 0.8);
 }
 function noirHorn(E, t) {
   const ac = E.ac, lp = ac.createBiquadFilter(), g = ac.createGain();
@@ -4876,107 +5081,475 @@ function noirHorn(E, t) {
   lp.connect(g); g.connect(E.amb); if (E.rev) { const r = ac.createGain(); r.gain.value = 1.4; g.connect(r); r.connect(E.rev); }
   [82.41, 83.0].forEach(f => { const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(lp); o.start(t); o.stop(t + 6.2); });
 }
-function noirTyping(E, t) {
-  const n = 7 + Math.floor(E.rnd() * 9);
-  for (let k = 0; k < n; k++) FX.key(E.ac, E.type, E.rev, t + k * (0.085 + E.rnd() * 0.05));
-  FX.bell(E.ac, E.type, E.rev, t + n * 0.11 + 0.2);
+function noirTyping(E, t, gaps) {
+  let at = t;
+  gaps.forEach(g => { FX.key(E.ac, E.type, E.rev, at); at += g; });
+  FX.bell(E.ac, E.type, E.rev, at + 0.2);
 }
-function noirPhrase(E, barIdx, bt) {
-  const B = NOIR_BARS[barIdx], R = E.rnd;
-  const allowed = m => B.tones.includes(m % 12) || NOIR_SCALE.includes(m % 12);
-  const chordT = m => B.tones.includes(m % 12);
-  let m = 67 + Math.floor(R() * 8);
-  while (!chordT(m)) m++;
-  const notes = [], count = 3 + Math.floor(R() * 3), sw = [0, 0.667, 1.667][Math.floor(R() * 3)];
-  let at = sw;
-  for (let k = 0; k < count; k++) {
-    const last = k === count - 1;
-    let dur = last ? 1.4 + R() * 1.2 : [0.667, 1, 1.333][Math.floor(R() * 3)];
-    if (at + dur > 3.7) dur = Math.max(0.5, 3.7 - at);
-    notes.push({ m, at, dur, slide: !last && R() < 0.25 ? 1 : 0 });
-    at += dur;
-    if (at >= 3.7) break;
-    if (R() < 0.65) { let s = R() < 0.5 ? 1 : -1, tries = 0; do { m += s * (1 + Math.floor(R() * 2)); tries++; } while (!allowed(m) && tries < 6); }
-    else { const c = []; for (let x = m - 5; x <= m + 5; x++) if (chordT(x) && x !== m) c.push(x); if (c.length) m = c[Math.floor(R() * c.length)]; }
-    m = Math.max(60, Math.min(79, m));
+
+/* ───── партитура ───── */
+/* вариации темы: 0 — как написано; 1 — подъезды, опережение, удлинение; 2 — ещё октавный сдвиг и проходящие звуки */
+function noirVary(E, bar, lvl, ch, b8) {
+  const R = E.R, out = bar.map(n => ({ u: n[0], d: n[1], m: n[2], sl: 0, fall: 0 }));
+  if (!out.length) return out;
+  const end = b8 === 3 || b8 === 7;
+  if (lvl >= 1) {
+    if (end && R() < 0.65) out[out.length - 1].fall = 1;
+    out.forEach((x, i) => { if (i > 0 && x.u % 3 === 0 && R() < 0.3) x.sl = 1; });
+    if (out[0].u >= 2 && R() < 0.3) { out[0].u -= 2; out[0].d += 2; }
+    if (out.length > 2 && R() < 0.22) { const k = 1 + Math.floor(R() * (out.length - 1)); out[k - 1].d += out[k].d; out.splice(k, 1); }
+    const last = out[out.length - 1];
+    if (last.u + last.d < 12 && R() < 0.45) last.d = Math.min(12 - last.u, last.d + 2);
   }
-  notes.forEach((x, k) => noirLead(E, bt + x.at * E.beat, x.m, x.dur * E.beat, 0.34 + R() * 0.1, k === 0 && R() < 0.4 ? 1 : x.slide));
+  if (lvl >= 2) {
+    if (out.length > 1 && R() < 0.4) { const x = out[1 + Math.floor(R() * (out.length - 1))]; if (x.m + 12 <= 83 && ch.ct.includes(x.m % 12)) x.m += 12; }
+    for (let i = 0; i < out.length - 1; i++) {
+      const x = out[i], y = out[i + 1], iv = Math.abs(y.m - x.m);
+      if (x.d >= 4 && iv >= 3 && iv <= 5 && R() < 0.5) {
+        const dir = y.m > x.m ? 1 : -1;
+        let p = x.m + dir; while (!ch.sc.includes(((p % 12) + 12) % 12) && p !== y.m) p += dir;
+        if (p !== y.m && p !== x.m) { out.splice(i + 1, 0, { u: x.u + x.d - 2, d: 2, m: p, sl: 0, fall: 0 }); x.d -= 2; i++; }
+      }
+    }
+  }
+  return out;
 }
-function noirBeat(E, i, t) {
-  const R = E.rnd, bar = Math.floor(i / 4), b = i % 4, B = NOIR_BARS[bar % 8], N = NOIR_BARS[(bar + 1) % 8], loop = Math.floor(bar / 8), j = () => (R() - 0.5) * 0.02;
-  // контрабас: корень, два тона аккорда, подход снизу или сверху к следующему корню
-  let m;
-  if (b === 0) m = B.root;
-  else if (b === 1) m = B.bass[1 + Math.floor(R() * 2)];
-  else if (b === 2) m = B.bass[2 + Math.floor(R() * 2)];
-  else { let r = N.root; while (r < 36) r += 12; while (r > 50) r -= 12; m = r + (R() < 0.7 ? -1 : 1); }
-  noirBass(E, t + j(), m, [0.9, 0.62, 0.72, 0.64][b], E.beat * 0.92);
-  // райд «динь динь-а динь» и щётки на 2 и 4
-  noirRide(E, t + j(), b === 0 ? 0.9 : 0.75);
-  if (b === 1 || b === 3) { noirRide(E, t + E.beat * E.swing, 0.42); noirChick(E, t, 0.6); if (R() < 0.85) noirBrush(E, t, 0.8); }
-  // электропиано: редкие аккорды с лёгким арпеджио
-  if (b === 0) {
-    const pats = loop === 0 ? [[0], [1.667]] : [[0], [1.667], [0, 2.667], [1.667, 3.667]];
-    const pat = pats[Math.floor(R() * pats.length)];
-    pat.forEach(off => B.keys.forEach((km, k) => noirKey(E, t + off * E.beat + k * 0.028 + j(), km, 0.5 + R() * 0.2 - k * 0.04, 2.2)));
-    // реплика трубы
-    const phraseBars = { 0: 0.85, 3: 0.5, 5: 0.7 };
-    const p = phraseBars[bar % 8];
-    if (p != null && loop > 0 && R() < p) noirPhrase(E, bar % 8, t);
-    // текстуры: пишущая машинка и далёкий ревун
-    if (R() < 0.16) noirTyping(E, t + R() * 2 * E.beat);
-    if (loop > 0 && R() < 0.05) noirHorn(E, t + R() * 2 * E.beat);
+function noirBassBar(E, at, ch, nx, feel, dyn) {
+  const R = E.R, b = ch.bs, sh = (E.nextRoot != null ? E.nextRoot : b[0]) - b[0], j = () => (R() - 0.5) * 0.012;
+  const nextRoot = from => { let r = nx.bs[0]; while (r - from > 6) r -= 12; while (from - r > 6) r += 12; while (r < 33) r += 12; while (r > 47) r -= 12; return r; };
+  let notes;
+  if (ch.dw && feel === 4 && R() < 0.6) {
+    notes = ch.dw.map((m, i) => ({ u: i * 3, m, v: [0.95, 0.7, 0.76, 0.7][i], d: 0.9 }));
+    E.nextRoot = nextRoot(notes[3].m);
+  } else if (feel === 2) {
+    const m2 = b[R() < 0.65 ? 2 : 1] + sh;
+    notes = [{ u: 0, m: b[0] + sh, v: 0.92, d: 1.85 }, { u: 6, m: m2, v: 0.7, d: 1.7 }];
+    E.nextRoot = nextRoot(m2);
+  } else {
+    const x = R(), mid = x < 0.4 ? [b[1], b[2]] : x < 0.7 ? [b[2], b[1]] : [b[1], b[3]];
+    notes = [b[0] + sh, mid[0] + sh, mid[1] + sh].map((m, i) => ({ u: i * 3, m, v: [0.95, 0.7, 0.76][i], d: 0.9 }));
+    const r = nextRoot(notes[2].m);
+    notes.push({ u: 9, m: r + (R() < 0.7 ? -1 : 1), v: 0.72, d: 0.9 });
+    E.nextRoot = r;
   }
+  notes.forEach(n => { const jj = j(); at(n.u, t => noirBass(E, t, n.m, n.v * dyn, n.d * NB), jj - 0.004); });
+}
+function noirKitBar(E, at, sec, pass, b8, dyn) {
+  const R = E.R, brush = sec !== 2, ride = sec === 2 || (sec === 3 && pass > 0 && b8 >= 4), feather = sec >= 1 || pass > 0, jt = () => 0.004 + (R() - 0.5) * 0.008;
+  for (let b = 0; b < 4; b++) {
+    const u0 = b * 3, acc = b % 2 === 1;
+    if (brush && !(ride && b8 >= 4 && sec === 3)) {
+      const pan = b % 2 ? 0.3 : -0.3, v = (acc ? 0.62 : 0.5) * dyn;
+      at(u0, t => noirBrush(E, t, NB * 0.95, v, pan), jt());
+    }
+    if (acc) {
+      const vt = 0.32 * dyn, vc = (ride ? 0.58 : 0.5) * dyn;
+      if (!ride) at(u0, t => noirTap(E, t, vt), jt());
+      at(u0, t => noirChick(E, t, vc), jt());
+    }
+    if (feather && !acc && R() < 0.92) { const vk = (0.17 + R() * 0.05) * dyn; at(u0, t => noirKick(E, t, vk), -0.004); }
+    if (brush && !ride && b === 2 && R() < 0.3) { const vg = 0.13 * dyn; at(u0 + 2, t => noirTap(E, t, vg), jt()); }
+  }
+  if (ride) {
+    const P = [0, 3, 5, 6, 9, 11], V = [0.62, 0.46, 0.28, 0.52, 0.46, 0.28];
+    P.forEach((u, i) => { const v = V[i] * dyn * (0.9 + R() * 0.2), pan = -0.2 + R() * 0.1; at(u, t => noirRide(E, t, v, pan), jt() + 0.006); });
+  }
+  if (b8 === 7) {
+    // филл на конце раздела: набор щёточных ударов и свист
+    const v = dyn, kind = sec;
+    if (kind === 2) { at(6, t => noirBrush(E, t, NB * 1.8, 0.9 * v, 0)); [8, 9, 10, 11].forEach((u, i) => at(u, t => noirTap(E, t, (0.28 + i * 0.1) * v))); at(11, t => noirRide(E, t, 0.9 * v, 0)); }
+    else if (kind === 1) { at(6, t => noirBrush(E, t, NB * 1.9, 1.0 * v, 0)); at(9, t => noirTap(E, t, 0.4 * v)); at(11, t => noirTap(E, t, 0.6 * v)); }
+    else { [9, 10, 11].forEach((u, i) => at(u, t => noirTap(E, t, (0.25 + i * 0.15) * v))); }
+  }
+}
+function noirKeysBar(E, at, ch, sec, who, dyn) {
+  const R = E.R, pats = who === 'keys' ? [[0]] : NKP[sec], pat = pats[Math.floor(R() * pats.length)], soft = who === 'keys' ? 0.7 : 1;
+  pat.forEach((u, i) => {
+    const long = u === 0 && i === 0, roll = ch.k.map(() => 0.02 + R() * 0.012), vv = ch.k.map(() => 0.92 + R() * 0.16);
+    at(u, t => { let acc = 0; ch.k.forEach((km, k) => { noirKey(E, t + acc, km, Math.max(0.16, ((long ? 0.5 : 0.38) - k * 0.03) * dyn * soft * vv[k]), long ? NB * 2.6 : NB * 1.2); acc += roll[k]; }); }, (R() - 0.5) * 0.01);
+  });
+}
+function noirMelodyBar(E, at, sec, pass, b8, ch, who, dyn) {
+  const R = E.R, theme = (sec === 2 ? NTB : NTA)[b8], lvl = sec === 3 ? (pass ? 2 : 1) : sec === 1 ? 1 : pass ? 1 : 0;
+  let notes = noirVary(E, theme, lvl, ch, b8);
+  if (lvl >= 2 && (b8 === 2 || b8 === 6) && R() < 0.35) notes = [];
+  notes.forEach(nt => {
+    const dur = Math.max(0.2, nt.d * NU * 0.94), lag = 0.012 + (R() - 0.5) * 0.014, v = (0.36 + R() * 0.06) * dyn * (nt.d >= 6 ? 1.06 : 1), vk = 0.58 * dyn * (0.92 + R() * 0.16);
+    if (who === 'tp') at(nt.u, t => noirLead(E, t, nt.m, dur, v, { slide: nt.sl, fall: nt.fall }), lag);
+    else if (who === 'keys') at(nt.u, t => noirKey(E, t, nt.m, vk, dur + 1.1), lag);
+    else at(nt.u, t => noirVibe(E, t, nt.m, 0.55 * dyn, dur + 1.6), lag);
+  });
+  if (who === 'keys' && b8 === 3) [[8, 2, 69], [10, 2, 72]].forEach(([u, d, m]) => { const v = 0.34 * dyn; at(u, t => noirLead(E, t, m, d * NU * 0.94, v, { slide: u === 10 ? 1 : 0 }), 0.012); });
+}
+function noirPadBar(E, at, ch, dyn) {
+  [0, 1, 2].forEach(i => { const m = ch.k[i], pan = [-0.5, 0, 0.5][i]; at(0, t => noirPad(E, t, m, 0.5 * dyn, NBAR + 1.5, pan), i * 0.04); });
+}
+function noirVibBar(E, at, ch, b8, who, dyn) {
+  if (who === 'vib') return;
+  if (b8 % 2 === 0) { const a = ch.k[1] + 12, b = ch.k[3] + 12; at(0, t => { noirVibe(E, t, a, 0.34 * dyn, 3.2); noirVibe(E, t + 0.05, b, 0.3 * dyn, 3.2); }); }
+  if (b8 % 4 === 3) { const m = ch.k[2] + 12; at(8, t => noirVibe(E, t, m, 0.26 * dyn, 2.4)); }
+}
+function noirIntroBar(E, n, at) {
+  const R = E.R;
+  if (n === 0) {
+    at(0, t => noirDrone(E, t, NBAR * 2 + 1.5));
+    [[3, 69], [7, 73], [10, 74]].forEach(([u, m]) => at(u, t => noirVibe(E, t, m, 0.24, 3.6)));
+  }
+  if (n === 1 && R() < 0.8) { const gaps = Array.from({ length: 7 + Math.floor(R() * 8) }, () => 0.085 + R() * 0.05); at(4, t => noirTyping(E, t, gaps)); }
+  if (n === 2) {
+    at(0, t => noirBass(E, t, 38, 0.5, NB * 1.9)); at(6, t => noirBass(E, t, 33, 0.4, NB * 1.8));
+    at(6, t => noirBrush(E, t, NB * 1.9, 0.3, -0.2));
+    E.nextRoot = 38;
+  }
+  if (n === 3) {
+    noirBassBar(E, at, NCH.Dmm, NCH.Dmm, 4, 0.8);
+    [53, 57, 61, 64, 69, 73, 76].forEach((m, i) => { const v = 0.46 - i * 0.03; at(0, t => noirKey(E, t + i * 0.12, m, v, NB * 3.2)); });
+    [0, 3, 6, 9].forEach((u, i) => at(u, t => noirBrush(E, t, NB * 0.95, 0.3 + i * 0.07, i % 2 ? 0.3 : -0.3)));
+    at(3, t => noirChick(E, t, 0.4)); at(9, t => noirChick(E, t, 0.45));
+  }
+}
+function noirPlanBar(E, n) {
+  const R = E.R, bt = E.t0 + n * NBAR, at = (u, fn, j = 0) => { const t = bt + u * NU + j; E.q.push({ t, fn: () => fn(t) }); };
+  if (n < NINTRO) return noirIntroBar(E, n, at);
+  const c = n - NINTRO, pass = Math.floor(c / 32), bi = c % 32, sec = Math.floor(bi / 8), b8 = bi % 8, nb = (bi + 1) % 32;
+  const ch = NCH[NSEC[sec][b8]], nx = NCH[NSEC[Math.floor(nb / 8)][nb % 8]];
+  const dyn = ([0.88, 0.94, 0.98, 1][sec] + Math.min(pass, 2) * 0.04) * (0.97 + R() * 0.06);
+  const who = (pass === 0 ? ['keys', 'tp', 'tp', 'tp'] : pass % 2 ? ['keys', 'tp', 'vib', 'tp'] : ['tp', 'tp', 'vib', 'tp'])[sec];
+  noirBassBar(E, at, ch, nx, (pass === 0 && sec === 0 && b8 < 7) ? 2 : 4, dyn);
+  noirKitBar(E, at, sec, pass, b8, dyn);
+  noirKeysBar(E, at, ch, sec, who, dyn);
+  noirMelodyBar(E, at, sec, pass, b8, ch, who, dyn);
+  if (sec === 2 || (sec === 3 && pass > 0 && b8 >= 4)) noirPadBar(E, at, ch, dyn);
+  if (sec === 2) noirVibBar(E, at, ch, b8, who, dyn);
+  if (sec === 0 && (b8 === 1 || b8 === 5) && R() < 0.16) { const gaps = Array.from({ length: 7 + Math.floor(R() * 8) }, () => 0.085 + R() * 0.05), u = 3 + Math.floor(R() * 6); at(u, t => noirTyping(E, t, gaps)); }
+  if (pass > 0 && b8 === 2 && R() < 0.12) at(0, t => noirHorn(E, t));
 }
 /* ставит всё, что должно прозвучать до момента tEnd (по часам звука) */
 function noirPump(E, tEnd) {
-  while (E.t0 + E.i * E.beat < tEnd) { noirBeat(E, E.i, E.t0 + E.i * E.beat); E.i++; }
-  while (E.nextDrop < tEnd) { noirDrop(E, E.nextDrop); E.nextDrop += 0.045 + E.rnd() * 0.2; }
-  while (E.nextPop < tEnd) { noirPop(E, E.nextPop); E.nextPop += 0.35 + E.rnd() * 2.2; }
+  while (E.t0 + E.bar * NBAR - 0.25 < tEnd) { noirPlanBar(E, E.bar++); E.q.sort((a, b) => a.t - b.t); }
+  while (E.q.length && E.q[0].t < tEnd) E.q.shift().fn();
   while (E.nextTick < tEnd) { noirTick(E, E.nextTick, E.tick++ % 2 === 0); E.nextTick += 1; }
-}
-/* непрерывный дождь за окном */
-function noirRain(E, reg) {
-  const ac = E.ac, src = ac.createBufferSource(), hp = ac.createBiquadFilter(), bp = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), g = ac.createGain();
-  src.buffer = nzBuf(ac, 6, 'white'); src.loop = true;
-  hp.type = 'highpass'; hp.frequency.value = 900; bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 0.5; lp.type = 'lowpass'; lp.frequency.value = 9000;
-  g.gain.value = 0.02;
-  const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 0.07; lg.gain.value = 0.007; lfo.connect(lg); lg.connect(g.gain);
-  src.connect(hp); hp.connect(bp); bp.connect(lp); lp.connect(g); g.connect(E.amb);
-  src.start(E.t0 - 0.2); lfo.start(E.t0 - 0.2);
-  if (reg) reg.push(src, lfo, g);
+  while (E.nextPop < tEnd) { noirPop(E, E.nextPop); E.nextPop += 0.35 + E.R2() * 2.2; }
 }
 function startNoir(ac, token) {
-  const E = noirEngine(ac, trackBus, trackRev, trackDL);
-  noirRain(E, trackNodes);
-  const pump = () => { if (isActive(token)) noirPump(E, ac.currentTime + 1.1); };
+  const E = noirEngine(ac, trackBus, trackRev, null, null, trackNodes);
+  const pump = () => { if (isActive(token)) noirPump(E, ac.currentTime + 2.4); };
   pump();
-  trackEvery(pump, 120, token);
+  trackEvery(pump, 140, token);
 }
-/* версия для офлайн-проверки: свой реверб и эхо, все ноты ставятся сразу */
-function noirOffline(ac, dest, secs) {
+/* версия для офлайн-проверки: свой реверб, все ноты ставятся сразу; solo — список шин для проверки по отдельности */
+function noirOffline(ac, dest, secs, seed, solo) {
   const bus = ac.createGain(); bus.connect(dest);
   const conv = ac.createConvolver(); conv.buffer = makeReverbImpulse(ac, 3.4, 2.5);
   const cg = ac.createGain(); cg.gain.value = 0.46; conv.connect(cg); cg.connect(bus);
-  const dl = ac.createDelay(1.5); dl.delayTime.value = 0.44; const fb = ac.createGain(); fb.gain.value = 0.3; dl.connect(fb); fb.connect(dl);
-  const dg = ac.createGain(); dg.gain.value = 0.25; dl.connect(dg); dg.connect(bus);
-  const E = noirEngine(ac, bus, conv, dl); noirRain(E); noirPump(E, secs);
+  const E = noirEngine(ac, bus, conv, seed, solo || null); E.log = [];
+  noirPump(E, secs);
   return E;
 }
 /* ===NOIR-END=== */
-
-function startOst(trackId) {
+/* ===AMB-BEGIN=== */
+/* ─────────── АТМОСФЕРА: дождь за окном, настольная лампа, ночной город ───────────
+   Отдельные переключатели: работают с любым треком и без него, у них своя шина и своя громкость. Дождь — зацикленный
+   буфер из тысяч капель плюс ветер и далёкий гром; лампа — гул трансформатора с редким мерцанием (мерцает и свет на
+   экране); город — машины по мокрому асфальту и сирена вдали. Рядом — автопереключение на CASEFILE NOIR в делах. */
+const AMB = { bus: null, rev: null, out: {}, nodes: { rain: [], lamp: [], city: [] }, timers: { rain: [], lamp: [], city: [] }, live: { rain: false, lamp: false, city: false }, buf: null };
+const AUTO = { on: false, prev: null, miss: 0 };
+const ATM_KINDS = ['rain', 'lamp', 'city'];
+const atmCfg = () => {
+  const c = cfg(), a = c.atm && typeof c.atm === 'object' ? c.atm : (c.atm = {});
+  a.rain = !!a.rain; a.lamp = !!a.lamp; a.city = !!a.city; a.auto = !!a.auto; a.touched = !!a.touched;
+  const v = Number(a.vol == null ? 60 : a.vol);
+  a.vol = Math.max(0, Math.min(100, Number.isFinite(v) ? v : 60));
+  return a;
+};
+const ambGain = () => (atmCfg().vol / 100) * 0.9;
+function ambBus(ac) {
+  if (AMB.bus) return AMB.bus;
+  AMB.bus = ac.createGain(); AMB.bus.gain.value = Math.max(0.0001, ambGain()); AMB.bus.connect(compNode || ac.destination);
+  AMB.rev = ac.createConvolver(); AMB.rev.buffer = makeReverbImpulse(ac, 2.8, 2.4);
+  const rg = ac.createGain(); rg.gain.value = 0.5; AMB.rev.connect(rg); rg.connect(AMB.bus);
+  return AMB.bus;
+}
+/* общий выход слоя: сюда подключается всё, что относится к дождю / лампе / городу, и им же слой гасится */
+function ambOut(ac, kind, wet) {
+  const g = ac.createGain(), now = ac.currentTime;
+  g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(1, now + 2);
+  g.connect(AMB.bus);
+  if (wet) { const s = ac.createGain(); s.gain.value = wet; g.connect(s); s.connect(AMB.rev); }
+  AMB.out[kind] = g;
+  return g;
+}
+const ambPan = (ac, node, dest, p) => { if (ac.createStereoPanner) { const x = ac.createStereoPanner(); x.pan.value = p; node.connect(x); x.connect(dest); return x; } node.connect(dest); return null; };
+function ambLoop(kind, fn, lo, hi, first) {
+  const h = { id: 0, on: true }; AMB.timers[kind].push(h);
+  const tick = () => { if (!h.on || !AMB.live[kind]) return; try { fn(); } catch (e) { /* звук необязателен */ } h.id = setTimeout(tick, lo + Math.random() * (hi - lo)); };
+  h.id = setTimeout(tick, first == null ? lo * 0.5 + Math.random() * lo * 0.5 : first);
+}
+/* 8 секунд стерео, замкнутых в кольцо: подложка + тысячи коротких капель разной громкости, тембра и положения */
+function ambRainBuf(ac) {
+  if (AMB.buf && AMB.buf.sampleRate === ac.sampleRate) return AMB.buf;
+  const sr = ac.sampleRate, len = Math.floor(sr * 8), b = ac.createBuffer(2, len, sr), ch = [b.getChannelData(0), b.getChannelData(1)];
+  ch.forEach(d => { let p = 0; for (let i = 0; i < len; i++) { p = p * 0.985 + (Math.random() * 2 - 1) * 0.06; d[i] = p * 0.5; } });
+  for (let k = 0; k < 8 * 560; k++) {
+    const pos = Math.floor(Math.random() * len), amp = Math.pow(Math.random(), 2.2) * 0.9 + 0.03, tau = sr * (0.0012 + Math.random() * 0.005), n = Math.floor(tau * 5), pan = Math.random();
+    let prev = 0;
+    for (let i = 0; i < n; i++) { const x = (Math.random() * 2 - 1) * Math.exp(-i / tau), y = x - 0.6 * prev, j = (pos + i) % len; prev = x; ch[0][j] += y * amp * (1 - pan); ch[1][j] += y * amp * pan; }
+  }
+  let s = 0; for (let i = 0; i < len; i++) s += ch[0][i] * ch[0][i] + ch[1][i] * ch[1][i];
+  const k = 0.1 / Math.sqrt(s / (2 * len));
+  ch.forEach(d => { for (let i = 0; i < len; i++) d[i] *= k; });
+  return (AMB.buf = b);
+}
+function ambRainStart(ac) {
+  const N = AMB.nodes.rain, out = ambOut(ac, 'rain', 0.16), t = ac.currentTime;
+  const src = ac.createBufferSource(); src.buffer = ambRainBuf(ac); src.loop = true;
+  const hp = ac.createBiquadFilter(), pk = ac.createBiquadFilter(), lp = ac.createBiquadFilter(), g = ac.createGain(), lo = ac.createBiquadFilter(), lg = ac.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 260; pk.type = 'peaking'; pk.frequency.value = 2400; pk.Q.value = 0.8; pk.gain.value = 3; lp.type = 'lowpass'; lp.frequency.value = 9500;
+  g.gain.value = 0.9; lo.type = 'lowpass'; lo.frequency.value = 420; lg.gain.value = 0.5;
+  src.connect(hp); hp.connect(pk); pk.connect(lp); lp.connect(g); g.connect(out); src.connect(lo); lo.connect(lg); lg.connect(out);
+  const lfo = ac.createOscillator(), lfg = ac.createGain(); lfo.frequency.value = 0.07; lfg.gain.value = 0.16; lfo.connect(lfg); lfg.connect(g.gain);
+  const wind = ac.createBufferSource(), wb = ac.createBiquadFilter(), wg = ac.createGain(), wl = ac.createOscillator(), wlg = ac.createGain();
+  wind.buffer = nzBuf(ac, 4, 'brown'); wind.loop = true; wb.type = 'bandpass'; wb.frequency.value = 380; wb.Q.value = 0.7; wg.gain.value = 0.06;
+  wl.frequency.value = 0.043; wlg.gain.value = 0.05; wl.connect(wlg); wlg.connect(wg.gain); wind.connect(wb); wb.connect(wg); wg.connect(out);
+  [src, lfo, wind, wl].forEach(n => { n.start(t); N.push(n); });
+  ambLoop('rain', () => ambThunder(ac), 38000, 95000, 12000 + Math.random() * 18000);
+}
+function ambThunder(ac) {
+  const t = ac.currentTime + 0.05, out = AMB.out.rain || AMB.bus;
+  const n = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain();
+  n.buffer = nzBuf(ac, 4, 'brown'); n.loop = true;
+  lp.type = 'lowpass'; lp.Q.value = 0.8; lp.frequency.setValueAtTime(520, t); lp.frequency.exponentialRampToValueAtTime(60, t + 8);
+  g.gain.setValueAtTime(0.0001, t); [[0.5, 0.5], [1.1, 0.22], [2.0, 0.6], [3.3, 0.2], [4.4, 0.36], [6.0, 0.12]].forEach(([dt, v]) => g.gain.linearRampToValueAtTime(v * 0.5, t + dt)); g.gain.exponentialRampToValueAtTime(0.0001, t + 9);
+  n.connect(lp); lp.connect(g); ambPan(ac, g, out, Math.random() * 1.2 - 0.6);
+  if (AMB.rev) { const s = ac.createGain(); s.gain.value = 0.7; g.connect(s); s.connect(AMB.rev); }
+  n.start(t); n.stop(t + 9.2);
+  if (Math.random() < 0.4) {
+    const c = ac.createBufferSource(), cb = ac.createBiquadFilter(), cg = ac.createGain();
+    c.buffer = nzBuf(ac, 4, 'white'); cb.type = 'bandpass'; cb.frequency.value = 1500; cb.Q.value = 0.5;
+    cg.gain.setValueAtTime(0.0001, t); cg.gain.linearRampToValueAtTime(0.06, t + 0.02); cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    c.connect(cb); cb.connect(cg); cg.connect(out); c.start(t, 0.5); c.stop(t + 0.8);
+  }
+}
+/* город */
+function ambCityStart(ac) {
+  const N = AMB.nodes.city, out = ambOut(ac, 'city', 0.3), t = ac.currentTime;
+  const bed = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain();
+  bed.buffer = nzBuf(ac, 4, 'brown'); bed.loop = true; lp.type = 'lowpass'; lp.frequency.value = 170; g.gain.value = 0.05;
+  bed.connect(lp); lp.connect(g); g.connect(out); bed.start(t); N.push(bed);
+  ambLoop('city', () => ambCar(ac), 12000, 32000, 3000 + Math.random() * 6000);
+  ambLoop('city', () => { if (Math.random() < 0.6) ambSiren(ac); }, 50000, 120000, 20000 + Math.random() * 25000);
+}
+function ambCar(ac) {
+  const t = ac.currentTime + 0.05, dur = 6 + Math.random() * 3, dir = Math.random() < 0.5 ? -1 : 1, out = AMB.out.city || AMB.bus;
+  const n = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain(), o = ac.createOscillator(), og = ac.createGain(), olp = ac.createBiquadFilter(), sum = ac.createGain();
+  n.buffer = nzBuf(ac, 4, 'white'); n.loop = true; bp.type = 'bandpass'; bp.Q.value = 0.7;
+  bp.frequency.setValueAtTime(700, t); bp.frequency.linearRampToValueAtTime(1500, t + dur * 0.5); bp.frequency.linearRampToValueAtTime(800, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.12, t + dur * 0.5); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(58, t); o.frequency.linearRampToValueAtTime(50, t + dur); olp.type = 'lowpass'; olp.frequency.value = 180;
+  og.gain.setValueAtTime(0.0001, t); og.gain.linearRampToValueAtTime(0.06, t + dur * 0.5); og.gain.linearRampToValueAtTime(0.0001, t + dur);
+  n.connect(bp); bp.connect(g); g.connect(sum); o.connect(olp); olp.connect(og); og.connect(sum);
+  const p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+  if (p) { p.pan.setValueAtTime(-0.8 * dir, t); p.pan.linearRampToValueAtTime(0.8 * dir, t + dur); sum.connect(p); p.connect(out); } else sum.connect(out);
+  n.start(t); n.stop(t + dur + 0.1); o.start(t); o.stop(t + dur + 0.1);
+}
+function ambSiren(ac) {
+  const t = ac.currentTime + 0.05, dur = 9 + Math.random() * 4, out = AMB.out.city || AMB.bus;
+  const o = ac.createOscillator(), lfo = ac.createOscillator(), lg = ac.createGain(), lp = ac.createBiquadFilter(), g = ac.createGain();
+  o.type = 'sawtooth'; o.frequency.value = 760; lfo.type = 'triangle'; lfo.frequency.value = 0.36; lg.gain.value = 170; lfo.connect(lg); lg.connect(o.frequency);
+  lp.type = 'lowpass'; lp.frequency.value = 1100; lp.Q.value = 0.5;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.045, t + dur * 0.45); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp); lp.connect(g); ambPan(ac, g, out, Math.random() * 1.0 - 0.5);
+  if (AMB.rev) { const s = ac.createGain(); s.gain.value = 1.2; g.connect(s); s.connect(AMB.rev); }
+  [o, lfo].forEach(x => { x.start(t); x.stop(t + dur + 0.1); });
+}
+/* лампа */
+function ambLampStart(ac) {
+  const N = AMB.nodes.lamp, out = ambOut(ac, 'lamp', 0), t = ac.currentTime;
+  const hum = ac.createGain(); hum.gain.value = 1; hum.connect(out);
+  [[100, 'sawtooth', 0.024, 280], [50, 'sine', 0.012, 400], [200, 'sawtooth', 0.008, 420]].forEach(([f, ty, v, cut]) => {
+    const o = ac.createOscillator(), lp = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = ty; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.value = cut; g.gain.value = v;
+    o.connect(lp); lp.connect(g); g.connect(hum); o.start(t); N.push(o);
+  });
+  AMB.hum = hum;
+  ambLoop('lamp', () => {
+    const now = ac.currentTime + 0.02;
+    hum.gain.cancelScheduledValues(now); hum.gain.setValueAtTime(1, now); hum.gain.linearRampToValueAtTime(0.25, now + 0.03); hum.gain.linearRampToValueAtTime(0.9, now + 0.09); hum.gain.linearRampToValueAtTime(0.4, now + 0.14); hum.gain.linearRampToValueAtTime(1, now + 0.26);
+    [0, 0.12].forEach(d => { const n = ac.createBufferSource(), hp = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = nzBuf(ac, 4, 'white'); hp.type = 'highpass'; hp.frequency.value = 2600; g.gain.setValueAtTime(0.03, now + d); g.gain.exponentialRampToValueAtTime(0.0001, now + d + 0.012); n.connect(hp); hp.connect(g); g.connect(out); n.start(now + d, 0.3); n.stop(now + d + 0.03); });
+    atmFlicker();
+  }, 7000, 17000);
+}
+function ambStart(ac, kind) {
+  AMB.live[kind] = true;
+  if (kind === 'rain') ambRainStart(ac); else if (kind === 'lamp') ambLampStart(ac); else if (kind === 'city') ambCityStart(ac);
+}
+function ambStop(ac, kind) {
+  AMB.live[kind] = false;
+  const now = ac.currentTime;
+  AMB.timers[kind].forEach(h => { h.on = false; clearTimeout(h.id); }); AMB.timers[kind] = [];
+  const o = AMB.out[kind];
+  if (o) { try { o.gain.cancelScheduledValues(now); o.gain.setValueAtTime(Math.max(0.0001, o.gain.value), now); o.gain.setTargetAtTime(0.0001, now, 0.5); } catch (e) { /* узел уже убран */ } }
+  const list = AMB.nodes[kind]; AMB.nodes[kind] = [];
+  setTimeout(() => list.forEach(n => { try { n.stop(); } catch (e) { /* уже остановлен */ } try { n.disconnect(); } catch (e) { /* уже отключён */ } }), 3000);
+  AMB.out[kind] = null;
+}
+function ambSync() {
+  const A = atmCfg();
+  atmVisual();
+  const any = A.rain || A.lamp || A.city;
+  if (!any && !ATM_KINDS.some(k => AMB.live[k])) return;
   const ac = ensureCtx();
   if (!ac) return;
+  const go = () => {
+    ambBus(ac);
+    AMB.bus.gain.cancelScheduledValues(ac.currentTime); AMB.bus.gain.setValueAtTime(Math.max(0.0001, AMB.bus.gain.value), ac.currentTime); AMB.bus.gain.setTargetAtTime(Math.max(0.0001, ambGain()), ac.currentTime, 0.2);
+    ATM_KINDS.forEach(k => { if (A[k] && !AMB.live[k]) ambStart(ac, k); else if (!A[k] && AMB.live[k]) ambStop(ac, k); });
+  };
+  if (ac.state === 'suspended') ac.resume().then(go).catch(() => {}); else go();
+}
+function setAtm(kind, on, silent) {
+  const A = atmCfg();
+  if (kind === 'auto') A.auto = !!on; else if (ATM_KINDS.includes(kind)) A[kind] = !!on; else return;
+  if (!silent) A.touched = true;
+  saveCfg(); syncUI(); ambSync();
+  if (!silent && kind === 'lamp') sfx(on ? 'lamp' : 'click');
+}
+function setAtmVol(v) {
+  const A = atmCfg(); A.vol = Math.max(0, Math.min(100, Number(v) || 0)); saveCfg();
+  if (ctx && AMB.bus) AMB.bus.gain.setTargetAtTime(Math.max(0.0001, ambGain()), ctx.currentTime, 0.08);
+  syncUI();
+}
+/* первый запуск нуара: включаем дождь, чтобы трек звучал как задумано; дальше решает пользователь */
+function noirFirstRun() {
+  const A = atmCfg();
+  if (A.touched || A.rain) return;
+  A.rain = true; A.touched = true; saveCfg();
+  try { GE.toast('Нуар: включён дождь за окном. Дождь, лампа и город — в меню звука, блок «Атмосфера»', 'info'); } catch (e) { /* без уведомления */ }
+  syncUI(); ambSync();
+}
+/* нуар в делах: в разделе «Дела», в карточке дела и на доске музыка плавно уходит в CASEFILE NOIR, после выхода возвращается прежний трек */
+function caseContext() {
+  if (document.body.classList.contains('board-open') || GE.currentView === 'cases') return true;
+  if (GE.drawerId != null && GE.db && GE.db.get) {
+    const r = GE.db.get(GE.drawerId), d = document.getElementById('drawer');
+    return !!(r && r.type === 'case' && d && d.classList.contains('on'));
+  }
+  return false;
+}
+function autoNoirTick() {
+  if (!playing) { AUTO.on = false; AUTO.prev = null; AUTO.miss = 0; return; }
+  const want = atmCfg().auto && caseContext();
+  if (want) AUTO.miss = 0;
+  if (want && !AUTO.on && activeTrackId !== 'noir') { AUTO.on = true; AUTO.prev = activeTrackId; startOst('noir', { auto: true, fade: 1.8 }); }
+  else if (!want && AUTO.on && ++AUTO.miss >= 2) {
+    const prev = AUTO.prev; AUTO.on = false; AUTO.prev = null; AUTO.miss = 0;
+    if (prev && TRACKS[prev] && activeTrackId === 'noir') startOst(prev, { auto: true, fade: 1.8 });
+  }
+}
+/* ─── визуальная часть: капли на стекле и тёплый свет лампы ─── */
+const ATMV = { el: null, cv: null, g: null, lamp: null, raf: 0, last: 0, beads: [], w: 0, h: 0 };
+const motionOff = () => !!(GE.settings.motion || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches));
+function atmDom() {
+  if (ATMV.el) return ATMV.el;
+  const el = document.createElement('div'); el.id = 'atm'; el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = '<canvas id="atm-rain"></canvas><div id="atm-lamp"></div>';
+  document.body.appendChild(el);
+  ATMV.el = el; ATMV.cv = el.firstChild; ATMV.g = ATMV.cv.getContext('2d'); ATMV.lamp = el.lastChild;
+  window.addEventListener('resize', () => { if (ATMV.cv.classList.contains('on')) { rainResize(); if (!ATMV.raf) rainDraw(0, false); } });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) rainStop(); else if (atmCfg().rain) rainRun(); });
+  return el;
+}
+const rainSpawn = top => ({ x: Math.random() * ATMV.w, y: top ? Math.random() * ATMV.h * 0.3 : Math.random() * ATMV.h, r: 1.1 + Math.random() * 2.6, vy: 0, wait: 1 + Math.random() * 9, trail: [] });
+function rainResize() {
+  const cv = ATMV.cv, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  ATMV.w = window.innerWidth; ATMV.h = window.innerHeight; cv.width = Math.round(ATMV.w * dpr); cv.height = Math.round(ATMV.h * dpr); ATMV.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const n = Math.max(22, Math.min(80, Math.round(ATMV.w * ATMV.h / 26000)));
+  while (ATMV.beads.length < n) ATMV.beads.push(rainSpawn(false));
+  ATMV.beads.length = n;
+}
+function rainDraw(dt, move) {
+  const g = ATMV.g, W = ATMV.w, H = ATMV.h;
+  g.clearRect(0, 0, W, H);
+  ATMV.beads.forEach((b, i) => {
+    if (move) {
+      if (b.vy === 0) { b.wait -= dt; if (b.wait <= 0) b.vy = 30 + Math.random() * 60; }
+      else {
+        b.vy = Math.min(380, b.vy + 240 * dt); b.y += b.vy * dt; b.x += (Math.random() - 0.5) * 6 * dt; b.r *= 1 - 0.05 * dt;
+        b.trail.push(b.x, b.y); if (b.trail.length > 40) b.trail.splice(0, 2);
+        if (b.vy > 90 && Math.random() < 0.9 * dt) { b.vy = 0; b.wait = 3 + Math.random() * 8; b.trail.length = 0; }
+        if (b.y > H + 12 || b.r < 0.7) { ATMV.beads[i] = rainSpawn(true); return; }
+      }
+    }
+    if (b.trail.length > 4) { g.beginPath(); g.moveTo(b.trail[0], b.trail[1]); for (let k = 2; k < b.trail.length; k += 2) g.lineTo(b.trail[k], b.trail[k + 1]); g.strokeStyle = 'rgba(205,210,225,.1)'; g.lineWidth = Math.max(0.8, b.r * 0.55); g.stroke(); }
+    g.beginPath(); g.ellipse(b.x, b.y, b.r * 0.82, b.r * 1.12, 0, 0, 6.2832); g.fillStyle = 'rgba(190,196,212,.11)'; g.fill(); g.strokeStyle = 'rgba(235,238,248,.34)'; g.lineWidth = 0.8; g.stroke();
+    g.beginPath(); g.arc(b.x - b.r * 0.28, b.y - b.r * 0.4, Math.max(0.35, b.r * 0.2), 0, 6.2832); g.fillStyle = 'rgba(255,255,255,.62)'; g.fill();
+  });
+}
+function rainFrame(ts) {
+  ATMV.raf = requestAnimationFrame(rainFrame);
+  if (ts - ATMV.last < 33) return;
+  const dt = Math.min(0.1, (ts - ATMV.last) / 1000 || 0.033); ATMV.last = ts;
+  rainDraw(dt, true);
+}
+function rainRun() {
+  if (ATMV.raf || document.hidden) return;
+  atmDom(); rainResize(); ATMV.cv.classList.add('on');
+  if (motionOff()) { rainDraw(0, false); return; }
+  ATMV.last = 0; ATMV.raf = requestAnimationFrame(rainFrame);
+}
+function rainStop() { if (ATMV.raf) cancelAnimationFrame(ATMV.raf); ATMV.raf = 0; }
+function atmVisual() {
+  const A = atmCfg();
+  if (!A.rain && !A.lamp && !ATMV.el) return;
+  atmDom();
+  if (A.rain) rainRun();
+  else { ATMV.cv.classList.remove('on'); setTimeout(() => { if (!atmCfg().rain) { rainStop(); ATMV.g.clearRect(0, 0, ATMV.w, ATMV.h); } }, 1300); }
+  if (A.rain) ATMV.cv.classList.add('on');
+  ATMV.lamp.classList.toggle('on', A.lamp);
+}
+function atmFlicker() {
+  const l = ATMV.lamp;
+  if (!l || !l.classList.contains('on') || motionOff()) return;
+  l.classList.remove('flick'); void l.offsetWidth; l.classList.add('flick');
+  setTimeout(() => l.classList.remove('flick'), 380);
+}
+/* для проверки без колонок: слой собирается в офлайн-контексте */
+function ambOffline(ac, dest, what) {
+  const keep = { bus: AMB.bus, rev: AMB.rev, buf: AMB.buf, out: AMB.out };
+  AMB.bus = ac.createGain(); AMB.bus.connect(dest); AMB.out = {};
+  AMB.rev = ac.createConvolver(); AMB.rev.buffer = makeReverbImpulse(ac, 2.8, 2.4);
+  const rg = ac.createGain(); rg.gain.value = 0.5; AMB.rev.connect(rg); rg.connect(AMB.bus);
+  const live = Object.assign({}, AMB.live); ATM_KINDS.forEach(k => { AMB.live[k] = false; });
+  const steps = {
+    rain: () => { ambRainStart(ac); }, thunder: () => { AMB.out.rain = AMB.out.rain || ambOut(ac, 'rain', 0.16); ambThunder(ac); },
+    car: () => { AMB.out.city = ambOut(ac, 'city', 0.3); ambCar(ac); }, siren: () => { AMB.out.city = ambOut(ac, 'city', 0.3); ambSiren(ac); },
+    city: () => { ambCityStart(ac); }, lamp: () => { ambLampStart(ac); }
+  };
+  steps[what]();
+  const bus = AMB.bus;
+  AMB.timers.rain.concat(AMB.timers.lamp, AMB.timers.city).forEach(h => { h.on = false; clearTimeout(h.id); });
+  ATM_KINDS.forEach(k => { AMB.timers[k] = []; AMB.nodes[k] = []; }); Object.assign(AMB.live, live);
+  Object.assign(AMB, { bus: keep.bus, rev: keep.rev, buf: keep.buf, out: keep.out });
+  return bus;
+}
+/* ===AMB-END=== */
+
+function startOst(trackId, opts) {
+  const ac = ensureCtx();
+  if (!ac) return;
+  const o = opts || {};
+  if (!o.auto) { AUTO.on = false; AUTO.prev = null; AUTO.miss = 0; }
+  const fade = playing ? (o.fade || 0.8) : 0;      // уже играет другой трек — плавный переход
   const token = ++trackGeneration;
-  stopTrackNodes();
+  stopTrackNodes(fade);
   const c = cfg();
   const id = TRACKS[trackId] ? trackId : (TRACKS[c.track] ? c.track : 'oculus');
   activeTrackId = id;
-  c.track = id;
+  if (!o.auto) c.track = id;
   c.ost = true;
   playing = true;
   saveCfg();
+  if (id === 'noir' && !o.auto) noirFirstRun();
 
   const launch = () => {
     if (!isActive(token) || activeTrackId !== id) return;
@@ -4985,7 +5558,7 @@ function startOst(trackId) {
     ostBus.gain.setValueAtTime(Math.max(0.001, ostBus.gain.value), ac.currentTime);
     ostBus.gain.setTargetAtTime(Math.max(0.001, targetVol), ac.currentTime, 0.35);
 
-    createTrackFX(ac);
+    createTrackFX(ac, fade);
     if (id === 'oculus') startOculus(ac, token);
     else if (id === 'signal') startSignal(ac, token);
     else if (id === 'ghost') startGhost(ac, token);
@@ -5001,6 +5574,8 @@ function startOst(trackId) {
 
 function stopOst() {
   const c = cfg();
+  if (AUTO.on && AUTO.prev && TRACKS[AUTO.prev]) c.track = AUTO.prev;
+  AUTO.on = false; AUTO.prev = null; AUTO.miss = 0;
   ++trackGeneration;
   activeTrackId = null;
   c.ost = false;
@@ -5394,6 +5969,39 @@ FX.solved = (ac, out, rev, t) => {
   fxTone(ac, out, t + 0.14, { type: 'sine', f: 73.4, d: 2.6, g: 0.1, a: 0.05, rev });
   FX.bell(ac, out, rev, t + 0.75);
 };
+/* «Дело закрыто»: ящик картотеки, папка о дно, замок и тихая каденция вниз */
+FX.closed = (ac, out, rev, t) => {
+  fxBurst(ac, out, t, { dur: 0.3, pow: 0.8, f: 900, f2: 320, q: 1.2, g: 0.07 });
+  fxTone(ac, out, t + 0.3, { type: 'sine', f: 96, f2: 42, d: 0.22, g: 0.34 });
+  fxBurst(ac, out, t + 0.3, { dur: 0.07, pow: 2, type: 'lowpass', f: 1400, q: 0.7, g: 0.22 });
+  [0.4, 0.5].forEach(o => { fxBurst(ac, out, t + o, { dur: 0.012, pow: 2, type: 'highpass', f: 3200, q: 1.2, g: 0.16 }); fxTone(ac, out, t + o, { type: 'sine', f: 2400, d: 0.03, g: 0.03 }); });
+  fxTone(ac, out, t + 0.62, { type: 'sine', f: 110, d: 1.6, g: 0.07, a: 0.02, rev });
+  fxTone(ac, out, t + 1.0, { type: 'sine', f: 73.4, d: 2.6, g: 0.1, a: 0.03, rev });
+  fxTone(ac, out, t + 1.0, { type: 'triangle', f: 220, d: 1.4, g: 0.02, a: 0.02, rev });
+};
+/* диктофон: клавиша REC, ход ленты, щелчок «стоп» */
+FX.recorder = (ac, out, rev, t) => {
+  fxTone(ac, out, t, { type: 'square', f: 420, f2: 130, d: 0.035, g: 0.1 });
+  fxBurst(ac, out, t, { dur: 0.03, pow: 2, f: 1800, q: 1, g: 0.22 });
+  const o = ac.createOscillator(), lp = ac.createBiquadFilter(), g = ac.createGain();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(70, t + 0.05); o.frequency.exponentialRampToValueAtTime(128, t + 0.2);
+  lp.type = 'lowpass'; lp.frequency.value = 340;
+  g.gain.setValueAtTime(0.0001, t + 0.05); g.gain.linearRampToValueAtTime(0.035, t + 0.12); g.gain.setValueAtTime(0.035, t + 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.52);
+  o.connect(lp); lp.connect(g); g.connect(out); o.start(t + 0.05); o.stop(t + 0.56);
+  fxBurst(ac, out, t + 0.05, { dur: 0.45, pow: 0.4, type: 'highpass', f: 3500, q: 0.7, g: 0.025 });
+  fxTone(ac, out, t + 0.5, { type: 'square', f: 380, f2: 120, d: 0.03, g: 0.08 });
+  fxBurst(ac, out, t + 0.5, { dur: 0.025, pow: 2, f: 1600, q: 1, g: 0.18 });
+};
+/* телефон: два звонка старого аппарата — молоточек бьёт по двум чашкам */
+FX.phone = (ac, out, rev, t) => {
+  [0, 1.5].forEach(base => {
+    for (let k = 0; k < 18; k++) {
+      const tt = t + base + k * 0.05, f = k % 2 ? 1925 : 1460;
+      fxTone(ac, out, tt, { type: 'sine', f, d: 0.09, g: 0.05, a: 0.002, rev });
+      fxTone(ac, out, tt, { type: 'sine', f: f * 2.76, d: 0.05, g: 0.014, a: 0.002 });
+    }
+  });
+};
 const eyeGap = {};
 function eyeSfx(d) {
   if (!d || document.hidden || introLive || !cfg().sfx || cfg().eye === false) return;
@@ -5638,7 +6246,7 @@ function sfx(type = 'click') {
 
 // Редкие жуткие звуки в фоне (шёпот/сердцебиение/рычание)
 setInterval(() => {
-  if (!document.hidden && cfg().sfx && Math.random() < 0.35) sfx(['whisper', 'heartbeat', 'growl'][Math.floor(Math.random() * 3)]);
+  if (!document.hidden && cfg().sfx && activeTrackId !== 'noir' && Math.random() < 0.35) sfx(['whisper', 'heartbeat', 'growl'][Math.floor(Math.random() * 3)]);
 }, 24000);
 
 function setTrack(id) {
@@ -5687,10 +6295,11 @@ function syncUI() {
   const lbl = $('#audio-lbl');
   const st = $('#ap-state');
   if (ctl) ctl.classList.toggle('playing', playing);
-  if (lbl) lbl.textContent = playing ? TRACKS[c.track].name.split(' ')[0] : 'OST OFF';
+  const cur = playing && activeTrackId ? activeTrackId : c.track;
+  if (lbl) lbl.textContent = playing ? TRACKS[cur].name.split(' ')[0] : 'OST OFF';
   if (st) st.textContent = playing ? 'ACTIVE' : 'STANDBY';
 
-  $$('#ap-tracks [data-track]').forEach(b => b.classList.toggle('on', b.dataset.track === c.track));
+  $$('#ap-tracks [data-track]').forEach(b => b.classList.toggle('on', b.dataset.track === cur));
   const ov = $('#ap-ost-vol'), sv = $('#ap-sfx-vol'), so = $('#ap-sfx-on');
   if (ov) ov.value = c.ostVol;
   if (sv) sv.value = c.sfxVol;
@@ -5708,6 +6317,16 @@ function syncUI() {
   if (sTr) sTr.value = c.track;
   if (sOv) sOv.value = c.ostVol;
   if (sSv) sSv.value = c.sfxVol;
+
+  const A = atmCfg();
+  $$('#ap-atm [data-atm]').forEach(b => { const on = !!A[b.dataset.atm]; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  const av = $('#ap-atm-vol'), ap = $('#ap-atm-pct'), aa = $('#ap-atm-auto'), sa = $('#set-atm-auto'), sv2 = $('#set-atm-vol');
+  if (av) av.value = A.vol;
+  if (ap) ap.textContent = A.vol + '%';
+  if (aa) aa.checked = A.auto;
+  if (sa) sa.checked = A.auto;
+  if (sv2) sv2.value = A.vol;
+  ATM_KINDS.forEach(k => { const el = $('#set-atm-' + k); if (el) el.checked = A[k]; });
 }
 
 function init() {
@@ -5754,6 +6373,17 @@ function init() {
   $('#set-audio-ost-vol')?.addEventListener('input', e => setOstVol(e.target.value));
   $('#set-audio-sfx-vol')?.addEventListener('input', e => setSfxVol(e.target.value));
 
+  // Атмосфера и нуар в делах
+  $('#ap-atm')?.addEventListener('click', e => { const b = e.target.closest('[data-atm]'); if (b) setAtm(b.dataset.atm, !atmCfg()[b.dataset.atm]); });
+  $('#ap-atm-vol')?.addEventListener('input', e => setAtmVol(e.target.value));
+  $('#ap-atm-auto')?.addEventListener('change', e => setAtm('auto', e.target.checked));
+  ATM_KINDS.forEach(k => $('#set-atm-' + k)?.addEventListener('change', e => setAtm(k, e.target.checked)));
+  $('#set-atm-vol')?.addEventListener('input', e => setAtmVol(e.target.value));
+  $('#set-atm-auto')?.addEventListener('change', e => setAtm('auto', e.target.checked));
+  $('#set-fx-tests')?.addEventListener('click', e => { const b = e.target.closest('[data-fx]'); if (b) { ensureCtx(); sfx(b.dataset.fx); } });
+  atmVisual();
+  setInterval(autoNoirTick, 700);
+
   // Глобальная клавиша Alt+M — быстрый mute/unmute саундтрека
   document.addEventListener('keydown', e => {
     if (e.altKey && (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь')) {
@@ -5772,6 +6402,8 @@ function init() {
   // Автоматическое «пробуждение» AudioContext на первом жесте пользователя + делегированные UI-звуки
   let unlocked = false;
   document.addEventListener('pointerdown', () => {
+    const A = atmCfg();
+    if (!introLive && ATM_KINDS.some(k => A[k] && !AMB.live[k])) ambSync();
     if (!unlocked) {
       unlocked = true;
       if (cfg().ost && !playing && !introLive) startOst(cfg().track);
@@ -5779,7 +6411,7 @@ function init() {
   }, { passive: true });
 
   document.addEventListener('click', e => {
-    if (e.target.closest('#audio-toggle, #audio-pop-btn, #ap-test, #ap-test-intro, #intro')) return;
+    if (e.target.closest('#audio-toggle, #audio-pop-btn, #ap-test, #ap-test-intro, #set-fx-tests, #intro')) return;
     if (e.target.closest('#hero-eye')) { if (cfg().eye === false) sfx('click'); return; }
     if (e.target.closest('.pivot-link')) { sfx('pivot'); return; }
     if (e.target.closest('.tabs button, .seg button, .type-tab, .nav a')) { sfx('tab'); return; }
@@ -5806,8 +6438,10 @@ GE.audio = {
   isPlaying: () => playing,
   intro: playIntro, wantsGate, canAutoplay, unlock: unlockAudio,
   __intro: (ac, dest) => { const S = iSession(ac, dest); introScore(S); return S; },
-  __noir: (ac, dest, secs) => noirOffline(ac, dest, secs),
+  __noir: (ac, dest, secs, seed, solo) => noirOffline(ac, dest, secs, seed, solo),
   __fx: FX,
+  setAtm, setAtmVol, atm: () => Object.assign({}, atmCfg()), autoTick: autoNoirTick,
+  __amb: ambOffline, __live: () => ({ amb: Object.assign({}, AMB.live), auto: Object.assign({}, AUTO), track: activeTrackId, playing }),
 };
 })();
 
@@ -7029,7 +7663,13 @@ GE.editRecord = (type, id, preset = {}) => {
       let r;
       if (id) r = GE.db.update(id, data);
       else r = GE.db.add(type, Object.assign({}, preset, data));
-      if (isCase && data.status === 'Раскрыто' && prevStatus !== 'Раскрыто') GE.sfx('solved');
+      if (isCase) {
+        const st = data.status, ch = st !== prevStatus;
+        if (ch && st === 'Раскрыто') GE.sfx('solved');
+        else if (ch && (st === 'Закрыто' || st === 'В архиве')) GE.sfx('closed');
+        else if (ch && st === 'Горячий след') GE.sfx('phone');
+        else if (id) GE.sfx('recorder');
+      }
       GE.toast(id ? 'Запись обновлена' : 'Запись создана: ' + r.title);
       GE.emit('record:saved', r);
       if (GE.drawerId === r.id) GE.openRecord(r.id);
@@ -13853,7 +14493,7 @@ P.commands = () => [
   { g: 'Звук', icon: 'spark', t: 'OST: BLACK SIGNAL (Tactical Pulse)', run: () => GE.audio && GE.audio.startOst('signal') },
   { g: 'Звук', icon: 'spark', t: 'OST: GHOST TERMINAL (Cyber-Noir)', run: () => GE.audio && GE.audio.startOst('ghost') },
   { g: 'Звук', icon: 'spark', t: 'OST: RED SANCTUM (Crimson Ritual)', run: () => GE.audio && GE.audio.startOst('sanctum') },
-  { g: 'Звук', icon: 'spark', t: 'OST: CASEFILE NOIR (нуар-джаз, дождь)', run: () => GE.audio && GE.audio.startOst('noir') },
+  { g: 'Звук', icon: 'spark', t: 'OST: CASEFILE NOIR (нуар-джаз для дел)', run: () => GE.audio && GE.audio.startOst('noir') },
   ...['extract', 'hash', 'codec', 'time', 'url', 'coords', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
 ];
 P.render = () => {
