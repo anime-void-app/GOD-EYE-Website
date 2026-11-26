@@ -305,6 +305,11 @@ a.pl-th:hover img { filter: none; }
 .pl-bad { color: #ff6b72; font-size: 11.5px; }
 @media (max-width: 760px) { .pl-head { grid-template-columns: 1fr; justify-items: start; } .pl-acts { justify-content: flex-start; } }
 /* ===PLUGINS-CSS-END=== */
+.live-next { padding: 11px 13px; border: 1px solid rgba(226,35,46,0.3); background: linear-gradient(90deg, rgba(139,0,0,0.12), transparent 70%); }
+.live-next-h { margin-bottom: 8px; font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.18em; color: var(--white); text-transform: uppercase; }
+.live-next-h small { margin-left: 10px; letter-spacing: 0.04em; color: var(--dim); text-transform: none; font-size: 11px; }
+.live-next-b { display: flex; flex-wrap: wrap; gap: 4px; }
+.live-next .pivot i { margin-left: 6px; color: var(--crimson-3); font-size: 9px; font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; }
 .dr-sec.cand { border: 1px solid rgba(226,35,46,0.35); background: rgba(139,0,0,0.07); padding: 12px 14px; }
 .chk-line { display: flex; align-items: flex-start; gap: 9px; margin: 6px 0; font-size: 12.5px; line-height: 1.5; color: var(--silver-2); cursor: pointer; }
 .chk-line input { margin-top: 3px; accent-color: var(--crimson-3); }
@@ -1859,6 +1864,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
           <button data-tab="time">Время и ID</button>
           <button data-tab="url">Анализ URL</button>
           <button data-tab="coords">Координаты</button>
+          <button data-tab="docs">Документы</button>
           <button data-tab="catalog">Каталог</button>
         </div>
 
@@ -1870,6 +1876,17 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
               <div class="row" style="margin-top:10px"><button class="btn btn-primary" id="ex-run">Извлечь сущности</button><button class="btn" id="ex-clear">Очистить</button><span class="muted mono" style="font-size:11px;margin-left:auto" id="ex-stat"></span></div>
             </div>
             <div class="panel"><div class="panel-h">Найдено</div><div id="ex-out" class="muted" style="font-size:13px">Результаты появятся здесь. Каждую находку можно отправить в поиск или сохранить как источник.</div></div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="docs">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Метаданные документа<small>файл разбирается локально и никуда не отправляется</small></div>
+              <label class="drop" id="doc-drop" style="min-height:170px"><input type="file" id="doc-file" accept=".pdf,.docx,.docm,.dotx,.xlsx,.xlsm,.xltx,.pptx,.pptm,.potx,.odt,.ods,.odp"><div><svg class="ic"><use href="#i-report"/></svg><b>Перетащите документ сюда</b> или выберите файл<div class="muted" style="font-size:12px;margin-top:6px">PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP</div></div></label>
+              <div class="notice silver" style="margin:12px 0 0"><svg class="ic"><use href="#i-eye"/></svg><div><b>Что можно узнать:</b> автора и программу, даты создания и правок, комментарии и неутверждённые правки, скрытые листы, пути к файлам и сетевым папкам, метаданные вложенных фото. Сверяйте находки с самим документом: метаданные легко подделать.</div></div>
+            </div>
+            <div class="panel"><div class="panel-h">Результат</div><div id="doc-out" class="muted" style="font-size:13px">Результаты появятся здесь.</div></div>
           </div>
         </div>
 
@@ -8026,7 +8043,7 @@ reg({
   info: 'Баланс, тип адреса (кошелёк или контракт), число транзакций и переводов токенов, публичные метки и ENS-имя. Ответ может занять до 20 секунд.',
   home: 'https://eth.blockscout.com', sends: 'адрес кошелька', site: q => 'https://eth.blockscout.com/address/' + E(q), test: ['crypto', '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe'],
   run: async (q, x) => {
-    const [a, c] = await Promise.all([x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}`, { ms: 25000 }), x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}/counters`, { ms: 25000 }).catch(() => null)]);
+    const [a, c] = await Promise.all([x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}`, { ms: 40000 }), x.net(`https://eth.blockscout.com/api/v2/addresses/${E(q)}/counters`, { ms: 40000 }).catch(() => null)]);
     let wei = 0n; try { wei = BigInt(a.coin_balance || '0'); } catch (e) { /* пустой баланс */ }
     const eth = Number(wei / 10n ** 12n) / 1e6;
     const tags = (a.public_tags || []).map(t => t.display_name).filter(Boolean);
@@ -8219,7 +8236,7 @@ const checkOne = async p => {
   view.health.set(p.id, { pending: 1 }); paintHealth(p.id);
   const t0 = performance.now();
   try {
-    const res = await Promise.race([p.run(p.test[1], ctxFor({}, p.test[0])), new Promise((_, no) => setTimeout(() => no(new Error('таймаут 30 с')), 30000))]);
+    const res = await Promise.race([p.run(p.test[1], ctxFor({}, p.test[0])), new Promise((_, no) => setTimeout(() => no(new Error('таймаут 45 с')), 45000))]);
     if (!res || typeof res.html !== 'string') throw new Error('пустой ответ плагина');
     view.health.set(p.id, { ok: 1, ms: Math.round(performance.now() - t0) });
   } catch (e) { view.health.set(p.id, { ok: 0, err: e.message || 'ошибка' }); }
@@ -8922,6 +8939,27 @@ S.profileChecks = q => [
         }
 ];
 
+/* Подсказки пивота: что проверить следующим по результатам скана (берутся из найденных в карточках ссылок-пивотов) */
+S.pivotHints = (out, q) => {
+  const seen = new Map(), cur = String(q).toLowerCase();
+  out.querySelectorAll('[data-pivot-q]').forEach(b => {
+    const v = b.dataset.pivotQ, ty = b.dataset.pivotT || 'auto';
+    if (!v || v.toLowerCase() === cur || !GE.QTYPES[ty] || ty === 'auto') return;
+    const card = b.closest('.live-card'), key = ty + '|' + v.toLowerCase();
+    if (!seen.has(key)) seen.set(key, { v, ty, n: 0, srcs: new Set() });
+    const x = seen.get(key); x.n++;
+    if (card) { const h = card.querySelector('.live-card-h span'); if (h) x.srcs.add(h.childNodes[0].textContent.trim()); }
+  });
+  const W = { ip: 3, email: 3, coords: 2.5, domain: 2, username: 2, asn: 2, org: 1.5, url: 1 };
+  const own = S.eff === 'domain' ? cur : '';
+  const list = [...seen.values()].map(x => ({ ...x, score: x.srcs.size * 3 + (W[x.ty] || 1) - (own && x.v.toLowerCase().endsWith('.' + own) ? 2 : 0) })).sort((a, b) => b.score - a.score);
+  const perType = {}, pick = [];
+  list.forEach(x => { perType[x.ty] = (perType[x.ty] || 0) + 1; if (perType[x.ty] <= 3 && pick.length < 8) pick.push(x); });
+  const old = out.querySelector('#live-next'); if (old) old.remove();
+  if (!pick.length) return;
+  out.insertAdjacentHTML('afterbegin', `<div class="live-next" id="live-next"><div class="live-next-h">Следующие шаги<small>что стоит проверить дальше по найденному</small></div><div class="live-next-b">${pick.map(x => `<button class="pivot" data-pivot-q="${esc(x.v)}" data-pivot-t="${esc(x.ty)}" title="${esc(`${GE.QTYPES[x.ty].l} · найдено в: ${[...x.srcs].slice(0, 3).join(', ') || 'результатах'}`)}">${esc(x.v.length > 44 ? x.v.slice(0, 43) + '…' : x.v)} <i>${esc(GE.QTYPES[x.ty].l)}</i></button>`).join('')}</div></div>`);
+};
+
 /* ─────────── Живая разведка ─────────── */
 S.live = (forceRefresh = false) => {
   const out = $('#live-out'), type = S.eff, q = GE.normQuery(S.q, type), id = ++S.runId;
@@ -9596,7 +9634,9 @@ S.live = (forceRefresh = false) => {
     }
   };
 
-  jobs.forEach(j => runJob(j, forceRefresh));
+  let finished = 0, hintT = 0;
+  const tick = () => { finished++; clearTimeout(hintT); hintT = setTimeout(() => { if (ok()) S.pivotHints(out, q); }, finished >= jobs.length ? 0 : 900); };
+  jobs.forEach(j => runJob(j, forceRefresh).finally(tick));
 
   // Делегирование кликов внутри результатов (pivot, retry, copy, open record, geo save)
   out.onclick = e => {
@@ -10525,6 +10565,227 @@ function renderCatalog() {
 })();
 
 </script>
+<script id="docmeta-module">
+/* embedded: docmeta module — метаданные документов (PDF, DOCX, XLSX, PPTX, ODT/ODS/ODP): локальный разбор без отправки файла */
+(function () {
+'use strict';
+const GE = window.GE, esc = GE.esc;
+const $ = (s, r = document) => r.querySelector(s);
+const MAX_ENTRY = 25 * 1024 * 1024, MAX_TOTAL = 80 * 1024 * 1024;
+
+/* ─────────── утилиты ─────────── */
+const latin1 = b => { let s = ''; for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode.apply(null, b.subarray(i, i + 32768)); return s; };
+const plain = h => { try { return (new DOMParser().parseFromString(String(h || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim(); } catch (e) { return ''; } };
+const tag = (xml, name) => { const m = xml.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i')); return m ? plain(m[1]) : ''; };
+const attrs = (xml, name) => { const out = []; xml.replace(new RegExp(`${name}="([^"]*)"`, 'g'), (m, v) => { out.push(plain(v)); return m; }); return out; };
+const countBy = list => { const o = {}; list.filter(Boolean).forEach(x => { o[x] = (o[x] || 0) + 1; }); return Object.entries(o).sort((a, b) => b[1] - a[1]); };
+const dt = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC' : v || ''; };
+const pdfDate = s => { const m = String(s || '').match(/^D?:?(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?([Zz]|[+-]\d{2}'?\d{2}'?)?/); if (!m) return s || ''; const [, y, mo = '01', d = '01', h = '00', mi = '00', se = '00', tz = ''] = m; return `${y}-${mo}-${d} ${h}:${mi}:${se} ${tz ? tz.replace(/'/g, '').replace(/^Z$/i, 'UTC') : '(пояс не указан)'}`; };
+const kvList = rows => rows.filter(r => r[1] !== undefined && r[1] !== null && r[1] !== '');
+const kvHtml = rows => `<dl class="kv">${kvList(rows).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+const kvMd = rows => kvList(rows).map(([k, v]) => `- **${k}:** ${String(v).replace(/[\r\n]+/g, ' ')}`).join('\n');
+const flag = (c, t, d) => `<div class="flag ${c}"><div><b>${esc(t)}.</b> ${esc(d)}</div></div>`;
+const LOCAL_PATH = /^(file:|\\\\|[A-Za-z]:[\\/]|\/(Users|home)\/)/i;
+
+/* ─────────── ZIP: чтение с распаковкой (DecompressionStream) ─────────── */
+const inflateRaw = async bytes => {
+  if (typeof DecompressionStream === 'undefined') throw new Error('браузер не поддерживает распаковку (нужен Chrome 80+, Firefox 113+ или Safari 16.4+)');
+  const rd = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = [];
+  let total = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; total += value.length; if (total > MAX_ENTRY) { rd.cancel(); throw new Error('запись архива слишком велика'); } parts.push(value); }
+  const out = new Uint8Array(total); let o = 0; parts.forEach(p => { out.set(p, o); o += p.length; });
+  return out;
+};
+const zipIndex = buf => {
+  const v = new DataView(buf), n = v.byteLength;
+  let e = -1;
+  for (let i = n - 22; i >= Math.max(0, n - 65557); i--) if (v.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('не найден каталог ZIP: файл повреждён или это не документ Office');
+  const count = v.getUint16(e + 10, true), cdOff = v.getUint32(e + 16, true), files = new Map();
+  let p = cdOff;
+  for (let i = 0; i < Math.min(count, 5000); i++) {
+    if (p + 46 > n || v.getUint32(p, true) !== 0x02014b50) break;
+    const method = v.getUint16(p + 10, true), csize = v.getUint32(p + 20, true), usize = v.getUint32(p + 24, true), nl = v.getUint16(p + 28, true), xl = v.getUint16(p + 30, true), cl = v.getUint16(p + 32, true), lo = v.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(new Uint8Array(buf, p + 46, nl));
+    files.set(name, { name, method, csize, usize, lo });
+    p += 46 + nl + xl + cl;
+  }
+  return files;
+};
+let budget = 0;
+const zipRead = async (buf, f) => {
+  if (!f || f.usize > MAX_ENTRY) return null;
+  budget += f.usize; if (budget > MAX_TOTAL) throw new Error('суммарный размер распаковки превышает безопасный предел');
+  const v = new DataView(buf), nl = v.getUint16(f.lo + 26, true), xl = v.getUint16(f.lo + 28, true), start = f.lo + 30 + nl + xl;
+  const data = new Uint8Array(buf, start, f.csize);
+  return f.method === 0 ? data.slice() : f.method === 8 ? inflateRaw(data) : null;
+};
+const zipText = async (buf, files, name) => { const f = files.get(name); const b = f && await zipRead(buf, f); return b ? new TextDecoder().decode(b) : ''; };
+
+/* ─────────── PDF ─────────── */
+const decodeBytes = bytes => {
+  if (bytes[0] === 0xFE && bytes[1] === 0xFF) return new TextDecoder('utf-16be').decode(bytes.subarray(2));
+  if (bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder('utf-16le').decode(bytes.subarray(2));
+  if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) return new TextDecoder('utf-8').decode(bytes.subarray(3));
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch (e) { return latin1(bytes); }
+};
+const pdfStr = (src, key) => {
+  const m = src.match(new RegExp('/' + key + '\\s*(\\((?:\\\\.|[^\\\\)])*\\)|<[0-9A-Fa-f\\s]+>)'));
+  if (!m) return '';
+  let s = m[1], bytes;
+  if (s[0] === '<') {
+    const hex = s.replace(/[<>\s]/g, '');
+    bytes = new Uint8Array((hex.match(/../g) || []).map(h => parseInt(h, 16)));
+  } else {
+    s = s.slice(1, -1).replace(/\\([nrtbf()\\])/g, (x, c) => ({ n: '\n', r: '\r', t: '\t', b: '\b', f: '\f' }[c] || c)).replace(/\\([0-7]{1,3})/g, (x, o) => String.fromCharCode(parseInt(o, 8) & 255));
+    bytes = Uint8Array.from(s, c => c.charCodeAt(0) & 255);
+  }
+  return decodeBytes(bytes).replace(/\0/g, '').trim();
+};
+const inflateZlib = async bytes => {
+  const rd = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate')).getReader(), parts = [];
+  let total = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; total += value.length; if (total > MAX_ENTRY) { rd.cancel(); break; } parts.push(value); }
+  const out = new Uint8Array(total); let o = 0; parts.forEach(p => { out.set(p, o); o += p.length; });
+  return out;
+};
+const parsePdf = async buf => {
+  const bytes = new Uint8Array(buf), text = latin1(bytes);
+  const info = {}, rows = [], flags = [];
+  const ver = (text.match(/^%PDF-(\d\.\d)/) || [])[1];
+  let src = text;
+  // информационный словарь и XMP могут лежать в сжатых потоках объектов
+  if (typeof DecompressionStream !== 'undefined' && !/\/Author|\/Producer|\/Creator/.test(text)) {
+    const re = /<<([^>]*?\/Type\s*\/ObjStm[^>]*?)>>\s*stream\r?\n/g; let m, k = 0;
+    while ((m = re.exec(text)) && k++ < 40) {
+      const len = +((m[1].match(/\/Length\s+(\d+)/) || [])[1] || 0), s0 = m.index + m[0].length;
+      if (len > 0 && len < MAX_ENTRY && /FlateDecode/.test(m[1])) { try { src += '\n' + latin1(await inflateZlib(bytes.subarray(s0, s0 + len))); } catch (e) { /* поток не распаковался */ } }
+    }
+  }
+  const infoDict = (src.match(/<<(?:(?!<<|>>)[\s\S]){5,4000}>>/g) || []).find(d => /\/(Producer|CreationDate|Author)\b/.test(d)) || '';
+  ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer'].forEach(k => { const v = pdfStr(infoDict, k); if (v) info[k] = v; });
+  const cd = pdfStr(infoDict, 'CreationDate'), md = pdfStr(infoDict, 'ModDate');
+  const x0 = text.indexOf('<x:xmpmeta'), x1 = text.indexOf('</x:xmpmeta>');
+  let xmp = x0 >= 0 && x1 > x0 ? text.slice(x0, x1) : '';
+  try { xmp = decodeURIComponent(escape(xmp)); } catch (e) { /* без перекодировки */ }
+  const xg = n => { const m = xmp.match(new RegExp(n + '="([^"]+)"')) || xmp.match(new RegExp('<' + n + '[^>]*>([\\s\\S]*?)</' + n + '>')); return m ? plain(m[1]) : ''; };
+  const pages = (text.match(/\/Type\s*\/Page(?![s\w])/g) || []).length, eofs = (text.match(/%%EOF/g) || []).length;
+  rows.push(['Версия PDF', ver && 'PDF ' + ver], ['Название', info.Title], ['Автор', info.Author], ['Тема', info.Subject], ['Ключевые слова', info.Keywords], ['Создано в (программа)', info.Creator], ['Конвертер / Producer', info.Producer], ['Дата создания', pdfDate(cd)], ['Дата изменения', pdfDate(md)], ['Страниц (оценка)', pages || '']);
+  if (xmp) rows.push(['XMP: автор', xg('dc:creator')], ['XMP: название', xg('dc:title')], ['XMP: программа', xg('xmp:CreatorTool')], ['XMP: создано', xg('xmp:CreateDate')], ['XMP: изменено', xg('xmp:ModifyDate')], ['XMP: ID документа', xg('xmpMM:DocumentID')], ['XMP: ID версии', xg('xmpMM:InstanceID')]);
+  const hist = [...new Set((xmp.match(/stEvt:softwareAgent="([^"]+)"/g) || []).map(s => s.split('"')[1]))];
+  if (hist.length) rows.push(['История правок (программы)', hist.join(', ')]);
+  const uris = [...new Set((src.match(/\/URI\s*\((https?:[^)]{4,200})\)/g) || []).map(s => s.replace(/^\/URI\s*\(/, '').slice(0, -1)))].slice(0, 30);
+  if (eofs > 1) flags.push(['warn', 'Файл сохранялся с обновлениями', `Маркеров конца файла: ${eofs}. В документе могли остаться прежние версии страниц и удалённый текст.`]);
+  if (/\/Encrypt\b/.test(text)) flags.push(['', 'Документ зашифрован', 'Метаданные могут быть видны не полностью.']);
+  if (/\/(JavaScript|JS)\b/.test(text)) flags.push(['warn', 'В PDF есть JavaScript', 'Не открывайте такие файлы в обычном просмотрщике, если не знаете источник.']);
+  if (/\/(Launch|OpenAction)\b/.test(text)) flags.push(['warn', 'Есть автоматические действия при открытии', '/OpenAction или /Launch: характерно для вредоносных файлов, но встречается и в обычных формах.']);
+  if (/\/EmbeddedFile\b/.test(text)) flags.push(['warn', 'Внутри PDF вложены файлы', 'Проверьте вложения отдельно.']);
+  if (!info.Author && !info.Creator && !info.Producer && !xmp) flags.push(['', 'Метаданных не найдено', 'Либо они удалены, либо лежат в сжатых объектах нестандартного вида.']);
+  return { kind: 'PDF', rows, flags, extra: uris.length ? `<div class="pl-sub">Ссылки внутри документа · ${uris.length}</div><div class="dim" style="font-size:12px;word-break:break-all">${uris.map(esc).join('<br>')}</div>` : '', extraMd: uris.length ? '\n- **Ссылки внутри:** ' + uris.join(', ') : '' };
+};
+
+/* ─────────── OOXML и OpenDocument ─────────── */
+const parseOffice = async (buf, ext) => {
+  const files = zipIndex(buf), rows = [], flags = [];
+  budget = 0;
+  let extra = '', extraMd = '';
+  const T = n => zipText(buf, files, n);
+  if (files.has('docProps/core.xml') || files.has('[Content_Types].xml')) {
+    const core = await T('docProps/core.xml'), app = await T('docProps/app.xml'), custom = await T('docProps/custom.xml');
+    rows.push(['Название', tag(core, 'dc:title')], ['Тема', tag(core, 'dc:subject')], ['Автор', tag(core, 'dc:creator')], ['Последний сохранивший', tag(core, 'cp:lastModifiedBy')], ['Ключевые слова', tag(core, 'cp:keywords')], ['Описание', tag(core, 'dc:description')], ['Категория', tag(core, 'cp:category')],
+      ['Создано', dt(tag(core, 'dcterms:created'))], ['Изменено', dt(tag(core, 'dcterms:modified'))], ['Последняя печать', dt(tag(core, 'cp:lastPrinted'))], ['Ревизия', tag(core, 'cp:revision')],
+      ['Программа', [tag(app, 'Application'), tag(app, 'AppVersion')].filter(Boolean).join(' ')], ['Организация (Company)', tag(app, 'Company')], ['Руководитель (Manager)', tag(app, 'Manager')], ['Шаблон', tag(app, 'Template')], ['Время правок, мин', tag(app, 'TotalTime')],
+      ['Страниц / слов / знаков', [tag(app, 'Pages'), tag(app, 'Words'), tag(app, 'Characters')].filter(Boolean).join(' / ')], ['Слайдов', tag(app, 'Slides')], ['Скрытых слайдов', tag(app, 'HiddenSlides')]);
+    const props = [...custom.matchAll(/<property[^>]*name="([^"]+)"[^>]*>([\s\S]*?)<\/property>/g)].map(m => [plain(m[1]), plain(m[2])]).slice(0, 20);
+    if (props.length) rows.push(['Свои свойства', props.map(([k, v]) => `${k}=${v}`).join('; ')]);
+    // правки и комментарии
+    const doc = await T('word/document.xml'), com = await T('word/comments.xml');
+    if (doc || com) {
+      const ins = [...doc.matchAll(/<w:(ins|del)\b[^>]*w:author="([^"]*)"[^>]*(?:w:date="([^"]*)")?/g)].map(m => ({ kind: m[1], a: plain(m[2]), d: m[3] }));
+      const ca = [...com.matchAll(/<w:comment\b[^>]*w:author="([^"]*)"[^>]*(?:w:date="([^"]*)")?/g)].map(m => ({ a: plain(m[1]), d: m[2] }));
+      if (ins.length) { rows.push(['Отслеживаемые правки', `${ins.length}: ` + countBy(ins.map(x => x.a)).map(([a, n]) => `${a} (${n})`).join(', ')]); flags.push(['warn', 'Есть неутверждённые правки', 'В тексте остались вставки и удаления с именами авторов и датами; удалённый текст может быть виден.']); }
+      if (ca.length) { rows.push(['Комментарии', `${ca.length}: ` + countBy(ca.map(x => x.a)).map(([a, n]) => `${a} (${n})`).join(', ')]); flags.push(['warn', 'Есть комментарии рецензентов', 'Проверьте их содержимое и авторов перед публикацией.']); }
+      const hid = (doc.match(/<w:vanish\b/g) || []).length;
+      if (hid) flags.push(['warn', 'Есть скрытый текст', `Фрагментов с атрибутом «скрытый»: ${hid}.`]);
+    }
+    const wb = await T('xl/workbook.xml');
+    if (wb) {
+      const sheets = [...wb.matchAll(/<sheet\b[^>]*>/g)].map(m => ({ n: plain((m[0].match(/name="([^"]*)"/) || [])[1]), hidden: /state="(hidden|veryHidden)"/.test(m[0]) }));
+      if (sheets.length) rows.push(['Листы', sheets.map(s => s.n + (s.hidden ? ' [скрыт]' : '')).join(', ')]);
+      if (sheets.some(s => s.hidden)) flags.push(['warn', 'Есть скрытые листы', 'Скрытые листы часто содержат служебные или чувствительные данные.']);
+    }
+    // внешние связи: пути к файлам, серверам, шаблонам
+    const rels = [];
+    for (const [name] of files) if (/\.rels$/.test(name)) { const x = await T(name); [...x.matchAll(/<Relationship\b[^>]*>/g)].forEach(m => { if (/TargetMode="External"/.test(m[0])) { const t = (m[0].match(/Target="([^"]*)"/) || [])[1], ty = ((m[0].match(/Type="[^"]*\/([A-Za-z]+)"/) || [])[1]) || ''; if (t) rels.push({ t: plain(t), ty, from: name }); } }); }
+    const uniq = [...new Map(rels.map(x => [x.t, x])).values()].slice(0, 40);
+    if (uniq.length) {
+      const local = uniq.filter(x => LOCAL_PATH.test(x.t));
+      if (local.length) flags.push(['warn', 'Во внешних связях есть локальные пути', 'Они могут раскрывать имена пользователей, компьютеров и сетевых папок: ' + local.slice(0, 3).map(x => x.t).join(' · ')]);
+      extra += `<div class="pl-sub">Внешние связи · ${uniq.length}</div><div class="dim" style="font-size:12px;word-break:break-all">${uniq.map(x => `<span style="color:var(--crimson-3)">${esc(x.ty)}</span> ${esc(x.t)}`).join('<br>')}</div>`;
+      extraMd += '\n- **Внешние связи:** ' + uniq.map(x => x.t).join(', ');
+    }
+    // встроенные изображения: EXIF внутри документа
+    const media = [...files.keys()].filter(n => /\/media\/.+\.(jpe?g|png|tiff?)$/i.test(n)).slice(0, 40);
+    if (media.length) {
+      const hits = [];
+      for (const n of media.filter(n => /\.jpe?g$/i.test(n)).slice(0, 12)) {
+        try { const b = await zipRead(buf, files.get(n)); if (!b) continue; const m = GE.exif(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)), ex = m.exif || {}; const bits = [[ex.Make, ex.Model].filter(Boolean).join(' '), ex.DateTimeOriginal, ex._gps && `GPS ${ex._gps.lat}, ${ex._gps.lon}`, ex.BodySerialNumber && 'серийный номер'].filter(Boolean); if (bits.length) hits.push(`${n.split('/').pop()}: ${bits.join(' · ')}`); } catch (e) { /* пропускаем */ }
+      }
+      rows.push(['Вложенных изображений', media.length]);
+      if (hits.length) { flags.push(['warn', 'В картинках документа есть метаданные съёмки', hits.slice(0, 3).join(' | ')]); rows.push(['EXIF во вложенных фото', hits.join('; ')]); }
+    }
+    return { kind: files.has('xl/workbook.xml') ? 'Excel (OOXML)' : files.has('ppt/presentation.xml') ? 'PowerPoint (OOXML)' : 'Word (OOXML)', rows, flags, extra, extraMd };
+  }
+  if (files.has('meta.xml')) {
+    const meta = await T('meta.xml');
+    const stat = (meta.match(/<meta:document-statistic([^>]*)\/?>/) || [])[1] || '';
+    rows.push(['Название', tag(meta, 'dc:title')], ['Тема', tag(meta, 'dc:subject')], ['Первый автор', tag(meta, 'meta:initial-creator')], ['Последний автор', tag(meta, 'dc:creator')], ['Создано', dt(tag(meta, 'meta:creation-date'))], ['Изменено', dt(tag(meta, 'dc:date'))], ['Программа', tag(meta, 'meta:generator')],
+      ['Ключевые слова', [...meta.matchAll(/<meta:keyword>([\s\S]*?)<\/meta:keyword>/g)].map(m => plain(m[1])).join(', ')], ['Циклов редактирования', tag(meta, 'meta:editing-cycles')], ['Длительность правок', tag(meta, 'meta:editing-duration')],
+      ['Статистика', stat.replace(/meta:/g, '').replace(/"/g, '').trim().slice(0, 120)]);
+    const ud = [...meta.matchAll(/<meta:user-defined[^>]*meta:name="([^"]*)"[^>]*>([\s\S]*?)<\/meta:user-defined>/g)].map(m => `${plain(m[1])}=${plain(m[2])}`);
+    if (ud.length) rows.push(['Свои свойства', ud.join('; ')]);
+    return { kind: 'OpenDocument', rows, flags, extra, extraMd };
+  }
+  throw new Error('это ZIP-архив, но не документ Office или OpenDocument');
+};
+
+/* ─────────── интерфейс ─────────── */
+const run = async f => {
+  const out = $('#doc-out');
+  out.className = ''; out.innerHTML = `<div class="row"><span class="spinner"></span><span class="muted">Разбор «${esc(f.name)}»…</span></div>`;
+  try {
+    if (f.size > 250 * 1024 * 1024) throw new Error('файл больше 250 МБ');
+    const buf = await GE.readAs(f), head = new Uint8Array(buf, 0, Math.min(8, buf.byteLength));
+    const isPdf = head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46, isZip = head[0] === 0x50 && head[1] === 0x4B;
+    const ext = (f.name.split('.').pop() || '').toLowerCase(), sha = await GE.sha(buf, 'SHA-256');
+    let res;
+    if (isPdf) res = await parsePdf(buf); else if (isZip) res = await parseOffice(buf, ext); else throw new Error('формат не распознан: поддерживаются PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP');
+    const flags = res.flags.slice();
+    if ((isPdf && ext !== 'pdf') || (isZip && ext === 'pdf')) flags.unshift(['warn', 'Расширение не совпадает с содержимым', `Файл «${f.name}» по сути — ${res.kind}.`]);
+    const file = [['Имя', f.name], ['Тип по содержимому', res.kind], ['Размер', GE.bytes(f.size)], ['SHA-256', sha], ['Изменён (ФС)', f.lastModified ? dt(f.lastModified) : '']];
+    const md = `## Метаданные документа: ${f.name}\n${kvMd(file)}\n\n### Метаданные\n${kvMd(res.rows)}${res.extraMd || ''}\n\n### Выводы\n${flags.map(x => `- ${x[1]}: ${x[2]}`).join('\n') || '- Замечаний нет'}`;
+    out.innerHTML = `${flags.map(([c, t, d]) => flag(c, t, d)).join('')}
+      <div class="out-group"><h5>Файл</h5>${kvHtml(file)}</div>
+      <div class="out-group"><h5>Метаданные</h5>${kvList(res.rows).length ? kvHtml(res.rows) : '<div class="muted">Метаданных не найдено.</div>'}${res.extra || ''}</div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-sm btn-primary" id="doc-save">${GE.icon('plus')}Сохранить как источник</button><button class="btn btn-sm" id="doc-copy">${GE.icon('copy')}Копировать (Markdown)</button></div>`;
+    $('#doc-copy').onclick = () => GE.copy(md);
+    $('#doc-save').onclick = () => GE.editRecord('source', null, { title: f.name.replace(/\.[^.]+$/, ''), source_type: 'Документ', file_hash: sha, retrieved: GE.today(), notes: md, tags: ['документ', 'метаданные'] });
+    GE.log('DOC', `Метаданные документа: ${f.name}`); GE.save();
+  } catch (err) {
+    out.innerHTML = flag('warn', 'Не удалось разобрать файл', err.message || 'неизвестная ошибка');
+  }
+};
+const drop = $('#doc-drop'), file = $('#doc-file');
+if (drop && file) {
+  file.addEventListener('change', () => { if (file.files[0]) run(file.files[0]); file.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) run(f); });
+}
+GE.docmeta = { run, zipIndex, parsePdf, parseOffice };
+})();
+
+</script>
 <script>
 /* embedded: js/media.js */
 /* ═══════════════════════════════════════════════════════════════
@@ -10625,6 +10886,7 @@ function parseTiff(v, start) {
 const APP_NAMES = { 0xE0: 'APP0 JFIF', 0xE1: 'APP1', 0xE2: 'APP2', 0xE3: 'APP3', 0xE4: 'APP4', 0xE5: 'APP5', 0xE6: 'APP6', 0xE7: 'APP7', 0xE8: 'APP8', 0xE9: 'APP9', 0xEA: 'APP10', 0xEB: 'APP11', 0xEC: 'APP12', 0xED: 'APP13 Photoshop', 0xEE: 'APP14 Adobe', 0xEF: 'APP15' };
 const IPTC_SETS = { 5: 'Название', 25: 'Ключевые слова', 55: 'Дата создания', 60: 'Время создания', 80: 'Автор (By-line)', 85: 'Должность автора', 90: 'Город', 92: 'Место', 95: 'Регион', 101: 'Страна', 105: 'Заголовок', 110: 'Кредит', 115: 'Источник', 116: 'Авторские права', 120: 'Описание', 122: 'Автор описания' };
 const STD_LUM_SUM = 3688;
+const latin1 = b => { let s = ''; for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode.apply(null, b.subarray(i, i + 32768)); return s; };
 const ascii = (b, a, n) => { let s = ''; for (let i = 0; i < n && a + i < b.length; i++) s += String.fromCharCode(b[a + i]); return s; };
 function parseIptc(bytes, a, b, res) {
   const iptc = res.iptc = res.iptc || {};
@@ -10715,7 +10977,7 @@ GE.exif = buffer => {
     res.pngText = texts;
   } else if (bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) res.format = 'WEBP';
   // XMP и C2PA — поиск по сырому тексту (первые 1.5 МБ)
-  const head = new TextDecoder('latin1').decode(bytes.subarray(0, Math.min(bytes.length, 1572864)));
+  const head = latin1(bytes.subarray(0, Math.min(bytes.length, 1572864)));
   const x0 = head.indexOf('<x:xmpmeta'), x1 = head.indexOf('</x:xmpmeta>');
   if (x0 >= 0 && x1 > x0) {
     let xmp = head.slice(x0, x1);
