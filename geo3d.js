@@ -95,29 +95,32 @@ function loadCesium() {
 
   const sources = [
     {
-      name: 'cdnjs',
+      name: 'Cesium official',
       version: '1.146',
-      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.146.0/'
+      base: 'https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/',
+      css: 'Widgets/widgets.css',
+      scripts: ['Cesium.js']
+    },
+    {
+      name: 'cdnjs',
+      version: '1.147',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.147.0/',
+      css: 'Widgets/widgets.css',
+      scripts: ['Cesium.js', 'Cesium.min.js']
     },
     {
       name: 'jsDelivr',
       version: '1.146',
-      base: 'https://cdn.jsdelivr.net/npm/cesium@1.146.0/Build/Cesium/'
-    },
-    {
-      name: 'Cesium official',
-      version: '1.146',
-      base: CESIUM_BASE
+      base: 'https://cdn.jsdelivr.net/npm/cesium@1.146.0/Build/Cesium/',
+      css: 'Widgets/widgets.min.css',
+      scripts: ['Cesium.min.js', 'Cesium.js']
     },
     {
       name: 'unpkg',
       version: '1.146',
-      base: 'https://unpkg.com/cesium@1.146.0/Build/Cesium/'
-    },
-    {
-      name: 'cdnjs fallback',
-      version: '1.147',
-      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.147.0/'
+      base: 'https://unpkg.com/cesium@1.146.0/Build/Cesium/',
+      css: 'Widgets/widgets.css',
+      scripts: ['Cesium.js', 'Cesium.min.js']
     }
   ];
 
@@ -158,14 +161,13 @@ function loadCesium() {
         const css = document.createElement('link');
         css.id = 'ge3d-cesium-css';
         css.rel = 'stylesheet';
-        css.href = source.base + 'Widgets/widgets.css';
+        css.href = source.base + source.css;
         await loadAsset(css, 'Тайм-аут загрузки стилей CesiumJS', 'Не загрузились стили CesiumJS');
 
         let loaded = false;
-        const scriptNames = ['Cesium.js', 'Cesium.min.js'];
         let scriptError = null;
 
-        for (const scriptName of scriptNames) {
+        for (const scriptName of source.scripts) {
           removeElement('ge3d-cesium-script');
           try {
             const script = document.createElement('script');
@@ -198,7 +200,7 @@ function loadCesium() {
       }
     }
 
-    throw new Error('Не удалось загрузить CesiumJS. Проверены резервные CDN и версии 1.146/1.147. ' + errors.join(' | '));
+    throw new Error('Не удалось загрузить CesiumJS. Проверены официальный CDN, cdnjs, jsDelivr и unpkg. ' + errors.join(' | '));
   })().catch(error => {
     loadPromise = null;
     throw error;
