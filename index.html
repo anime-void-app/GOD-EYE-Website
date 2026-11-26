@@ -863,6 +863,65 @@ button.chip:hover, a.chip:hover { border-color: rgba(226,35,46,0.6); color: #fff
 @keyframes atmFlick { 0%, 100% { opacity: 1; } 10% { opacity: 0.5; } 26% { opacity: 0.92; } 40% { opacity: 0.42; } 62% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { #atm-rain, #atm-lamp { transition: none; } }
 /* ===ATM-CSS-END=== */
+/* ===AN-CSS-BEGIN=== */
+.an-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.an-col h6 { margin-bottom: 8px; }
+.qa-i.k b { border-color: rgba(205,205,218,0.55); color: #fff; }
+.an-more { font: 400 10.5px/1.3 var(--f-mono); color: var(--dim); padding: 4px 2px; }
+.an-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.an-block { border: 1px solid var(--line-2); background: rgba(255,255,255,0.015); padding: 12px 14px; margin-bottom: 14px; }
+.an-block > b { display: block; font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.18em; color: var(--silver-2); text-transform: uppercase; margin-bottom: 10px; }
+.an-note { font-size: 12.5px; color: var(--silver-2); margin: 0 0 10px; line-height: 1.5; }
+.an-note b { color: #fff; }
+.an-src { display: grid; gap: 7px; padding: 10px 0; border-top: 1px solid var(--line); }
+.an-srcs .an-src:first-child { border-top: 0; padding-top: 2px; }
+.an-url { color: #fff; font-size: 12.5px; overflow-wrap: anywhere; border-bottom: 1px solid rgba(226,35,46,0.45); justify-self: start; }
+.an-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.an-seg { display: inline-flex; }
+.an-seg button { padding: 6px 9px; border: 1px solid var(--line-2); background: rgba(255,255,255,0.02); font: 500 10px/1 var(--f-mono); letter-spacing: 0.08em; color: var(--silver-2); }
+.an-seg button + button { border-left: 0; }
+.an-seg button.on { border-color: rgba(226,35,46,0.7); background: rgba(139,0,0,0.2); color: #fff; }
+.an-seg button.on + button { border-left: 1px solid var(--line-2); }
+.an-st { font: 400 10.5px/1.45 var(--f-mono); color: var(--dim); overflow-wrap: anywhere; }
+.an-st.ok, .an-st a { color: var(--silver); }
+.an-row .btn.busy { opacity: 0.5; pointer-events: none; }
+.an-seal { font-size: 13px; line-height: 1.5; color: var(--silver-2); padding: 8px 10px; border: 1px solid var(--line-2); background: rgba(255,255,255,0.02); }
+.an-seal.ok { color: #fff; border-color: rgba(205,205,218,0.5); }
+.an-seal.warn { color: #ffd0d3; border-color: rgba(226,35,46,0.4); background: rgba(139,0,0,0.1); }
+.an-seal.bad { color: #ff8a90; border-color: var(--crimson-3); background: rgba(139,0,0,0.2); }
+.an-wrap { max-height: 52vh; overflow: auto; border: 1px solid var(--line-2); margin-bottom: 14px; }
+.an-ach { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+.an-ach th { position: sticky; top: 0; z-index: 1; background: #0c0c0f; border-bottom: 1px solid var(--line-2); padding: 8px 6px; font: 500 10px/1.2 var(--f-mono); letter-spacing: 0.1em; color: var(--silver-2); text-align: center; white-space: nowrap; }
+.an-ach td { border-bottom: 1px solid var(--line); padding: 6px; text-align: center; vertical-align: middle; }
+.an-ach .an-et { text-align: left; min-width: 220px; max-width: 360px; }
+.an-ach .an-et b { display: inline-block; margin-right: 8px; font: 600 10px/1 var(--f-mono); letter-spacing: 0.12em; color: #0a0a0c; background: var(--silver); padding: 3px 5px; }
+.an-ach .an-et span { color: var(--silver); overflow-wrap: anywhere; }
+.an-w { background: rgba(0,0,0,0.4); border: 1px solid var(--line-2); color: var(--silver); font: 500 11px/1 var(--f-mono); padding: 5px 4px; }
+.an-cell { width: 36px; height: 30px; border: 1px solid var(--line-2); background: rgba(255,255,255,0.02); color: var(--silver); font: 700 14px/1 var(--f-mono); transition: background 0.12s, border-color 0.12s; }
+.an-cell:hover { border-color: var(--line-3); background: rgba(255,255,255,0.06); }
+.an-cell.s1 { background: rgba(205,205,218,0.16); color: #fff; border-color: rgba(205,205,218,0.5); }
+.an-cell.sm { background: rgba(139,0,0,0.3); color: #ff6b72; border-color: var(--crimson-3); }
+.an-cell.s0 { color: var(--dim); }
+.an-d { font: 500 10.5px/1 var(--f-mono); color: var(--dim); white-space: nowrap; }
+.an-d.on { color: #fff; }
+.an-hyps { display: grid; gap: 4px; margin: 0 0 14px; font-size: 12.5px; color: var(--silver-2); }
+.an-hyps b { color: #fff; margin-right: 6px; }
+.an-rks { display: grid; gap: 6px; margin-bottom: 8px; }
+.an-rk { display: grid; grid-template-columns: 26px 1fr minmax(90px, 150px) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.015); }
+.an-rk.lead { border-color: rgba(205,205,218,0.5); background: rgba(205,205,218,0.06); }
+.an-rk .n { font: 700 12px/1 var(--f-mono); color: var(--silver-2); text-align: center; }
+.an-rk .t b { display: block; color: #fff; font-size: 13px; }
+.an-rk .t small { display: block; color: var(--dim); font-size: 11.5px; margin-top: 2px; overflow-wrap: anywhere; }
+.an-rk .bars { display: grid; gap: 3px; }
+.an-rk .bars i { display: block; height: 5px; min-width: 2px; }
+.an-rk .bars .bad { background: var(--crimson-3); }
+.an-rk .bars .good { background: var(--silver-2); }
+.an-rk em { font: 500 10.5px/1 var(--f-mono); color: var(--silver-2); font-style: normal; white-space: nowrap; }
+.an-keyh { font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; margin: 12px 0 8px; }
+.an-keyi { padding: 6px 10px; border: 1px solid var(--line); font-size: 12.5px; color: var(--silver); margin-bottom: 4px; }
+.an-keyi b { margin-right: 8px; font: 600 10px/1 var(--f-mono); color: #0a0a0c; background: var(--silver); padding: 3px 5px; }
+@media (max-width: 720px) { .an-rk { grid-template-columns: 22px 1fr; } .an-rk .bars, .an-rk em { grid-column: 2; } }
+/* ===AN-CSS-END=== */
 .ap-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
 @media (max-width: 680px) { .audio-lbl { display: none; } }
 .eng a.go { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line-2); color: var(--muted); transition: all 0.2s; }
@@ -7884,6 +7943,7 @@ GE.openRecord = (id, quiet) => {
     </div>
     <div class="dr-b">
       ${cv.top}
+      ${isCase && GE.caseSummaryHtml ? GE.caseSummaryHtml(r) : ''}
       ${r.thumb ? `<img class="dr-thumb" src="${r.thumb}" alt="">` : ''}
       ${r.type === 'geo' && r.lat !== '' && r.lat != null ? `<div class="row" style="margin-bottom:16px"><button class="btn btn-sm" data-act="map">${GE.icon('geo')}Показать на карте</button><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}">Google</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://yandex.ru/maps/?ll=${r.lon},${r.lat}&z=17&pt=${r.lon},${r.lat}">Яндекс</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}">OSM</a></div>` : ''}
       ${GE.candidatePanel ? GE.candidatePanel(r) : ''}
@@ -7893,6 +7953,7 @@ GE.openRecord = (id, quiet) => {
       ${isCase ? cv.mid : text('conclusion', 'Вывод')}
       ${text('notes', 'Заметки')}
       ${urls.length ? `<div class="dr-sec"><h6>Источники и ссылки · ${urls.length}</h6><div class="url-list">${urls.map(u => `<div class="row" style="gap:6px;flex-wrap:nowrap"><a href="${esc(u)}" target="_blank" rel="noopener" class="grow">${esc(u)}</a><a class="btn btn-icon btn-sm btn-ghost" title="Архивная копия" target="_blank" rel="noopener" href="https://web.archive.org/web/*/${esc(u)}">${GE.icon('archive')}</a></div>`).join('')}</div></div>` : ''}
+      ${isCase && GE.caseAnalysisHtml ? GE.caseAnalysisHtml(r) : ''}
       ${hints.length ? `<div class="dr-sec"><h6>Подсказки детектива</h6>${hints.map(h => `<a class="dhint" href="#/search?q=${encodeURIComponent(h.q)}" data-hint><b>${esc(h.t)}</b> — ${esc(h.a)}</a>`).join('')}</div>` : ''}
       ${GE.caseOverlapsHtml ? GE.caseOverlapsHtml(r) : ''}
       <div class="dr-sec"><h6>Связи · ${nb.length}</h6>
@@ -7926,6 +7987,7 @@ GE.openRecord = (id, quiet) => {
   if (act('map')) act('map').onclick = () => { GE.closeDrawer(); location.hash = '#/geolocation'; setTimeout(() => GE.geo && GE.geo.focus(r), 250); };
   if (act('export')) act('export').onclick = () => GE.exportReportDialog(r);
   if (isCase) GE.wireCase(dr, id);
+  if (isCase && GE.wireAnalysis) GE.wireAnalysis(dr, r);
   if (GE.wireCandidate) GE.wireCandidate(dr, r);
   dr.classList.toggle('case', isCase);
   dr.classList.add('on'); $('#scrim').classList.add('on');
@@ -12446,6 +12508,355 @@ GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView(
 GEO.util = { haversine, bearingDeg, icon, OVERPASS_TAGS };
 })();
 
+</script>
+<script id="analysis-module">
+/* embedded: analysis module — аналитика дела: сводка «известно / неизвестно / противоречит», матрица версий (ACH),
+   независимость источников, копии и хеши страниц, подпись досье ключом пользователя (WebCrypto) */
+(function () {
+'use strict';
+const GE = window.GE, esc = GE.esc;
+const $ = (s, r = document) => r.querySelector(s);
+const E = encodeURIComponent;
+const PROXY = 'https://god-eye-proxy.zajcevtihon09.workers.dev';
+
+/* ─────────── утилиты ─────────── */
+const enc = s => new TextEncoder().encode(s);
+const hex = buf => Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+const sha256 = async data => hex(await crypto.subtle.digest('SHA-256', data));
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const h32 = s => { let h = 0x811c9dc5; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, '0'); };
+const norm = s => String(s == null ? '' : s).toLowerCase().replace(/\s+/g, ' ').trim();
+const cut = (s, n) => { s = String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+const pad = n => String(n).padStart(2, '0');
+const fmt = n => (Math.round(n * 10) / 10).toString().replace('.', ',');
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
+const callsign = () => (GE.settings && GE.settings.callsign) || 'ОПЕРАТОР';
+const lines = v => GE.caseLines(v).map(GE.stripBullet);
+const ukey = u => 'u_' + h32(String(u).trim());
+const secure = () => !!(window.crypto && crypto.subtle);
+
+/* строки улик и версий получают устойчивые ключи по тексту: оценки не «съезжают» при перестановке строк */
+const keyed = (list, pre) => { const seen = {}; return list.map((t, i) => { let k = pre + h32(norm(t)); seen[k] = (seen[k] || 0) + 1; if (seen[k] > 1) k += '_' + seen[k]; return { t, k, i }; }); };
+const evGrade = t => norm(t.split(/\s+[—–-]\s+/)[2] || '');
+const evWeight = t => { const g = evGrade(t); if (/не\s+подтвержд|слух|сомнит|недостовер|подделк|фейк/.test(g)) return 0.4; if (/вероят|част|предварит|косвен|неполн/.test(g)) return 0.7; return 1; };
+const hSplit = (t, i) => { const m = t.match(/^(.{1,24}?)\s*[:—–]\s+([\s\S]*)$/); return m ? { lbl: m[1], body: m[2] } : { lbl: 'H' + (i + 1), body: t }; };
+const evRows = r => keyed(lines(r.evidence), 'e_').map(x => Object.assign(x, { w: evWeight(x.t) }));
+const hypRows = r => keyed(lines(r.hypothesis), 'h_').map(x => Object.assign(x, hSplit(x.t, x.i)));
+const cellKey = (e, h) => e + '__' + h;
+
+/* ─────────── матрица версий (ACH) ─────────── */
+/** Лучшей считается версия с наименьшим взвешенным числом противоречий; подтверждения только уточняют порядок */
+function achCalc(r) {
+  const ER = evRows(r).slice(0, 40), HR = hypRows(r).slice(0, 8), A = r.ach && typeof r.ach === 'object' ? r.ach : {}, C = A.c || {}, W = A.w || {};
+  const hs = HR.map(h => ({ h, bad: 0, good: 0, rated: 0 }));
+  let any = false, unrated = 0;
+  const es = ER.map(e => {
+    const w = W[e.k] != null && isFinite(+W[e.k]) ? +W[e.k] : e.w, vals = HR.map(h => C[cellKey(e.k, h.k)]);
+    vals.forEach((v, j) => { if (v === undefined) return; any = true; hs[j].rated++; if (v === -1) hs[j].bad += w; else if (v === 1) hs[j].good += w; });
+    const rated = vals.filter(v => v !== undefined);
+    if (rated.length < HR.length) unrated++;
+    const diag = rated.length >= 2 ? w * (Math.max(...rated) - Math.min(...rated)) / 2 : 0;
+    return { e, w, vals, diag };
+  });
+  const rank = hs.slice().sort((a, b) => a.bad - b.bad || b.good - a.good);
+  const tie = rank.length > 1 && rank[0].bad === rank[1].bad && rank[0].good === rank[1].good;
+  return { ER, HR, es, hs, rank, any, unrated, tie, leader: any && rank[0] && rank[0].rated ? rank[0].h : null, leaderRow: any ? rank[0] : null };
+}
+const SYM = { 1: '✓', '-1': '✗', 0: '~' };
+const cyc = v => (v === undefined ? 1 : v === 1 ? -1 : v === -1 ? 0 : undefined);
+function achMd(r) {
+  const c = achCalc(r);
+  const head = `| Улика | Вес | ${c.HR.map(h => h.lbl).join(' | ')} |\n|---|---|${c.HR.map(() => '---').join('|')}|`;
+  const body = c.es.map((x, i) => `| E-${pad(i + 1)} ${cut(x.e.t, 70).replace(/\|/g, '/')} | ${fmt(x.w)} | ${x.vals.map(v => (v === undefined ? '·' : SYM[v])).join(' | ')} |`).join('\n');
+  const rank = c.rank.map((o, i) => `${i + 1}. **${o.h.lbl}** — противоречий (взвеш.): ${fmt(o.bad)}, подтверждений: ${fmt(o.good)}. ${cut(o.h.body, 120)}`).join('\n');
+  const key = c.es.filter(x => x.diag > 0).sort((a, b) => b.diag - a.diag).slice(0, 3).map(x => `- E-${pad(x.e.i + 1)} ${cut(x.e.t, 90)}`).join('\n');
+  return `${head}\n${body}\n\nПорядок версий (чем меньше противоречий, тем лучше она выдерживает проверку):\n${rank}\n${key ? `\nУлики, которые лучше всего различают версии:\n${key}\n` : ''}\n✓ согласуется · ✗ противоречит · ~ нейтрально · · не оценено. Матрица — порядок проверки, а не доказательство.`;
+}
+let achSaveT = 0;
+function openAch(id) {
+  const r0 = GE.db.get(id);
+  if (!r0) return;
+  const cc = achCalc(r0);
+  if (!cc.ER.length || !cc.HR.length) { GE.toast('Для матрицы нужны улики и версии: заполните оба поля в карточке дела, по одной строке на пункт', { type: 'err', timeout: 6500 }); return; }
+  if (!r0.ach || typeof r0.ach !== 'object') r0.ach = {};
+  if (!r0.ach.c || typeof r0.ach.c !== 'object') r0.ach.c = {};
+  if (!r0.ach.w || typeof r0.ach.w !== 'object') r0.ach.w = {};
+  const A = r0.ach, ER = cc.ER, HR = cc.HR;
+  const save = () => { clearTimeout(achSaveT); achSaveT = setTimeout(() => { A.t = GE.now(); GE.caseSet(id, { ach: A }); achSaveT = 0; }, 350); };
+  const wOpts = w => [[1, '×1,0'], [0.7, '×0,7'], [0.4, '×0,4']].map(([v, l]) => `<option value="${v}" ${Math.abs(v - w) < 0.01 ? 'selected' : ''}>${l}</option>`).join('');
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <p class="an-note">Строки — улики из карточки дела, столбцы — версии. Клик по клетке: ✓ согласуется → ✗ противоречит → ~ нейтрально → пусто. Вес улики берётся из её оценки в строке («подтверждено» ×1, «вероятно» ×0,7, «не подтверждено» ×0,4) и меняется вручную. Лучше выдерживает проверку версия с наименьшим числом противоречий, а не с наибольшим числом подтверждений.</p>
+    <div class="an-wrap"><table class="an-ach"><thead><tr><th class="an-et">Улика</th><th title="Надёжность улики">Вес</th>${HR.map(h => `<th title="${esc(h.t)}"><b>${esc(h.lbl)}</b></th>`).join('')}<th title="Насколько улика различает версии">Различает</th></tr></thead>
+    <tbody>${ER.map((e, i) => `<tr data-e="${e.k}"><td class="an-et"><b>E-${pad(i + 1)}</b><span>${esc(cut(e.t, 110))}</span></td><td><select class="an-w" data-w="${e.k}" aria-label="Вес улики E-${pad(i + 1)}">${wOpts(A.w[e.k] != null && isFinite(+A.w[e.k]) ? +A.w[e.k] : e.w)}</select></td>${HR.map(h => `<td><button type="button" class="an-cell" data-e="${e.k}" data-h="${h.k}"></button></td>`).join('')}<td class="an-d"></td></tr>`).join('')}</tbody></table></div>
+    <div class="an-hyps">${HR.map(h => `<div><b>${esc(h.lbl)}</b> ${esc(cut(h.body, 160))}</div>`).join('')}</div>
+    <div id="an-rank"></div><div id="an-key"></div>`;
+  const paint = () => {
+    const c = achCalc(r0);
+    body.querySelectorAll('.an-cell').forEach(b => {
+      const v = A.c[cellKey(b.dataset.e, b.dataset.h)];
+      b.textContent = v === undefined ? '' : SYM[v]; b.className = 'an-cell' + (v === 1 ? ' s1' : v === -1 ? ' sm' : v === 0 ? ' s0' : '');
+      const e = ER.find(x => x.k === b.dataset.e), h = HR.find(x => x.k === b.dataset.h);
+      b.setAttribute('aria-label', `${e ? 'E-' + pad(e.i + 1) : ''} — ${h ? h.lbl : ''}: ${v === undefined ? 'не оценено' : v === 1 ? 'согласуется' : v === -1 ? 'противоречит' : 'нейтрально'}`);
+    });
+    c.es.forEach(x => { const td = body.querySelector(`tr[data-e="${x.e.k}"] .an-d`); if (td) { td.textContent = x.diag > 0 ? fmt(x.diag) : x.vals.filter(v => v !== undefined).length < 2 ? '' : 'не различает'; td.className = 'an-d' + (x.diag > 0 ? ' on' : ''); } });
+    const mx = Math.max(1, ...c.hs.map(o => Math.max(o.bad, o.good)));
+    $('#an-rank', body).innerHTML = `<div class="an-rks">${c.rank.map((o, i) => `<div class="an-rk ${c.any && i === 0 && !c.tie ? 'lead' : ''}"><span class="n">${i + 1}</span><div class="t"><b>${esc(o.h.lbl)}</b><small>${esc(cut(o.h.body, 110))}</small></div><div class="bars"><i class="bad" style="width:${o.bad / mx * 100}%"></i><i class="good" style="width:${o.good / mx * 100}%"></i></div><em>✗ ${fmt(o.bad)} · ✓ ${fmt(o.good)}</em></div>`).join('')}</div>
+      <p class="an-note">${!c.any ? 'Оцените хотя бы несколько клеток — появится порядок версий.' : c.tie ? 'Лидирующие версии пока не различаются: нужна улика, которая отличает их друг от друга.' : `Лучше всех выдерживает проверку: <b>${esc(c.rank[0].h.lbl)}</b> (противоречий ${fmt(c.rank[0].bad)}). Это порядок проверки, а не доказательство.`}${c.unrated ? ` Улик без полной оценки по версиям: ${c.unrated}.` : ''}</p>`;
+    const key = c.es.filter(x => x.diag > 0).sort((a, b) => b.diag - a.diag).slice(0, 3);
+    $('#an-key', body).innerHTML = key.length ? `<div class="an-keyh">Улики, которые лучше всего различают версии</div>${key.map(x => `<div class="an-keyi"><b>E-${pad(x.e.i + 1)}</b>${esc(cut(x.e.t, 120))}</div>`).join('')}` : '';
+  };
+  body.addEventListener('click', e => {
+    const b = e.target.closest('.an-cell'); if (!b) return;
+    const k = cellKey(b.dataset.e, b.dataset.h), n = cyc(A.c[k]);
+    if (n === undefined) delete A.c[k]; else A.c[k] = n;
+    GE.sfx && GE.sfx('click'); paint(); save();
+  });
+  body.addEventListener('change', e => { const s = e.target.closest('.an-w'); if (!s) return; A.w[s.dataset.w] = +s.value; paint(); save(); });
+  paint();
+  GE.modal({
+    title: 'Матрица версий · ' + (r0.case_no || r0.title), size: 'wide', body,
+    actions: [
+      { label: 'Сбросить', danger: true, left: true, keep: true, fn: () => { A.c = {}; A.w = {}; r0.ach = A; body.querySelectorAll('.an-w').forEach(s => { const e = ER.find(x => x.k === s.dataset.w); if (e) s.value = String(e.w); }); paint(); save(); } },
+      { label: 'Скопировать Markdown', keep: true, fn: () => { GE.copy(achMd(r0)); } },
+      { label: 'В заметки дела', keep: true, fn: () => { GE.caseSet(id, { ach: A, notes: putBlock(GE.db.get(id).notes, 'Матрица версий (ACH)', achMd(r0)) }, 'Матрица версий добавлена в заметки'); GE.toast('Матрица добавлена в заметки дела'); } },
+      { label: 'Закрыть', primary: true }
+    ],
+    onClose: () => { if (achSaveT) { clearTimeout(achSaveT); achSaveT = 0; A.t = GE.now(); GE.caseSet(id, { ach: A }); } if (GE.drawerId === id) GE.caseRefresh(id); }
+  });
+}
+/** Заменяет (или добавляет) раздел «## title» в Markdown-тексте */
+function putBlock(txt, title, body) {
+  const L = String(txt || '').split('\n'), head = '## ' + title, out = [];
+  let i = 0, done = false;
+  while (i < L.length) {
+    if (L[i].trim() === head) { out.push(head, ...String(body).trim().split('\n')); i++; while (i < L.length && !/^## /.test(L[i])) i++; done = true; continue; }
+    out.push(L[i++]);
+  }
+  if (!done) { if (out.length && out[out.length - 1].trim()) out.push(''); out.push(head, ...String(body).trim().split('\n')); }
+  return out.join('\n');
+}
+
+/* ─────────── источники: независимость, копии, хеши ─────────── */
+function caseUrls(r) {
+  const out = [].concat(Array.isArray(r.sources) ? r.sources : []), arc = {};
+  try { GE.db.neighbors(r.id).forEach(n => { const o = n.other; if (o && o.type === 'source' && o.url) { out.push(o.url); if (o.archived_url) arc[GE.safeUrl(o.url)] = GE.safeUrl(o.archived_url); } }); } catch (e) { /* связи недоступны */ }
+  const urls = GE.uniq(out.map(u => GE.safeUrl(u)).filter(Boolean));
+  urls.arc = arc;
+  return urls;
+}
+const domOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return String(u); } };
+function independence(r, urls) {
+  const mk = r.srckind || {}, groups = new Set();
+  let rep = 0, prim = 0;
+  urls.forEach(u => { const k = mk[ukey(u)]; if (k === 'r') { rep++; return; } if (k === 'p') prim++; groups.add(domOf(u)); });
+  return { total: urls.length, independent: groups.size, repost: rep, primary: prim };
+}
+const dayOf = iso => String(iso || '').slice(0, 10);
+async function fetchHash(url) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 30000);
+  try {
+    const r = await fetch(`${PROXY}/?url=${E(url)}`, { signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' });
+    const len = +r.headers.get('content-length') || 0;
+    if (len > 15e6) throw new Error('страница больше 15 МБ');
+    const buf = await r.arrayBuffer();
+    if (buf.byteLength > 15e6) throw new Error('страница больше 15 МБ');
+    return { sha: await sha256(buf), n: buf.byteLength, st: r.status };
+  } catch (e) { throw new Error(e.name === 'AbortError' ? 'таймаут 30 с' : e instanceof TypeError ? 'нет ответа (прокси или сеть)' : e.message); } finally { clearTimeout(t); }
+}
+async function findArchive(url) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch('https://archive.org/wayback/available?url=' + E(url), { signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const s = ((await r.json()).archived_snapshots || {}).closest;
+    if (!s || !s.url) return null;
+    const u = GE.safeUrl(String(s.url).replace(/^http:/, 'https:'));
+    const ts = String(s.timestamp || '').replace(/^(\d{4})(\d\d)(\d\d).*/, '$1-$2-$3');
+    return u ? { url: u, t: ts } : null;
+  } catch (e) { throw new Error(e.name === 'AbortError' ? 'таймаут 15 с' : e instanceof TypeError ? 'нет ответа от web.archive.org' : e.message); } finally { clearTimeout(t); }
+}
+
+/* ─────────── сводка «известно / неизвестно / противоречит» ─────────── */
+function summarize(r) {
+  const K = [], U = [], C = [];
+  const tl = GE.parseTimeline(r.timeline), dated = tl.filter(e => e.d).length, ev = lines(r.evidence), people = GE.parsePeople(r.people);
+  const boxes = GE.parseLeads(r.leads).filter(x => x.box), openLeads = boxes.filter(x => !x.done);
+  const qs = lines(r.questions), cons = lines(r.contradictions), urls = caseUrls(r), ind = independence(r, urls), P = r.proofs || {}, calc = achCalc(r);
+  const conf = ev.filter(t => /подтвержд/.test(evGrade(t)) && !/не\s+подтвержд/.test(evGrade(t))).length;
+  if (r.incident_date || r.place) K.push('Событие: ' + [r.incident_date, r.place].filter(Boolean).join(', '));
+  if (tl.length) K.push(`В хронологии ${tl.length} ${plural(tl.length, 'событие', 'события', 'событий')}${dated ? `, с датой — ${dated}` : ''}`);
+  if (ev.length) K.push(`Улик: ${ev.length}, подтверждено: ${conf}`);
+  if (people.length) { const n = c => people.filter(p => GE.roleTone(p.role) === c).length, parts = [['sus', 'подозреваемых'], ['vic', 'потерпевших'], ['wit', 'свидетелей']].filter(([c]) => n(c)).map(([c, l]) => `${l}: ${n(c)}`); K.push(`Фигурантов: ${people.length}${parts.length ? ' (' + parts.join(', ') + ')' : ''}`); }
+  if (urls.length) K.push(`Источников: ${urls.length}, независимых: ${ind.independent}${ind.repost ? `, перепечаток: ${ind.repost}` : ''}`);
+  if (calc.leader && !calc.tie) K.push(`Лучше всех выдерживает проверку: ${calc.leader.lbl} — ${cut(calc.leader.body, 90)}`);
+  if (boxes.length) K.push(`Зацепок отработано: ${boxes.length - openLeads.length} из ${boxes.length}`);
+  if (!r.incident_date) U.push('Дата события не установлена');
+  if (!r.place) U.push('Место события не указано');
+  const mmo = [['motive', 'мотив'], ['means', 'средства'], ['opportunity', 'возможность']];
+  if (mmo.some(([k]) => r[k]) && mmo.some(([k]) => !r[k])) U.push('Не установлены: ' + mmo.filter(([k]) => !r[k]).map(x => x[1]).join(', '));
+  qs.forEach(q => U.push('Вопрос: ' + cut(q, 120)));
+  openLeads.forEach(x => U.push('Зацепка не отработана: ' + cut(x.text, 110)));
+  if (ev.length && ev.some(t => !evGrade(t))) U.push(`У ${ev.filter(t => !evGrade(t)).length} улик нет оценки надёжности (формат «что — где — оценка»)`);
+  if (!calc.HR.length) U.push('Версии не сформулированы');
+  else if (!calc.any) U.push('Версии не проверены по матрице улик');
+  else { if (calc.tie) U.push('Лидирующие версии не различимы: нужна улика, которая их разделяет'); if (calc.unrated) U.push(`Улик без полной оценки по версиям: ${calc.unrated}`); }
+  if (urls.length && ind.independent < 2) U.push('Подтверждение держится на одном независимом источнике');
+  const noCopy = urls.filter(u => !(P[ukey(u)] && (P[ukey(u)].arc || P[ukey(u)].sha)) && !urls.arc[u]).length;
+  if (noCopy) U.push(`Нет копии или хеша у ${noCopy} ${plural(noCopy, 'источника', 'источников', 'источников')}`);
+  cons.forEach(c => C.push(cut(c, 130)));
+  if (calc.leader && !calc.tie) calc.es.forEach(x => { const j = calc.HR.findIndex(h => h.k === calc.leader.k); if (x.vals[j] === -1) C.push(`Против версии «${calc.leader.lbl}»: E-${pad(x.e.i + 1)} ${cut(x.e.t, 90)}`); });
+  return { K, U, C };
+}
+function summaryMd(r) {
+  const S = summarize(r), sec = (h, a) => `### ${h}\n${a.length ? a.map(x => '- ' + x).join('\n') : '- пусто'}`;
+  return `## Сводка дела\n${sec('Известно', S.K)}\n\n${sec('Неизвестно', S.U)}\n\n${sec('Противоречит', S.C)}\n\nСводка собрана автоматически по полям дела (${GE.fmtDate(GE.now())}).`;
+}
+
+/* ─────────── подпись досье ─────────── */
+const canon = v => Array.isArray(v) ? '[' + v.map(canon).join(',') + ']' : v && typeof v === 'object' ? '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}' : JSON.stringify(v === undefined ? null : v);
+function dossierOf(r) {
+  const f = {};
+  GE.TYPES.case.fields.forEach(x => { const v = r[x.k]; if (v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && !v.length)) f[x.k] = v; });
+  const links = GE.db.neighbors(r.id).map(n => ({ rel: String(n.edge.rel || ''), id: n.other.id, type: n.other.type, out: !!n.out })).sort((a, b) => (a.id + a.rel).localeCompare(b.id + b.rel));
+  return { v: 1, id: r.id, created: r.created, f, ach: r.ach || null, proofs: r.proofs || null, srckind: r.srckind || null, links };
+}
+const KDB = 'godeye_keys', KST = 'keys', KID = 'main';
+const idbOpen = () => new Promise((res, rej) => { const q = indexedDB.open(KDB, 1); q.onupgradeneeded = () => q.result.createObjectStore(KST); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+const idbGet = async k => { const d = await idbOpen(); return new Promise((res, rej) => { const t = d.transaction(KST).objectStore(KST).get(k); t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error); }); };
+const idbPut = async (k, v) => { const d = await idbOpen(); return new Promise((res, rej) => { const t = d.transaction(KST, 'readwrite').objectStore(KST).put(v, k); t.onsuccess = () => res(); t.onerror = () => rej(t.error); }); };
+async function getKey(create) {
+  let rec = await idbGet(KID).catch(() => null);
+  if (rec && rec.priv && rec.pub) return rec;
+  if (!create) return null;
+  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']);
+  const j = await crypto.subtle.exportKey('jwk', kp.publicKey);
+  rec = { priv: kp.privateKey, pub: { kty: j.kty, crv: j.crv, x: j.x, y: j.y }, created: new Date().toISOString() };
+  await idbPut(KID, rec);
+  return rec;
+}
+const kidOf = pub => sha256(enc(canon({ crv: pub.crv, kty: pub.kty, x: pub.x, y: pub.y }))).then(h => h.slice(0, 16));
+async function sealCase(id) {
+  const r = GE.db.get(id), k = await getKey(true), c = canon(dossierOf(r)), hash = await sha256(enc(c));
+  const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, k.priv, enc(hash));
+  const seal = { hash, sig: b64(sig), pub: k.pub, kid: await kidOf(k.pub), t: new Date().toISOString(), by: callsign() };
+  GE.caseSet(id, { seal }, 'Досье подписано');
+  return seal;
+}
+/** Проверка подписи; canonText — канонический текст (из файла подписи) или null, тогда берётся текущее состояние дела */
+async function checkSeal(seal, canonText) {
+  let sigOk = false;
+  try {
+    const pub = await crypto.subtle.importKey('jwk', { kty: seal.pub.kty, crv: seal.pub.crv, x: seal.pub.x, y: seal.pub.y, ext: true }, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+    sigOk = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, pub, unb64(seal.sig), enc(seal.hash));
+  } catch (e) { sigOk = false; }
+  const now = canonText == null ? null : await sha256(enc(canonText));
+  return { sigOk, hashOk: now == null ? null : now === seal.hash };
+}
+async function sealStatus(r) {
+  if (!secure()) return { cls: 'warn', text: 'Подпись недоступна: нужен защищённый контекст (https или localhost).' };
+  if (!r.seal || !r.seal.sig || !r.seal.pub) return { cls: '', text: 'Не подписано. Подпись фиксирует состояние дела: любое последующее изменение будет заметно.' };
+  const cur = await sha256(enc(canon(dossierOf(r)))), v = await checkSeal(r.seal, null);
+  const when = `${dayOf(r.seal.t)} · ${esc(r.seal.by || '')} · ключ ${esc(r.seal.kid || '')}`;
+  if (!v.sigOk) return { cls: 'bad', text: `Подпись не проходит проверку (${when}).` };
+  return cur === r.seal.hash ? { cls: 'ok', text: `Подпись верна, дело не менялось с момента подписи (${when}).` } : { cls: 'warn', text: `Подпись верна, но дело изменено после подписи (${when}). Подпишите заново, если изменения намеренные.` };
+}
+function openSealCheck(obj, id) {
+  const wrap = document.createElement('div');
+  (async () => {
+    let res;
+    try {
+      if (!obj || obj.format !== 'godeye-seal' || !obj.seal || typeof obj.canon !== 'string') throw new Error('Это не файл подписи GOD EYE');
+      const v = await checkSeal(obj.seal, obj.canon), cur = obj.case && GE.db.get(obj.case.id);
+      const same = cur && cur.type === 'case' ? (await sha256(enc(canon(dossierOf(cur))))) === obj.seal.hash : null;
+      const rows = [['Дело', `${(obj.case && obj.case.no) || ''} ${(obj.case && obj.case.title) || ''}`.trim()], ['Подпись', v.sigOk ? 'верна' : 'НЕ ПРОХОДИТ ПРОВЕРКУ'], ['Хеш содержимого в файле', v.hashOk ? 'совпадает с подписанным' : 'НЕ СОВПАДАЕТ: файл изменён'], ['Подписал', obj.seal.by], ['Время подписи', obj.seal.t], ['Отпечаток ключа', obj.seal.kid], ['Совпадает с текущим состоянием дела', same == null ? 'дело не найдено в этой базе' : same ? 'да' : 'нет, дело изменилось']];
+      wrap.innerHTML = `<dl class="kv">${rows.filter(x => x[1]).map(([k, val]) => `<dt>${esc(k)}</dt><dd>${esc(val)}</dd>`).join('')}</dl><p class="an-note">${v.sigOk && v.hashOk ? 'Файл подлинный: его содержимое подписано ключом, отпечаток которого указан выше. Кому принадлежит ключ, узнайте у автора независимо.' : 'Файлу доверять нельзя.'}</p>`;
+    } catch (e) { wrap.innerHTML = `<p class="an-note">${esc(e.message || 'Не удалось прочитать файл')}</p>`; }
+  })();
+  GE.modal({ title: 'Проверка файла подписи', size: 'narrow', body: wrap, actions: [{ label: 'Закрыть', primary: true }] });
+}
+
+/* ─────────── панели карточки дела ─────────── */
+GE.caseSummaryHtml = r => {
+  if (r.type !== 'case') return '';
+  const S = summarize(r);
+  const col = (cls, mark, title, items) => `<div class="an-col"><h6>${title} · ${items.length}</h6><div class="qa">${items.length ? items.slice(0, 6).map(t => `<div class="qa-i ${cls}"><b>${mark}</b><span>${esc(t)}</span></div>`).join('') : '<div class="qa-i"><span class="dim">пусто</span></div>'}${items.length > 6 ? `<div class="an-more">ещё ${items.length - 6}: в Markdown-сводке</div>` : ''}</div></div>`;
+  return `<div class="dr-sec an-sum"><h6>Сводка дела</h6><div class="an-cols">${col('k', '✓', 'Известно', S.K)}${col('q', '?', 'Неизвестно', S.U)}${col('c', '!', 'Противоречит', S.C)}</div>
+    <div class="an-bar"><button class="btn btn-sm" data-an="ach">${calcBadge(r)}</button><button class="btn btn-sm" data-an="sum-copy">Скопировать сводку</button><button class="btn btn-sm" data-an="sum-note">В заметки дела</button></div></div>`;
+};
+const calcBadge = r => { const c = achCalc(r); return 'Матрица версий' + (c.HR.length && c.ER.length ? ` · ${c.ER.length}×${c.HR.length}` : ''); };
+GE.caseAnalysisHtml = r => {
+  if (r.type !== 'case') return '';
+  const urls = caseUrls(r), ind = independence(r, urls), P = r.proofs || {}, K = r.srckind || {};
+  const src = urls.map(u => {
+    const k = ukey(u), p = P[k] || {}, kind = K[k] || '', arc = (p.arc && p.arc.url) || urls.arc[u];
+    const st = `копия: ${arc ? `<a href="${esc(arc)}" target="_blank" rel="noopener noreferrer">есть${p.arc && p.arc.t ? ' · ' + esc(p.arc.t) : ''}</a>` : 'нет'} · хеш: ${p.sha ? `<span class="mono" title="SHA-256 ответа сервера, получено ${esc(dayOf(p.t))}">${esc(p.sha.slice(0, 12))}…</span> · ${esc(dayOf(p.t))}` : 'нет'}`;
+    return `<div class="an-src" data-uk="${k}" data-u="${esc(u)}"><a class="an-url" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${esc(u)}">${esc(cut(u.replace(/^https?:\/\//, ''), 70))}</a>
+      <div class="an-row"><span class="an-seg" role="group" aria-label="Роль источника"><button type="button" data-kind="p" class="${kind === 'p' ? 'on' : ''}" title="Автор или издатель первой публикации">Первоисточник</button><button type="button" data-kind="r" class="${kind === 'r' ? 'on' : ''}" title="Пересказ или копия другого источника: не даёт независимого подтверждения">Перепечатка</button></span>
+      <button type="button" class="btn btn-sm" data-sa="find" title="Найти ближайшую копию в Wayback Machine">Найти копию</button><button type="button" class="btn btn-sm" data-sa="save" title="Открыть сохранение страницы в Wayback Machine (адрес уйдёт в archive.org)">Сохранить в Wayback</button><button type="button" class="btn btn-sm" data-sa="hash" title="Скачать страницу через ваш прокси и записать SHA-256 с датой">Хеш страницы</button></div>
+      <div class="an-st ${arc || p.sha ? 'ok' : ''}">${st}</div></div>`;
+  }).join('');
+  return `<div class="dr-sec an"><h6>Источники и целостность</h6>
+    <div class="an-block"><b>Независимость источников</b>
+      ${urls.length ? `<p class="an-note">Независимых подтверждений: <b>${ind.independent}</b> из ${ind.total} ${plural(ind.total, 'ссылки', 'ссылок', 'ссылок')}${ind.repost ? `, перепечаток: ${ind.repost}` : ''}. Источники с одного сайта считаются одним; перепечатки повторяют первоисточник и уверенности не добавляют. Отметьте роль каждой ссылки.</p><div class="an-srcs">${src}</div>` : '<p class="an-note">К делу не приложено ссылок. Добавьте их в поле «Источники» в карточке дела.</p>'}
+    </div>
+    <div class="an-block"><b>Целостность досье</b><p class="an-note">Подпись ключом вашего браузера фиксирует поля дела, матрицу версий, хеши источников и список связей. Закрытый ключ остаётся в этом браузере и не выгружается.</p>
+      <div class="an-seal" id="an-seal">проверяю подпись…</div>
+      <div class="an-bar"><button class="btn btn-sm" data-an="seal">Подписать досье</button><button class="btn btn-sm" data-an="seal-save">Файл подписи</button><button class="btn btn-sm" data-an="seal-open">Проверить файл подписи…</button><input type="file" id="an-seal-file" accept=".json,application/json" hidden></div>
+    </div></div>`;
+};
+GE.wireAnalysis = (dr, r) => {
+  const id = r.id, on = (sel, fn) => dr.querySelectorAll(sel).forEach(b => b.addEventListener('click', fn));
+  on('[data-an="ach"]', () => openAch(id));
+  on('[data-an="sum-copy"]', () => { GE.copy(summaryMd(GE.db.get(id))); });
+  on('[data-an="sum-note"]', () => { const x = GE.db.get(id); GE.caseSet(id, { notes: putBlock(x.notes, 'Сводка дела', summaryMd(x).replace(/^## Сводка дела\n/, '')) }, 'Сводка добавлена в заметки'); GE.toast('Сводка добавлена в заметки дела'); GE.caseRefresh(id); });
+  dr.querySelectorAll('.an-src').forEach(row => {
+    const u = row.dataset.u, k = row.dataset.uk, rec = () => GE.db.get(id);
+    const busy = (b, on_) => { b.disabled = on_; b.classList.toggle('busy', on_); };
+    row.querySelectorAll('[data-kind]').forEach(b => b.addEventListener('click', () => { const x = rec(), m = Object.assign({}, x.srckind || {}); if (m[k] === b.dataset.kind) delete m[k]; else m[k] = b.dataset.kind; GE.caseSet(id, { srckind: m }); GE.caseRefresh(id); }));
+    row.querySelectorAll('[data-sa]').forEach(b => b.addEventListener('click', async () => {
+      const a = b.dataset.sa;
+      if (a === 'save') { window.open('https://web.archive.org/save/' + u, '_blank', 'noopener,noreferrer'); GE.toast('Откройте вкладку Wayback, дождитесь сохранения и нажмите «Найти копию»', { timeout: 6500 }); return; }
+      if (!GE.settings.live) { GE.toast('Живая разведка выключена в настройках приватности', { type: 'err' }); return; }
+      busy(b, true);
+      try {
+        const x = rec(), P = Object.assign({}, x.proofs || {}), p = Object.assign({}, P[k] || {}, { u });
+        if (a === 'find') { const s = await findArchive(u); if (!s) { GE.toast('В Wayback Machine нет копии этой страницы: нажмите «Сохранить в Wayback»', { timeout: 6000 }); busy(b, false); return; } p.arc = s; GE.toast('Найдена копия от ' + (s.t || 'неизвестной даты')); }
+        if (a === 'hash') { const h = await fetchHash(u); Object.assign(p, h, { t: new Date().toISOString(), by: callsign() }); GE.toast(`SHA-256 записан (${Math.round(h.n / 1024)} КБ, HTTP ${h.st})`); }
+        P[k] = p; GE.caseSet(id, { proofs: P }, a === 'hash' ? 'Хеш страницы записан' : 'Найдена архивная копия'); GE.caseRefresh(id);
+      } catch (e) { GE.toast('Не получилось: ' + e.message, { type: 'err', timeout: 6000 }); busy(b, false); }
+    }));
+  });
+  const seal = $('#an-seal', dr);
+  const paintSeal = async () => { if (!seal) return; try { const s = await sealStatus(GE.db.get(id)); seal.className = 'an-seal ' + s.cls; seal.innerHTML = s.text; } catch (e) { seal.className = 'an-seal warn'; seal.textContent = 'Не удалось проверить подпись: ' + e.message; } };
+  paintSeal();
+  on('[data-an="seal"]', async () => {
+    if (!secure()) { GE.toast('Подпись недоступна: нужен защищённый контекст (https или localhost)', { type: 'err' }); return; }
+    try { const s = await sealCase(id); GE.toast('Досье подписано · ключ ' + s.kid); GE.sfx && GE.sfx('stamp'); GE.caseRefresh(id); } catch (e) { GE.toast('Не удалось подписать: ' + e.message, { type: 'err' }); }
+  });
+  on('[data-an="seal-save"]', () => {
+    const x = GE.db.get(id);
+    if (!x.seal) { GE.toast('Сначала подпишите досье', { type: 'err' }); return; }
+    const c = canon(dossierOf(x));
+    sha256(enc(c)).then(h => {
+      if (h !== x.seal.hash) { GE.toast('Дело изменено после подписи: подпишите заново, чтобы выгрузить актуальный файл', { type: 'err', timeout: 6000 }); return; }
+      const obj = { format: 'godeye-seal', v: 1, case: { id: x.id, no: x.case_no || '', title: x.title }, seal: x.seal, canon: c };
+      GE.download(`GODEYE_SEAL_${(x.case_no || x.id).replace(/[^\w.-]+/g, '_')}_${GE.today()}.json`, JSON.stringify(obj, null, 2), 'application/json');
+    });
+  });
+  const file = $('#an-seal-file', dr);
+  on('[data-an="seal-open"]', () => file && file.click());
+  if (file) file.addEventListener('change', () => {
+    const f = file.files && file.files[0]; file.value = '';
+    if (!f) return;
+    if (f.size > 8e6) { GE.toast('Файл слишком большой для файла подписи', { type: 'err' }); return; }
+    f.text().then(t => { let o = null; try { o = JSON.parse(t); } catch (e) { /* не JSON */ } openSealCheck(o, id); });
+  });
+};
+/* для проверок без интерфейса */
+GE.analysis = { achCalc, summarize, summaryMd, canon, dossierOf, sealCase, checkSeal, sealStatus, independence, caseUrls, putBlock, achMd, fetchHash, findArchive };
+})();
 </script>
 <script id="geo2-module">
 /* embedded: geo2 module — «Гео-центр»: подложки, поиск с подсказками, замеры, контекстное меню, импорт и экспорт, живые слои */
