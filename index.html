@@ -254,6 +254,25 @@ a.pl-th:hover img { filter: none; }
 .pl-bad { color: #ff6b72; font-size: 11.5px; }
 @media (max-width: 760px) { .pl-head { grid-template-columns: 1fr; justify-items: start; } .pl-acts { justify-content: flex-start; } }
 /* ===PLUGINS-CSS-END=== */
+/* ===PHOTO-CSS-BEGIN=== */
+/* Лаборатория фото 2.0 */
+.ph-lab { margin-top: 18px; padding: 14px 16px 16px; border: 1px solid var(--line-2); background: linear-gradient(180deg, rgba(139,0,0,0.09), rgba(0,0,0,0.3) 45%); }
+.ph-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.ph-head b { font: 600 15px/1 var(--f-sc); letter-spacing: 0.14em; text-transform: uppercase; color: #fff; }
+.ph-head small { font: 400 11px/1.4 var(--f-mono); color: var(--dim); }
+.ph-tabs { max-width: 100%; margin-bottom: 14px; overflow-x: auto; }
+.ph-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 18px; align-items: start; }
+.ph-cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.ph-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ph-note { font-size: 12px; line-height: 1.6; color: var(--silver-2); }
+.ph-engines { display: flex; flex-wrap: wrap; gap: 8px; }
+.ph-shadow { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+#ph-arc { width: 100%; max-width: 460px; height: auto; border: 1px solid var(--line); background: rgba(0,0,0,0.3); }
+#ph-out { margin-top: 14px; }
+.ph-crop { position: absolute; z-index: 2; overflow: hidden; cursor: crosshair; touch-action: none; outline: 1px dashed rgba(226,35,46,0.6); background: rgba(0,0,0,0.1); }
+.ph-box { position: absolute; border: 1.5px solid var(--crimson-3); background: rgba(226,35,46,0.16); box-shadow: 0 0 0 9999px rgba(0,0,0,0.45); pointer-events: none; }
+@media (max-width: 900px) { .ph-cols, .ph-cols2 { grid-template-columns: 1fr; } .ph-form { grid-template-columns: 1fr; } }
+/* ===PHOTO-CSS-END=== */
 
 /* ═══════════════════════════ КАРКАС ═══════════════════════════ */
 #app { position: relative; z-index: 1; min-height: 100vh; }
@@ -2262,6 +2281,7 @@ GE.TYPES = {
       { k: 'verdict', l: 'Вывод о происхождении', t: 'select', opts: ['Не установлено', 'Оригинал', 'Найдены более ранние копии', 'Изменено / смонтировано', 'Вне контекста', 'Сгенерировано ИИ'] },
       { k: 'captured', l: 'Дата съёмки (EXIF)', t: 'text' },
       { k: 'camera', l: 'Камера / ПО', t: 'text' },
+      { k: 'serial', l: 'Серийный номер камеры (EXIF)', t: 'text', mono: 1 },
       { k: 'lat', l: 'Широта (EXIF)', t: 'number' },
       { k: 'lon', l: 'Долгота (EXIF)', t: 'number' },
       { k: 'file_hash', l: 'SHA-256 файла', t: 'text', full: 1, mono: 1 },
@@ -10229,7 +10249,7 @@ L.coordReport = (raw, compact) => {
   if (!c) return '<div class="muted">Не удалось распознать координаты.</div>';
   const q = `${c.lat.toFixed(6)},${c.lon.toFixed(6)}`;
   const maps = GE.ENGINES.filter(e => e.t.includes('coords')).slice(0, compact ? 5 : 12);
-  return `<dl class="kv"><dt>Десятичные</dt><dd class="mono">${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</dd><dt>DMS</dt><dd class="mono">${dms(c.lat, 'N', 'S')} ${dms(c.lon, 'E', 'W')}</dd><dt>Градусы, минуты</dt><dd class="mono">${Math.floor(Math.abs(c.lat))}° ${((Math.abs(c.lat) % 1) * 60).toFixed(4)}' ${c.lat < 0 ? 'S' : 'N'}, ${Math.floor(Math.abs(c.lon))}° ${((Math.abs(c.lon) % 1) * 60).toFixed(4)}' ${c.lon < 0 ? 'W' : 'E'}</dd></dl>
+  return `<dl class="kv"><dt>Десятичные</dt><dd class="mono">${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</dd><dt>DMS</dt><dd class="mono">${dms(c.lat, 'N', 'S')} ${dms(c.lon, 'E', 'W')}</dd><dt>Градусы, минуты</dt><dd class="mono">${Math.floor(Math.abs(c.lat))}° ${((Math.abs(c.lat) % 1) * 60).toFixed(4)}' ${c.lat < 0 ? 'S' : 'N'}, ${Math.floor(Math.abs(c.lon))}° ${((Math.abs(c.lon) % 1) * 60).toFixed(4)}' ${c.lon < 0 ? 'W' : 'E'}</dd>${GE.coordFormats ? GE.coordFormats(c.lat, c.lon).map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono"><a href="#" data-cfmt="${esc(v)}" title="Копировать">${esc(v)}</a></dd>`).join('') : ''}</dl>
     <div class="chips" style="margin-top:10px">${maps.map(e => `<a class="chip" target="_blank" rel="noopener" href="${esc(e.u(q))}">${esc(e.n)}</a>`).join('')}</div>
     ${compact ? '' : `<div class="row" style="margin-top:12px"><button class="btn btn-sm btn-primary" data-co-save="${q}">${GE.icon('geo')}Сохранить как локацию</button><a class="btn btn-sm" href="#/search?q=${encodeURIComponent(q)}&t=coords">${GE.icon('search')}Поиск по точке</a></div>`}`;
 };
@@ -10298,6 +10318,9 @@ const TAGS0 = { 0x010E: 'ImageDescription', 0x010F: 'Make', 0x0110: 'Model', 0x0
 const TAGSX = { 0x829A: 'ExposureTime', 0x829D: 'FNumber', 0x8827: 'ISO', 0x9003: 'DateTimeOriginal', 0x9004: 'DateTimeDigitized', 0x9010: 'OffsetTime', 0x9011: 'OffsetTimeOriginal', 0x920A: 'FocalLength', 0xA002: 'PixelXDimension', 0xA003: 'PixelYDimension', 0xA420: 'ImageUniqueID', 0xA430: 'CameraOwnerName', 0xA431: 'BodySerialNumber', 0xA433: 'LensMake', 0xA434: 'LensModel', 0x9286: 'UserComment' };
 const TAGSG = { 0x0001: 'GPSLatitudeRef', 0x0002: 'GPSLatitude', 0x0003: 'GPSLongitudeRef', 0x0004: 'GPSLongitude', 0x0005: 'GPSAltitudeRef', 0x0006: 'GPSAltitude', 0x0007: 'GPSTimeStamp', 0x0011: 'GPSImgDirection', 0x001D: 'GPSDateStamp' };
 const SIZES = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+Object.assign(TAGS0, { 0x011A: 'XResolution', 0x011B: 'YResolution', 0x0128: 'ResolutionUnit', 0x013C: 'HostComputer', 0x9C9B: 'XPTitle', 0x9C9C: 'XPComment', 0x9C9D: 'XPAuthor', 0x9C9E: 'XPKeywords', 0x9C9F: 'XPSubject' });
+Object.assign(TAGSX, { 0x8822: 'ExposureProgram', 0x9000: 'ExifVersion', 0x9204: 'ExposureBiasValue', 0x9206: 'SubjectDistance', 0x9207: 'MeteringMode', 0x9208: 'LightSource', 0x9209: 'Flash', 0x9290: 'SubSecTime', 0x9291: 'SubSecTimeOriginal', 0xA001: 'ColorSpace', 0xA401: 'CustomRendered', 0xA402: 'ExposureMode', 0xA403: 'WhiteBalance', 0xA404: 'DigitalZoomRatio', 0xA405: 'FocalLengthIn35mmFilm', 0xA406: 'SceneCaptureType', 0xA40C: 'SubjectDistanceRange', 0xA432: 'LensSpecification', 0xA435: 'LensSerialNumber' });
+Object.assign(TAGSG, { 0x0008: 'GPSSatellites', 0x0009: 'GPSStatus', 0x000A: 'GPSMeasureMode', 0x000B: 'GPSDOP', 0x000C: 'GPSSpeedRef', 0x000D: 'GPSSpeed', 0x000E: 'GPSTrackRef', 0x000F: 'GPSTrack', 0x0010: 'GPSImgDirectionRef', 0x0012: 'GPSMapDatum', 0x001B: 'GPSProcessingMethod', 0x001C: 'GPSAreaInformation', 0x001F: 'GPSHPositioningError' });
 
 function parseTiff(v, start) {
   const le = v.getUint16(start) === 0x4949;
@@ -10322,6 +10345,13 @@ function parseTiff(v, start) {
     if (type === 7 && count > 8) { const s = String.fromCharCode(...arr.slice(8)).replace(/\0/g, '').trim(); return s || undefined; }
     return arr.length === 1 ? arr[0] : arr;
   };
+  const xp = e => {
+    const total = u32(e + 4), off = total <= 4 ? e + 8 : u32(e + 8);
+    if (start + off + total > len) return '';
+    let s = '';
+    for (let i = 0; i + 1 < total; i += 2) { const c = v.getUint16(start + off + i, true); if (!c) break; s += String.fromCharCode(c); }
+    return s.trim();
+  };
   const ifd = (o, tags) => {
     if (o <= 0 || start + o + 2 > len) return;
     const n = u16(o);
@@ -10329,7 +10359,7 @@ function parseTiff(v, start) {
       const e = o + 2 + i * 12;
       if (start + e + 12 > len) break;
       const name = tags[u16(e)]; if (!name) continue;
-      try { out[name] = val(e, u16(e + 2), u32(e + 4)); } catch (er) { /* битый тег */ }
+      try { out[name] = /^XP/.test(name) ? xp(e) : val(e, u16(e + 2), u32(e + 4)); } catch (er) { /* битый тег */ }
     }
   };
   ifd(u32(4), TAGS0);
@@ -10370,19 +10400,80 @@ function parseTiff(v, start) {
   return out;
 }
 
+const APP_NAMES = { 0xE0: 'APP0 JFIF', 0xE1: 'APP1', 0xE2: 'APP2', 0xE3: 'APP3', 0xE4: 'APP4', 0xE5: 'APP5', 0xE6: 'APP6', 0xE7: 'APP7', 0xE8: 'APP8', 0xE9: 'APP9', 0xEA: 'APP10', 0xEB: 'APP11', 0xEC: 'APP12', 0xED: 'APP13 Photoshop', 0xEE: 'APP14 Adobe', 0xEF: 'APP15' };
+const IPTC_SETS = { 5: 'Название', 25: 'Ключевые слова', 55: 'Дата создания', 60: 'Время создания', 80: 'Автор (By-line)', 85: 'Должность автора', 90: 'Город', 92: 'Место', 95: 'Регион', 101: 'Страна', 105: 'Заголовок', 110: 'Кредит', 115: 'Источник', 116: 'Авторские права', 120: 'Описание', 122: 'Автор описания' };
+const STD_LUM_SUM = 3688;
+const ascii = (b, a, n) => { let s = ''; for (let i = 0; i < n && a + i < b.length; i++) s += String.fromCharCode(b[a + i]); return s; };
+function parseIptc(bytes, a, b, res) {
+  const iptc = res.iptc = res.iptc || {};
+  let p = a;
+  while (p + 5 <= b && bytes[p] === 0x1C) {
+    const rec = bytes[p + 1], ds = bytes[p + 2], n = (bytes[p + 3] << 8) | bytes[p + 4], data = bytes.subarray(p + 5, p + 5 + n);
+    p += 5 + n;
+    if (rec !== 2 || !IPTC_SETS[ds]) continue;
+    let s; try { s = new TextDecoder('utf-8', { fatal: true }).decode(data); } catch (e) { s = new TextDecoder('latin1').decode(data); }
+    s = s.trim(); if (!s) continue;
+    const k = IPTC_SETS[ds];
+    iptc[k] = ds === 25 ? (iptc[k] ? iptc[k] + ', ' + s : s) : s.slice(0, 500);
+  }
+}
+function jpegSegment(v, bytes, off, m, size, jpg, res) {
+  if (m >= 0xE0 && m <= 0xEF) {
+    let label = APP_NAMES[m];
+    const id = ascii(bytes, off + 4, 29);
+    if (m === 0xE1) label += /^Exif/.test(id) ? ' Exif' : /^http:\/\/ns\.adobe\.com\/xap/.test(id) ? ' XMP' : '';
+    if (m === 0xE2) label += /^ICC_PROFILE/.test(id) ? ' ICC' : /^MPF/.test(id) ? ' MPF' : '';
+    jpg.markers.push(`${label} (${GE.bytes(size)})`);
+    if (m === 0xED && /^Photoshop 3\.0/.test(id)) {
+      let p = off + 4 + 14; const end = off + 2 + size;
+      while (p + 12 <= end && ascii(bytes, p, 4) === '8BIM') {
+        const rid = v.getUint16(p + 4); let nl = 1 + bytes[p + 6]; if (nl % 2) nl++;
+        const q = p + 6 + nl, dl = v.getUint32(q);
+        if (rid === 0x0404) parseIptc(bytes, q + 4, Math.min(end, q + 4 + dl), res);
+        p = q + 4 + dl + (dl % 2);
+      }
+    }
+  } else if (m === 0xDB) {
+    let p = off + 4; const end = off + 2 + size;
+    while (p < end) {
+      const pq = bytes[p] >> 4, tq = bytes[p] & 15; p++;
+      const tbl = []; for (let i = 0; i < 64; i++) tbl.push(pq ? v.getUint16(p + i * 2) : bytes[p + i]);
+      p += pq ? 128 : 64; jpg.quant[tq] = tbl;
+    }
+  } else if (m === 0xC0 || m === 0xC1 || m === 0xC2) {
+    const n = bytes[off + 9], comps = [];
+    for (let i = 0; i < n; i++) comps.push({ id: bytes[off + 10 + i * 3], hv: bytes[off + 11 + i * 3], tq: bytes[off + 12 + i * 3] });
+    jpg.sof = { type: m, prec: bytes[off + 4], h: v.getUint16(off + 5), w: v.getUint16(off + 7), comps };
+  }
+}
+function jpegSummary(jpg) {
+  const q0 = jpg.quant[0]; let quality = null;
+  if (q0 && q0.length === 64) {
+    const scale = q0.reduce((a, b) => a + b, 0) / STD_LUM_SUM * 100;
+    quality = Math.max(1, Math.min(100, Math.round(scale <= 100 ? (200 - scale) / 2 : 5000 / scale)));
+  }
+  const s = jpg.sof || {}, y = (s.comps || [])[0];
+  let sub = '';
+  if (s.comps && s.comps.length === 3 && y) { const h = y.hv >> 4, vv = y.hv & 15, c1 = s.comps[1].hv; sub = h === 2 && vv === 2 && c1 === 0x11 ? '4:2:0' : h === 2 && vv === 1 && c1 === 0x11 ? '4:2:2' : h === 1 && vv === 1 && c1 === 0x11 ? '4:4:4' : `${h}×${vv}`; }
+  return { progressive: s.type === 0xC2, subsampling: sub, quality, w: s.w, h: s.h, components: s.comps ? s.comps.length : 0, markers: jpg.markers };
+}
+
 GE.exif = buffer => {
   const v = new DataView(buffer), res = { exif: {}, xmp: {}, flags: [], format: '' };
   const bytes = new Uint8Array(buffer);
   if (v.byteLength > 4 && v.getUint16(0) === 0xFFD8) {
     res.format = 'JPEG';
     let off = 2;
+    const jpg = { markers: [], quant: [] };
     while (off + 4 < v.byteLength) {
       if (v.getUint8(off) !== 0xFF) break;
       const m = v.getUint8(off + 1), size = v.getUint16(off + 2);
       if (m === 0xE1 && v.getUint32(off + 4) === 0x45786966) { try { res.exif = parseTiff(v, off + 10); } catch (e) { /* ignore */ } }
+      try { jpegSegment(v, bytes, off, m, size, jpg, res); } catch (e) { /* битый сегмент */ }
       if (m === 0xDA) break;
       off += 2 + size;
     }
+    res.jpeg = jpegSummary(jpg);
   } else if (bytes[0] === 0x89 && bytes[1] === 0x50) {
     res.format = 'PNG';
     let off = 8; const texts = {};
@@ -10550,6 +10641,7 @@ IMG.analyze = async f => {
     const sw = ex.Software || meta.xmp.CreatorTool || meta.xmp.History || '';
     if (/photoshop|lightroom|gimp|snapseed|picsart|canva|affinity|pixelmator|facetune|midjourney|dall|firefly|stable/i.test(sw)) flags.push(['warn', 'Следы редактора', sw]);
     if (!Object.keys(ex).length) flags.push(['', 'EXIF отсутствует', 'Метаданные удалены — это типично для соцсетей и мессенджеров. Ищите более ранние копии обратным поиском.']);
+    if (ex.BodySerialNumber || ex.CameraOwnerName || ex.LensSerialNumber || ex.XPAuthor) flags.push(['warn', 'Личные идентификаторы в метаданных', [ex.BodySerialNumber && 'серийный номер камеры', ex.CameraOwnerName && 'имя владельца', ex.LensSerialNumber && 'серийный номер объектива', ex.XPAuthor && 'автор (Windows)'].filter(Boolean).join(', ') + '. Перед публикацией своих фото удалите метаданные (вкладка «Приватность» ниже).']);
     if (ex._gps) flags.push(['warn', 'Есть GPS-координаты', `${ex._gps.lat}, ${ex._gps.lon} — проверьте и не публикуйте координаты частных лиц.`]);
     if (ex.DateTimeOriginal && ex.DateTime && ex.DateTimeOriginal !== ex.DateTime) flags.push(['', 'Дата изменения ≠ дата съёмки', `Съёмка ${ex.DateTimeOriginal}, изменение ${ex.DateTime}`]);
     if (meta.thumbUrl) flags.push(['warn', 'Обнаружено встроенное EXIF-превью', `${GE.bytes(meta.thumbBytes)} — откройте вкладку «EXIF-ПРЕВЬЮ» слева: иногда там сохраняется необрезанный оригинал.`]);
@@ -10654,12 +10746,14 @@ IMG.analyze = async f => {
       title: (f.name || 'Изображение').replace(/\.[^.]+$/, ''), file_hash: sha256, dhash: dh,
       captured: ex.DateTimeOriginal || ex.DateTime || meta.xmp.CreateDate || '',
       camera: [ex.Make, ex.Model].filter(Boolean).join(' ') || ex.Software || meta.xmp.CreatorTool || '',
+      serial: ex.BodySerialNumber || '',
       lat: ex._gps ? ex._gps.lat : '', lon: ex._gps ? ex._gps.lon : '',
       verdict: dst && /algorithmic/i.test(dst) ? 'Сгенерировано ИИ' : 'Не установлено',
       thumb: thumb(img), retrieved: GE.today(), tags: ['фото'],
       notes: flags.map(x => `- ${x[1]}: ${x[2]}`).join('\n')
     });
     if ($('#img-geo')) $('#img-geo').onclick = () => GE.editRecord('geo', null, { title: 'Место съёмки: ' + (f.name || 'фото'), lat: ex._gps.lat, lon: ex._gps.lon, accuracy: 'Точная', retrieved: GE.today(), notes: 'Координаты из EXIF файла ' + (f.name || '') });
+    if (GE.photo) GE.photo.enhance(out, IMG.current);
     GE.log('IMG', `Проанализировано: ${f.name || 'изображение'}`); GE.save();
   } catch (err) {
     console.error(err);
@@ -10849,6 +10943,466 @@ GEO.fit = () => {
   else if (pts.length) GEO.map.fitBounds(pts.map(r => [+r.lat, +r.lon]), { padding: [40, 40], maxZoom: 15 });
 };
 GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, +r.lon], 16); } };
+})();
+
+</script>
+<script id="photo-module">
+/* embedded: photo module — лаборатория фото 2.0: хронолокация, обратный поиск, форматы координат, метаданные, связи, приватность */
+(function () {
+'use strict';
+const GE = window.GE, esc = GE.esc, E = encodeURIComponent;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const pad = n => String(n).padStart(2, '0');
+const toast = (m, o) => GE.toast && GE.toast(m, o);
+const RAD = Math.PI / 180;
+const A = () => GE.astro;
+
+/* ─────────── форматы координат: UTM, MGRS, Plus Code, Geohash, Maidenhead ─────────── */
+const utm = (lat, lon) => {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, e2 = f * (2 - f), ep2 = e2 / (1 - e2);
+  let zone = Math.floor((lon + 180) / 6) + 1;
+  if (lat >= 56 && lat < 64 && lon >= 3 && lon < 12) zone = 32;
+  if (lat >= 72 && lat < 84) { if (lon >= 0 && lon < 9) zone = 31; else if (lon >= 9 && lon < 21) zone = 33; else if (lon >= 21 && lon < 33) zone = 35; else if (lon >= 33 && lon < 42) zone = 37; }
+  const l0 = ((zone - 1) * 6 - 180 + 3) * RAD, p = lat * RAD, l = lon * RAD;
+  const N = a / Math.sqrt(1 - e2 * Math.sin(p) ** 2), T = Math.tan(p) ** 2, C = ep2 * Math.cos(p) ** 2, Aa = Math.cos(p) * (l - l0);
+  const M = a * ((1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 ** 3 / 256) * p - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 ** 3 / 1024) * Math.sin(2 * p) + (15 * e2 * e2 / 256 + 45 * e2 ** 3 / 1024) * Math.sin(4 * p) - (35 * e2 ** 3 / 3072) * Math.sin(6 * p));
+  const e = k0 * N * (Aa + (1 - T + C) * Aa ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * Aa ** 5 / 120) + 500000;
+  let n = k0 * (M + N * Math.tan(p) * (Aa * Aa / 2 + (5 - T + 9 * C + 4 * C * C) * Aa ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * Aa ** 6 / 720));
+  if (lat < 0) n += 10000000;
+  const band = 'CDEFGHJKLMNPQRSTUVWX'[Math.max(0, Math.min(19, Math.floor((lat + 80) / 8)))];
+  return { zone, band, e, n };
+};
+const mgrs = (lat, lon) => {
+  if (lat < -80 || lat > 84) return '—';
+  const u = utm(lat, lon), cols = ['ABCDEFGH', 'JKLMNPQR', 'STUVWXYZ'][(u.zone - 1) % 3], rows = 'ABCDEFGHJKLMNPQRSTUV';
+  const ci = Math.floor(u.e / 100000) - 1, ri = (Math.floor(u.n / 100000) + (u.zone % 2 === 0 ? 5 : 0)) % 20;
+  return `${u.zone}${u.band} ${cols[ci] || '?'}${rows[ri]} ${String(Math.floor(u.e % 100000)).padStart(5, '0')} ${String(Math.floor(u.n % 100000)).padStart(5, '0')}`;
+};
+const plusCode = (lat, lon) => {
+  const OLC = '23456789CFGHJMPQRVWX';
+  let la = Math.floor((Math.min(89.9999999, Math.max(-90, lat)) + 90) * 8000), lo = Math.floor((((lon + 180) % 360 + 360) % 360) * 8000), pairs = [];
+  for (let i = 0; i < 5; i++) { pairs.unshift(OLC[la % 20] + OLC[lo % 20]); la = Math.floor(la / 20); lo = Math.floor(lo / 20); }
+  const s = pairs.join('');
+  return s.slice(0, 8) + '+' + s.slice(8);
+};
+const geohash = (lat, lon, prec = 9) => {
+  const B = '0123456789bcdefghjkmnpqrstuvwxyz', la = [-90, 90], lo = [-180, 180];
+  let bit = 0, ch = 0, even = true, out = '';
+  while (out.length < prec) {
+    const r = even ? lo : la, v = even ? lon : lat, mid = (r[0] + r[1]) / 2;
+    if (v >= mid) { ch = ch * 2 + 1; r[0] = mid; } else { ch = ch * 2; r[1] = mid; }
+    even = !even;
+    if (++bit === 5) { out += B[ch]; bit = 0; ch = 0; }
+  }
+  return out;
+};
+const maidenhead = (lat, lon) => { const x = lon + 180, y = lat + 90; return String.fromCharCode(65 + Math.floor(x / 20), 65 + Math.floor(y / 10)) + Math.floor((x % 20) / 2) + Math.floor(y % 10) + String.fromCharCode(97 + Math.floor((x % 2) * 12), 97 + Math.floor((y % 1) * 24)); };
+/** Дополнительные записи координат: [название, значение] */
+GE.coordFormats = (lat, lon) => {
+  const u = utm(lat, lon);
+  return [
+    ['UTM', `${u.zone}${u.band} ${Math.round(u.e)} E ${Math.round(u.n)} N`], ['MGRS', mgrs(lat, lon)], ['Plus Code', plusCode(lat, lon)],
+    ['Geohash', geohash(lat, lon)], ['Maidenhead', maidenhead(lat, lon)], ['geo: URI', `geo:${lat.toFixed(6)},${lon.toFixed(6)}`]
+  ];
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-cfmt]'); if (b) { e.preventDefault(); GE.copy(b.dataset.cfmt); } });
+
+/* ─────────── время и поясы ─────────── */
+const parseExifDate = s => { const m = String(s || '').match(/^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/); return m ? { y: +m[1], mo: +m[2], d: +m[3], h: +m[4], mi: +m[5], s: +m[6] } : null; };
+const parseOffset = s => { const m = String(s || '').trim().match(/^(?:UTC)?([+\-−])(\d{1,2}):?(\d{2})?$/i); return m ? (/[\-−]/.test(m[1]) ? -1 : 1) * (+m[2] * 60 + +(m[3] || 0)) : null; };
+const fmtOff = m => `${m < 0 ? '−' : '+'}${pad(Math.floor(Math.abs(m) / 60))}:${pad(Math.abs(m) % 60)}`;
+const timeFacts = ex => {
+  const loc = parseExifDate(ex.DateTimeOriginal || ex.DateTimeDigitized || ex.DateTime);
+  const offExif = parseOffset(ex.OffsetTimeOriginal || ex.OffsetTime);
+  let gpsUtc = null, offGps = null;
+  const gd = String(ex.GPSDateStamp || '').match(/(\d{4}):(\d{2}):(\d{2})/);
+  if (gd && Array.isArray(ex.GPSTimeStamp)) gpsUtc = new Date(Date.UTC(+gd[1], +gd[2] - 1, +gd[3], Math.floor(ex.GPSTimeStamp[0]), Math.floor(ex.GPSTimeStamp[1]), Math.round(ex.GPSTimeStamp[2] || 0)));
+  if (loc && gpsUtc) { offGps = Math.round((Date.UTC(loc.y, loc.mo - 1, loc.d, loc.h, loc.mi, loc.s) - gpsUtc.getTime()) / 900000) * 15; if (Math.abs(offGps) > 14 * 60) offGps = null; }
+  return { loc, offExif, gpsUtc, offGps };
+};
+const sunEvents = (utc, off, lat, lon) => {
+  const ld = A().local(utc, off).slice(0, 10), out = { rise: null, set: null, polar: null };
+  [-1, 0, 1].forEach(k => {
+    const t = A().times(new Date(utc.getTime() + k * 864e5), lat, lon);
+    if (t.polar) { if (k === 0) out.polar = t.polar; return; }
+    if (A().local(t.rise, off).slice(0, 10) === ld) out.rise = t.rise;
+    if (A().local(t.set, off).slice(0, 10) === ld) out.set = t.set;
+  });
+  return out;
+};
+const brightness = img => {
+  const c = document.createElement('canvas'); c.width = c.height = 48;
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, 48, 48);
+  const d = g.getImageData(0, 0, 48, 48).data, a = [];
+  for (let i = 0; i < d.length; i += 4) a.push(d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+  a.sort((x, y) => x - y);
+  return { mean: a.reduce((s, v) => s + v, 0) / a.length, p10: a[Math.floor(a.length * 0.1)], p90: a[Math.floor(a.length * 0.9)] };
+};
+const lumaGrid = (img, n = 24) => {
+  const c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, n, n);
+  const d = g.getImageData(0, 0, n, n).data, a = [];
+  for (let i = 0; i < d.length; i += 4) a.push(d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+  return a;
+};
+const lumaDiff = (a, b) => a.reduce((s, v, i) => s + Math.abs(v - b[i]), 0) / a.length;
+const phase = a => a > 6 ? 'день' : a > 0 ? 'после восхода / перед закатом' : a > -6 ? 'гражданские сумерки' : a > -12 ? 'навигационные сумерки' : a > -18 ? 'астрономические сумерки' : 'ночь';
+const lightCheck = (sun, br) => {
+  const a = sun.alt, m = Math.round(br.mean);
+  if (a < -12 && br.mean > 110) return ['warn', 'Кадр светлый, а Солнце глубоко под горизонтом', `Расчётная высота Солнца ${a.toFixed(1)}°, средняя яркость кадра ${m}/255. Проверьте дату, время и место; возможны также вспышка, искусственный свет или длинная выдержка.`];
+  if (a > 15 && br.mean < 35) return ['warn', 'Кадр очень тёмный при высоком Солнце', `Расчётная высота Солнца ${a.toFixed(1)}°, средняя яркость кадра ${m}/255. Возможны помещение, тёмная экспозиция или другое время суток.`];
+  if (a > 25 && br.p90 < 60) return ['warn', 'В кадре нет ярких областей при высоком Солнце', `Расчётная высота Солнца ${a.toFixed(1)}°, яркость верхних 10% пикселей ${Math.round(br.p90)}/255. Сверьте время и обстановку.`];
+  return ['', 'Освещение не противоречит рассчитанному времени', `Солнце ${a.toFixed(1)}° (${phase(a)}), средняя яркость кадра ${m}/255. Это подсказка, а не доказательство: свет зависит от погоды и экспозиции.`];
+};
+
+/* ─────────── сводки ─────────── */
+const kv = rows => `<dl class="kv">${rows.filter(r => r[1] !== undefined && r[1] !== null && r[1] !== '').map(([k, v, raw]) => `<dt>${esc(k)}</dt><dd>${raw ? v : esc(v)}</dd>`).join('')}</dl>`;
+const flag = (c, t, d) => `<div class="flag ${c}"><div><b>${esc(t)}.</b> ${esc(d)}</div></div>`;
+const copyBtn = v => `<button class="btn btn-icon btn-sm btn-ghost" data-cfmt="${esc(v)}" title="Копировать">${GE.icon('copy')}</button>`;
+const readLatLon = st => {
+  const la = parseFloat(String(st.lat).replace(',', '.')), lo = parseFloat(String(st.lon).replace(',', '.'));
+  return isFinite(la) && isFinite(lo) && Math.abs(la) <= 90 && Math.abs(lo) <= 180 ? { lat: la, lon: lo } : null;
+};
+const ENUM = {
+  ExposureProgram: ['не задана', 'ручная', 'программа (авто)', 'приоритет диафрагмы', 'приоритет выдержки', 'творческая', 'спортивная', 'портрет', 'пейзаж'],
+  MeteringMode: { 0: 'неизвестно', 1: 'средний', 2: 'центровзвешенный', 3: 'точечный', 4: 'мультизонный', 5: 'матричный', 6: 'частичный' },
+  WhiteBalance: ['автоматический', 'ручной'], ExposureMode: ['авто', 'ручной', 'брекетинг'],
+  SceneCaptureType: ['стандартная', 'пейзаж', 'портрет', 'ночная'], ColorSpace: { 1: 'sRGB', 65535: 'не калиброван' },
+  LightSource: { 0: 'неизвестно', 1: 'дневной свет', 2: 'флуоресцентный', 3: 'лампа накаливания', 4: 'вспышка', 9: 'ясная погода', 10: 'облачная погода', 11: 'тень', 255: 'другой' }
+};
+const enumText = (k, v) => { const t = ENUM[k]; if (v === undefined || v === null) return ''; const r = Array.isArray(t) ? t[v] : t && t[v]; return r ? `${r} (${v})` : String(v); };
+const flashText = v => v === undefined ? '' : (v & 1 ? 'вспышка сработала' : 'вспышка не срабатывала') + (v & 0x18 ? ', авторежим' : '');
+
+/* ─────────── панели ─────────── */
+const PANES = [['chrono', 'Хронолокация'], ['search', 'Обратный поиск'], ['coords', 'Координаты'], ['meta', 'Метаданные+'], ['links', 'Связи в базе'], ['privacy', 'Приватность']];
+const PANE = {}, BIND = {};
+
+/* ── Хронолокация ── */
+PANE.chrono = st => {
+  const ex = st.cur.ex, tf = timeFacts(ex), ll = readLatLon(st);
+  const lonEst = ll ? Math.round(ll.lon / 15) * 60 : 0;
+  if (st.off == null) st.off = tf.offExif != null ? tf.offExif : tf.offGps != null ? tf.offGps : lonEst;
+  if (st.when == null) st.when = tf.loc ? `${tf.loc.y}-${pad(tf.loc.mo)}-${pad(tf.loc.d)}T${pad(tf.loc.h)}:${pad(tf.loc.mi)}` : '';
+  const src = tf.offExif != null ? 'из EXIF (OffsetTime)' : tf.offGps != null ? 'по разнице локального и GPS-времени' : 'оценка по долготе — уточните';
+  return `<div class="ph-cols">
+    <div class="stack" style="gap:12px">
+      <div class="ph-form">
+        <label class="field"><span>Широта</span><input class="input mono" id="ph-lat" value="${esc(st.lat)}" placeholder="48.8584"></label>
+        <label class="field"><span>Долгота</span><input class="input mono" id="ph-lon" value="${esc(st.lon)}" placeholder="2.2945"></label>
+        <label class="field"><span>Местное время съёмки</span><input class="input mono" type="datetime-local" id="ph-when" value="${esc(st.when)}"></label>
+        <label class="field"><span>Смещение от UTC</span><input class="input mono" id="ph-off" value="${fmtOff(st.off)}" placeholder="+03:00"></label>
+      </div>
+      <div class="row"><button class="btn btn-primary" id="ph-calc">Рассчитать</button><button class="btn" id="ph-weather" title="Запрос к Open-Meteo: координаты и дата уйдут во внешний сервис">Погода на момент съёмки</button></div>
+      <div class="dim" style="font-size:11.5px">Смещение: ${esc(src)}. Координаты можно ввести вручную, чтобы проверить гипотезу о месте, даже если в файле нет GPS.</div>
+    </div>
+    <canvas id="ph-arc" width="460" height="140" aria-label="Высота Солнца в течение суток"></canvas>
+  </div>
+  <div id="ph-out"></div>
+  <div class="ph-shadow">
+    <div class="out-group" style="margin:0"><h5>Тень → время суток</h5></div>
+    <div class="ph-form">
+      <label class="field"><span>Высота предмета, м</span><input class="input mono" id="ph-sh-h" placeholder="например 3"></label>
+      <label class="field"><span>Длина его тени, м</span><input class="input mono" id="ph-sh-l" placeholder="например 4.5"></label>
+      <label class="field"><span>Азимут тени (если известен), °</span><input class="input mono" id="ph-sh-az" placeholder="0–360, с севера по часовой"></label>
+      <div class="field"><span>&nbsp;</span><button class="btn" id="ph-sh-go">Найти время</button></div>
+    </div>
+    <div id="ph-sh-out"></div>
+  </div>`;
+};
+BIND.chrono = (body, st) => {
+  const val = id => $(id, body).value.trim();
+  const drawArc = (ll, base, mark) => {
+    const cv = $('#ph-arc', body), g = cv.getContext('2d'), w = cv.width, h = cv.height;
+    g.clearRect(0, 0, w, h);
+    const Y = a => h - 12 - (a + 30) / 120 * (h - 24), X = m => 1 + m / 1440 * (w - 2);
+    g.fillStyle = 'rgba(255,255,255,0.03)'; g.fillRect(0, Y(0), w, Y(-18) - Y(0));
+    g.fillStyle = 'rgba(255,255,255,0.05)'; g.fillRect(0, Y(-18), w, h);
+    g.strokeStyle = 'rgba(205,205,215,0.28)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, Y(0)); g.lineTo(w, Y(0)); g.stroke();
+    g.fillStyle = '#5f5f68'; g.font = '9px monospace';
+    [0, 6, 12, 18, 24].forEach(hh => { g.fillText(String(hh).padStart(2, '0'), Math.min(w - 14, X(hh * 60)), h - 2); });
+    g.fillText('0°', 3, Y(0) - 3);
+    g.strokeStyle = '#cacad2'; g.lineWidth = 1.4; g.beginPath();
+    for (let m = 0; m <= 1440; m += 6) {
+      const s = A().sun(new Date(base + m * 60000), ll.lat, ll.lon), x = X(m), y = Y(s.alt);
+      m ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+    if (mark != null) {
+      const s = A().sun(new Date(base + mark * 60000), ll.lat, ll.lon), x = X(mark);
+      g.strokeStyle = 'rgba(226,35,46,0.7)'; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); g.setLineDash([]);
+      g.fillStyle = '#e2232e'; g.beginPath(); g.arc(x, Y(s.alt), 4, 0, 7); g.fill();
+    }
+  };
+  const calc = () => {
+    st.lat = val('#ph-lat'); st.lon = val('#ph-lon'); st.when = val('#ph-when');
+    const off = parseOffset(val('#ph-off')), out = $('#ph-out', body), ll = readLatLon(st), m = st.when.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (off == null) { out.innerHTML = flag('warn', 'Смещение указано неверно', 'Формат: +03:00 или −05:00.'); return; }
+    st.off = off;
+    if (!ll) { out.innerHTML = flag('', 'Нужны координаты', 'В файле нет GPS. Введите широту и долготу места, которое хотите проверить.'); return; }
+    if (!m) { out.innerHTML = flag('', 'Нужно время', 'Укажите местное время съёмки.'); return; }
+    const base = Date.UTC(+m[1], +m[2] - 1, +m[3]) - off * 60000, mark = +m[4] * 60 + +m[5];
+    const when = new Date(base + mark * 60000);
+    st.utc = when;
+    const sun = A().sun(when, ll.lat, ll.lon), moon = A().moon(when), ev = sunEvents(when, off, ll.lat, ll.lon), tf = timeFacts(st.cur.ex);
+    drawArc(ll, base, mark);
+    const rows = [
+      ['Момент съёмки (UTC)', when.toISOString().replace('T', ' ').slice(0, 16)],
+      ['Солнце', `высота ${sun.alt.toFixed(1)}°, азимут ${sun.az.toFixed(0)}° (${A().compass(sun.az)}) · ${phase(sun.alt)}`],
+      ['Тень падает на', sun.alt > 0 ? `азимут ${((sun.az + 180) % 360).toFixed(0)}° (${A().compass((sun.az + 180) % 360)})` : 'Солнце ниже горизонта'],
+      ['Восход / закат (местное)', ev.polar ? (ev.polar === 'day' ? 'полярный день' : 'полярная ночь') : `${ev.rise ? A().local(ev.rise, off).slice(11) : '—'} / ${ev.set ? A().local(ev.set, off).slice(11) : '—'}`],
+      ['Луна', `${moon.name}, освещена ≈ ${Math.round(moon.illum * 100)}%, возраст ${moon.age.toFixed(1)} сут. (расчёт, ±0,5 сут.)`]
+    ];
+    let html = kv(rows), flags = '';
+    if (st.cur.img) { try { const br = brightness(st.cur.img), lc = lightCheck(sun, br); flags += flag(lc[0], lc[1], lc[2]); } catch (e) { /* холст недоступен */ } }
+    const lonEst = Math.round(ll.lon / 15) * 60;
+    if (tf.offExif != null && tf.offGps != null && Math.abs(tf.offExif - tf.offGps) > 15) flags += flag('warn', 'Смещение EXIF и GPS-время расходятся', `EXIF указывает ${fmtOff(tf.offExif)}, а разница локального и GPS-времени даёт ${fmtOff(tf.offGps)}. Часы камеры могли быть сбиты или метаданные изменены.`);
+    if (Math.abs(off - lonEst) > 150) flags += flag('warn', 'Часовой пояс сильно отличается от долготы места', `Для долготы ${ll.lon.toFixed(2)}° ожидается около ${fmtOff(lonEst)}, указано ${fmtOff(off)}. Это бывает из-за границ поясов и летнего времени, но может указывать на неверное место или время.`);
+    out.innerHTML = flags + html + `<div class="dim" style="font-size:11px;margin-top:8px">Расчёт Солнца без поправки на рефракцию, точность около 0,1–0,3°. Время и место из метаданных могут быть подделаны, поэтому сверяйте их с самим кадром.</div><div id="ph-weather-out"></div>`;
+  };
+  $('#ph-calc', body).onclick = calc;
+  $('#ph-weather', body).onclick = async () => {
+    calc();
+    const ll = readLatLon(st); if (!ll || !st.utc) return;
+    const holder = $('#ph-weather-out', body); if (!holder) return;
+    holder.innerHTML = '<div class="row" style="margin-top:10px"><span class="spinner"></span><span class="muted">Запрос к Open-Meteo…</span></div>';
+    try {
+      const old = Date.now() - st.utc.getTime() > 7 * 864e5, day = st.utc.toISOString().slice(0, 10);
+      const url = `${old ? 'https://archive-api.open-meteo.com/v1/archive' : 'https://api.open-meteo.com/v1/forecast'}?latitude=${ll.lat}&longitude=${ll.lon}&hourly=temperature_2m,cloud_cover,precipitation,wind_speed_10m,wind_direction_10m,weather_code&timezone=UTC${old ? `&start_date=${day}&end_date=${day}` : '&past_days=7&forecast_days=1'}`;
+      const r = await GE.fetchJSON(url, 15000);
+      const key = new Date(Math.round(st.utc.getTime() / 3600000) * 3600000).toISOString().slice(0, 13) + ':00', i = (r.hourly.time || []).indexOf(key);
+      if (i < 0 || r.hourly.temperature_2m[i] == null) { holder.innerHTML = flag('', 'Нет данных на эту дату', 'Архив Open-Meteo отстаёт примерно на пять суток; для более свежих дат данные приходят из прогноза.'); return; }
+      const h = r.hourly, rows = [['Источник', 'Open-Meteo (реанализ / модель, не наблюдение с места)'], ['Час (UTC)', key.replace('T', ' ')], ['Погода', GE.weatherText ? GE.weatherText(h.weather_code[i]) : h.weather_code[i]], ['Температура', `${h.temperature_2m[i]} °C`], ['Облачность', `${h.cloud_cover[i]}%`], ['Осадки', `${h.precipitation[i]} мм/ч`], ['Ветер', `${h.wind_speed_10m[i]} км/ч, ${A().compass(h.wind_direction_10m[i])}`]];
+      holder.innerHTML = '<div class="pl-sub">Погода на момент съёмки</div>' + kv(rows) + '<div class="dim" style="font-size:11px;margin-top:6px">Сравните с кадром: дождь, снег, ясное небо, сила ветра на деревьях и воде.</div>';
+    } catch (e) { holder.innerHTML = flag('warn', 'Не удалось получить погоду', e.message || 'нет ответа'); }
+  };
+  $('#ph-sh-go', body).onclick = () => {
+    calc();
+    const ll = readLatLon(st), out = $('#ph-sh-out', body), hgt = parseFloat(val('#ph-sh-h').replace(',', '.')), len = parseFloat(val('#ph-sh-l').replace(',', '.')), az = parseFloat(val('#ph-sh-az').replace(',', '.'));
+    const m = st.when.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!ll || !m) { out.innerHTML = flag('', 'Нужны координаты и дата', 'Заполните их выше.'); return; }
+    if (!(hgt > 0) || !(len > 0)) { out.innerHTML = flag('', 'Нужны высота предмета и длина тени', 'Оба значения должны быть больше нуля, в одинаковых единицах.'); return; }
+    const alt = Math.atan2(hgt, len) / RAD, ld = `${m[1]}-${m[2]}-${m[3]}`, dayUtc = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    const found = [];
+    [-1, 0, 1].forEach(k => A().whenAlt(new Date(dayUtc + k * 864e5), ll.lat, ll.lon, alt).forEach(x => { if (A().local(x.t, st.off).slice(0, 10) === ld && !found.some(f => Math.abs(f.t - x.t) < 60000)) found.push(x); }));
+    found.sort((a, b) => a.t - b.t);
+    if (!found.length) { out.innerHTML = flag('', 'Такой высоты Солнца в этот день не было', `Нужна высота ${alt.toFixed(1)}°. В этой точке и в эту дату Солнце так высоко не поднимается или не опускается так низко.`); return; }
+    out.innerHTML = `<div class="dim" style="font-size:11.5px;margin:4px 0 8px">Высота Солнца по тени: ${alt.toFixed(1)}°. Подходящие моменты в этот день:</div>` + `<table class="pl-tbl"><thead><tr><th>Местное время</th><th>Солнце</th><th>Азимут Солнца</th><th>Тень падает на</th>${isFinite(az) ? '<th>Совпадение</th>' : ''}</tr></thead><tbody>${found.map(x => {
+      const s = A().sun(x.t, ll.lat, ll.lon), sa = (s.az + 180) % 360, d = isFinite(az) ? Math.abs(((az - sa + 540) % 360) - 180) : null;
+      return `<tr><td>${esc(A().local(x.t, st.off).slice(11))}</td><td>${x.rising ? 'поднимается' : 'опускается'}</td><td>${s.az.toFixed(0)}° (${A().compass(s.az)})</td><td>${sa.toFixed(0)}° (${A().compass(sa)})</td>${d !== null ? `<td class="${d < 12 ? '' : 'diff'}">${d < 12 ? 'совпадает' : 'расходится на ' + d.toFixed(0) + '°'}</td>` : ''}</tr>`;
+    }).join('')}</tbody></table><div class="dim" style="font-size:11px;margin-top:6px">Измеряйте тень и предмет на ровной поверхности, в одной перспективе. Ошибка в 5% по длине тени сдвигает время на десятки минут.</div>`;
+  };
+  if (readLatLon(st) && st.when) calc(); else {
+    const ll = readLatLon(st), n = new Date();
+    if (ll) drawArc(ll, Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()) - st.off * 60000, null);
+    else $('#ph-out', body).innerHTML = flag('', 'Нужны координаты', 'В файле нет GPS. Введите широту и долготу места, которое хотите проверить, и нажмите «Рассчитать».');
+  }
+};
+
+/* ── Обратный поиск ── */
+const REV = [['Google Lens', 'https://lens.google.com/'], ['Яндекс Картинки', 'https://yandex.com/images/'], ['Bing Visual Search', 'https://www.bing.com/visualsearch'], ['TinEye', 'https://tineye.com/']];
+const cropBlob = (cur, sel, max = 2000) => new Promise((res, rej) => {
+  const im = cur.img, sx = sel ? sel.x : 0, sy = sel ? sel.y : 0, sw = sel ? sel.w : im.naturalWidth, sh = sel ? sel.h : im.naturalHeight, k = Math.min(1, max / Math.max(sw, sh));
+  const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(sw * k)); c.height = Math.max(1, Math.round(sh * k));
+  c.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  c.toBlob(b => b ? res(b) : rej(new Error('не удалось подготовить изображение')), 'image/png');
+});
+const copyImage = async (cur, sel) => {
+  const blob = await cropBlob(cur, sel);
+  if (navigator.clipboard && window.ClipboardItem) {
+    try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); toast(sel ? 'Выделенная область в буфере: нажмите Ctrl+V на странице поиска' : 'Фото в буфере: нажмите Ctrl+V на странице поиска', { type: 'ok', timeout: 5000 }); return true; } catch (e) { /* нет прав или не HTTPS */ }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (sel ? 'область' : 'фото') + '.png'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Буфер недоступен: файл сохранён, загрузите его на странице поиска', { timeout: 5000 });
+  return false;
+};
+const enableCrop = (st, onChange) => {
+  const stage = $('#img-stage'), im = stage && $('img', stage);
+  if (!im || !im.naturalWidth) { toast('Откройте режим «Оригинал»', { type: 'err' }); return false; }
+  $$('.ph-crop', stage).forEach(n => n.remove());
+  const ov = document.createElement('div'), box = document.createElement('div'); ov.className = 'ph-crop'; box.className = 'ph-box hidden'; ov.appendChild(box); stage.appendChild(ov);
+  Object.assign(ov.style, { left: im.offsetLeft + 'px', top: im.offsetTop + 'px', width: im.offsetWidth + 'px', height: im.offsetHeight + 'px' });
+  let a = null;
+  const rel = e => { const r = ov.getBoundingClientRect(); return [Math.max(0, Math.min(r.width, e.clientX - r.left)), Math.max(0, Math.min(r.height, e.clientY - r.top)), r.width, r.height]; };
+  ov.addEventListener('pointerdown', e => { ov.setPointerCapture(e.pointerId); const [x, y] = rel(e); a = [x, y]; box.classList.remove('hidden'); });
+  ov.addEventListener('pointermove', e => { if (!a) return; const [x, y] = rel(e), l = Math.min(a[0], x), t = Math.min(a[1], y); Object.assign(box.style, { left: l + 'px', top: t + 'px', width: Math.abs(x - a[0]) + 'px', height: Math.abs(y - a[1]) + 'px' }); });
+  ov.addEventListener('pointerup', e => {
+    if (!a) return; const [x, y, W, H] = rel(e), l = Math.min(a[0], x), t = Math.min(a[1], y), w = Math.abs(x - a[0]), h = Math.abs(y - a[1]); a = null;
+    if (w < 8 || h < 8) { st.sel = null; box.classList.add('hidden'); onChange(); return; }
+    const kx = im.naturalWidth / W, ky = im.naturalHeight / H;
+    st.sel = { x: Math.round(l * kx), y: Math.round(t * ky), w: Math.round(w * kx), h: Math.round(h * ky) };
+    onChange();
+  });
+  stage.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  return true;
+};
+PANE.search = st => `
+  <div class="ph-note">Файл остаётся у вас, пока вы сами не вставите его на странице поисковика: кнопка копирует изображение в буфер обмена и открывает сервис, дальше нажмите Ctrl+V.</div>
+  <div class="row" style="margin:10px 0"><button class="btn" id="ph-crop-on">Выделить область на фото</button><button class="btn btn-ghost" id="ph-crop-off">Сбросить область</button><span class="dim" id="ph-sel-info" style="font-size:12px">Область не выбрана — будет искаться всё изображение.</span></div>
+  <div class="ph-engines">${REV.map(([n, u]) => `<a class="btn btn-primary" data-ph-rev="${esc(u)}" target="_blank" rel="noopener noreferrer" href="${esc(u)}">${esc(n)}</a>`).join('')}<button class="btn" id="ph-copy-only">Только скопировать</button></div>
+  <div class="ph-note" style="margin-top:12px">Совет: ищите не весь кадр, а отдельные детали: вывеску, здание, ландшафт, необычный предмет. Так шанс найти оригинал или место выше, чем при поиске по всей сцене.</div>
+  <div class="flag" style="margin-top:10px"><div><b>Границы.</b> Поиск по лицам частных лиц здесь не поддерживается и не рекомендуется: GOD EYE не предназначен для установления личности людей.</div></div>`;
+BIND.search = (body, st) => {
+  const info = () => { const el = $('#ph-sel-info', body); if (el) el.textContent = st.sel ? `Выделено ${st.sel.w}×${st.sel.h} px — поиск пойдёт по этой области.` : 'Область не выбрана — будет искаться всё изображение.'; };
+  $('#ph-crop-on', body).onclick = () => { if (enableCrop(st, info)) toast('Протяните рамку на фото слева', { timeout: 3000 }); };
+  $('#ph-crop-off', body).onclick = () => { st.sel = null; $$('.ph-crop').forEach(n => n.remove()); info(); };
+  $('#ph-copy-only', body).onclick = () => copyImage(st.cur, st.sel);
+  $$('[data-ph-rev]', body).forEach(a => a.addEventListener('click', () => { copyImage(st.cur, st.sel); }));
+  info();
+};
+
+/* ── Координаты ── */
+PANE.coords = st => {
+  const ll = readLatLon(st);
+  return `<div class="ph-form" style="max-width:520px"><label class="field"><span>Широта</span><input class="input mono" id="ph-c-lat" value="${esc(st.lat)}" placeholder="48.8584"></label><label class="field"><span>Долгота</span><input class="input mono" id="ph-c-lon" value="${esc(st.lon)}" placeholder="2.2945"></label></div>
+  <div id="ph-c-out" style="margin-top:12px">${ll ? coordOut(ll) : '<div class="muted">Введите координаты или откройте фото с GPS.</div>'}</div>`;
+};
+const coordOut = ll => {
+  const q = `${ll.lat.toFixed(6)},${ll.lon.toFixed(6)}`, dm = (v, p, n) => { const s = v < 0 ? n : p, a = Math.abs(v), d = Math.floor(a), mf = (a - d) * 60, m = Math.floor(mf); return `${d}°${pad(m)}'${((mf - m) * 60).toFixed(2).padStart(5, '0')}"${s}`; };
+  const rows = [['Десятичные', `${ll.lat.toFixed(6)}, ${ll.lon.toFixed(6)}`], ['DMS', `${dm(ll.lat, 'N', 'S')} ${dm(ll.lon, 'E', 'W')}`], ...GE.coordFormats(ll.lat, ll.lon)];
+  const maps = GE.ENGINES.filter(e => e.t.includes('coords')).slice(0, 40);
+  return `<dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(v)} ${copyBtn(v)}</dd>`).join('')}</dl>
+    <div class="pl-sub">Карты, спутники, окружение</div>
+    <div class="chips">${maps.map(e => { let u = ''; try { u = GE.safeUrl(e.u(q)); } catch (er) { u = ''; } return u ? `<a class="chip" target="_blank" rel="noopener noreferrer" href="${esc(u)}">${esc(e.n)}</a>` : ''; }).join('')}</div>
+    <div class="row" style="margin-top:12px"><button class="btn btn-sm btn-primary" id="ph-c-save">${GE.icon('geo')}Сохранить как локацию</button><a class="btn btn-sm" href="#/search?q=${E(q)}&t=coords">${GE.icon('search')}Скан точки с плагинами</a></div>`;
+};
+BIND.coords = (body, st) => {
+  const upd = () => {
+    st.lat = $('#ph-c-lat', body).value.trim(); st.lon = $('#ph-c-lon', body).value.trim();
+    const ll = readLatLon(st), out = $('#ph-c-out', body);
+    out.innerHTML = ll ? coordOut(ll) : '<div class="muted">Введите координаты или откройте фото с GPS.</div>';
+    bindSave();
+  };
+  const bindSave = () => { const b = $('#ph-c-save', body); if (b) b.onclick = () => { const ll = readLatLon(st); if (ll) GE.editRecord('geo', null, { title: 'Точка ' + ll.lat.toFixed(5) + ', ' + ll.lon.toFixed(5), lat: ll.lat, lon: ll.lon, retrieved: GE.today(), notes: 'Координаты проверены в лаборатории фото.' }); }; };
+  $('#ph-c-lat', body).addEventListener('input', upd); $('#ph-c-lon', body).addEventListener('input', upd);
+  bindSave();
+};
+
+/* ── Метаданные+ ── */
+const IDENT = [['BodySerialNumber', 'серийный номер камеры'], ['LensSerialNumber', 'серийный номер объектива'], ['CameraOwnerName', 'имя владельца камеры'], ['Artist', 'автор (EXIF)'], ['Copyright', 'авторские права'], ['XPAuthor', 'автор (Windows)'], ['HostComputer', 'устройство / компьютер'], ['ImageUniqueID', 'уникальный ID снимка']];
+PANE.meta = st => {
+  const m = st.cur.meta, ex = st.cur.ex, j = m.jpeg, ip = m.iptc;
+  const q = j && j.quality != null ? `≈ ${j.quality}` : '';
+  const qHint = j && j.quality != null ? (j.quality <= 80 ? 'Невысокое качество типично для файлов, пересжатых соцсетями и мессенджерами; камеры обычно пишут 90+ или собственные таблицы.' : 'Высокое качество: файл, скорее всего, ближе к оригиналу, но оценка точна только для стандартных таблиц.') : '';
+  const jr = j ? [['Формат кодирования', j.progressive ? 'прогрессивный JPEG' : 'базовый JPEG'], ['Цветовая подвыборка', j.subsampling], ['Оценка качества (по таблицам)', q], ['Размер в заголовке', j.w ? `${j.w} × ${j.h} px` : ''], ['Служебные сегменты', (j.markers || []).join(' · ')]] : [];
+  const shoot = [
+    ['Программа экспозиции', enumText('ExposureProgram', ex.ExposureProgram)], ['Замер', enumText('MeteringMode', ex.MeteringMode)], ['Вспышка', flashText(ex.Flash)], ['Баланс белого', enumText('WhiteBalance', ex.WhiteBalance)], ['Режим экспозиции', enumText('ExposureMode', ex.ExposureMode)], ['Тип сцены', enumText('SceneCaptureType', ex.SceneCaptureType)],
+    ['Фокусное (экв. 35 мм)', ex.FocalLengthIn35mmFilm ? ex.FocalLengthIn35mmFilm + ' мм' : ''], ['Цифровой зум', ex.DigitalZoomRatio && ex.DigitalZoomRatio !== 1 ? '×' + (+ex.DigitalZoomRatio).toFixed(2) : ''], ['Источник света', enumText('LightSource', ex.LightSource)], ['Цветовое пространство', enumText('ColorSpace', ex.ColorSpace)],
+    ['Версия EXIF', Array.isArray(ex.ExifVersion) ? String.fromCharCode(...ex.ExifVersion) : ex.ExifVersion], ['Доли секунды', ex.SubSecTimeOriginal || ex.SubSecTime]
+  ];
+  const gps = [
+    ['Скорость', ex.GPSSpeed != null ? `${(+ex.GPSSpeed * ({ K: 1, M: 1.609, N: 1.852 }[ex.GPSSpeedRef] || 1)).toFixed(1)} км/ч` : ''], ['Направление движения', ex.GPSTrack != null ? `${(+ex.GPSTrack).toFixed(0)}° (${A().compass(+ex.GPSTrack)})` : ''], ['Направление камеры', ex.GPSImgDirection != null ? `${(+ex.GPSImgDirection).toFixed(0)}° (${A().compass(+ex.GPSImgDirection)})` : ''],
+    ['Спутников', ex.GPSSatellites], ['Точность (DOP)', ex.GPSDOP != null ? (+ex.GPSDOP).toFixed(1) : ''], ['Погрешность позиции', ex.GPSHPositioningError != null ? (+ex.GPSHPositioningError).toFixed(0) + ' м' : ''], ['Метод определения', ex.GPSProcessingMethod], ['Геодезическая система', ex.GPSMapDatum], ['Область', ex.GPSAreaInformation]
+  ];
+  const ident = IDENT.filter(([k]) => ex[k]).map(([k, t]) => [t, String(ex[k])]);
+  return `<div class="ph-cols2">
+    <div>${jr.length ? `<div class="out-group"><h5>Структура JPEG</h5>${kv(jr)}${qHint ? `<div class="dim" style="font-size:11px;margin-top:6px">${esc(qHint)}</div>` : ''}</div>` : '<div class="muted" style="margin-bottom:12px">Структура доступна для JPEG-файлов.</div>'}
+      ${ip && Object.keys(ip).length ? `<div class="out-group"><h5>IPTC (данные редакции)</h5>${kv(Object.entries(ip))}</div>` : ''}
+      <div class="out-group"><h5>Встроенное превью и кадр</h5><div id="ph-thumb-out" class="muted" style="font-size:12px">${m.thumbUrl ? 'Сравниваю…' : 'Встроенного превью в файле нет.'}</div></div>
+    </div>
+    <div>${shoot.some(r => r[1]) ? `<div class="out-group"><h5>Съёмка подробно</h5>${kv(shoot)}</div>` : ''}
+      ${gps.some(r => r[1]) ? `<div class="out-group"><h5>GPS подробно</h5>${kv(gps)}</div>` : ''}
+      ${ident.length ? `<div class="out-group"><h5>Идентификаторы</h5>${kv(ident)}<div class="dim" style="font-size:11px;margin-top:6px">По серийному номеру можно связать снимки одной камеры. Перед публикацией своих фото удалите метаданные (вкладка «Приватность»).</div></div>` : ''}
+    </div></div>`;
+};
+BIND.meta = async (body, st) => {
+  const m = st.cur.meta, el = $('#ph-thumb-out', body);
+  if (!m.thumbUrl || !el) return;
+  try {
+    const t = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = m.thumbUrl; });
+    const ta = t.naturalWidth / t.naturalHeight, ia = st.cur.img.naturalWidth / st.cur.img.naturalHeight, dist = GE.hamming(GE.dhash(t), st.cur.dh), da = Math.abs(ta - ia) / ia, dl = lumaDiff(lumaGrid(t), lumaGrid(st.cur.img));
+    const bad = dist > 12 || da > 0.06 || dl > 24;
+    el.className = ''; el.innerHTML = flag(bad ? 'warn' : '', bad ? 'Превью не совпадает с кадром' : 'Превью совпадает с кадром', `Расстояние dHash ${dist}/64, разница пропорций ${(da * 100).toFixed(1)}%, разница яркости ${dl.toFixed(0)}/255. ${bad ? 'Файл мог быть обрезан или изменён после съёмки: превью хранит исходный кадр. Откройте вкладку «EXIF-ПРЕВЬЮ» слева.' : 'Следов подмены кадра по превью нет.'}`);
+    if (bad) { const col = $('.img-analysis > div:nth-child(2)'); if (col && !$('#ph-thumb-flag')) col.insertAdjacentHTML('afterbegin', `<div id="ph-thumb-flag">${flag('warn', 'Встроенное превью не совпадает с кадром', 'Возможна обрезка или правка после съёмки (подробности во вкладке «Метаданные+» ниже).')}</div>`); }
+  } catch (e) { el.textContent = 'Не удалось сравнить превью.'; }
+};
+
+/* ── Связи в базе ── */
+const exifMs = s => { const p = parseExifDate(s); return p ? Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, p.s) : null; };
+const kmBetween = (a, b, c, d) => { const r = 6371, f = x => x * RAD, h = Math.sin(f(c - a) / 2) ** 2 + Math.cos(f(a)) * Math.cos(f(c)) * Math.sin(f(d - b) / 2) ** 2; return 2 * r * Math.asin(Math.sqrt(h)); };
+PANE.links = st => {
+  const ex = st.cur.ex, cam = [ex.Make, ex.Model].filter(Boolean).join(' '), serial = ex.BodySerialNumber || '', t0 = exifMs(ex.DateTimeOriginal), ll = ex._gps;
+  const res = [];
+  GE.db.byType('image').forEach(r => {
+    if (r.file_hash && r.file_hash === st.cur.sha256) return;
+    const why = [];
+    if (serial && r.serial && String(r.serial) === String(serial)) why.push('тот же серийный номер камеры');
+    const sameCam = cam && r.camera && String(r.camera).toLowerCase() === cam.toLowerCase(), t1 = exifMs(r.captured);
+    const dtH = t0 && t1 ? Math.abs(t0 - t1) / 3600000 : null, dist = ll && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null ? kmBetween(ll.lat, ll.lon, +r.lat, +r.lon) : null;
+    if (sameCam && dtH !== null && dtH < 24) why.push(`та же модель камеры, разница во времени ${dtH < 1 ? Math.round(dtH * 60) + ' мин' : dtH.toFixed(1) + ' ч'}`);
+    if (sameCam && dist !== null && dist < 1) why.push(`та же модель камеры, расстояние ${Math.round(dist * 1000)} м`);
+    if (dist !== null && dist < 0.2 && dtH !== null && dtH < 3) why.push(`рядом по месту (${Math.round(dist * 1000)} м) и времени`);
+    if (why.length) res.push({ r, why, score: why.length + (why[0].startsWith('тот же серийный') ? 3 : 0) });
+  });
+  res.sort((a, b) => b.score - a.score);
+  const geos = ll ? GE.db.byType('geo').filter(g => g.lat !== '' && g.lon !== '' && g.lat != null && kmBetween(ll.lat, ll.lon, +g.lat, +g.lon) < 0.5).map(g => ({ g, d: kmBetween(ll.lat, ll.lon, +g.lat, +g.lon) })).sort((a, b) => a.d - b.d) : [];
+  const row = (id, title, sub) => `<div class="link-i" data-ph-open="${esc(id)}"><span class="rel">${esc(sub)}</span><span>${esc(title)}</span></div>`;
+  return `${res.length ? `<div class="pl-sub">Возможно связаны с этим снимком (${res.length})</div><div class="link-list">${res.slice(0, 12).map(x => row(x.r.id, x.r.title, 'IMG') + `<div class="dim" style="font-size:11px;margin:-2px 0 4px 8px">${esc(x.why.join(' · '))}</div>`).join('')}</div>` : '<div class="muted">Среди сохранённых изображений нет снимков той же камеры, времени или места. Серийный номер, камера, время и GPS берутся из ваших сохранённых записей.</div>'}
+    ${geos.length ? `<div class="pl-sub" style="margin-top:14px">Локации из базы рядом (до 500 м)</div><div class="link-list">${geos.slice(0, 8).map(x => row(x.g.id, x.g.title, Math.round(x.d * 1000) + ' м')).join('')}</div>` : ''}
+    <div class="dim" style="font-size:11px;margin-top:10px">Чтобы связи работали, сохраняйте проанализированные фото в базу: серийный номер камеры тоже запоминается.</div>`;
+};
+
+/* ── Приватность ── */
+PANE.privacy = st => {
+  const ex = st.cur.ex, m = st.cur.meta, found = [];
+  if (ex._gps) found.push(['GPS-координаты', `${ex._gps.lat}, ${ex._gps.lon}`]);
+  IDENT.forEach(([k, t]) => { if (ex[k]) found.push([t, String(ex[k])]); });
+  if (ex.DateTimeOriginal) found.push(['Точное время съёмки', ex.DateTimeOriginal]);
+  if (ex.Make || ex.Model) found.push(['Модель устройства', [ex.Make, ex.Model].filter(Boolean).join(' ')]);
+  if (ex.Software) found.push(['Программа', ex.Software]);
+  if (m.iptc && Object.keys(m.iptc).length) found.push(['IPTC-поля', Object.keys(m.iptc).join(', ')]);
+  if (m.thumbUrl) found.push(['Встроенное превью', 'может сохранять исходный кадр до обрезки']);
+  if (m.eof) found.push(['Данные после конца файла', GE.bytes(m.eof.bytes)]);
+  const n = st.redact.length;
+  return `<div class="ph-cols2"><div>
+      <div class="pl-sub" style="margin-top:0">Что файл рассказывает о вас</div>
+      ${found.length ? kv(found) : '<div class="muted">Заметных метаданных не найдено.</div>'}
+    </div><div>
+      <div class="pl-sub" style="margin-top:0">Безопасная публикация</div>
+      <div class="dim" style="font-size:12px;line-height:1.6">Копия пересоздаётся из пикселей: EXIF, GPS, XMP, IPTC и превью не переносятся. Закрасьте лица посторонних людей и номера машин перед публикацией.</div>
+      <div class="row" style="margin:12px 0"><button class="btn" id="ph-red-add" title="Рамка поверх выбранной области на фото: используйте вкладку «Обратный поиск» → «Выделить область»">Закрасить выделенное</button><button class="btn btn-ghost" id="ph-red-clear">Сбросить закраску</button><span class="dim" id="ph-red-info" style="font-size:12px">Закрашено областей: ${n}</span></div>
+      <div class="row"><select class="select" id="ph-out-fmt" style="width:auto"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option></select><button class="btn btn-primary" id="ph-clean">Скачать копию без метаданных</button></div>
+    </div></div>`;
+};
+BIND.privacy = (body, st) => {
+  const info = () => { const el = $('#ph-red-info', body); if (el) el.textContent = `Закрашено областей: ${st.redact.length}`; };
+  $('#ph-red-add', body).onclick = () => { if (!st.sel) return toast('Сначала выделите область: вкладка «Обратный поиск» → «Выделить область на фото»', { type: 'err', timeout: 4500 }); st.redact.push({ ...st.sel }); st.sel = null; $$('.ph-crop').forEach(n => n.remove()); info(); toast('Область будет закрашена в чистой копии'); };
+  $('#ph-red-clear', body).onclick = () => { st.redact = []; info(); };
+  $('#ph-clean', body).onclick = () => {
+    const im = st.cur.img, c = document.createElement('canvas'), fmt = $('#ph-out-fmt', body).value;
+    c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+    g.fillStyle = '#000'; st.redact.forEach(r => g.fillRect(r.x, r.y, r.w, r.h));
+    c.toBlob(b => {
+      if (!b) return toast('Не удалось подготовить копию', { type: 'err' });
+      const a = document.createElement('a'), base = (st.cur.f.name || 'photo').replace(/\.[^.]+$/, '');
+      a.href = URL.createObjectURL(b); a.download = `${base}-clean.${fmt === 'image/png' ? 'png' : 'jpg'}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast('Копия без метаданных сохранена', { type: 'ok' });
+    }, fmt, 0.92);
+  };
+};
+
+/* ─────────── точка входа ─────────── */
+function enhance(out, cur) {
+  const old = $('#ph-lab'); if (old) old.remove();
+  const ex = cur.ex || {}, gps = ex._gps, host = document.createElement('div');
+  host.id = 'ph-lab'; host.className = 'ph-lab';
+  host.innerHTML = `<div class="ph-head"><b>Лаборатория фото 2.0</b><small>расчёты идут локально; внешние запросы — только по вашей кнопке</small></div>
+    <div class="seg ph-tabs">${PANES.map(([k, t], i) => `<button data-ph-tab="${k}" class="${i === 0 ? 'on' : ''}">${t}</button>`).join('')}</div><div class="ph-body"></div>`;
+  out.appendChild(host);
+  const st = { cur, lat: gps ? gps.lat : '', lon: gps ? gps.lon : '', redact: [], sel: null, off: null, when: null };
+  const body = $('.ph-body', host);
+  const show = k => {
+    $$('[data-ph-tab]', host).forEach(b => b.classList.toggle('on', b.dataset.phTab === k));
+    body.innerHTML = PANE[k](st);
+    try { BIND[k] && BIND[k](body, st); } catch (e) { console.error(e); }
+  };
+  host.addEventListener('click', e => {
+    const b = e.target.closest('[data-ph-tab]'); if (b) return show(b.dataset.phTab);
+    const o = e.target.closest('[data-ph-open]'); if (o && GE.openRecord) GE.openRecord(o.dataset.phOpen);
+  });
+  show(gps || ex.DateTimeOriginal ? 'chrono' : 'search');
+}
+GE.photo = { enhance, utm, mgrs, plusCode, geohash, maidenhead, timeFacts, lightCheck };
 })();
 
 </script>
