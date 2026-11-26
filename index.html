@@ -12501,6 +12501,9 @@ const bearingDeg = (a, b) => {
 };
 const icon = cls => window.L && L.divIcon({ className: '', html: `<div class="ge-marker ${cls || ''}"><i></i></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 GEO.pick = (lat, lon, name) => {
+  lat = Number(lat); lon = Number(lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90) return;
+  lon = wrapLon(lon);
   if (GEO.tmp) GEO.map.removeLayer(GEO.tmp);
   const q = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
   GEO.tmp = L.marker([lat, lon], { icon: icon('tmp') }).addTo(GEO.map);
@@ -12512,7 +12515,7 @@ GEO.pick = (lat, lon, name) => {
   div.querySelector('[data-a=copy]').onclick = () => GE.copy(q);
   GEO.tmp.bindPopup(div).openPopup();
 };
-GEO.points = () => GE.db.all().filter(r => (r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && isFinite(r.lat) && isFinite(r.lon));
+GEO.points = () => GE.db.all().filter(r => (r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && Number.isFinite(Number(r.lat)) && Number(r.lat) >= -90 && Number(r.lat) <= 90 && Number.isFinite(Number(r.lon))).map(r => Object.assign({}, r, { lat: Number(r.lat), lon: wrapLon(r.lon) }));
 GEO.refresh = () => {
   if (!GEO.map || !GEO.layer) return;
   GEO.layer.clearLayers();
@@ -12531,7 +12534,7 @@ GEO.fit = () => {
   if (pts.length === 1) GEO.map.setView([+pts[0].lat, +pts[0].lon], 15);
   else if (pts.length) GEO.map.fitBounds(pts.map(r => [+r.lat, +r.lon]), { padding: [40, 40], maxZoom: 15 });
 };
-GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, +r.lon], 16); } };
+GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, wrapLon(r.lon)], 16); } };
 GEO.util = { haversine, bearingDeg, icon, OVERPASS_TAGS };
 })();
 
@@ -12940,6 +12943,7 @@ const ICON = {
   pause: '<path d="M5.5 3v10M10.5 3v10"/>',
   full: '<path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/>'
 };
+const wrapLon = value => { const n = Number(value); return Number.isFinite(n) ? ((n + 180) % 360 + 360) % 360 - 180 : 0; };
 const ic = n => `<svg class="ic ic-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICON[n] || ''}</svg>`;
 
 /* ─────────── подложки ─────────── */
@@ -12949,9 +12953,9 @@ const MAP_MAX_ZOOM = 22;
 const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
 const ESRI_REF = name => ESRI + 'Reference/' + name + '/MapServer/tile/{z}/{y}/{x}';
 const BASES = {
-  dark: { n: 'Тёмная OSM', d: 'Тёмная схема для ночной работы', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>' }, z: 19 },
+  dark: { n: 'Графит', d: 'Тёмная карта CARTO для ночной работы', u: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }, z: 20 },
   canvas: { n: 'Графит', d: 'Минималистичная тёмная карта Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
-  osm: { n: 'Схема OSM', d: 'Подробные улицы и объекты OpenStreetMap', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>' }, z: 19 },
+  osm: { n: 'Схема CARTO', d: 'Подробная схема улиц и объектов на данных OpenStreetMap', u: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', o: { maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }, z: 20 },
   street: { n: 'Улицы Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
   sat: { n: 'Спутник', d: 'Спутниковые и аэрофотоснимки с названиями мест', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
   hybrid: { n: 'Гибрид', d: 'Спутник + границы, подписи и транспортная сеть', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, labs: [
@@ -12959,7 +12963,7 @@ const BASES = {
     { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.9, attribution: 'Transportation &copy; Esri' } }
   ], z: 19 },
   topo: { n: 'Топография Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS' }, z: 19 },
-  relief: { n: 'Рельеф и горизонтали', d: 'OpenTopoMap: горы, высоты, тропы и горизонтали', u: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', o: { subdomains: 'abc', maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; <a href="https://opentopomap.org" target="_blank" rel="noopener noreferrer">OpenTopoMap</a> · &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · SRTM' }, z: 17 },
+  relief: { n: 'Рельеф и батиметрия', d: 'Глобальная подложка World Terrain Base: затенённый рельеф, суша и океан', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
   physical: { n: 'Физическая', d: 'Физическая карта мира: суша, океаны и формы поверхности', u: ESRI_TILE('World_Physical_Map'), o: { maxNativeZoom: 8, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, z: 8 },
   hill: { n: 'Тени рельефа', d: 'Отдельная глобальная подложка высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
 };
@@ -12976,6 +12980,7 @@ GEO.init = () => {
         <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, место или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
         <div class="gm-btns">
           <button class="gm-b" id="gm-base-btn" title="Подложка карты">${ic('layers')}<span>Карта</span></button>
+          <button class="gm-b" id="gm-3d-btn" title="Открыть интерактивный 3D-глобус">◉<span>3D Глобус</span></button>
           <button class="gm-b" id="gm-live-btn" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
           <button class="gm-b" id="gm-io-btn" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
           <button class="gm-b ico" id="gm-full" title="Развернуть карту на весь экран">${ic('full')}</button>
@@ -13015,7 +13020,7 @@ GEO.ensure = () => {
   if (GEO.map) { setTimeout(() => GEO.map.invalidateSize(), 60); return; }
   const el = $('#geo-map'); if (!el) return;
   if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи с координатами по-прежнему доступны в списке ниже.</div>'; return; }
-  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 65 }).setView([55.75, 37.62], 4);
+  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 65, preferCanvas: true }).setView([55.75, 37.62], 4);
   map.attributionControl.setPrefix('Leaflet');
   map.createPane('base'); map.getPane('base').style.zIndex = 190;
   GEO.layer = L.layerGroup().addTo(map);
@@ -13023,7 +13028,7 @@ GEO.ensure = () => {
   S.live = {};
   setBase((GE.settings.view && GE.settings.view.geoBase) || 'dark');
   bindSearch(map); bindTools(map); bindMenu(map); bindPopups(map); bindFiles(map);
-  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`; });
+  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${wrapLon(e.latlng.lng).toFixed(5)}`; });
   map.on('zoomend moveend', updateZoomHud);
   $('#map-fit').onclick = () => GEO.fit();
   $('#gm-me').onclick = () => locate(map);
@@ -13884,14 +13889,14 @@ const POI_CATS = {
 
 /* Рельеф: глобальная модель затенения высот + слой горизонталей */
 LY.terrain = {
-  n: 'Рельеф и горизонтали',
-  d: 'Esri World Hillshade показывает форму поверхности и перепады высот. Горизонтали OpenTopoMap можно включить поверх любой подложки.',
-  ctl: '<label class="gm-f"><span>Прозрачность рельефа</span><input type="range" min="10" max="100" value="62" data-k="op"></label><label class="gm-chk"><input type="checkbox" data-k="contours"> Горизонтали и тропы OpenTopoMap</label>',
+  n: 'Рельеф и топография',
+  d: 'Esri World Hillshade показывает форму поверхности. Дополнительно можно включить топографическую подложку поверх любой карты.',
+  ctl: '<label class="gm-f"><span>Прозрачность рельефа</span><input type="range" min="10" max="100" value="62" data-k="op"></label><label class="gm-chk"><input type="checkbox" data-k="contours"> Топографическая детализация</label>',
   start() {
     const root = $('[data-ly="terrain"] .gm-ly-b');
     const op = root ? +$('[data-k=op]', root).value / 100 : 0.62;
     this.st = { hill: L.tileLayer(ESRI_TILE('Elevation/World_Hillshade'), { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, opacity: op, attribution: 'World Hillshade &copy; Esri' }).addTo(GEO.map), contours: null };
-    if (root && $('[data-k=contours]', root).checked) this.st.contours = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { subdomains: 'abc', maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: '&copy; OpenTopoMap · &copy; OpenStreetMap contributors · SRTM' }).addTo(GEO.map);
+    if (root && $('[data-k=contours]', root).checked) this.st.contours = L.tileLayer(ESRI_TILE('World_Topo_Map'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: 'Topographic tiles &copy; Esri' }).addTo(GEO.map);
     lyStatus('terrain', 'Esri Hillshade · глобальный слой затенения высот');
     hud('terrain', 'Рельеф: Esri Hillshade');
   },
@@ -13904,7 +13909,7 @@ LY.terrain = {
     $('[data-k=op]', root).oninput = e => { if (this.st) this.st.hill.setOpacity(+e.target.value / 100); };
     $('[data-k=contours]', root).onchange = e => {
       const st = this.st; if (!st) return;
-      if (e.target.checked && !st.contours) st.contours = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { subdomains: 'abc', maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: '&copy; OpenTopoMap · &copy; OpenStreetMap contributors · SRTM' }).addTo(GEO.map);
+      if (e.target.checked && !st.contours) st.contours = L.tileLayer(ESRI_TILE('World_Topo_Map'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: 'Topographic tiles &copy; Esri' }).addTo(GEO.map);
       else if (!e.target.checked && st.contours) { GEO.map.removeLayer(st.contours); st.contours = null; }
     };
   }
@@ -17877,5 +17882,6 @@ GE.board = { open, close, state: () => S, graph: () => GR, addPhotos, exportPng,
 })();
 
 </script>
+<script src="geo3d.js"></script>
 </body>
 </html>
