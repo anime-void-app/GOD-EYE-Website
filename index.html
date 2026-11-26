@@ -336,8 +336,11 @@ a.pl-th:hover img { filter: none; }
 /* Гео-центр: карта, панели и живые слои */
 .map-wrap.geo2{height:clamp(560px,76vh,900px);border:1px solid rgba(205,205,218,.2);background:#07070a}
 .map-wrap.geo2.b-dark .leaflet-base-pane{filter:grayscale(1) invert(1) contrast(1.12) brightness(.98)}
-.map-wrap.geo2.b-sat .leaflet-base-pane{filter:grayscale(.5) contrast(1.08) brightness(.88)}
-.map-wrap.geo2.b-topo .leaflet-base-pane{filter:grayscale(.55) contrast(1.05) brightness(.86)}
+.map-wrap.geo2.b-sat .leaflet-base-pane{filter:none}
+.map-wrap.geo2.b-topo .leaflet-base-pane{filter:none}
+.map-wrap.geo2.b-relief .leaflet-base-pane{filter:none}
+.map-wrap.geo2.b-hybrid .leaflet-base-pane{filter:none}
+.map-wrap.geo2.b-hill .leaflet-base-pane{filter:contrast(1.06) brightness(.96)}
 .gm-top{position:absolute;z-index:600;top:12px;left:56px;right:12px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
 .gm-top>*{pointer-events:auto}
 .gm-search{position:relative;flex:1 1 auto;max-width:440px}
@@ -366,7 +369,7 @@ a.pl-th:hover img { filter: none; }
 .gm-pop button:hover,.gm-pop button.on{background:var(--crimson-soft);color:#fff}
 .gm-pop hr{border:0;border-top:1px solid var(--line-2);margin:0}
 .gm-sw{width:30px;height:20px;border:1px solid rgba(205,205,218,.3);display:inline-block;flex:none}
-.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm{background:linear-gradient(135deg,#dcd9d1,#b6b3aa)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}
+.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm{background:linear-gradient(135deg,#dcd9d1,#b6b3aa)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-hybrid{background:linear-gradient(135deg,#35442e 0 50%,#c8c1a2 50%)}.sw-street{background:linear-gradient(135deg,#eee9df,#9aa3a8)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}.sw-relief{background:linear-gradient(135deg,#b4c89a,#b38e68)}.sw-physical{background:linear-gradient(135deg,#76a8b8,#d5c7a1)}.sw-hill{background:linear-gradient(135deg,#b8b8b8,#56565b)}
 .gm-panel{position:absolute;z-index:620;top:56px;right:12px;bottom:12px;width:312px;display:flex;flex-direction:column;background:rgba(9,9,12,.95);backdrop-filter:blur(10px);border:1px solid rgba(205,205,218,.22);box-shadow:0 22px 56px rgba(0,0,0,.7);transition:transform .32s var(--ease),opacity .25s}
 .gm-panel.off{transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none}
 .gm-panel-h{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -434,6 +437,24 @@ a.pl-th:hover img { filter: none; }
   .gm-chart{left:12px;right:12px}
   .gm-hud{max-width:calc(100% - 24px);bottom:70px}
 }
+
+.gm-pop button span{flex:1;min-width:0}
+.gm-pop button small{font:500 9px/1 var(--f-mono);letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+.gm-zoom{position:absolute;z-index:560;right:12px;bottom:36px;padding:6px 9px;background:rgba(8,8,11,.92);border:1px solid rgba(205,205,218,.22);backdrop-filter:blur(6px);font:500 10px/1.2 var(--f-mono);letter-spacing:.04em;color:var(--silver-2);pointer-events:none}
+.gm-poi-icon{background:none!important;border:0!important}
+.gm-poi-icon span{display:grid;place-items:center;width:27px;height:27px;border:1.5px solid rgba(255,255,255,.9);border-radius:50%;background:#15151b;color:#fff;box-shadow:0 2px 9px rgba(0,0,0,.72);font:700 11px/1 var(--f-mono)}
+.gm-poi-icon span[data-kind=health]{background:#8b0000}
+.gm-poi-icon span[data-kind=fuel]{background:#8b4c00}
+.gm-poi-icon span[data-kind=transit]{background:#174e73}
+.gm-poi-icon span[data-kind=parking]{background:#45455a}
+.gm-poi-icon span[data-kind=food]{background:#7b4a24}
+.gm-poi-icon span[data-kind=education]{background:#51418b}
+.gm-poi-icon span[data-kind=parks]{background:#28633d}
+.gm-poi-icon span[data-kind=aviation]{background:#315c7c}
+.gm-poi-icon span[data-kind=water]{background:#236879}
+#map-wrap:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;border:0!important}
+#map-wrap:fullscreen #geo-map{position:absolute;inset:0}
+@media(max-width:760px){.gm-zoom{right:10px;bottom:36px;font-size:9px}.gm-pop{max-width:calc(100% - 24px)}}
 /* ===GEO2-CSS-END=== */
 
 /* ═══════════════════════════ КАРКАС ═══════════════════════════ */
@@ -12480,6 +12501,9 @@ const bearingDeg = (a, b) => {
 };
 const icon = cls => window.L && L.divIcon({ className: '', html: `<div class="ge-marker ${cls || ''}"><i></i></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
 GEO.pick = (lat, lon, name) => {
+  lat = Number(lat); lon = Number(lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90) return;
+  lon = wrapLon(lon);
   if (GEO.tmp) GEO.map.removeLayer(GEO.tmp);
   const q = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
   GEO.tmp = L.marker([lat, lon], { icon: icon('tmp') }).addTo(GEO.map);
@@ -12491,7 +12515,7 @@ GEO.pick = (lat, lon, name) => {
   div.querySelector('[data-a=copy]').onclick = () => GE.copy(q);
   GEO.tmp.bindPopup(div).openPopup();
 };
-GEO.points = () => GE.db.all().filter(r => (r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && isFinite(r.lat) && isFinite(r.lon));
+GEO.points = () => GE.db.all().filter(r => (r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && Number.isFinite(Number(r.lat)) && Number(r.lat) >= -90 && Number(r.lat) <= 90 && Number.isFinite(Number(r.lon))).map(r => Object.assign({}, r, { lat: Number(r.lat), lon: wrapLon(r.lon) }));
 GEO.refresh = () => {
   if (!GEO.map || !GEO.layer) return;
   GEO.layer.clearLayers();
@@ -12510,7 +12534,7 @@ GEO.fit = () => {
   if (pts.length === 1) GEO.map.setView([+pts[0].lat, +pts[0].lon], 15);
   else if (pts.length) GEO.map.fitBounds(pts.map(r => [+r.lat, +r.lon]), { padding: [40, 40], maxZoom: 15 });
 };
-GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, +r.lon], 16); } };
+GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') { GEO.map.setView([+r.lat, wrapLon(r.lon)], 16); } };
 GEO.util = { haversine, bearingDeg, icon, OVERPASS_TAGS };
 })();
 
@@ -12916,22 +12940,35 @@ const ICON = {
   clear: '<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/>',
   close: '<path d="M4 4l8 8M12 4l-8 8"/>',
   play: '<path d="M5 3l8 5-8 5z"/>',
-  pause: '<path d="M5.5 3v10M10.5 3v10"/>'
+  pause: '<path d="M5.5 3v10M10.5 3v10"/>',
+  full: '<path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/>'
 };
+const wrapLon = value => { const n = Number(value); return Number.isFinite(n) ? ((n + 180) % 360 + 360) % 360 - 180 : 0; };
 const ic = n => `<svg class="ic ic-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICON[n] || ''}</svg>`;
 
 /* ─────────── подложки ─────────── */
 // Подложки без ключей: тёмная получается из карт OSM фильтром (подписи остаются на местных языках)
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+const MAP_MAX_ZOOM = 22;
+const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
+const ESRI_REF = name => ESRI + 'Reference/' + name + '/MapServer/tile/{z}/{y}/{x}';
 const BASES = {
-  dark: { n: 'Тёмная', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxZoom: 19, attribution: '© OpenStreetMap' } },
-  canvas: { n: 'Графит', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: 19, attribution: 'Esri · HERE · Garmin · OpenStreetMap' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}' },
-  osm: { n: 'Схема OSM', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxZoom: 19, attribution: '© OpenStreetMap' } },
-  sat: { n: 'Спутник', u: ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', o: { maxZoom: 19, attribution: 'Esri World Imagery' }, lab: ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}' },
-  topo: { n: 'Рельеф', u: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', o: { subdomains: 'abc', maxZoom: 17, attribution: '© OpenStreetMap · SRTM · OpenTopoMap' } }
+  dark: { n: 'Графит Esri', d: 'Тёмная карта Esri для ночной работы', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
+  canvas: { n: 'Графит', d: 'Минималистичная тёмная карта Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
+  osm: { n: 'Улицы Esri', d: 'Подробная схема улиц и объектов', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
+  street: { n: 'Улицы Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
+  sat: { n: 'Спутник', d: 'Спутниковые и аэрофотоснимки с названиями мест', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
+  hybrid: { n: 'Гибрид', d: 'Спутник + границы, подписи и транспортная сеть', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, labs: [
+    { u: ESRI_REF('World_Boundaries_and_Places'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.95, attribution: 'Labels &copy; Esri' } },
+    { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.9, attribution: 'Transportation &copy; Esri' } }
+  ], z: 19 },
+  topo: { n: 'Топография Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS' }, z: 19 },
+  relief: { n: 'Рельеф и батиметрия', d: 'Глобальная подложка World Terrain Base: затенённый рельеф, суша и океан', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
+  physical: { n: 'Физическая', d: 'Физическая карта мира: суша, океаны и формы поверхности', u: ESRI_TILE('World_Physical_Map'), o: { maxNativeZoom: 8, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, z: 8 },
+  hill: { n: 'Тени рельефа', d: 'Отдельная глобальная подложка высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
 };
 
-const S = GEO.s = { mode: 'pick', base: 'dark', shapes: [], path: null, live: {}, hud: new Map(), radius: 2 };
+const S = GEO.s = { mode: 'pick', base: 'dark', baseMaxNative: 19, baseExtraLayers: [], shapes: [], path: null, live: {}, hud: new Map(), radius: 2 };
 
 /* ─────────── разметка ─────────── */
 GEO.init = () => {
@@ -12943,8 +12980,10 @@ GEO.init = () => {
         <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, место или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
         <div class="gm-btns">
           <button class="gm-b" id="gm-base-btn" title="Подложка карты">${ic('layers')}<span>Карта</span></button>
+          <button class="gm-b" id="gm-3d-btn" title="Открыть интерактивный 3D-глобус">◉<span>3D Глобус</span></button>
           <button class="gm-b" id="gm-live-btn" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
           <button class="gm-b" id="gm-io-btn" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
+          <button class="gm-b ico" id="gm-full" title="Развернуть карту на весь экран">${ic('full')}</button>
           <button class="gm-b ico" id="gm-me" title="Моя позиция (запросит разрешение браузера)">${ic('locate')}</button>
           <button class="gm-b ico" id="map-fit" title="Показать все точки">${ic('fit')}</button>
         </div>
@@ -12962,6 +13001,7 @@ GEO.init = () => {
       <aside class="gm-panel off" id="gm-panel"></aside>
       <div class="gm-hud" id="gm-hud"></div>
       <div class="map-coords" id="map-coords">—</div>
+      <div class="gm-zoom" id="gm-zoom">Z 4.0 · детализация источника</div>
       <div class="gm-chart hidden" id="gm-chart"><div class="gm-chart-h"><b>Профиль высоты</b><span id="gm-chart-info"></span><button class="gm-x" id="gm-chart-x" title="Закрыть">${ic('close')}</button></div><canvas></canvas></div>
       <div class="gm-menu hidden" id="gm-menu"></div>
       <input type="file" id="gm-file" accept=".geojson,.json,.kml,.gpx,application/json,application/gpx+xml,application/vnd.google-earth.kml+xml" hidden>
@@ -12980,7 +13020,7 @@ GEO.ensure = () => {
   if (GEO.map) { setTimeout(() => GEO.map.invalidateSize(), 60); return; }
   const el = $('#geo-map'); if (!el) return;
   if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи с координатами по-прежнему доступны в списке ниже.</div>'; return; }
-  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, zoomSnap: 0.5, wheelPxPerZoomLevel: 90 }).setView([55.75, 37.62], 4);
+  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 65, preferCanvas: true }).setView([55.75, 37.62], 4);
   map.attributionControl.setPrefix('Leaflet');
   map.createPane('base'); map.getPane('base').style.zIndex = 190;
   GEO.layer = L.layerGroup().addTo(map);
@@ -12988,9 +13028,22 @@ GEO.ensure = () => {
   S.live = {};
   setBase((GE.settings.view && GE.settings.view.geoBase) || 'dark');
   bindSearch(map); bindTools(map); bindMenu(map); bindPopups(map); bindFiles(map);
-  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`; });
+  map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${wrapLon(e.latlng.lng).toFixed(5)}`; });
+  map.on('zoomend moveend', updateZoomHud);
   $('#map-fit').onclick = () => GEO.fit();
   $('#gm-me').onclick = () => locate(map);
+  const fullBtn = $('#gm-full'), mapWrap = $('#map-wrap');
+  fullBtn.onclick = async () => {
+    try {
+      if (document.fullscreenElement === mapWrap) await document.exitFullscreen();
+      else if (mapWrap.requestFullscreen) await mapWrap.requestFullscreen();
+      else toast('Полноэкранный режим не поддерживается этим браузером', { type: 'warn' });
+    } catch (e) { toast('Не удалось развернуть карту: ' + (e.message || 'ошибка браузера'), { type: 'err' }); }
+  };
+  document.addEventListener('fullscreenchange', () => {
+    fullBtn.classList.toggle('on', document.fullscreenElement === mapWrap);
+    setTimeout(() => map.invalidateSize(), 120);
+  });
   buildPanel(map);
   setTimeout(() => map.invalidateSize(), 60);
   GEO.refresh(); GEO.fit();
@@ -12999,20 +13052,35 @@ GEO.ensure = () => {
 function setBase(key) {
   const map = GEO.map; if (!map || !BASES[key]) return;
   if (S.baseLayer) map.removeLayer(S.baseLayer);
-  if (S.labelLayer) { map.removeLayer(S.labelLayer); S.labelLayer = null; }
+  if (S.labelLayer) map.removeLayer(S.labelLayer);
+  (S.baseExtraLayers || []).forEach(l => map.removeLayer(l));
+  S.labelLayer = null; S.baseExtraLayers = [];
   const b = BASES[key];
-  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base' }, b.o)).addTo(map);
-  if (b.lab) S.labelLayer = L.tileLayer(b.lab, { pane: 'base', maxNativeZoom: 16, maxZoom: 19, opacity: key === 'sat' ? 0.85 : 1 }).addTo(map);
+  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base', maxZoom: MAP_MAX_ZOOM, updateWhenIdle: true, keepBuffer: 3 }, b.o)).addTo(map);
+  const overlays = b.labs || (b.lab ? [{ u: b.lab, o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: key === 'sat' ? 0.85 : 1, attribution: 'Labels &copy; Esri' } }] : []);
+  overlays.forEach((v, i) => {
+    const layer = L.tileLayer(v.u, Object.assign({ pane: 'base', maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 1, updateWhenIdle: true, keepBuffer: 3 }, v.o || {})).addTo(map);
+    if (!S.labelLayer) S.labelLayer = layer; else S.baseExtraLayers.push(layer);
+  });
   S.base = key;
+  S.baseMaxNative = b.o.maxNativeZoom || b.o.maxZoom || 19;
   const w = $('#map-wrap'); if (w) w.className = w.className.replace(/\bb-\w+/g, '').trim() + ' b-' + key;
   GE.settings.view = GE.settings.view || {}; GE.settings.view.geoBase = key; GE.saveSettings();
-  const pop = $('#gm-base-pop'); if (pop) $$('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
+  const pop = $('#gm-base-pop'); if (pop) $('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
+  updateZoomHud();
+}
+function updateZoomHud() {
+  if (!GEO.map) return;
+  const el = $('#gm-zoom'); if (!el) return;
+  const z = GEO.map.getZoom(), native = S.baseMaxNative || 19;
+  el.textContent = 'Z ' + z.toFixed(1) + ' · ' + (z > native + 0.01 ? 'увеличение без новых деталей' : 'детализация источника');
+  el.title = 'Масштаб карты: ' + z.toFixed(1) + '. Нативная детализация выбранной подложки: до Z' + native + '.';
 }
 
 /* ─────────── всплывающие панели ─────────── */
 function bindPopups(map) {
   const base = $('#gm-base-pop'), io = $('#gm-io-pop'), panel = $('#gm-panel');
-  base.innerHTML = Object.entries(BASES).map(([k, b]) => `<button data-base="${k}" class="${k === S.base ? 'on' : ''}"><i class="gm-sw sw-${k}"></i><span>${esc(b.n)}</span></button>`).join('');
+  base.innerHTML = Object.entries(BASES).map(([k, b]) => '<button data-base="' + k + '" class="' + (k === S.base ? 'on' : '') + '" title="' + esc(b.d || b.n) + '"><i class="gm-sw sw-' + k + '"></i><span>' + esc(b.n) + '</span><small>z' + (b.z || 19) + '</small></button>').join('');
   io.innerHTML = `<button data-io="geojson">${ic('share')}<span>Экспорт GeoJSON</span><small>записи и фигуры</small></button><button data-io="kml">${ic('share')}<span>Экспорт KML</span><small>Google Earth</small></button><button data-io="gpx">${ic('share')}<span>Экспорт GPX</span><small>точки и маршруты</small></button><hr><button data-io="import">${ic('layers')}<span>Импорт файла</span><small>GeoJSON, KML, GPX</small></button><button data-io="unimport">${ic('clear')}<span>Убрать импортированное</span></button>`;
   const hideAll = except => [base, io].forEach(p => { if (p !== except) p.classList.add('hidden'); });
   $('#gm-base-btn').onclick = e => { e.stopPropagation(); hideAll(base); base.classList.toggle('hidden'); };
@@ -13036,7 +13104,7 @@ function bindSearch(map) {
   const hide = () => box.classList.add('hidden');
   const go = (lat, lon, label, ext) => {
     hide();
-    if (ext && ext.length === 4) { try { map.fitBounds([[ext[3], ext[0]], [ext[1], ext[2]]], { maxZoom: 17, padding: [40, 40] }); } catch (e) { map.setView([lat, lon], 15); } } else map.setView([lat, lon], Math.max(map.getZoom(), 15));
+    if (ext && ext.length === 4) { try { map.fitBounds([[ext[3], ext[0]], [ext[1], ext[2]]], { maxZoom: 19, padding: [40, 40] }); } catch (e) { map.setView([lat, lon], 15); } } else map.setView([lat, lon], Math.max(map.getZoom(), 17));
     GEO.pick(lat, lon, label);
   };
   const show = list => {
@@ -13047,7 +13115,7 @@ function bindSearch(map) {
   const suggest = async v => {
     const id = ++seq;
     try {
-      const r = await GE.fetchJSON(`https://photon.komoot.io/api/?q=${E(v)}&limit=6&lang=en`, 8000);
+      const r = await GE.fetchJSON(`https://photon.komoot.io/api/?q=${E(v)}&limit=8&lang=ru`, 8000);
       if (id !== seq) return;
       show((r.features || []).map(f => {
         const p = f.properties || {}, g = (f.geometry || {}).coordinates || [];
@@ -13237,7 +13305,7 @@ function locate(map) {
     const ll = [p.coords.latitude, p.coords.longitude];
     if (S.me) GEO.toolsLayer.removeLayer(S.me);
     S.me = L.layerGroup([L.circle(ll, { radius: p.coords.accuracy, color: '#cacad2', weight: 1, fillColor: '#cacad2', fillOpacity: 0.1, interactive: false }), dot(ll, '#ffffff').bindPopup(`<b>Вы здесь</b><div class="mono" style="font-size:11.5px;color:#a5a5af">${ll[0].toFixed(6)}, ${ll[1].toFixed(6)}<br>точность ±${Math.round(p.coords.accuracy)} м</div>`)]).addTo(GEO.toolsLayer);
-    map.setView(ll, Math.max(map.getZoom(), 16));
+    map.setView(ll, Math.max(map.getZoom(), 18));
   }, err => toast('Позиция недоступна: ' + (err.code === 1 ? 'доступ запрещён' : 'не удалось определить'), { type: 'err' }), { enableHighAccuracy: true, timeout: 12000 });
 }
 
@@ -13807,6 +13875,156 @@ LY.wiki = {
 };
 
 /* Мои записи: переключатель существующего слоя */
+const POI_CATS = {
+  health: { n: 'Медицина', glyph: '+', tags: ['["amenity"~"hospital|clinic|doctors|pharmacy"]'] },
+  fuel: { n: 'АЗС', glyph: 'F', tags: ['["amenity"="fuel"]'] },
+  transit: { n: 'Транспорт', glyph: 'T', tags: ['["railway"~"station|halt"]', '["highway"="bus_stop"]', '["public_transport"~"station|platform"]'] },
+  parking: { n: 'Парковки', glyph: 'P', tags: ['["amenity"="parking"]'] },
+  food: { n: 'Кафе и рестораны', glyph: 'C', tags: ['["amenity"~"cafe|restaurant|fast_food"]'] },
+  education: { n: 'Образование', glyph: 'E', tags: ['["amenity"~"school|college|university"]'] },
+  parks: { n: 'Парки и сады', glyph: 'G', tags: ['["leisure"~"park|garden"]'] },
+  aviation: { n: 'Авиация', glyph: 'A', tags: ['["aeroway"~"aerodrome|helipad"]'] },
+  water: { n: 'Марины и пляжи', glyph: 'W', tags: ['["leisure"="marina"]', '["natural"="beach"]'] }
+};
+
+/* Рельеф: глобальная модель затенения высот + слой горизонталей */
+LY.terrain = {
+  n: 'Рельеф и топография',
+  d: 'Esri World Hillshade показывает форму поверхности. Дополнительно можно включить топографическую подложку поверх любой карты.',
+  ctl: '<label class="gm-f"><span>Прозрачность рельефа</span><input type="range" min="10" max="100" value="62" data-k="op"></label><label class="gm-chk"><input type="checkbox" data-k="contours"> Топографическая детализация</label>',
+  start() {
+    const root = $('[data-ly="terrain"] .gm-ly-b');
+    const op = root ? +$('[data-k=op]', root).value / 100 : 0.62;
+    this.st = { hill: L.tileLayer(ESRI_TILE('Elevation/World_Hillshade'), { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, opacity: op, attribution: 'World Hillshade &copy; Esri' }).addTo(GEO.map), contours: null };
+    if (root && $('[data-k=contours]', root).checked) this.st.contours = L.tileLayer(ESRI_TILE('World_Topo_Map'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: 'Topographic tiles &copy; Esri' }).addTo(GEO.map);
+    lyStatus('terrain', 'Esri Hillshade · глобальный слой затенения высот');
+    hud('terrain', 'Рельеф: Esri Hillshade');
+  },
+  stop() {
+    const st = this.st; if (!st) return;
+    [st.hill, st.contours].forEach(l => l && GEO.map.removeLayer(l));
+    this.st = null; hud('terrain'); lyStatus('terrain', '');
+  },
+  bind(root) {
+    $('[data-k=op]', root).oninput = e => { if (this.st) this.st.hill.setOpacity(+e.target.value / 100); };
+    $('[data-k=contours]', root).onchange = e => {
+      const st = this.st; if (!st) return;
+      if (e.target.checked && !st.contours) st.contours = L.tileLayer(ESRI_TILE('World_Topo_Map'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.48, attribution: 'Topographic tiles &copy; Esri' }).addTo(GEO.map);
+      else if (!e.target.checked && st.contours) { GEO.map.removeLayer(st.contours); st.contours = null; }
+    };
+  }
+};
+
+/* Дороги, границы и подписи поверх любой карты */
+LY.transport = {
+  n: 'Дороги и подписи',
+  d: 'Прозрачные слои Esri: транспортная сеть, названия улиц, населённых пунктов и границы.',
+  ctl: '<label class="gm-chk"><input type="checkbox" data-k="roads" checked> Дорожная сеть</label><label class="gm-chk"><input type="checkbox" data-k="labels" checked> Названия и границы</label><label class="gm-f"><span>Прозрачность</span><input type="range" min="20" max="100" value="90" data-k="op"></label>',
+  start() {
+    const root = $('[data-ly="transport"] .gm-ly-b');
+    const op = root ? +$('[data-k=op]', root).value / 100 : 0.9;
+    const roads = L.tileLayer(ESRI_REF('World_Transportation'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: op, attribution: 'Transportation &copy; Esri' });
+    const labels = L.tileLayer(ESRI_REF('World_Boundaries_and_Places'), { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: op, attribution: 'Labels &copy; Esri' });
+    this.st = { roads, labels };
+    if (!root || $('[data-k=roads]', root).checked) roads.addTo(GEO.map);
+    if (!root || $('[data-k=labels]', root).checked) labels.addTo(GEO.map);
+    lyStatus('transport', 'Esri · транспортная сеть и подписи');
+  },
+  stop() {
+    const st = this.st; if (!st) return;
+    [st.roads, st.labels].forEach(l => GEO.map.removeLayer(l));
+    this.st = null; lyStatus('transport', '');
+  },
+  bind(root) {
+    const apply = () => {
+      const st = this.st; if (!st) return;
+      [['roads', st.roads], ['labels', st.labels]].forEach(([key, layer]) => {
+        const enabled = $('[data-k=' + key + ']', root).checked;
+        if (enabled && !GEO.map.hasLayer(layer)) layer.addTo(GEO.map);
+        if (!enabled && GEO.map.hasLayer(layer)) GEO.map.removeLayer(layer);
+      });
+    };
+    $('[data-k=roads]', root).onchange = apply;
+    $('[data-k=labels]', root).onchange = apply;
+    $('[data-k=op]', root).oninput = e => {
+      if (!this.st) return;
+      this.st.roads.setOpacity(+e.target.value / 100);
+      this.st.labels.setOpacity(+e.target.value / 100);
+    };
+  }
+};
+
+/* POI с интерактивными маркерами из OpenStreetMap Overpass */
+LY.poi = {
+  n: 'Объекты и отметки OSM',
+  d: 'Ищет медицину, транспорт, АЗС, парковки и другие объекты в текущем окне карты. Маркер открывает карточку и позволяет сохранить точку в GOD EYE.',
+  ctl: '<label class="gm-f"><span>Категория объектов</span><select class="select" data-k="cat">' + Object.entries(POI_CATS).map(([k, v]) => '<option value="' + k + '">' + esc(v.n) + '</option>').join('') + '</select></label><div class="gm-row"><button class="btn btn-sm btn-primary" data-k="load">Обновить в области</button><button class="btn btn-sm" data-k="clear">Очистить</button></div><div class="gm-note">Для поиска приблизьте карту до Z12 или ближе. За один запрос показывается не более 250 объектов.</div>',
+  start() {
+    const root = $('[data-ly="poi"] .gm-ly-b');
+    this.st = { layer: L.layerGroup().addTo(GEO.map), cat: root ? $('[data-k=cat]', root).value : 'health', busy: false, move: null };
+    this.st.move = () => lyStatus('poi', 'Область карты изменилась — нажмите «Обновить в области»');
+    GEO.map.on('moveend', this.st.move);
+    this.load();
+  },
+  stop() {
+    const st = this.st; if (!st) return;
+    GEO.map.off('moveend', st.move);
+    GEO.map.removeLayer(st.layer);
+    this.st = null; hud('poi'); lyStatus('poi', '');
+  },
+  async load() {
+    const st = this.st; if (!st || st.busy) return;
+    if (GEO.map.getZoom() < 12) { lyStatus('poi', 'Приблизьте карту до Z12 или ближе, затем обновите слой'); return toast('Для поиска объектов нужен масштаб Z12 или ближе', { type: 'warn' }); }
+    const cat = POI_CATS[st.cat] || POI_CATS.health;
+    const b = GEO.map.getBounds().pad(0.06);
+    const bbox = [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()].map(v => v.toFixed(5)).join(',');
+    const selectors = [];
+    cat.tags.forEach(tag => ['node', 'way', 'relation'].forEach(type => selectors.push(type + tag + '(' + bbox + ');')));
+    const query = '[out:json][timeout:20];(' + selectors.join('') + ');out center 250;';
+    const mirrors = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+    st.busy = true; lyStatus('poi', 'Запрашиваю объекты в видимой области…');
+    let data = null, lastError = '';
+    for (const endpoint of mirrors) {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 22000);
+      try {
+        const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: 'data=' + encodeURIComponent(query), signal: ctl.signal, referrerPolicy: 'no-referrer' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        data = await response.json(); break;
+      } catch (e) { lastError = e.message || 'сеть'; }
+      finally { clearTimeout(timer); }
+    }
+    try {
+      if (!data) throw new Error(lastError || 'Overpass недоступен');
+      st.layer.clearLayers();
+      const seen = new Set(); let count = 0;
+      (data.elements || []).slice(0, 250).forEach(el => {
+        const tags = el.tags || {}, center = el.center || {};
+        const lat = Number(el.lat != null ? el.lat : center.lat), lon = Number(el.lon != null ? el.lon : center.lon);
+        const key = el.type + '/' + el.id;
+        if (!ok(lat, lon) || seen.has(key)) return;
+        seen.add(key); count++;
+        const name = tags.name || tags.brand || tags.operator || tags.ref || cat.n;
+        const osm = 'https://www.openstreetmap.org/' + el.type + '/' + el.id;
+        const marker = L.marker([lat, lon], { icon: L.divIcon({ className: 'gm-poi-icon', html: '<span data-kind="' + st.cat + '">' + cat.glyph + '</span>', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(st.layer);
+        marker.bindTooltip(name, { direction: 'top', className: 'gm-tip' });
+        const card = document.createElement('div');
+        card.innerHTML = '<div class="mono" style="font-size:10px;letter-spacing:.14em;color:#e2232e">OPENSTREETMAP · ' + esc(cat.n) + '</div><b>' + esc(name) + '</b><div class="mono" style="font-size:11px;color:#a5a5af;margin:5px 0">' + lat.toFixed(6) + ', ' + lon.toFixed(6) + '</div><div class="row" style="gap:6px"><button class="btn btn-sm btn-primary" data-a="save">Сохранить в GOD EYE</button><a class="btn btn-sm" href="' + osm + '" target="_blank" rel="noopener noreferrer">OSM</a></div>';
+        card.querySelector('[data-a=save]').onclick = () => GE.editRecord('geo', null, { title: name, lat: +lat.toFixed(6), lon: +lon.toFixed(6), place: cat.n, retrieved: GE.today(), notes: 'OpenStreetMap · ' + cat.n + ' · ' + osm });
+        marker.bindPopup(card);
+      });
+      const suffix = data.elements && data.elements.length > 250 ? ' · показаны первые 250' : '';
+      lyStatus('poi', count + ' объектов · ' + cat.n + ' · OpenStreetMap' + suffix);
+      hud('poi', 'OSM: ' + count + ' · ' + esc(cat.n));
+    } catch (e) { lyStatus('poi', 'Overpass: ' + (e.message || 'нет ответа')); }
+    finally { st.busy = false; }
+  },
+  bind(root) {
+    $('[data-k=cat]', root).onchange = e => { if (this.st) { this.st.cat = e.target.value; this.load(); } else if (this.st) this.st.cat = e.target.value; };
+    $('[data-k=load]', root).onclick = () => this.load();
+    $('[data-k=clear]', root).onclick = () => { if (this.st) { this.st.layer.clearLayers(); hud('poi'); lyStatus('poi', 'Отметки очищены'); } };
+  }
+};
+
 LY.mine = {
   n: 'Мои записи', d: 'Локации и фото с координатами из вашей базы.',
   ctl: '',
@@ -13814,7 +14032,7 @@ LY.mine = {
   stop() { if (GEO.layer) GEO.map.removeLayer(GEO.layer); }
 };
 
-const ORDER = ['mine', 'sat', 'air', 'quake', 'eonet', 'radar', 'night', 'wayback', 'wiki'];
+const ORDER = ['mine', 'terrain', 'transport', 'poi', 'sat', 'air', 'quake', 'eonet', 'radar', 'night', 'wayback', 'wiki'];
 function buildPanel(map) {
   const panel = $('#gm-panel');
   panel.innerHTML = `<div class="gm-panel-h"><b>Живые слои</b><button class="btn btn-sm btn-ghost" id="gm-all-off">Выключить все</button></div><div class="gm-panel-b">${ORDER.map(id => {
@@ -13833,8 +14051,28 @@ function buildPanel(map) {
   $('#gm-all-off').onclick = () => ORDER.forEach(id => { const cb = $(`[data-ly="${id}"] input[type=checkbox]`, panel); if (id !== 'mine' && cb.checked) { cb.checked = false; cb.dispatchEvent(new Event('change')); } });
   $(`[data-ly="mine"]`, panel).classList.add('on');
 }
-})();
 
+GEO.fit = () => {
+  const map = GEO.map; if (!map) return;
+  const bounds = L.latLngBounds([]);
+  GEO.points().forEach(r => bounds.extend([+r.lat, +r.lon]));
+  const collectLayer = layer => {
+    if (!layer) return;
+    if (layer.getBounds) { const b = layer.getBounds(); if (b && b.isValid()) bounds.extend(b); return; }
+    if (layer.getLatLng) { bounds.extend(layer.getLatLng()); return; }
+    if (layer.eachLayer) layer.eachLayer(collectLayer);
+  };
+  collectLayer(GEO.toolsLayer);
+  collectLayer(S.importLayer);
+  if (bounds.isValid()) {
+    const sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+    if (Math.abs(sw.lat - ne.lat) < 0.00001 && Math.abs(sw.lng - ne.lng) < 0.00001) map.setView(bounds.getCenter(), 18);
+    else map.fitBounds(bounds, { padding: [48, 48], maxZoom: 19 });
+  } else map.setView([55.75, 37.62], 4);
+};
+GEO.focus = r => { GEO.ensure(); if (GEO.map && r.lat !== '') GEO.map.setView([+r.lat, +r.lon], 18); };
+
+})();
 </script>
 <script id="photo-module">
 /* embedded: photo module — лаборатория фото 2.0: хронолокация, обратный поиск, форматы координат, метаданные, связи, приватность */
@@ -17644,5 +17882,6 @@ GE.board = { open, close, state: () => S, graph: () => GR, addPhotos, exportPng,
 })();
 
 </script>
+<script src="geo3d.js"></script>
 </body>
 </html>
