@@ -6,8 +6,8 @@ const CESIUM_BASE = 'https://cesium.com/downloads/cesiumjs/releases/' + VERSION 
 const MAPS = {
   satellite: { label: 'Спутник Esri', type: 'arcgis', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer' },
   hybrid: { label: 'Спутник + подписи', type: 'hybrid', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer' },
-  streets: { label: 'Улицы CARTO', type: 'template', url: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' },
-  dark: { label: 'Тёмная CARTO', type: 'template', url: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+  streets: { label: 'Улицы Esri', type: 'arcgis', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer' },
+  dark: { label: 'Тёмная Esri', type: 'arcgis', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer' },
   topo: { label: 'Топография Esri', type: 'arcgis', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer' },
   terrain: { label: 'Рельеф Esri', type: 'arcgis', url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer' }
 };
