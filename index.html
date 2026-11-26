@@ -4,6 +4,55 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
+<script id="diag-module">
+/* embedded: diag module — локальный журнал ошибок и отчёт для разработчика (ничего не отправляется наружу) */
+(function () {
+'use strict';
+const KEY = 'godeye.errlog', MAX = 50;
+const read = () => { try { const a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+const write = a => { try { localStorage.setItem(KEY, JSON.stringify(a.slice(-MAX))); } catch (e) { /* квота хранилища */ } };
+const clip = (s, n) => String(s == null ? '' : s).slice(0, n);
+const paint = () => { const el = document.getElementById('diag-count'); if (el) el.textContent = String(read().length); };
+const push = (kind, msg, src, stack) => {
+  const a = read(), last = a[a.length - 1], m = clip(msg, 300);
+  if (last && last.k === kind && last.m === m) { last.n = (last.n || 1) + 1; last.t = new Date().toISOString(); }
+  else a.push({ t: new Date().toISOString(), k: kind, m, s: clip(src, 160), st: clip(stack, 700), n: 1 });
+  write(a); paint();
+};
+window.addEventListener('error', e => { if (e.target && e.target !== window) return; push('error', e.message, `${(e.filename || '').split('/').pop()}:${e.lineno}:${e.colno}`, e.error && e.error.stack); });
+window.addEventListener('unhandledrejection', e => push('promise', (e.reason && e.reason.message) || e.reason, '', e.reason && e.reason.stack));
+document.addEventListener('securitypolicyviolation', e => push('csp', `${e.violatedDirective}: ${e.blockedURI}`, e.sourceFile || '', ''));
+
+const report = () => {
+  const GE = window.GE || {}, a = read(), st = GE.settings || {}, db = GE.DB || { records: [] };
+  const byType = {}; (db.records || []).forEach(r => { byType[r.type] = (byType[r.type] || 0) + 1; });
+  const L = [
+    'GOD EYE · отчёт об ошибке (без ваших данных: названия записей и ключи API не включены)',
+    `Версия: ${GE.VERSION || '?'} · ${new Date().toISOString()}`,
+    `Браузер: ${navigator.userAgent}`,
+    `Экран: ${innerWidth}×${innerHeight} · язык ${navigator.language} · сеть ${navigator.onLine ? 'есть' : 'нет'}`,
+    `Хранилище: ${(GE.storage && GE.storage.backend) || '?'} · записей ${(db.records || []).length} (${Object.entries(byType).map(([k, v]) => k + ':' + v).join(', ') || '—'}) · связей ${(db.links || []).length}`,
+    `Настройки: живая разведка ${st.live}, качество ${st.quality}, демонстрация ${st.secure}, плагинов выключено ${st.plugins && st.plugins.off ? st.plugins.off.length : 0}, свои источники ${st.plugins && st.plugins.custom ? st.plugins.custom.length : 0}`,
+    `Раздел: ${location.hash || '#/'}`,
+    '', `Последние ошибки (${a.length}):`
+  ];
+  a.slice(-10).reverse().forEach((x, i) => { L.push(`${i + 1}. [${x.k}] ${x.t}${x.n > 1 ? ' ×' + x.n : ''} ${x.m}${x.s ? ' (' + x.s + ')' : ''}`); if (x.st) L.push('   ' + x.st.split('\n').slice(0, 4).join('\n   ')); });
+  if (!a.length) L.push('Ошибок не зафиксировано.');
+  return L.join('\n');
+};
+window.GEDiag = { read, report, clear() { write([]); paint(); }, push };
+document.addEventListener('click', e => {
+  const b = e.target.closest('#diag-copy, #diag-clear'); if (!b) return;
+  if (b.id === 'diag-copy') {
+    const text = report();
+    (window.GE && window.GE.copy ? window.GE.copy(text) : navigator.clipboard.writeText(text)).then?.(() => {});
+    if (window.GE && window.GE.toast) window.GE.toast('Отчёт скопирован — отправьте его разработчику', { type: 'ok' });
+  } else { window.GEDiag.clear(); if (window.GE && window.GE.toast) window.GE.toast('Журнал ошибок очищен'); }
+});
+window.addEventListener('hashchange', () => setTimeout(paint, 300));
+document.addEventListener('DOMContentLoaded', paint);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>GOD EYE — OSINT INTELLIGENCE</title>
@@ -256,6 +305,9 @@ a.pl-th:hover img { filter: none; }
 .pl-bad { color: #ff6b72; font-size: 11.5px; }
 @media (max-width: 760px) { .pl-head { grid-template-columns: 1fr; justify-items: start; } .pl-acts { justify-content: flex-start; } }
 /* ===PLUGINS-CSS-END=== */
+.dr-sec.cand { border: 1px solid rgba(226,35,46,0.35); background: rgba(139,0,0,0.07); padding: 12px 14px; }
+.chk-line { display: flex; align-items: flex-start; gap: 9px; margin: 6px 0; font-size: 12.5px; line-height: 1.5; color: var(--silver-2); cursor: pointer; }
+.chk-line input { margin-top: 3px; accent-color: var(--crimson-3); }
 /* ===PHOTO-CSS-BEGIN=== */
 /* Лаборатория фото 2.0 */
 .ph-lab { margin-top: 18px; padding: 14px 16px 16px; border: 1px solid var(--line-2); background: linear-gradient(180deg, rgba(139,0,0,0.09), rgba(0,0,0,0.3) 45%); }
@@ -1983,6 +2035,11 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
               <div class="panel-h">Приватность</div>
               <div class="set-row"><div class="l"><b>Режим демонстрации экрана</b><span>Названия записей размываются, пока на них не навести курсор.</span></div><label class="switch"><input type="checkbox" id="set-secure"><i></i></label></div>
               <div class="set-row"><div class="l"><b>Живая разведка</b><span>Разрешить прямые запросы к открытым API (DNS, RDAP, Shodan InternetDB, OTX, HexDB…). При выключении сайт работает полностью офлайн, кроме карт и шрифтов.</span></div><label class="switch"><input type="checkbox" id="set-live"><i></i></label></div>
+            </div>
+            <div class="panel" id="panel-diag">
+              <div class="panel-h">Диагностика<small>журнал ошибок хранится только в этом браузере</small><span class="ph-right"><span class="api-badge" title="Записей в журнале">ОШИБОК: <b id="diag-count">0</b></span></span></div>
+              <div class="set-row"><div class="l"><b>Отчёт об ошибке</b><span>Копирует версию, браузер, размеры базы и последние ошибки. Названия записей и ключи API в отчёт не попадают: его можно отправить разработчику как есть.</span></div><button class="btn btn-sm btn-primary" id="diag-copy">Скопировать отчёт</button></div>
+              <div class="set-row"><div class="l"><b>Очистить журнал</b><span>Удаляет записи об ошибках из браузера.</span></div><button class="btn btn-sm" id="diag-clear">Очистить</button></div>
             </div>
             <div class="panel" id="panel-api-keys">
               <div class="panel-h">API-ключи Live Recon<small>опционально</small><span class="ph-right"><span class="api-badge" id="api-count-badge">0 АКТИВНО</span></span></div>
@@ -6932,6 +6989,7 @@ GE.openRecord = (id, quiet) => {
       ${cv.top}
       ${r.thumb ? `<img class="dr-thumb" src="${r.thumb}" alt="">` : ''}
       ${r.type === 'geo' && r.lat !== '' && r.lat != null ? `<div class="row" style="margin-bottom:16px"><button class="btn btn-sm" data-act="map">${GE.icon('geo')}Показать на карте</button><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}">Google</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://yandex.ru/maps/?ll=${r.lon},${r.lat}&z=17&pt=${r.lon},${r.lat}">Яндекс</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}">OSM</a></div>` : ''}
+      ${GE.candidatePanel ? GE.candidatePanel(r) : ''}
       ${kv ? `<div class="dr-sec"><h6>Сведения</h6><dl class="kv">${kv}<dt>Создано</dt><dd>${esc(GE.fmtDate(r.created))}</dd><dt>Изменено</dt><dd>${esc(GE.fmtDate(r.updated))}</dd></dl></div>` : ''}
       ${text('objective', 'Цель исследования')}
       ${text('body', r.type === 'report' ? 'Ход работы и находки' : 'Описание')}
@@ -6939,6 +6997,7 @@ GE.openRecord = (id, quiet) => {
       ${text('notes', 'Заметки')}
       ${urls.length ? `<div class="dr-sec"><h6>Источники и ссылки · ${urls.length}</h6><div class="url-list">${urls.map(u => `<div class="row" style="gap:6px;flex-wrap:nowrap"><a href="${esc(u)}" target="_blank" rel="noopener" class="grow">${esc(u)}</a><a class="btn btn-icon btn-sm btn-ghost" title="Архивная копия" target="_blank" rel="noopener" href="https://web.archive.org/web/*/${esc(u)}">${GE.icon('archive')}</a></div>`).join('')}</div></div>` : ''}
       ${hints.length ? `<div class="dr-sec"><h6>Подсказки детектива</h6>${hints.map(h => `<a class="dhint" href="#/search?q=${encodeURIComponent(h.q)}" data-hint><b>${esc(h.t)}</b> — ${esc(h.a)}</a>`).join('')}</div>` : ''}
+      ${GE.caseOverlapsHtml ? GE.caseOverlapsHtml(r) : ''}
       <div class="dr-sec"><h6>Связи · ${nb.length}</h6>
         <div class="link-list">${nb.length ? nb.map(n => `<div class="link-i" data-open="${n.other.id}"><span class="rel">${n.out ? '→' : '←'} ${esc(n.edge.rel)}</span><span class="sens">${esc(n.other.title)}</span><span class="dim mono" style="font-size:10px">${GE.TYPES[n.other.type].code}</span>${n.edge.kind === 'link' ? `<button class="btn btn-icon btn-sm btn-ghost x" data-unlink="${n.edge.id}" title="Удалить связь">${GE.icon('x')}</button>` : ''}</div>`).join('') : '<div class="muted" style="font-size:12.5px">Связей пока нет.</div>'}</div>
         <button class="btn btn-sm" style="margin-top:10px" data-act="link">${GE.icon('link')}Добавить связь</button>
@@ -6970,6 +7029,7 @@ GE.openRecord = (id, quiet) => {
   if (act('map')) act('map').onclick = () => { GE.closeDrawer(); location.hash = '#/geolocation'; setTimeout(() => GE.geo && GE.geo.focus(r), 250); };
   if (act('export')) act('export').onclick = () => GE.exportReportDialog(r);
   if (isCase) GE.wireCase(dr, id);
+  if (GE.wireCandidate) GE.wireCandidate(dr, r);
   dr.classList.toggle('case', isCase);
   dr.classList.add('on'); $('#scrim').classList.add('on');
 };
@@ -6997,24 +7057,89 @@ GE.caseHints = r => {
 
 GE.autoSearch = async id => {
   const r = GE.db.get(id); if (!r) return;
-  const s = String(r.subject || '').trim();
+  const s = String(r.subject || '').trim().replace(/^@/, '');
   if (!s) { GE.toast('Укажите объект/фигуранта в деле', { type: 'err' }); return; }
-  GE.toast('Ищу зацепки по открытым источникам…');
+  if (!GE.settings.live) { GE.toast('Живая разведка выключена в настройках приватности', { type: 'err' }); return; }
+  if (!/^[A-Za-z0-9_.-]{2,40}$/.test(s)) { GE.toast('Автопоиск работает по никнейму (латиница, цифры, _ . -). Для имён и названий используйте раздел «Поиск».', { type: 'err', timeout: 6500 }); return; }
+  if (!GE.search || !GE.search.profileChecks) { GE.toast('Модуль поиска ещё не готов', { type: 'err' }); return; }
+  GE.toast('Проверяю публичные профили…');
+  const results = await Promise.all(GE.search.profileChecks(s).map(c => c.fn().then(x => Object.assign({ name: c.name }, x)).catch(() => ({ name: c.name, found: false }))));
+  const have = new Set(GE.db.all().filter(x => x.type === 'source' && x.url).map(x => String(x.url).toLowerCase()));
   const found = [];
-  const add = (platform, url, info) => {
-    const src = GE.db.add('source', { title: `${platform}: ${s}`, url, source_type: 'Соцсеть', notes: info || '', tags: ['улика', 'авто'] });
-    if (src) { GE.db.link(id, src.id, 'улика'); found.push(platform); }
-  };
-  const u = encodeURIComponent(s);
-  try { const r1 = await fetch(`https://api.github.com/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r1.ok) { const j = await r1.json(); if (j && j.id) add('GitHub', j.html_url, j.name || ''); } } catch {}
-  try { const r2 = await fetch(`https://gitlab.com/api/v4/users?username=${u}`, { referrerPolicy: 'no-referrer' }); if (r2.ok) { const j = await r2.json(); if (j && j[0]) add('GitLab', j[0].web_url, j[0].name || ''); } } catch {}
-  try { const r3 = await fetch(`https://api.bitbucket.org/2.0/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r3.ok) { const j = await r3.json(); if (j && j.uuid) add('Bitbucket', `https://bitbucket.org/${j.username}/`, j.display_name || ''); } } catch {}
-  try { const r4 = await fetch(`https://codeberg.org/api/v1/users/${u}`, { referrerPolicy: 'no-referrer' }); if (r4.ok) { const j = await r4.json(); if (j && j.id) add('Codeberg', `https://codeberg.org/${j.login}`, j.full_name || ''); } } catch {}
-  try { const r5 = await fetch(`https://god-eye-proxy.zajcevtihon09.workers.dev/?url=${encodeURIComponent('https://t.me/' + s)}`, { referrerPolicy: 'no-referrer' }); if (r5.ok) { const html = await r5.text(); if (/Telegram: View @/i.test(html)) add('Telegram', `https://t.me/${u}`, 'публичный профиль/канал'); } } catch {}
-  if (found.length) GE.toast(`Найдено улик: ${found.length} — ${found.join(', ')}`);
-  else GE.toast('Зацепок не найдено. Попробуйте другой объект или поиск вручную.');
+  results.filter(x => x.found && GE.safeUrl(x.url) && !have.has(String(x.url).toLowerCase())).forEach(x => {
+    const src = GE.db.add('source', {
+      title: `${x.name}: ${s}`, url: GE.safeUrl(x.url), source_type: 'Соцсеть', reliability: 'F', credibility: '6',
+      notes: `Кандидат. Найден автоматически: профиль с таким же ником (${x.info || 'без описания'}). Совпадение ника не доказывает, что это тот же человек: подтвердите по двум независимым признакам.`,
+      tags: ['кандидат', 'авто']
+    }, true);
+    GE.db.link(id, src.id, 'кандидат (не подтверждён)');
+    found.push(x.name);
+  });
+  if (found.length) GE.log('HUNT', `Автопоиск по «${s}»: кандидатов ${found.length}`, id);
+  GE.save();
+  if (found.length) GE.toast(`Найдено кандидатов: ${found.length} (${found.join(', ')}). Проверьте и подтвердите в карточке каждого.`, { timeout: 7000 });
+  else GE.toast('Новых профилей с таким ником не найдено. Попробуйте другой ник или поиск вручную.');
   GE.emit('db');
   if (GE.drawerId === id) GE.openRecord(id);
+};
+
+/* Кандидаты автопоиска: подтверждение только по двум независимым признакам */
+const CAND_CHECKS = [
+  ['photo', 'Аватар или фото совпадает с известными снимками объекта'],
+  ['bio', 'Описание профиля (город, работа, интересы) совпадает с известными фактами'],
+  ['xref', 'Профиль сам ссылается на другой подтверждённый аккаунт или сайт объекта'],
+  ['time', 'Время и характер активности совпадают с хронологией дела'],
+  ['contact', 'Публичный контакт (сайт, почта, канал) совпадает с известным']
+];
+GE.candidatePanel = r => {
+  if (r.type !== 'source' || !Array.isArray(r.tags) || !r.tags.includes('кандидат')) return '';
+  return `<div class="dr-sec cand"><h6>Кандидат: нужна проверка</h6>
+    <div class="dim" style="font-size:12px;margin-bottom:8px">Профиль найден автоматически по совпадению ника. Совпадение имени не доказывает, что это тот же человек. Отметьте не меньше двух независимых признаков.</div>
+    ${CAND_CHECKS.map(([k, t]) => `<label class="chk-line"><input type="checkbox" data-cand="${k}"><span>${esc(t)}</span></label>`).join('')}
+    <div class="row" style="margin-top:10px"><button class="btn btn-sm btn-primary" data-cand-ok disabled>Подтвердить</button><button class="btn btn-sm btn-ghost btn-danger" data-cand-no>Отклонить и удалить</button><span class="dim" data-cand-n style="font-size:12px">Отмечено 0 из 2</span></div></div>`;
+};
+/* Пересечения между делами: одна и та же запись (человек, организация, адрес, источник) в нескольких делах */
+GE.caseOverlaps = r => {
+  const cases = GE.db.byType('case').filter(c => c.id !== r.id);
+  if (!cases.length) return [];
+  const adj = new Map(), add = (a, b) => { if (!adj.has(a)) adj.set(a, new Set()); adj.get(a).add(b); };
+  GE.db.edges().forEach(e => { add(e.from, e.to); add(e.to, e.from); });
+  const mine = adj.get(r.id) || new Set(), norm = s => String(s || '').trim().toLowerCase();
+  return cases.map(c => {
+    const theirs = adj.get(c.id) || new Set();
+    const shared = [...mine].filter(x => theirs.has(x)).map(x => GE.db.get(x)).filter(x => x && x.type !== 'case');
+    return { other: c, shared, sameSubject: !!r.subject && norm(r.subject) === norm(c.subject) };
+  }).filter(x => x.shared.length || x.sameSubject).sort((a, b) => b.shared.length - a.shared.length);
+};
+GE.caseOverlapsHtml = r => {
+  const row = (id, title, code, why) => `<div class="link-i" data-open="${esc(id)}"><span class="rel">${esc(code)}</span><span class="sens">${esc(title)}</span>${why ? `<span class="dim" style="font-size:11px">${esc(why)}</span>` : ''}</div>`;
+  if (r.type === 'case') {
+    const ov = GE.caseOverlaps(r);
+    if (!ov.length) return '';
+    return `<div class="dr-sec"><h6>Пересечения с другими делами · ${ov.length}</h6>
+      <div class="dim" style="font-size:12px;margin-bottom:8px">Совпадение объектов повод свериться, но не доказательство связи между делами. Проверьте, что речь об одном и том же человеке или месте.</div>
+      <div class="link-list">${ov.map(x => row(x.other.id, x.other.title, 'ДЕЛО', [x.shared.length ? `общих записей: ${x.shared.length} (${x.shared.slice(0, 3).map(s => s.title).join(', ')}${x.shared.length > 3 ? '…' : ''})` : '', x.sameSubject ? 'тот же объект дела' : ''].filter(Boolean).join(' · '))).join('')}</div></div>`;
+  }
+  const cs = GE.db.neighbors(r.id).filter(n => n.other && n.other.type === 'case');
+  if (cs.length < 2) return '';
+  return `<div class="dr-sec"><h6>Фигурирует в нескольких делах · ${cs.length}</h6>
+    <div class="dim" style="font-size:12px;margin-bottom:8px">Запись связана с несколькими делами. Убедитесь, что это один и тот же человек, организация или место.</div>
+    <div class="link-list">${cs.map(n => row(n.other.id, n.other.title, 'ДЕЛО', n.edge.rel)).join('')}</div></div>`;
+};
+
+GE.wireCandidate = (dr, r) => {
+  const box = dr.querySelector('.cand'); if (!box) return;
+  const ok = box.querySelector('[data-cand-ok]'), n = box.querySelector('[data-cand-n]');
+  const picked = () => Array.from(box.querySelectorAll('[data-cand]:checked')).map(x => x.dataset.cand);
+  box.addEventListener('change', () => { const k = picked().length; ok.disabled = k < 2; n.textContent = `Отмечено ${k} из 2`; });
+  ok.onclick = () => {
+    const keys = picked(); if (keys.length < 2) return;
+    const labels = CAND_CHECKS.filter(([k]) => keys.includes(k)).map(([, t]) => t);
+    GE.db.update(r.id, { tags: [...(r.tags || []).filter(x => x !== 'кандидат'), 'подтверждено'], notes: `${r.notes || ''}\n\nПодтверждено ${GE.today()}. Признаки: ${labels.join('; ')}.`.trim(), credibility: '3' });
+    GE.DB.links.forEach(l => { if ((l.from === r.id || l.to === r.id) && /^кандидат/.test(l.relation || '')) l.relation = 'улика (подтверждено)'; });
+    GE.save(); GE.emit('db'); GE.toast('Кандидат подтверждён', { type: 'ok' }); GE.openRecord(r.id);
+  };
+  box.querySelector('[data-cand-no]').onclick = () => { GE.closeDrawer(); GE.deleteRecords([r.id]); };
 };
 
 /* ─────────── Диалог связи ─────────── */
@@ -8623,6 +8748,180 @@ function analyzeDnsIntel(rows, dmarcRecs) {
   return intel;
 }
 
+/* Проверка публичных профилей по нику: используется «Живой разведкой» и автопоиском зацепок в делах */
+S.profileChecks = q => [
+        {
+          name: 'GitLab',
+          fn: async () => {
+            const arr = await GE.fetchJSON(`https://gitlab.com/api/v4/users?username=${E(q)}`, 8000);
+            const u = Array.isArray(arr) && arr[0];
+            return u ? { found: true, url: u.web_url, info: u.name || u.username } : { found: false };
+          }
+        },
+        {
+          name: 'Keybase',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://keybase.io/_/api/1.0/user/lookup.json?usernames=${E(q)}`, 8000);
+            const u = r && r.them && r.them[0];
+            if (!u || !u.basics) return { found: false };
+            const proofs = (u.proofs_summary?.all || []).map(p => `${p.proof_type}:${p.nametag}`).slice(0, 4).join(', ');
+            return { found: true, url: `https://keybase.io/${u.basics.username}`, info: proofs || u.profile?.full_name || 'найден' };
+          }
+        },
+        {
+          name: 'Hacker News',
+          fn: async () => {
+            const u = await GE.fetchJSON(`https://hacker-news.firebaseio.com/v0/user/${E(q)}.json`, 8000);
+            return u && u.id ? { found: true, url: `https://news.ycombinator.com/user?id=${E(u.id)}`, info: `karma ${u.karma || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'Dev.to',
+          fn: async () => {
+            const r = await fetch(`https://dev.to/api/users/by_username?url=${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: `https://dev.to/${u.username}`, info: u.name || u.username };
+          }
+        },
+        {
+          name: 'Bluesky',
+          fn: async () => {
+            const actor = q.includes('.') ? q : q + '.bsky.social';
+            const r = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${E(actor)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 400 || r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.did ? { found: true, url: `https://bsky.app/profile/${u.handle}`, info: u.displayName || `${u.followersCount || 0} подп.` } : { found: false };
+          }
+        },
+        {
+          name: 'Mastodon',
+          fn: async () => {
+            const r = await fetch(`https://mastodon.social/api/v1/accounts/lookup?acct=${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.url ? { found: true, url: u.url, info: u.display_name || `${u.followers_count || 0} подп.` } : { found: false };
+          }
+        },
+        {
+          name: 'Codeforces',
+          fn: async () => {
+            const r = await fetch(`https://codeforces.com/api/user.info?handles=${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 400 || r.status === 404) return { found: false };
+            const j = await r.json();
+            const u = j.status === 'OK' && j.result && j.result[0];
+            return u ? { found: true, url: `https://codeforces.com/profile/${E(u.handle)}`, info: [u.rank, u.rating, u.country].filter(Boolean).join(' · ') || 'найден' } : { found: false };
+          }
+        },
+        {
+          name: 'npm',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://registry.npmjs.org/-/v1/search?text=maintainer:${E(q.toLowerCase())}&size=1`, 8000);
+            return r && r.total > 0 ? { found: true, url: `https://www.npmjs.com/~${E(q.toLowerCase())}`, info: `пакетов: ${r.total}` } : { found: false };
+          }
+        },
+        {
+          name: 'Wikipedia',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=${E(q)}&usprop=editcount|registration&format=json&origin=*`, 8000);
+            const u = r && r.query && r.query.users && r.query.users[0];
+            return u && u.userid ? { found: true, url: `https://en.wikipedia.org/wiki/User:${E(u.name)}`, info: `правок: ${u.editcount || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'HuggingFace',
+          fn: async () => {
+            const r = await fetch(`https://huggingface.co/api/users/${E(q)}/overview`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.user ? { found: true, url: `https://huggingface.co/${E(u.user)}`, info: u.fullname || `моделей: ${u.numModels || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'Chess.com',
+          fn: async () => {
+            const r = await fetch(`https://api.chess.com/pub/player/${E(q.toLowerCase())}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: u.url || `https://www.chess.com/member/${E(q)}`, info: [u.title, u.name, u.location].filter(Boolean).join(' · ') || 'найден' };
+          }
+        },
+        {
+          name: 'Lichess',
+          fn: async () => {
+            const r = await fetch(`https://lichess.org/api/user/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return { found: true, url: u.url || `https://lichess.org/@/${E(q)}`, info: u.profile?.country || 'найден' };
+          }
+        },
+        {
+          name: 'GitHub',
+          fn: async () => {
+            const r = await fetch(`https://api.github.com/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.id ? { found: true, url: u.html_url, info: u.name || `репо: ${u.public_repos || 0}` } : { found: false };
+          }
+        },
+        {
+          name: 'Bitbucket',
+          fn: async () => {
+            const r = await fetch(`https://api.bitbucket.org/2.0/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.uuid ? { found: true, url: `https://bitbucket.org/${E(u.username)}/`, info: u.display_name || 'найден' } : { found: false };
+          }
+        },
+        {
+          name: 'Codeberg',
+          fn: async () => {
+            const r = await fetch(`https://codeberg.org/api/v1/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
+            if (r.status === 404) return { found: false };
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const u = await r.json();
+            return u && u.id ? { found: true, url: `https://codeberg.org/${E(u.login)}`, info: u.full_name || 'найден' } : { found: false };
+          }
+        },
+        {
+          name: 'Archive.org',
+          fn: async () => {
+            const r = await GE.fetchJSON(`https://archive.org/advancedsearch.php?q=uploader:${E(q)}&fl[]=identifier&rows=1&output=json`, 10000);
+            const n = r && r.response && r.response.numFound;
+            return n > 0 ? { found: true, url: `https://archive.org/search?query=uploader:${E(q)}`, info: `загрузок: ${n}` } : { found: false };
+          }
+        },
+        {
+          name: 'Telegram',
+          fn: async () => {
+            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://t.me/' + q)}`, { referrerPolicy: 'no-referrer' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const html = await r.text();
+            const m = html.match(/<title>Telegram:\s*(View|Contact)\s+@([^<]*)<\/title>/i);
+            if (!m) return { found: false };
+            return m[1] === 'View' ? { found: true, url: `https://t.me/${E(q)}`, info: 'публичный профиль/канал' } : { found: false };
+          }
+        },
+        {
+          name: 'Twitch',
+          fn: async () => {
+            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://www.twitch.tv/' + q)}`, { referrerPolicy: 'no-referrer' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const html = await r.text();
+            const t = (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+            return t.trim() && t.trim() !== 'Twitch' ? { found: true, url: `https://www.twitch.tv/${E(q)}`, info: 'канал существует' } : { found: false };
+          }
+        }
+];
+
 /* ─────────── Живая разведка ─────────── */
 S.live = (forceRefresh = false) => {
   const out = $('#live-out'), type = S.eff, q = GE.normQuery(S.q, type), id = ++S.runId;
@@ -9044,178 +9343,7 @@ S.live = (forceRefresh = false) => {
     }, `https://github.com/${q}`);
 
     job('Публичные профили · Live-проверка (18 платформ)', async () => {
-      const checks = [
-        {
-          name: 'GitLab',
-          fn: async () => {
-            const arr = await GE.fetchJSON(`https://gitlab.com/api/v4/users?username=${E(q)}`, 8000);
-            const u = Array.isArray(arr) && arr[0];
-            return u ? { found: true, url: u.web_url, info: u.name || u.username } : { found: false };
-          }
-        },
-        {
-          name: 'Keybase',
-          fn: async () => {
-            const r = await GE.fetchJSON(`https://keybase.io/_/api/1.0/user/lookup.json?usernames=${E(q)}`, 8000);
-            const u = r && r.them && r.them[0];
-            if (!u || !u.basics) return { found: false };
-            const proofs = (u.proofs_summary?.all || []).map(p => `${p.proof_type}:${p.nametag}`).slice(0, 4).join(', ');
-            return { found: true, url: `https://keybase.io/${u.basics.username}`, info: proofs || u.profile?.full_name || 'найден' };
-          }
-        },
-        {
-          name: 'Hacker News',
-          fn: async () => {
-            const u = await GE.fetchJSON(`https://hacker-news.firebaseio.com/v0/user/${E(q)}.json`, 8000);
-            return u && u.id ? { found: true, url: `https://news.ycombinator.com/user?id=${E(u.id)}`, info: `karma ${u.karma || 0}` } : { found: false };
-          }
-        },
-        {
-          name: 'Dev.to',
-          fn: async () => {
-            const r = await fetch(`https://dev.to/api/users/by_username?url=${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return { found: true, url: `https://dev.to/${u.username}`, info: u.name || u.username };
-          }
-        },
-        {
-          name: 'Bluesky',
-          fn: async () => {
-            const actor = q.includes('.') ? q : q + '.bsky.social';
-            const r = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${E(actor)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 400 || r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.did ? { found: true, url: `https://bsky.app/profile/${u.handle}`, info: u.displayName || `${u.followersCount || 0} подп.` } : { found: false };
-          }
-        },
-        {
-          name: 'Mastodon',
-          fn: async () => {
-            const r = await fetch(`https://mastodon.social/api/v1/accounts/lookup?acct=${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.url ? { found: true, url: u.url, info: u.display_name || `${u.followers_count || 0} подп.` } : { found: false };
-          }
-        },
-        {
-          name: 'Codeforces',
-          fn: async () => {
-            const r = await fetch(`https://codeforces.com/api/user.info?handles=${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 400 || r.status === 404) return { found: false };
-            const j = await r.json();
-            const u = j.status === 'OK' && j.result && j.result[0];
-            return u ? { found: true, url: `https://codeforces.com/profile/${E(u.handle)}`, info: [u.rank, u.rating, u.country].filter(Boolean).join(' · ') || 'найден' } : { found: false };
-          }
-        },
-        {
-          name: 'npm',
-          fn: async () => {
-            const r = await GE.fetchJSON(`https://registry.npmjs.org/-/v1/search?text=maintainer:${E(q.toLowerCase())}&size=1`, 8000);
-            return r && r.total > 0 ? { found: true, url: `https://www.npmjs.com/~${E(q.toLowerCase())}`, info: `пакетов: ${r.total}` } : { found: false };
-          }
-        },
-        {
-          name: 'Wikipedia',
-          fn: async () => {
-            const r = await GE.fetchJSON(`https://en.wikipedia.org/w/api.php?action=query&list=users&ususers=${E(q)}&usprop=editcount|registration&format=json&origin=*`, 8000);
-            const u = r && r.query && r.query.users && r.query.users[0];
-            return u && u.userid ? { found: true, url: `https://en.wikipedia.org/wiki/User:${E(u.name)}`, info: `правок: ${u.editcount || 0}` } : { found: false };
-          }
-        },
-        {
-          name: 'HuggingFace',
-          fn: async () => {
-            const r = await fetch(`https://huggingface.co/api/users/${E(q)}/overview`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.user ? { found: true, url: `https://huggingface.co/${E(u.user)}`, info: u.fullname || `моделей: ${u.numModels || 0}` } : { found: false };
-          }
-        },
-        {
-          name: 'Chess.com',
-          fn: async () => {
-            const r = await fetch(`https://api.chess.com/pub/player/${E(q.toLowerCase())}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return { found: true, url: u.url || `https://www.chess.com/member/${E(q)}`, info: [u.title, u.name, u.location].filter(Boolean).join(' · ') || 'найден' };
-          }
-        },
-        {
-          name: 'Lichess',
-          fn: async () => {
-            const r = await fetch(`https://lichess.org/api/user/${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return { found: true, url: u.url || `https://lichess.org/@/${E(q)}`, info: u.profile?.country || 'найден' };
-          }
-        },
-        {
-          name: 'GitHub',
-          fn: async () => {
-            const r = await fetch(`https://api.github.com/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.id ? { found: true, url: u.html_url, info: u.name || `репо: ${u.public_repos || 0}` } : { found: false };
-          }
-        },
-        {
-          name: 'Bitbucket',
-          fn: async () => {
-            const r = await fetch(`https://api.bitbucket.org/2.0/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.uuid ? { found: true, url: `https://bitbucket.org/${E(u.username)}/`, info: u.display_name || 'найден' } : { found: false };
-          }
-        },
-        {
-          name: 'Codeberg',
-          fn: async () => {
-            const r = await fetch(`https://codeberg.org/api/v1/users/${E(q)}`, { referrerPolicy: 'no-referrer' });
-            if (r.status === 404) return { found: false };
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const u = await r.json();
-            return u && u.id ? { found: true, url: `https://codeberg.org/${E(u.login)}`, info: u.full_name || 'найден' } : { found: false };
-          }
-        },
-        {
-          name: 'Archive.org',
-          fn: async () => {
-            const r = await GE.fetchJSON(`https://archive.org/advancedsearch.php?q=uploader:${E(q)}&fl[]=identifier&rows=1&output=json`, 10000);
-            const n = r && r.response && r.response.numFound;
-            return n > 0 ? { found: true, url: `https://archive.org/search?query=uploader:${E(q)}`, info: `загрузок: ${n}` } : { found: false };
-          }
-        },
-        {
-          name: 'Telegram',
-          fn: async () => {
-            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://t.me/' + q)}`, { referrerPolicy: 'no-referrer' });
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const html = await r.text();
-            const m = html.match(/<title>Telegram:\s*(View|Contact)\s+@([^<]*)<\/title>/i);
-            if (!m) return { found: false };
-            return m[1] === 'View' ? { found: true, url: `https://t.me/${E(q)}`, info: 'публичный профиль/канал' } : { found: false };
-          }
-        },
-        {
-          name: 'Twitch',
-          fn: async () => {
-            const r = await fetch(`${GODEYE_PROXY}/?url=${encodeURIComponent('https://www.twitch.tv/' + q)}`, { referrerPolicy: 'no-referrer' });
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const html = await r.text();
-            const t = (html.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
-            return t.trim() && t.trim() !== 'Twitch' ? { found: true, url: `https://www.twitch.tv/${E(q)}`, info: 'канал существует' } : { found: false };
-          }
-        }
-      ];
+      const checks = S.profileChecks(q);
       const results = await Promise.all(checks.map(c => c.fn().then(r => Object.assign({ name: c.name }, r)).catch(e => ({ name: c.name, err: e.message }))));
       const foundList = results.filter(r => r.found);
       setHud('profiles', 'ПРОФИЛИ (LIVE)', `${foundList.length} / ${checks.length}`, foundList.length ? 'hi' : '');
@@ -12504,6 +12632,7 @@ P.commands = () => [
   { g: 'Действия', icon: 'report', t: 'OSINT-плейбуки (сценарии проверки)', run: () => { GE.go('reports'); setTimeout(() => $('#playbooks-panel')?.scrollIntoView({ behavior: 'smooth' }), 100); } },
   { g: 'Действия', icon: 'settings', t: 'Настроить API-ключи Live Recon', run: () => { GE.go('settings'); setTimeout(() => $('#panel-api-keys')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); } },
   { g: 'Действия', icon: 'eye', t: 'Запустить заставку', run: () => GE.intro.run(true) },
+  { g: 'Действия', icon: 'shield', t: 'Скопировать отчёт об ошибке (диагностика)', run: () => { const x = window.GEDiag; if (x) { GE.copy(x.report()); GE.toast('Отчёт скопирован', { type: 'ok' }); } } },
   { g: 'Действия', icon: 'bolt', t: 'Красный импульс ока', run: () => GE.GodEye.scanAll() },
   { g: 'Действия', icon: 'shield', t: (GE.settings.secure ? 'Выключить' : 'Включить') + ' режим демонстрации экрана', run: () => { GE.settings.secure = !GE.settings.secure; GE.saveSettings(); } },
   { g: 'Действия', icon: 'archive', t: 'Загрузить демо-данные', run: () => GE.loadDemo() },
