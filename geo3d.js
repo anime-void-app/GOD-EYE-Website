@@ -68,6 +68,7 @@ function buildUi() {
         '<button id="ge3d-sync" type="button">Центр 2D</button>' +
         '<button id="ge3d-light" type="button">Свет: ВКЛ</button>' +
         '<button id="ge3d-to2d" type="button" disabled>Открыть точку в 2D</button>' +
+        '<button id="ge3d-retry" type="button" style="display:none">Повторить загрузку</button>' +
         '<button id="ge3d-close" class="ge3d-close" type="button" aria-label="Закрыть">×</button>' +
       '</div>' +
     '</div>' +
@@ -77,6 +78,7 @@ function buildUi() {
   $('#ge3d-close', root).addEventListener('click', close);
   $('#ge3d-sync', root).addEventListener('click', syncFrom2D);
   $('#ge3d-to2d', root).addEventListener('click', openIn2D);
+  $('#ge3d-retry', root).addEventListener('click', () => { loadPromise = null; open(); });
   $('#ge3d-light', root).addEventListener('click', toggleLight);
   $('#ge3d-base', root).addEventListener('change', event => setBase(event.target.value));
   $('#ge3d-points', root).addEventListener('change', syncPoints);
@@ -90,26 +92,78 @@ function status(message) {
 function loadCesium() {
   if (window.Cesium) return Promise.resolve(window.Cesium);
   if (loadPromise) return loadPromise;
-  window.CESIUM_BASE_URL = CESIUM_BASE;
-  if (!$('#ge3d-cesium-css')) {
-    const css = document.createElement('link');
-    css.id = 'ge3d-cesium-css';
-    css.rel = 'stylesheet';
-    css.href = CESIUM_BASE + 'Widgets/widgets.css';
-    document.head.appendChild(css);
-  }
-  loadPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.id = 'ge3d-cesium-script';
-    script.src = CESIUM_BASE + 'Cesium.js';
-    script.async = true;
-    script.onload = () => window.Cesium ? resolve(window.Cesium) : reject(new Error('CesiumJS не инициализировался'));
-    script.onerror = () => reject(new Error('Не удалось загрузить CesiumJS с официального CDN'));
-    document.head.appendChild(script);
+
+  const sources = [
+    {
+      name: 'cdnjs',
+      base: 'https://cdnjs.cloudflare.com/ajax/libs/cesium/1.147.0/'
+    },
+    {
+      name: 'jsDelivr',
+      base: 'https://cdn.jsdelivr.net/npm/cesium@1.147.0/Build/Cesium/'
+    },
+    {
+      name: 'Cesium official',
+      base: CESIUM_BASE
+    }
+  ];
+
+  loadPromise = (async () => {
+    const errors = [];
+
+    for (const source of sources) {
+      status('Подключаю CesiumJS через ' + source.name + '…');
+      window.CESIUM_BASE_URL = source.base;
+
+      const previousCss = $('#ge3d-cesium-css');
+      if (previousCss) previousCss.remove();
+      const css = document.createElement('link');
+      css.id = 'ge3d-cesium-css';
+      css.rel = 'stylesheet';
+      css.href = source.base + 'Widgets/widgets.css';
+
+      try {
+        await new Promise((resolve, reject) => {
+          css.onload = resolve;
+          css.onerror = () => reject(new Error('Не загрузились стили CesiumJS'));
+          document.head.appendChild(css);
+        });
+
+        const previousScript = $('#ge3d-cesium-script');
+        if (previousScript) previousScript.remove();
+
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.id = 'ge3d-cesium-script';
+          script.src = source.base + 'Cesium.js';
+          script.async = true;
+          script.onload = () => {
+            if (window.Cesium) resolve();
+            else reject(new Error('Скрипт загрузился, но объект Cesium не создан'));
+          };
+          script.onerror = () => reject(new Error('Браузер не смог загрузить Cesium.js'));
+          document.head.appendChild(script);
+        });
+
+        status('CesiumJS ' + VERSION + ' подключён через ' + source.name);
+        return window.Cesium;
+      } catch (error) {
+        errors.push(source.name + ': ' + (error.message || 'ошибка сети'));
+        const failedScript = $('#ge3d-cesium-script');
+        if (failedScript) failedScript.remove();
+        const failedCss = $('#ge3d-cesium-css');
+        if (failedCss) failedCss.remove();
+      }
+    }
+
+    throw new Error('Не удалось загрузить CesiumJS. Проверены cdnjs, jsDelivr и официальный CDN. ' + errors.join(' | '));
+  })().catch(error => {
+    loadPromise = null;
+    throw error;
   });
+
   return loadPromise;
 }
-
 function current2DCenter() {
   const geo = window.GE && window.GE.geo;
   if (geo && geo.map) {
@@ -301,6 +355,8 @@ async function open() {
   const coords = $('#ge3d-coords');
   if (coords) coords.textContent = 'Нажмите на поверхность глобуса, чтобы выбрать координаты';
   status('Загрузка CesiumJS ' + VERSION + '…');
+  const retryButton = $('#ge3d-retry');
+  if (retryButton) retryButton.style.display = 'none';
   try {
     await loadCesium();
     if (!viewer) createViewer();
@@ -312,6 +368,8 @@ async function open() {
     viewer.scene.requestRender();
   } catch (error) {
     status('Ошибка 3D-модуля: ' + (error.message || 'неизвестная ошибка'));
+    const retry = $('#ge3d-retry');
+    if (retry) retry.style.display = 'inline-block';
   }
 }
 
