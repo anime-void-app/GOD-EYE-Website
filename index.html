@@ -864,6 +864,8 @@ button.chip:hover, a.chip:hover { border-color: rgba(226,35,46,0.6); color: #fff
 @media (prefers-reduced-motion: reduce) { #atm-rain, #atm-lamp { transition: none; } }
 /* ===ATM-CSS-END=== */
 /* ===AN-CSS-BEGIN=== */
+.modal { min-width: 0; }
+.modal-b { min-width: 0; }
 .an-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
 .an-col h6 { margin-bottom: 8px; }
 .qa-i.k b { border-color: rgba(205,205,218,0.55); color: #fff; }
@@ -920,7 +922,8 @@ button.chip:hover, a.chip:hover { border-color: rgba(226,35,46,0.6); color: #fff
 .an-keyh { font: 500 10.5px/1 var(--f-mono); letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; margin: 12px 0 8px; }
 .an-keyi { padding: 6px 10px; border: 1px solid var(--line); font-size: 12.5px; color: var(--silver); margin-bottom: 4px; }
 .an-keyi b { margin-right: 8px; font: 600 10px/1 var(--f-mono); color: #0a0a0c; background: var(--silver); padding: 3px 5px; }
-@media (max-width: 720px) { .an-rk { grid-template-columns: 22px 1fr; } .an-rk .bars, .an-rk em { grid-column: 2; } }
+@media (max-width: 720px) { .an-rk { grid-template-columns: 22px 1fr; } .an-rk .bars, .an-rk em { grid-column: 2; }
+  .an-ach .an-et { min-width: 120px; max-width: 150px; } .an-ach .an-et span { font-size: 11.5px; } .an-ach th, .an-ach td { padding: 5px 3px; } .an-ach th { white-space: normal; max-width: 72px; word-break: break-word; font-size: 9px; letter-spacing: 0.04em; } .an-w { width: 54px; padding: 4px 1px; font-size: 10px; } .an-cell { width: 30px; height: 28px; } .an-ach th:last-child, .an-ach td:last-child { display: none; } }
 /* ===AN-CSS-END=== */
 .ap-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
 @media (max-width: 680px) { .audio-lbl { display: none; } }
@@ -11404,7 +11407,7 @@ function initPlaybooks() {
 }
 
 /* ─────────── 5. Автономное офлайн HTML-досье ─────────── */
-PRO.exportDossier = rec => {
+PRO.exportDossier = async rec => {
   if (!rec) return;
   const t = GE.TYPES[rec.type] || { label: rec.type, code: 'REC' };
   const linked = GE.db.neighbors(rec.id);
@@ -11441,6 +11444,7 @@ PRO.exportDossier = rec => {
     ].join('\n');
   })();
 
+  const analysis = isCase && GE.analysis && GE.analysis.dossierHtml ? await GE.analysis.dossierHtml(rec).catch(() => '') : '';
   const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GOD EYE DOSSIER · ${esc(rec.title)}</title>
 <style>
@@ -11474,7 +11478,8 @@ li{margin:3px 0}
 .outc{display:inline-block;margin:4px 0 10px;padding:7px 14px;border:2px solid #e2232e;color:#e2232e;font:700 13px/1 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-2deg)}
 @media (max-width:640px){.mmo{grid-template-columns:1fr}}
 .foot{margin-top:28px;padding-top:14px;border-top:1px solid #1d1d22;font:11px ui-monospace,monospace;color:#6e6e78;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-@media print{body{background:#fff;color:#111}.wrap{border-color:#ccc;background:#fff}h1,h2{color:#000}.box{background:#fafafa;border-color:#ddd}}
+.ach th{width:auto;text-align:center}.ach td{text-align:center;font:700 13px ui-monospace,monospace;color:#8a8a96}.ach td:first-child{text-align:left;font:13px/1.5 -apple-system,Segoe UI,sans-serif;color:#d6d6dc}.ach td.s1{color:#fff}.ach td.sm{color:#ff6b72}
+@media print{body{background:#fff;color:#111}.wrap{border-color:#ccc;background:#fff}h1,h2{color:#000}.box{background:#fafafa;border-color:#ddd}.ach td,.ach td:first-child,.ach td.s1,.ach td.sm{color:#111}}
 </style></head><body><div class="wrap">
 <div class="top">
   <div><div class="eyebrow">GOD EYE · OSINT DOSSIER · ${esc(t.code)}${isCase && rec.case_no ? ' · ' + esc(rec.case_no) : ''}</div><h1>${esc(rec.title)}</h1>${isCase ? `<div class="stamp">${esc(GE.caseStamp(rec))}</div>` : ''}</div>
@@ -11482,6 +11487,7 @@ li{margin:3px 0}
 </div>
 ${rows ? `<h2>${isCase ? 'Паспорт дела' : 'Сводные поля'}</h2><table>${rows}</table>` : ''}
 ${caseHtml}
+${analysis}
 ${rec.objective ? `<h2>Цель исследования</h2><div class="box">${mdToHtml(rec.objective)}</div>` : ''}
 ${rec.body ? `<h2>Ход работы и находки</h2><div class="box">${mdToHtml(rec.body)}</div>` : ''}
 ${rec.notes ? `<h2>Заметки</h2><div class="box">${mdToHtml(rec.notes)}</div>` : ''}
@@ -12854,8 +12860,32 @@ GE.wireAnalysis = (dr, r) => {
     f.text().then(t => { let o = null; try { o = JSON.parse(t); } catch (e) { /* не JSON */ } openSealCheck(o, id); });
   });
 };
+
+/* HTML-досье: сводка, матрица версий, источники и подпись одним блоком (HTML безопасен: всё через esc) */
+async function dossierHtml(r) {
+  const S = summarize(r), calc = achCalc(r), urls = caseUrls(r), ind = independence(r, urls), P = r.proofs || {}, K = r.srckind || {};
+  const ul = a => `<ul>${a.length ? a.map(x => `<li>${esc(x)}</li>`).join('') : '<li><i>пусто</i></li>'}</ul>`;
+  let h = `<h2>Сводка дела</h2><div class="box"><div class="k">Известно</div>${ul(S.K)}<div class="k">Неизвестно</div>${ul(S.U)}<div class="k">Противоречит</div>${ul(S.C)}</div>`;
+  if (calc.any) {
+    const row = x => `<tr><td>E-${pad(x.e.i + 1)} ${esc(cut(x.e.t, 120))}</td><td>${fmt(x.w)}</td>${x.vals.map(v => `<td class="${v === 1 ? 's1' : v === -1 ? 'sm' : ''}">${v === undefined ? '·' : SYM[v]}</td>`).join('')}</tr>`;
+    h += `<h2>Матрица версий (ACH)</h2><table class="ach"><tr><th>Улика</th><th>Вес</th>${calc.HR.map(x => `<th title="${esc(x.body)}">${esc(x.lbl)}</th>`).join('')}</tr>${calc.es.map(row).join('')}</table>
+      <div class="box">${calc.rank.map((o, i) => `<div class="ck"><b>${i + 1}. ${esc(o.h.lbl)}</b> — противоречий (взвеш.): ${fmt(o.bad)}, подтверждений: ${fmt(o.good)}. ${esc(cut(o.h.body, 140))}</div>`).join('')}<div class="ck"><i>✓ согласуется · ✗ противоречит · ~ нейтрально · · не оценено. Порядок версий показывает, что проверять в первую очередь, и не является доказательством.</i></div></div>`;
+  }
+  if (urls.length) {
+    h += `<h2>Источники (${urls.length}) · независимых: ${ind.independent}</h2><table>${urls.map(u => {
+      const k = ukey(u), p = P[k] || {}, kind = K[k] === 'p' ? 'первоисточник' : K[k] === 'r' ? 'перепечатка' : 'роль не отмечена', arc = (p.arc && p.arc.url) || urls.arc[u];
+      return `<tr><th>${esc(kind)}</th><td>${esc(u)}${arc ? `<br>копия: ${esc(arc)}` : ''}${p.sha ? `<br><code>SHA-256 ${esc(p.sha)}</code> · ${esc(dayOf(p.t))}${p.by ? ' · ' + esc(p.by) : ''}` : ''}</td></tr>`;
+    }).join('')}</table>`;
+  }
+  if (r.seal && r.seal.sig) {
+    let st = null;
+    try { st = await sealStatus(r); } catch (e) { /* без статуса */ }
+    h += `<h2>Подпись досье</h2><div class="box">${st ? `<div class="ck">${st.text}</div>` : ''}<div class="ck">Хеш содержимого: <code>${esc(String(r.seal.hash || '').slice(0, 64))}</code></div><div class="ck">Отпечаток ключа: <code>${esc(r.seal.kid || '')}</code> · подписал: ${esc(r.seal.by || '')} · ${esc(r.seal.t || '')}</div><div class="ck"><i>Сам HTML-файл не подписан: файл подписи (.json) выгружается из карточки дела кнопкой «Файл подписи» и проверяется отдельно.</i></div></div>`;
+  }
+  return h;
+}
 /* для проверок без интерфейса */
-GE.analysis = { achCalc, summarize, summaryMd, canon, dossierOf, sealCase, checkSeal, sealStatus, independence, caseUrls, putBlock, achMd, fetchHash, findArchive };
+GE.analysis = { dossierHtml, achCalc, summarize, summaryMd, canon, dossierOf, sealCase, checkSeal, sealStatus, independence, caseUrls, putBlock, achMd, fetchHash, findArchive };
 })();
 </script>
 <script id="geo2-module">
