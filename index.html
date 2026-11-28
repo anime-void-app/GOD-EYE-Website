@@ -335,12 +335,14 @@ a.pl-th:hover img { filter: none; }
 /* ===GEO2-CSS-BEGIN=== */
 /* Гео-центр: карта, панели и живые слои */
 .map-wrap.geo2{height:clamp(560px,76vh,900px);border:1px solid rgba(205,205,218,.2);background:#07070a}
-.map-wrap.geo2.b-dark .leaflet-base-pane{filter:grayscale(1) invert(1) contrast(1.12) brightness(.98)}
+.map-wrap.geo2.b-dark .leaflet-base-pane{filter:none}
+.map-wrap.geo2.b-osm_noir .leaflet-base-pane{filter:grayscale(1) invert(1) contrast(1.08) brightness(.92)}
 .map-wrap.geo2.b-sat .leaflet-base-pane{filter:none}
 .map-wrap.geo2.b-topo .leaflet-base-pane{filter:none}
 .map-wrap.geo2.b-relief .leaflet-base-pane{filter:none}
 .map-wrap.geo2.b-hybrid .leaflet-base-pane{filter:none}
 .map-wrap.geo2.b-hill .leaflet-base-pane{filter:contrast(1.06) brightness(.96)}
+.gm-grid-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:420}
 .gm-top{position:absolute;z-index:600;top:12px;left:56px;right:12px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
 .gm-top>*{pointer-events:auto}
 .gm-search{position:relative;flex:1 1 auto;max-width:440px}
@@ -369,7 +371,10 @@ a.pl-th:hover img { filter: none; }
 .gm-pop button:hover,.gm-pop button.on{background:var(--crimson-soft);color:#fff}
 .gm-pop hr{border:0;border-top:1px solid var(--line-2);margin:0}
 .gm-sw{width:30px;height:20px;border:1px solid rgba(205,205,218,.3);display:inline-block;flex:none}
-.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm{background:linear-gradient(135deg,#dcd9d1,#b6b3aa)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-hybrid{background:linear-gradient(135deg,#35442e 0 50%,#c8c1a2 50%)}.sw-street{background:linear-gradient(135deg,#eee9df,#9aa3a8)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}.sw-relief{background:linear-gradient(135deg,#b4c89a,#b38e68)}.sw-physical{background:linear-gradient(135deg,#76a8b8,#d5c7a1)}.sw-hill{background:linear-gradient(135deg,#b8b8b8,#56565b)}
+.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm,.sw-osm_detail{background:linear-gradient(135deg,#ebe7dd,#b9cfb1)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-hybrid{background:linear-gradient(135deg,#35442e 0 50%,#c8c1a2 50%)}.sw-street{background:linear-gradient(135deg,#eee9df,#9aa3a8)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}.sw-relief{background:linear-gradient(135deg,#b4c89a,#b38e68)}.sw-physical{background:linear-gradient(135deg,#76a8b8,#d5c7a1)}.sw-hill{background:linear-gradient(135deg,#b8b8b8,#56565b)}
+/* Тактические сетки рабочей среды (стиль Obsidian + OSINT) */
+.main{background-image:radial-gradient(rgba(205,205,218,.085) 1px,transparent 1px),linear-gradient(90deg,rgba(205,205,218,.018) 1px,transparent 1px),linear-gradient(0deg,rgba(205,205,218,.018) 1px,transparent 1px);background-size:24px 24px,120px 120px,120px 120px;background-position:0 0,0 0,0 0}
+.graph-box{background:#060609;border:1px solid rgba(205,205,218,.22);box-shadow:inset 0 0 80px rgba(0,0,0,.75)}
 .gm-panel{position:absolute;z-index:620;top:56px;right:12px;bottom:12px;width:312px;display:flex;flex-direction:column;background:rgba(9,9,12,.95);backdrop-filter:blur(10px);border:1px solid rgba(205,205,218,.22);box-shadow:0 22px 56px rgba(0,0,0,.7);transition:transform .32s var(--ease),opacity .25s}
 .gm-panel.off{transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none}
 .gm-panel-h{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
@@ -2074,17 +2079,35 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
             <canvas id="graph-canvas"></canvas>
             <div class="graph-tools">
               <input class="input" id="graph-find" placeholder="Найти узел…">
+              <select class="select" id="graph-grid-mode" style="min-height:30px;height:30px;padding:0 8px;font-size:11.5px;width:auto" title="Сетка холста связей">
+                <option value="obsidian">Сетка: Точки Obsidian</option>
+                <option value="matrix">Сетка: Матрица OSINT</option>
+                <option value="radar">Сетка: Радар</option>
+                <option value="none">Без сетки</option>
+              </select>
               <button class="btn btn-sm" id="graph-fit">Вписать</button>
               <button class="btn btn-sm" id="graph-shake">Перестроить</button>
               <label class="btn btn-sm check" style="gap:6px"><input type="checkbox" id="graph-iso" checked>Одиночные</label>
             </div>
             <div class="graph-legend" id="graph-legend"></div>
-            <div class="graph-hint">ПЕРЕТАЩИТЬ · КОЛЕСО · ДВОЙНОЙ КЛИК</div>
+            <div class="graph-hint">ПЕРЕТАЩИТЬ · КОЛЕСО · ДВОЙНОЙ КЛИК · ХОЛСТ OBSIDIAN</div>
           </div>
           <div class="stack">
             <div class="panel">
               <div class="panel-h">Узел</div>
               <div id="graph-info" class="muted" style="font-size:13px">Выберите узел на графе, чтобы увидеть его связи.</div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Цепочка связей (А → Б)<small>поиск скрытого маршрута</small></div>
+              <div class="stack" style="gap:8px">
+                <select class="select" id="gpath-a"><option value="">Откуда (узел А)…</option></select>
+                <select class="select" id="gpath-b"><option value="">Куда (узел Б)…</option></select>
+                <div class="row">
+                  <button class="btn btn-sm btn-primary" id="gpath-run" type="button">Найти цепочку</button>
+                  <button class="btn btn-sm" id="gpath-clr" type="button">Сброс</button>
+                </div>
+                <div id="gpath-out" class="muted" style="font-size:12px">Покажет кратчайшую цепочку контактов, улик и адресов между двумя объектами.</div>
+              </div>
             </div>
             <div class="panel">
               <div class="panel-h">Явные связи<span class="ph-right"><span class="badge" id="links-count">0</span></span></div>
@@ -2474,7 +2497,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
 'use strict';
 
 const GE = window.GE = window.GE || {};
-GE.VERSION = '3.1.0';
+GE.VERSION = '3.2.0';
 
 /* ─────────── Утилиты ─────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -2603,7 +2626,7 @@ GE.CASE_GROUPS = [
   { g: 'Люди и безопасность', tpl: 'people', o: ['Пропажа', 'Убийство', 'Подозрительная смерть', 'Похищение', 'Серия преступлений'] },
   { g: 'Имущество и финансы', tpl: 'money', o: ['Кража', 'Ограбление', 'Мошенничество', 'Финансовая схема / пирамида', 'Отмывание денег', 'Коррупция', 'Подделка документов / контрафакт', 'Страховое мошенничество', 'Поджог', 'Хищение произведений искусства', 'Корпоративное расследование', 'Фирма-однодневка'] },
   { g: 'Цифровые следы', tpl: 'digital', o: ['Киберинцидент', 'Утечка данных (публичный инцидент)', 'Фишинг / социальная инженерия', 'Сайт-двойник / фальшивый бренд', 'Криптовалютный след', 'Дезинформация / фейк', 'Бот-сети / координированная активность', 'Цифровая подделка (фото, видео, аудио)'] },
-  { g: 'История и загадки', tpl: 'history', o: ['Холодное дело', 'Историческая загадка', 'Катастрофа / авария', 'Пропавший груз / клад / артефакт', 'Необъяснённое явление', 'Архивное расследование'] },
+  { g: 'История и загадки', tpl: 'history', o: ['Холодное дело', 'Личное забытое дело', 'Семейная / архивная тайна', 'Историческая загадка', 'Катастрофа / авария', 'Пропавший груз / клад / артефакт', 'Необъяснённое явление', 'Архивное расследование'] },
   { g: 'Журналистика и проверка', tpl: 'verify', o: ['Журналистское расследование', 'Проверка факта', 'Верификация медиа', 'Геолокация / хронолокация', 'Проверка контрагента', 'Санкции / комплаенс'] },
   { g: 'Игры и обучение', tpl: 'game', o: ['CTF / OSINT-квест', 'Учебное дело', 'Вымышленное дело (сюжет)'] },
   { g: 'Прочее', tpl: 'misc', o: ['Наблюдение', 'Другое'] }
@@ -2619,7 +2642,7 @@ GE.CASE_OPT = {
   origin: ['Собственная инициатива', 'Публикация в СМИ', 'Судебное решение / приговор', 'Официальный запрос', 'Открытые данные / реестры', 'Сообщение читателя / подсказка', 'Архивный документ', 'Учебное задание', 'Игра / сюжет'],
   scale: ['Частный случай', 'Локальное', 'Региональное', 'Национальное', 'Международное']
 };
-GE.CASE_QUICK = ['Пропажа', 'Убийство', 'Мошенничество', 'Холодное дело', 'Киберинцидент', 'Проверка факта', 'Геолокация / хронолокация', 'Журналистское расследование'];
+GE.CASE_QUICK = ['Убийство', 'Холодное дело', 'Личное забытое дело', 'Пропажа', 'Мошенничество', 'Киберинцидент', 'Проверка факта', 'Геолокация / хронолокация'];
 
 GE.TYPES = {
   person: {
@@ -7610,7 +7633,13 @@ GE.renderEntity = type => {
     fill('cstatus', 'Статус', 'status', GE.CASE_OPT.status);
     fill('ctype', 'Тип дела', 'case_type', GE.CASE_GROUPS.flatMap(g => g.o));
     const ex = sec.querySelector('.ent-extra');
-    if (ex) ex.innerHTML = all.length ? `<div class="live-hud case-stats">${GE.caseStats()}</div>` : '';
+    if (ex) {
+      if (window.GECaseStudio && typeof window.GECaseStudio.renderCasesHubBanner === 'function') {
+        setTimeout(() => window.GECaseStudio.renderCasesHubBanner(), 0);
+      } else {
+        ex.innerHTML = all.length ? `<div class="live-hud case-stats">${GE.caseStats()}</div>` : '';
+      }
+    }
   }
   sec.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === st.mode));
   // фильтр
@@ -13021,22 +13050,21 @@ const MAP_MAX_ZOOM = 22;
 const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
 const ESRI_REF = name => ESRI + 'Reference/' + name + '/MapServer/tile/{z}/{y}/{x}';
 const BASES = {
-  dark: { n: 'Графит Esri', d: 'Тёмная карта Esri для ночной работы', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
-  canvas: { n: 'Графит', d: 'Минималистичная тёмная карта Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
-  osm: { n: 'Улицы Esri', d: 'Подробная схема улиц и объектов', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
-  street: { n: 'Улицы Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, EPA, NPS' }, z: 19 },
-  sat: { n: 'Спутник', d: 'Спутниковые и аэрофотоснимки с названиями мест', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
-  hybrid: { n: 'Гибрид', d: 'Спутник + границы, подписи и транспортная сеть', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }, labs: [
-    { u: ESRI_REF('World_Boundaries_and_Places'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.95, attribution: 'Labels &copy; Esri' } },
-    { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.9, attribution: 'Transportation &copy; Esri' } }
-  ], z: 19 },
-  topo: { n: 'Топография Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS' }, z: 19 },
-  relief: { n: 'Рельеф и батиметрия', d: 'Глобальная подложка World Terrain Base: затенённый рельеф, суша и океан', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
-  physical: { n: 'Физическая', d: 'Физическая карта мира: суша, океаны и формы поверхности', u: ESRI_TILE('World_Physical_Map'), o: { maxNativeZoom: 8, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, z: 8 },
-  hill: { n: 'Тени рельефа', d: 'Отдельная глобальная подложка высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
+  dark: { n: 'Тактическая Тёмная (Z20)', d: 'Быстрая тёмная карта улиц, домов и кварталов (Carto Dark Retina до Z20)', u: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap &copy; CARTO' }, z: 20 },
+  hybrid: { n: 'Гибрид: Спутник + Улицы', d: 'Спутник высокого разрешения + чёткие названия улиц, домов и дорог', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar &middot; Labels &copy; OSM/CARTO' }, labs: [
+    { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.92, attribution: 'Transportation &copy; Esri' } },
+    { u: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, opacity: 0.98, attribution: 'Labels &copy; CARTO' } }
+  ], z: 20 },
+  osm_detail: { n: 'Улицы и Номера Домов (OSM)', d: 'Максимальная детализация дворов, подъездов, номеров домов и троп на русском языке', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors' }, z: 19 },
+  sat: { n: 'Спутник чистый', d: 'Спутниковые и аэрофотоснимки Esri/Maxar', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
+  street: { n: 'Схема Улиц Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS' }, z: 19 },
+  canvas: { n: 'Графит Esri', d: 'Минималистичная тёмная подложка Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
+  topo: { n: 'Топография Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 19 },
+  relief: { n: 'Рельеф и батиметрия', d: 'Затенённый рельеф суши и океана', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
+  hill: { n: 'Тени рельефа', d: 'Глобальная модель высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
 };
 
-const S = GEO.s = { mode: 'pick', base: 'dark', baseMaxNative: 19, baseExtraLayers: [], shapes: [], path: null, live: {}, hud: new Map(), radius: 2 };
+const S = GEO.s = { mode: 'pick', base: 'dark', baseMaxNative: 20, baseExtraLayers: [], shapes: [], path: null, live: {}, hud: new Map(), radius: 2, tacGrid: true };
 
 /* ─────────── разметка ─────────── */
 GEO.init = () => {
@@ -13044,16 +13072,18 @@ GEO.init = () => {
   slot.innerHTML = `
     <div class="map-wrap geo2 b-dark" id="map-wrap">
       <div id="geo-map"></div>
+      <canvas class="gm-grid-cv" id="gm-grid-cv"></canvas>
       <div class="gm-top">
-        <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, место или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
+        <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, улица, дом или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
         <div class="gm-btns">
-          <button class="gm-b" id="gm-base-btn" title="Подложка карты">${ic('layers')}<span>Карта</span></button>
-          <button class="gm-b" id="gm-3d-btn" title="Открыть интерактивный 3D-глобус">◉<span>3D Глобус</span></button>
-          <button class="gm-b" id="gm-live-btn" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
-          <button class="gm-b" id="gm-io-btn" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
-          <button class="gm-b ico" id="gm-full" title="Развернуть карту на весь экран">${ic('full')}</button>
-          <button class="gm-b ico" id="gm-me" title="Моя позиция (запросит разрешение браузера)">${ic('locate')}</button>
-          <button class="gm-b ico" id="map-fit" title="Показать все точки">${ic('fit')}</button>
+          <button class="gm-b" id="gm-base-btn" type="button" title="Подложка карты: спутник, улицы, номера домов">${ic('layers')}<span>Карта</span></button>
+          <button class="gm-b" id="gm-3d-btn" type="button" title="Открыть 3D-глобус и режим осмотра улиц">◉<span>3D Глобус</span></button>
+          <button class="gm-b" id="gm-live-btn" type="button" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
+          <button class="gm-b on" id="gm-grid-btn" type="button" title="Тактическая координатная сетка OSINT">⌗<span>Сетка</span></button>
+          <button class="gm-b" id="gm-io-btn" type="button" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
+          <button class="gm-b ico" id="gm-full" type="button" title="Развернуть карту на весь экран">${ic('full')}</button>
+          <button class="gm-b ico" id="gm-me" type="button" title="Моя позиция (запросит разрешение браузера)">${ic('locate')}</button>
+          <button class="gm-b ico" id="map-fit" type="button" title="Показать все точки">${ic('fit')}</button>
         </div>
       </div>
       <div class="gm-rail" id="map-modes">
@@ -13084,20 +13114,72 @@ const hud = (key, html) => {
 };
 
 /* ─────────── карта ─────────── */
+function drawTacGrid(map) {
+  const cv = $('#gm-grid-cv'); if (!cv || !map) return;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const g = cv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, W, H);
+  if (!S.tacGrid) return;
+  const z = map.getZoom(), b = map.getBounds();
+  const step = z < 4 ? 20 : z < 6 ? 10 : z < 8 ? 2 : z < 10 ? 0.5 : z < 12 ? 0.1 : z < 14 ? 0.02 : z < 16 ? 0.005 : 0.001;
+  const dec = step >= 1 ? 0 : step >= 0.1 ? 1 : step >= 0.01 ? 2 : 3;
+  const sLat = Math.floor(b.getSouth() / step) * step, nLat = Math.ceil(b.getNorth() / step) * step;
+  const wLon = Math.floor(b.getWest() / step) * step, eLon = Math.ceil(b.getEast() / step) * step;
+  g.strokeStyle = 'rgba(205,205,218,0.13)';
+  g.lineWidth = 0.8;
+  g.font = '9.5px "JetBrains Mono",monospace';
+  g.fillStyle = 'rgba(226,35,46,0.72)';
+  let guard = 0;
+  for (let lat = sLat; lat <= nLat && guard < 80; lat += step, guard++) {
+    if (lat < -85 || lat > 85) continue;
+    const y = map.latLngToContainerPoint([lat, b.getCenter().lng]).y;
+    g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
+    if (y > 54 && y < H - 28) g.fillText((lat >= 0 ? '+' : '') + lat.toFixed(dec) + '°', 8, y - 3);
+  }
+  guard = 0;
+  for (let lon = wLon; lon <= eLon && guard < 80; lon += step, guard++) {
+    const x = map.latLngToContainerPoint([b.getCenter().lat, lon]).x;
+    g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
+    if (x > 64 && x < W - 54) g.fillText((wrapLon(lon) >= 0 ? '+' : '') + wrapLon(lon).toFixed(dec) + '°', x + 4, H - 10);
+  }
+  // Центральный тактический прицел OSINT
+  const cx = W / 2, cy = H / 2;
+  g.strokeStyle = 'rgba(226,35,46,0.48)';
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(cx - 14, cy); g.lineTo(cx - 4, cy);
+  g.moveTo(cx + 4, cy); g.lineTo(cx + 14, cy);
+  g.moveTo(cx, cy - 14); g.lineTo(cx, cy - 4);
+  g.moveTo(cx, cy + 4); g.lineTo(cx, cy + 14);
+  g.stroke();
+}
+
 GEO.ensure = () => {
-  if (GEO.map) { setTimeout(() => GEO.map.invalidateSize(), 60); return; }
+  if (GEO.map) { setTimeout(() => { GEO.map.invalidateSize(); drawTacGrid(GEO.map); }, 60); return; }
   const el = $('#geo-map'); if (!el) return;
   if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи с координатами по-прежнему доступны в списке ниже.</div>'; return; }
-  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 65, preferCanvas: true }).setView([55.75, 37.62], 4);
+  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 1, zoomDelta: 1, wheelPxPerZoomLevel: 95, preferCanvas: true }).setView([55.75, 37.62], 4);
   map.attributionControl.setPrefix('Leaflet');
   map.createPane('base'); map.getPane('base').style.zIndex = 190;
   GEO.layer = L.layerGroup().addTo(map);
   GEO.toolsLayer = L.layerGroup().addTo(map);
   S.live = {};
-  setBase((GE.settings.view && GE.settings.view.geoBase) || 'dark');
-  bindSearch(map); bindTools(map); bindMenu(map); bindPopups(map); bindFiles(map);
+  bindPopups(map);
+  bindSearch(map);
+  bindTools(map);
+  bindMenu(map);
+  bindFiles(map);
+  buildPanel(map);
+  const savedBase = (GE.settings.view && GE.settings.view.geoBase);
+  setBase(BASES[savedBase] ? savedBase : 'dark');
   map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${wrapLon(e.latlng.lng).toFixed(5)}`; });
-  map.on('zoomend moveend', updateZoomHud);
+  map.on('move zoom zoomend moveend resize', () => { updateZoomHud(); drawTacGrid(map); });
+  const gridBtn = $('#gm-grid-btn');
+  if (gridBtn) gridBtn.onclick = () => { S.tacGrid = !S.tacGrid; gridBtn.classList.toggle('on', S.tacGrid); drawTacGrid(map); };
   $('#map-fit').onclick = () => GEO.fit();
   $('#gm-me').onclick = () => locate(map);
   const fullBtn = $('#gm-full'), mapWrap = $('#map-wrap');
@@ -13110,31 +13192,31 @@ GEO.ensure = () => {
   };
   document.addEventListener('fullscreenchange', () => {
     fullBtn.classList.toggle('on', document.fullscreenElement === mapWrap);
-    setTimeout(() => map.invalidateSize(), 120);
+    setTimeout(() => { map.invalidateSize(); drawTacGrid(map); }, 120);
   });
-  buildPanel(map);
-  setTimeout(() => map.invalidateSize(), 60);
+  setTimeout(() => { map.invalidateSize(); drawTacGrid(map); }, 60);
   GEO.refresh(); GEO.fit();
 };
 
 function setBase(key) {
-  const map = GEO.map; if (!map || !BASES[key]) return;
+  const map = GEO.map; if (!map || !BASES[key]) key = 'dark';
+  if (!map || !BASES[key]) return;
   if (S.baseLayer) map.removeLayer(S.baseLayer);
   if (S.labelLayer) map.removeLayer(S.labelLayer);
   (S.baseExtraLayers || []).forEach(l => map.removeLayer(l));
   S.labelLayer = null; S.baseExtraLayers = [];
   const b = BASES[key];
-  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base', maxZoom: MAP_MAX_ZOOM, updateWhenIdle: true, keepBuffer: 3 }, b.o)).addTo(map);
+  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base', maxZoom: MAP_MAX_ZOOM, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, b.o)).addTo(map);
   const overlays = b.labs || (b.lab ? [{ u: b.lab, o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: key === 'sat' ? 0.85 : 1, attribution: 'Labels &copy; Esri' } }] : []);
-  overlays.forEach((v, i) => {
-    const layer = L.tileLayer(v.u, Object.assign({ pane: 'base', maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 1, updateWhenIdle: true, keepBuffer: 3 }, v.o || {})).addTo(map);
+  overlays.forEach(v => {
+    const layer = L.tileLayer(v.u, Object.assign({ pane: 'base', maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 1, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, v.o || {})).addTo(map);
     if (!S.labelLayer) S.labelLayer = layer; else S.baseExtraLayers.push(layer);
   });
   S.base = key;
   S.baseMaxNative = b.o.maxNativeZoom || b.o.maxZoom || 19;
   const w = $('#map-wrap'); if (w) w.className = w.className.replace(/\bb-\w+/g, '').trim() + ' b-' + key;
   GE.settings.view = GE.settings.view || {}; GE.settings.view.geoBase = key; GE.saveSettings();
-  const pop = $('#gm-base-pop'); if (pop) $('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
+  const pop = $('#gm-base-pop'); if (pop) $$('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
   updateZoomHud();
 }
 function updateZoomHud() {
@@ -14655,6 +14737,8 @@ class Graph {
     this.view = { x: 0, y: 0, k: 1 };
     this.alpha = 1; this.hover = null; this.sel = null; this.drag = null; this.pan = null;
     this.hidden = new Set(); this.showIso = true; this.find = '';
+    this.gridMode = opts.gridMode || 'obsidian';
+    this.pathNodes = new Set(); this.pathEdges = new Set();
     this.resize();
     new ResizeObserver(() => { this.resize(); this.kick(0.3); }).observe(canvas);
     if (!this.o.mini) this.bind();
@@ -14783,63 +14867,211 @@ class Graph {
     this.view.x = this.w / 2 - n.x * this.view.k; this.view.y = this.h / 2 - n.y * this.view.k;
     this.select(n);
   }
+  shortestPath(idA, idB) {
+    this.pathNodes.clear(); this.pathEdges.clear();
+    if (!idA || !idB || idA === idB || !this.map.has(idA) || !this.map.has(idB)) { this.kick(0); return null; }
+    const adj = new Map();
+    this.edges.forEach((e, idx) => {
+      if (!this.visible(e.s) || !this.visible(e.t)) return;
+      if (!adj.has(e.s.id)) adj.set(e.s.id, []);
+      if (!adj.has(e.t.id)) adj.set(e.t.id, []);
+      adj.get(e.s.id).push({ next: e.t.id, e, idx, dir: '→' });
+      adj.get(e.t.id).push({ next: e.s.id, e, idx, dir: '←' });
+    });
+    const prev = new Map([[idA, null]]);
+    const q = [idA];
+    while (q.length) {
+      const cur = q.shift();
+      if (cur === idB) break;
+      for (const st of (adj.get(cur) || [])) {
+        if (!prev.has(st.next)) {
+          prev.set(st.next, { from: cur, e: st.e, idx: st.idx, dir: st.dir });
+          q.push(st.next);
+        }
+      }
+    }
+    if (!prev.has(idB)) { this.kick(0); return null; }
+    const hops = [];
+    let cur = idB;
+    this.pathNodes.add(idB);
+    while (prev.get(cur)) {
+      const p = prev.get(cur);
+      this.pathNodes.add(p.from);
+      this.pathEdges.add(p.e);
+      hops.unshift({ from: p.from, to: cur, rel: p.e.rel || 'связь', dir: p.dir });
+      cur = p.from;
+    }
+    this.kick(0.15);
+    return hops;
+  }
+  clearPath() {
+    this.pathNodes.clear(); this.pathEdges.clear();
+    this.kick(0);
+  }
+  drawGrid(c) {
+    const mode = this.gridMode || 'obsidian';
+    if (mode === 'none') return;
+    const k = this.view.k || 1;
+    const w0 = -this.view.x / k, h0 = -this.view.y / k;
+    const w1 = (this.w - this.view.x) / k, h1 = (this.h - this.view.y) / k;
+    let baseStep = this.o.mini ? 44 : 36;
+    while (baseStep * k < 18) baseStep *= 2;
+    while (baseStep * k > 76) baseStep /= 2;
+
+    c.save();
+    c.translate(this.view.x, this.view.y);
+    c.scale(k, k);
+
+    if (mode === 'obsidian') {
+      const i0 = Math.floor(w0 / baseStep), i1 = Math.ceil(w1 / baseStep);
+      const j0 = Math.floor(h0 / baseStep), j1 = Math.ceil(h1 / baseStep);
+      const dotR = Math.max(0.8, 1.15 / k);
+      c.fillStyle = 'rgba(205,205,218,0.16)';
+      for (let i = i0; i <= i1; i++) {
+        for (let j = j0; j <= j1; j++) {
+          const x = i * baseStep, y = j * baseStep;
+          if (i % 5 === 0 && j % 5 === 0) continue;
+          c.fillRect(x - dotR * 0.5, y - dotR * 0.5, dotR, dotR);
+        }
+      }
+      // Опорные крестики Obsidian каждые 5 шагов
+      const tick = 3.5 / k;
+      c.strokeStyle = 'rgba(226,35,46,0.28)';
+      c.lineWidth = 0.9 / k;
+      c.beginPath();
+      for (let i = Math.ceil(i0 / 5) * 5; i <= i1; i += 5) {
+        for (let j = Math.ceil(j0 / 5) * 5; j <= j1; j += 5) {
+          const x = i * baseStep, y = j * baseStep;
+          c.moveTo(x - tick, y); c.lineTo(x + tick, y);
+          c.moveTo(x, y - tick); c.lineTo(x, y + tick);
+        }
+      }
+      c.stroke();
+      // Нулевой прицел координат холста [0,0]
+      if (!this.o.mini) {
+        c.strokeStyle = 'rgba(226,35,46,0.34)';
+        c.lineWidth = 1 / k;
+        c.beginPath();
+        c.arc(0, 0, 14 / k, 0, TAU);
+        c.moveTo(-24 / k, 0); c.lineTo(24 / k, 0);
+        c.moveTo(0, -24 / k); c.lineTo(0, 24 / k);
+        c.stroke();
+      }
+    } else if (mode === 'matrix') {
+      const i0 = Math.floor(w0 / baseStep), i1 = Math.ceil(w1 / baseStep);
+      const j0 = Math.floor(h0 / baseStep), j1 = Math.ceil(h1 / baseStep);
+      c.lineWidth = 0.75 / k;
+      c.strokeStyle = 'rgba(205,205,218,0.055)';
+      c.beginPath();
+      for (let i = i0; i <= i1; i++) { if (i % 4 !== 0) { const x = i * baseStep; c.moveTo(x, h0); c.lineTo(x, h1); } }
+      for (let j = j0; j <= j1; j++) { if (j % 4 !== 0) { const y = j * baseStep; c.moveTo(w0, y); c.lineTo(w1, y); } }
+      c.stroke();
+      c.strokeStyle = 'rgba(226,35,46,0.16)';
+      c.lineWidth = 1 / k;
+      c.beginPath();
+      for (let i = Math.ceil(i0 / 4) * 4; i <= i1; i += 4) { const x = i * baseStep; c.moveTo(x, h0); c.lineTo(x, h1); }
+      for (let j = Math.ceil(j0 / 4) * 4; j <= j1; j += 4) { const y = j * baseStep; c.moveTo(w0, y); c.lineTo(w1, y); }
+      c.stroke();
+      if (!this.o.mini) {
+        c.font = `${9 / k}px 'JetBrains Mono', monospace`;
+        c.fillStyle = 'rgba(205,205,218,0.28)';
+        c.textAlign = 'left';
+        for (let i = Math.ceil(i0 / 4) * 4; i <= i1; i += 4) {
+          c.fillText(`X${i >= 0 ? '+' : ''}${i}`, i * baseStep + 4 / k, h0 + 14 / k);
+        }
+      }
+    } else if (mode === 'radar') {
+      const cx = this.sel ? this.sel.x : 0, cy = this.sel ? this.sel.y : 0;
+      const maxR = Math.hypot(w1 - w0, h1 - h0);
+      c.strokeStyle = 'rgba(226,35,46,0.16)';
+      c.lineWidth = 0.9 / k;
+      for (let r = baseStep * 3; r < maxR; r += baseStep * 3) {
+        c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.stroke();
+      }
+      c.strokeStyle = 'rgba(205,205,218,0.07)';
+      c.beginPath();
+      for (let a = 0; a < 12; a++) {
+        const ang = (a * Math.PI) / 6;
+        c.moveTo(cx, cy);
+        c.lineTo(cx + Math.cos(ang) * maxR, cy + Math.sin(ang) * maxR);
+      }
+      c.stroke();
+    }
+    c.restore();
+  }
   draw() {
     const c = this.ctx; if (!this.w) return;
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
     const t = performance.now() / 1000, mini = this.o.mini;
+    this.drawGrid(c);
     if (!this.nodes.length) {
-      c.fillStyle = '#5f5f68'; c.font = `${mini ? 11 : 12}px 'JetBrains Mono', monospace`; c.textAlign = 'center';
-      c.fillText(mini ? 'НЕТ ДАННЫХ — ДОБАВЬТЕ ЗАПИСИ' : 'ГРАФ ПУСТ · СОЗДАЙТЕ ЗАПИСИ И СВЯЗИ', this.w / 2, this.h / 2);
+      c.fillStyle = '#8b8b96'; c.font = `${mini ? 11 : 12}px 'JetBrains Mono', monospace`; c.textAlign = 'center';
+      c.fillText(mini ? 'НЕТ ДАННЫХ — ДОБАВЬТЕ ЗАПИСИ' : 'ХОЛСТ ГОТОВ · СОЗДАЙТЕ ЗАПИСИ ИЛИ ОТКРОЙТЕ ДЕЛО', this.w / 2, this.h / 2);
       return;
     }
     c.save(); c.translate(this.view.x, this.view.y); c.scale(this.view.k, this.view.k);
     const focus = this.sel || this.hover;
+    const hasPath = this.pathNodes.size > 0;
     const nb = new Set();
     if (focus) { nb.add(focus.id); this.edges.forEach(e => { if (e.s === focus) nb.add(e.t.id); if (e.t === focus) nb.add(e.s.id); }); }
     const fq = this.find.toLowerCase();
+    // Мягкие ореолы кластеров вокруг узлов-концентраторов (стиль Obsidian)
+    if (!mini) {
+      this.nodes.forEach(n => {
+        if (!this.visible(n) || n.deg < 3) return;
+        const rad = n.r * 5.2;
+        const g = c.createRadialGradient(n.x, n.y, 0, n.x, n.y, rad);
+        g.addColorStop(0, 'rgba(179,18,27,0.11)');
+        g.addColorStop(1, 'rgba(179,18,27,0)');
+        c.fillStyle = g;
+        c.beginPath(); c.arc(n.x, n.y, rad, 0, TAU); c.fill();
+      });
+    }
     // рёбра
     this.edges.forEach(e => {
       if (!this.visible(e.s) || !this.visible(e.t)) return;
-      const on = focus && (e.s === focus || e.t === focus);
-      c.strokeStyle = on ? 'rgba(226,35,46,0.85)' : focus ? 'rgba(205,205,215,0.05)' : e.kind === 'link' ? 'rgba(179,18,27,0.45)' : 'rgba(205,205,215,0.16)';
-      c.lineWidth = (on ? 1.6 : 1) / this.view.k;
-      if (e.kind === 'wiki') c.setLineDash([3 / this.view.k, 4 / this.view.k]);
+      const inPath = hasPath && this.pathEdges.has(e);
+      const on = inPath || (focus && (e.s === focus || e.t === focus));
+      c.strokeStyle = inPath ? '#ff3b47' : on ? 'rgba(226,35,46,0.88)' : (focus || hasPath) ? 'rgba(205,205,215,0.06)' : e.kind === 'link' ? 'rgba(179,18,27,0.5)' : 'rgba(205,205,215,0.18)';
+      c.lineWidth = (inPath ? 2.6 : on ? 1.7 : 1) / this.view.k;
+      if (e.kind === 'wiki' && !inPath) c.setLineDash([3 / this.view.k, 4 / this.view.k]);
       c.beginPath(); c.moveTo(e.s.x, e.s.y); c.lineTo(e.t.x, e.t.y); c.stroke(); c.setLineDash([]);
       if (on && !mini) {
         // поток частиц по ребру
         for (let i = 0; i < 3; i++) {
           const k = ((t * 0.5 + i / 3) % 1), x = e.s.x + (e.t.x - e.s.x) * k, y = e.s.y + (e.t.y - e.s.y) * k;
-          c.fillStyle = 'rgba(255,90,90,0.9)'; c.beginPath(); c.arc(x, y, 2 / this.view.k, 0, TAU); c.fill();
+          c.fillStyle = inPath ? '#ffffff' : 'rgba(255,90,90,0.9)'; c.beginPath(); c.arc(x, y, (inPath ? 2.6 : 2) / this.view.k, 0, TAU); c.fill();
         }
         const mx = (e.s.x + e.t.x) / 2, my = (e.s.y + e.t.y) / 2;
         c.font = `${10.5 / this.view.k}px 'JetBrains Mono', monospace`; c.textAlign = 'center';
-        c.fillStyle = 'rgba(5,5,6,0.85)'; const tw = c.measureText(e.rel).width;
+        c.fillStyle = 'rgba(5,5,6,0.88)'; const tw = c.measureText(e.rel).width;
         c.fillRect(mx - tw / 2 - 4 / this.view.k, my - 8 / this.view.k, tw + 8 / this.view.k, 14 / this.view.k);
-        c.fillStyle = '#ff8a90'; c.fillText(e.rel, mx, my + 3 / this.view.k);
+        c.fillStyle = inPath ? '#ffffff' : '#ff8a90'; c.fillText(e.rel, mx, my + 3 / this.view.k);
       }
     });
     // узлы
     this.nodes.forEach(n => {
       if (!this.visible(n)) return;
       const st = STYLE[n.type] || STYLE.person;
-      const dim = focus && !nb.has(n.id);
+      const inPath = hasPath && this.pathNodes.has(n.id);
+      const dim = (focus && !nb.has(n.id) && !inPath) || (hasPath && !focus && !inPath);
       const hit = fq && n.title.toLowerCase().includes(fq);
       c.globalAlpha = dim ? 0.18 : (n.ghost ? 0.5 : 1);
-      if (n === focus || hit) {
-        const g = c.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 3.2);
-        g.addColorStop(0, 'rgba(226,35,46,0.45)'); g.addColorStop(1, 'rgba(226,35,46,0)');
-        c.fillStyle = g; c.beginPath(); c.arc(n.x, n.y, n.r * 3.2, 0, TAU); c.fill();
+      if (n === focus || hit || inPath) {
+        const g = c.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 3.4);
+        g.addColorStop(0, inPath ? 'rgba(255,59,71,0.58)' : 'rgba(226,35,46,0.45)'); g.addColorStop(1, 'rgba(226,35,46,0)');
+        c.fillStyle = g; c.beginPath(); c.arc(n.x, n.y, n.r * 3.4, 0, TAU); c.fill();
       }
       shape(c, n.type, n.x, n.y, n.r);
       c.fillStyle = st.fill; c.fill();
-      c.strokeStyle = n === this.sel ? '#e2232e' : st.ring; c.lineWidth = (n === this.sel ? 2 : 1) / this.view.k; c.stroke();
+      c.strokeStyle = (n === this.sel || inPath) ? '#e2232e' : st.ring; c.lineWidth = ((n === this.sel || inPath) ? 2.2 : 1) / this.view.k; c.stroke();
       if (n === this.sel) { c.strokeStyle = 'rgba(226,35,46,0.6)'; c.lineWidth = 1 / this.view.k; c.beginPath(); c.arc(n.x, n.y, n.r + 6 + Math.sin(t * 3) * 2, 0, TAU); c.stroke(); }
-      const showLabel = !mini && (this.view.k > 0.55 || n === focus || nb.has(n.id) || hit || n.deg > 2);
+      const showLabel = !mini && (this.view.k > 0.55 || n === focus || nb.has(n.id) || hit || inPath || n.deg > 2);
       if (showLabel) {
-        c.font = `${(n === focus ? 12.5 : 11) / this.view.k}px 'IBM Plex Sans', sans-serif`; c.textAlign = 'center';
+        c.font = `${((n === focus || inPath) ? 12.5 : 11) / this.view.k}px 'IBM Plex Sans', sans-serif`; c.textAlign = 'center';
         const label = n.title.length > 28 ? n.title.slice(0, 27) + '…' : n.title;
-        c.fillStyle = dim ? 'rgba(200,200,210,0.4)' : (n === focus ? '#ffffff' : '#c9c9d1');
+        c.fillStyle = dim ? 'rgba(200,200,210,0.4)' : ((n === focus || inPath) ? '#ffffff' : '#c9c9d1');
         c.fillText(GE.settings.secure ? '█████' : label, n.x, n.y + n.r + 13 / this.view.k);
       }
     });
@@ -14870,6 +15102,31 @@ C.init = () => {
     const n = C.g.nodes.find(x => C.g.find && x.title.toLowerCase().includes(C.g.find.toLowerCase()));
     if (n && e.target.value.length > 2) C.g.focusOn(n.id);
   });
+  const gmSel = $('#graph-grid-mode');
+  if (gmSel) {
+    gmSel.onchange = () => { C.g.gridMode = gmSel.value; C.g.draw(); };
+  }
+  const runBtn = $('#gpath-run'), clrBtn = $('#gpath-clr');
+  if (runBtn) runBtn.onclick = () => {
+    const a = $('#gpath-a').value, b = $('#gpath-b').value, out = $('#gpath-out');
+    if (!a || !b || a === b) { out.innerHTML = '<span style="color:#ff8a90">Выберите два разных объекта базы.</span>'; return; }
+    const hops = C.g.shortestPath(a, b);
+    if (!hops) {
+      out.innerHTML = '<span style="color:#ff8a90">Цепочка связей между этими узлами не найдена.</span>';
+      return;
+    }
+    out.innerHTML = `<div style="color:#fff;margin-bottom:6px"><b>Найдена цепочка (${hops.length} шаг.):</b></div>` +
+      hops.map((h, i) => {
+        const na = GE.db.get(h.from), nb2 = GE.db.get(h.to);
+        return `<div class="link-i" data-focus="${h.to}" style="padding:4px 6px;font-size:11.5px"><b>${i + 1}.</b> <span>${esc(na ? na.title : h.from)}</span> <span class="rel">${h.dir} ${esc(h.rel)}</span> <span>${esc(nb2 ? nb2.title : h.to)}</span></div>`;
+      }).join('');
+    out.onclick = ev => { const f = ev.target.closest('[data-focus]'); if (f) C.g.focusOn(f.dataset.focus); };
+    C.g.loop();
+  };
+  if (clrBtn) clrBtn.onclick = () => {
+    C.g.clearPath();
+    $('#gpath-out').textContent = 'Подсветка цепочки сброшена.';
+  };
   $('#graph-fit').onclick = () => C.g.fit();
   $('#graph-shake').onclick = () => { C.g.nodes.forEach(n => { n.x = (Math.random() - 0.5) * 400; n.y = (Math.random() - 0.5) * 400; n.fx = n.fy = null; n.pinned = false; }); C.g.kick(1); setTimeout(() => C.g.fit(), 1300); };
   $('#graph-iso').addEventListener('change', e => { C.g.showIso = e.target.checked; C.g.kick(0.4); setTimeout(() => C.g.fit(), 600); });
@@ -14880,6 +15137,15 @@ C.init = () => {
 C.refresh = () => {
   if (!C.g) return;
   const d = GE.graphData(); C.g.setData(d.nodes, d.edges);
+  const selA = $('#gpath-a'), selB = $('#gpath-b');
+  if (selA && selB) {
+    const prevA = selA.value, prevB = selB.value;
+    const opts = d.nodes.slice().sort((x, y) => x.title.localeCompare(y.title, 'ru')).map(n => `<option value="${esc(n.id)}">${esc(GE.TYPES[n.type]?.label || n.type)}: ${esc(n.title.slice(0, 42))}</option>`).join('');
+    selA.innerHTML = '<option value="">Откуда (узел А)…</option>' + opts;
+    selB.innerHTML = '<option value="">Куда (узел Б)…</option>' + opts;
+    if (prevA) selA.value = prevA;
+    if (prevB) selB.value = prevB;
+  }
   const box = $('#links-list'), ls = GE.DB.links.slice().reverse();
   $('#links-count').textContent = ls.length;
   box.innerHTML = ls.slice(0, 60).map(l => {
@@ -18413,5 +18679,6 @@ else wireProLab();
 })();
 </script>
 <script src="geo3d.js"></script>
+<script src="case-studio.js"></script>
 </body>
 </html>
