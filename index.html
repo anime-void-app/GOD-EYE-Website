@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cesium.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cesium.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com https://tiles.openfreemap.org; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <script id="diag-module">
 /* embedded: diag module — локальный журнал ошибок и отчёт для разработчика (ничего не отправляется наружу) */
 (function () {
@@ -333,45 +333,59 @@ a.pl-th:hover img { filter: none; }
 @media (max-width: 900px) { .ph-cols, .ph-cols2 { grid-template-columns: 1fr; } .ph-form { grid-template-columns: 1fr; } }
 /* ===PHOTO-CSS-END=== */
 /* ===GEO2-CSS-BEGIN=== */
-/* Гео-центр: карта, панели и живые слои */
-.map-wrap.geo2{height:clamp(560px,76vh,900px);border:1px solid rgba(205,205,218,.2);background:#07070a}
-.map-wrap.geo2.b-dark .leaflet-base-pane{filter:none}
-.map-wrap.geo2.b-osm_noir .leaflet-base-pane{filter:grayscale(1) invert(1) contrast(1.08) brightness(.92)}
-.map-wrap.geo2.b-sat .leaflet-base-pane{filter:none}
-.map-wrap.geo2.b-topo .leaflet-base-pane{filter:none}
-.map-wrap.geo2.b-relief .leaflet-base-pane{filter:none}
-.map-wrap.geo2.b-hybrid .leaflet-base-pane{filter:none}
+/* Гео-центр v4.0 + глобальный тактический визуал OMNISCIENT EDITION */
+.panel{position:relative;box-shadow:0 14px 38px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);transition:border-color .22s var(--ease),box-shadow .22s var(--ease)}
+.panel:hover{border-color:rgba(205,205,218,.24)}
+.panel::after{content:'';position:absolute;top:-1px;right:-1px;width:12px;height:12px;border-top:1.5px solid rgba(226,35,46,.52);border-right:1.5px solid rgba(226,35,46,.52);pointer-events:none}
+.hero::before{content:'';position:absolute;bottom:-1px;left:-1px;width:16px;height:16px;border-bottom:2px solid var(--crimson-3);border-left:2px solid var(--crimson-3);pointer-events:none;z-index:3}
+#topbar{background:linear-gradient(180deg,rgba(11,11,16,.96),rgba(6,6,9,.94));backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,35,46,.26);box-shadow:0 8px 28px rgba(0,0,0,.55)}
+.top-quick-grp{display:flex;align-items:center;gap:6px;flex-shrink:0}
+@media(max-width:920px){.top-quick-grp .hide-sm{display:none}}
+
+/* Полоса быстрого запуска оперативных модулей на Главном пульте */
+.ops-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+@media(max-width:1100px){.ops-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.ops-strip{grid-template-columns:1fr}}
+.ops-card{position:relative;display:flex;flex-direction:column;gap:5px;padding:14px 16px;text-align:left;background:linear-gradient(145deg,rgba(16,16,22,.95),rgba(7,7,10,.97));border:1px solid rgba(205,205,218,.18);color:var(--silver);cursor:pointer;transition:transform .18s var(--ease),border-color .2s,box-shadow .2s,background .2s}
+.ops-card:hover{transform:translateY(-2px);border-color:var(--crimson-3);background:linear-gradient(145deg,rgba(139,0,0,.22),rgba(10,10,15,.98));box-shadow:0 14px 34px rgba(0,0,0,.62),0 0 22px rgba(226,35,46,.16)}
+.ops-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--crimson-3);opacity:.78}
+.ops-card small{font:600 9.5px/1 var(--f-mono);letter-spacing:.2em;color:var(--crimson-3);text-transform:uppercase}
+.ops-card b{font:600 14.5px/1.25 var(--f-body);color:#fff}
+.ops-card span{font-size:11.5px;line-height:1.45;color:var(--dim)}
+
+.map-wrap.geo2{height:clamp(580px,78vh,920px);border:1px solid rgba(226,35,46,.32);background:#07070a;box-shadow:0 20px 52px rgba(0,0,0,.7)}
+.map-wrap.geo2 .leaflet-base-pane{filter:none}
 .map-wrap.geo2.b-hill .leaflet-base-pane{filter:contrast(1.06) brightness(.96)}
 .gm-grid-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:420}
-.gm-top{position:absolute;z-index:600;top:12px;left:56px;right:12px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
+.gm-top{position:absolute;z-index:600;top:12px;left:56px;right:12px;display:flex;gap:8px;align-items:flex-start;pointer-events:none;flex-wrap:wrap}
 .gm-top>*{pointer-events:auto}
-.gm-search{position:relative;flex:1 1 auto;max-width:440px}
+.gm-search{position:relative;flex:1 1 280px;max-width:460px}
 .gm-search>.ic{position:absolute;left:11px;top:11px;width:15px;height:15px;color:var(--muted);pointer-events:none;z-index:2}
-.gm-search .input{padding-left:34px;background:rgba(8,8,11,.9);backdrop-filter:blur(8px);border-color:rgba(205,205,218,.2)}
-.gm-sugg{position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:280px;overflow:auto;background:rgba(9,9,12,.97);border:1px solid rgba(205,205,218,.22);box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:700}
+.gm-search .input{padding-left:34px;background:rgba(8,8,12,.93);backdrop-filter:blur(10px);border-color:rgba(205,205,218,.26)}
+.gm-sugg{position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:310px;overflow:auto;background:rgba(9,9,13,.98);border:1px solid rgba(226,35,46,.38);box-shadow:0 18px 44px rgba(0,0,0,.75);z-index:700}
 .gm-sugg button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--silver);cursor:pointer}
 .gm-sugg button b{display:block;font:500 13px/1.3 var(--f-body);color:#fff}
 .gm-sugg button small{display:block;margin-top:2px;font:400 11px/1.3 var(--f-body);color:var(--dim)}
 .gm-sugg button:hover{background:var(--crimson-soft)}
-.gm-btns{display:flex;gap:6px;margin-left:auto}
-.gm-b{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border:1px solid rgba(205,205,218,.2);background:rgba(8,8,11,.9);backdrop-filter:blur(8px);color:var(--silver);font:500 12px/1 var(--f-body);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.gm-btns{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.gm-b{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border:1px solid rgba(205,205,218,.22);background:rgba(8,8,12,.92);backdrop-filter:blur(10px);color:var(--silver);font:500 12px/1 var(--f-body);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
 .gm-b.ico{width:36px;padding:0;justify-content:center}
 .gm-b:hover{border-color:var(--crimson-3);color:#fff}
 .gm-b.on{border-color:var(--crimson-3);color:#fff;background:var(--crimson-soft)}
 .gm-rail{position:absolute;z-index:600;left:12px;top:96px;display:flex;flex-direction:column;gap:4px}
-.gm-rail>button{width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(205,205,218,.2);background:rgba(8,8,11,.9);backdrop-filter:blur(8px);color:var(--silver);cursor:pointer}
+.gm-rail>button{width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(205,205,218,.22);background:rgba(8,8,12,.92);backdrop-filter:blur(10px);color:var(--silver);cursor:pointer;font:600 13px/1 var(--f-mono)}
 .gm-rail>button:hover{border-color:var(--crimson-3);color:#fff}
-.gm-rail>button.on{border-color:var(--crimson-3);color:#fff;background:var(--crimson-soft);box-shadow:0 0 14px rgba(226,35,46,.3)}
-.gm-rad{position:absolute;left:44px;top:80px;padding:8px 10px;background:rgba(8,8,11,.95);border:1px solid rgba(205,205,218,.22);white-space:nowrap}
+.gm-rail>button.on{border-color:var(--crimson-3);color:#fff;background:var(--crimson-soft);box-shadow:0 0 14px rgba(226,35,46,.32)}
+.gm-rad{position:absolute;left:44px;top:40px;padding:9px 11px;background:rgba(8,8,12,.96);border:1px solid rgba(226,35,46,.38);white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.65)}
 .gm-rad label{display:flex;align-items:center;gap:8px;font:500 9.5px/1 var(--f-mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-.gm-rad .select{min-height:28px;padding:3px 8px;font-size:12px;width:auto}
-.gm-pop{position:absolute;z-index:650;top:56px;right:12px;min-width:220px;display:flex;flex-direction:column;background:rgba(9,9,12,.97);border:1px solid rgba(205,205,218,.24);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.gm-rad .select,.gm-rad .input{min-height:28px;padding:3px 8px;font-size:12px;width:auto}
+.gm-pop{position:absolute;z-index:650;top:56px;right:12px;min-width:255px;display:flex;flex-direction:column;background:rgba(9,9,13,.98);border:1px solid rgba(205,205,218,.26);box-shadow:0 18px 44px rgba(0,0,0,.72)}
 .gm-pop button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--silver);font:500 12.5px/1 var(--f-body);text-align:left;cursor:pointer}
 .gm-pop button small{margin-left:auto;font:400 10.5px/1 var(--f-mono);color:var(--dim)}
 .gm-pop button:hover,.gm-pop button.on{background:var(--crimson-soft);color:#fff}
 .gm-pop hr{border:0;border-top:1px solid var(--line-2);margin:0}
 .gm-sw{width:30px;height:20px;border:1px solid rgba(205,205,218,.3);display:inline-block;flex:none}
-.sw-dark{background:linear-gradient(135deg,#202027,#0a0a0d)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-osm,.sw-osm_detail{background:linear-gradient(135deg,#ebe7dd,#b9cfb1)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-hybrid{background:linear-gradient(135deg,#35442e 0 50%,#c8c1a2 50%)}.sw-street{background:linear-gradient(135deg,#eee9df,#9aa3a8)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}.sw-relief{background:linear-gradient(135deg,#b4c89a,#b38e68)}.sw-physical{background:linear-gradient(135deg,#76a8b8,#d5c7a1)}.sw-hill{background:linear-gradient(135deg,#b8b8b8,#56565b)}
+.sw-dark{background:linear-gradient(135deg,#22222b,#09090d)}.sw-voyager{background:linear-gradient(135deg,#f4f0e8,#cfd8dc)}.sw-positron{background:linear-gradient(135deg,#ffffff,#d9dce2)}.sw-canvas{background:linear-gradient(135deg,#3a3a40,#1d1d22)}.sw-sat{background:linear-gradient(135deg,#34402f,#6b6a52)}.sw-hybrid{background:linear-gradient(135deg,#2c3b29 0 50%,#e2232e 50%)}.sw-street{background:linear-gradient(135deg,#eee9df,#9aa3a8)}.sw-topo{background:linear-gradient(135deg,#c4d6b0,#dccaa4)}.sw-relief{background:linear-gradient(135deg,#b4c89a,#b38e68)}.sw-hill{background:linear-gradient(135deg,#b8b8b8,#56565b)}
 /* Тактические сетки рабочей среды (стиль Obsidian + OSINT) */
 .main{background-image:radial-gradient(rgba(205,205,218,.085) 1px,transparent 1px),linear-gradient(90deg,rgba(205,205,218,.018) 1px,transparent 1px),linear-gradient(0deg,rgba(205,205,218,.018) 1px,transparent 1px);background-size:24px 24px,120px 120px,120px 120px;background-position:0 0,0 0,0 0}
 .graph-box{background:#060609;border:1px solid rgba(205,205,218,.22);box-shadow:inset 0 0 80px rgba(0,0,0,.75)}
@@ -1801,7 +1815,11 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
       <button class="burger" id="burger" aria-label="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
       <div class="crumbs" id="crumbs">GOD EYE</div>
       <button class="cmd-trigger" id="cmd-trigger"><svg class="ic ic-sm"><use href="#i-search"/></svg><span class="lbl">Поиск по системе и командам…</span><span class="kbd">CTRL K</span></button>
-      <button class="btn btn-sm" id="top-3d-btn" title="Открыть интерактивный 3D-глобус Земли (Alt+G)" style="height:34px;border-color:rgba(226,35,46,.38);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;flex-shrink:0">◉ 3D EARTH</button>
+      <div class="top-quick-grp">
+        <button class="btn btn-sm hide-sm" id="top-cases-btn" type="button" title="Открыть Детективный Штаб расследований" style="height:34px;border-color:rgba(205,205,218,.28);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">🕵️ ШТАБ ДЕЛ</button>
+        <button class="btn btn-sm hide-sm" type="button" data-go="geolocation" title="Открыть Гео-центр 2D и триангуляцию" style="height:34px;border-color:rgba(205,205,218,.24);font-family:var(--f-mono);font-size:11px;letter-spacing:.06em">⌖ КАРТА 2D</button>
+        <button class="btn btn-sm btn-primary" id="top-3d-btn" type="button" title="Открыть интерактивный 3D-глобус Земли и осмотр улиц (Alt+G)" style="height:34px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em">◉ 3D EARTH</button>
+      </div>
       <div class="audio-ctl" id="audio-ctl">
         <button class="audio-btn" id="audio-toggle" title="Включить / выключить саундтрек (Alt+M)" aria-label="Саундтрек">
           <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -1877,11 +1895,35 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
               <button class="btn" data-new="org"><svg class="ic ic-sm"><use href="#i-org"/></svg>Организация</button>
               <button class="btn" data-new="source"><svg class="ic ic-sm"><use href="#i-source"/></svg>Источник</button>
               <button class="btn" data-new="geo"><svg class="ic ic-sm"><use href="#i-geo"/></svg>Локация</button>
-              <button class="btn btn-primary" data-open-3d="1" title="Интерактивный 3D-глобус Земли (Alt+G)">◉ 3D Глобус</button>
+              <button class="btn btn-primary" data-open-3d="1" title="Интерактивный 3D-глобус Земли (Alt+G)">◉ 3D Глобус и Улицы</button>
+              <button class="btn" id="dash-open-cases" type="button" data-go="cases">🕵️ Штаб расследований</button>
               <button class="btn" data-go="images"><svg class="ic ic-sm"><use href="#i-image"/></svg>Анализ фото</button>
               <button class="btn" data-new="report"><svg class="ic ic-sm"><use href="#i-report"/></svg>Исследование</button>
             </div>
           </div>
+        </div>
+
+        <div class="ops-strip rv" style="--i:1">
+          <button type="button" class="ops-card" data-open-3d="1">
+            <small>GEOINT 3D · УЛИЦЫ И ДОМА</small>
+            <b>◉ 3D-Земля и Осмотр Дворов</b>
+            <span>Векторный 3D-город и спутник без белых блоков, номера домов, прогулка W/A/S/D, секторы камер и панорамы 360°.</span>
+          </button>
+          <button type="button" class="ops-card" data-go="geolocation">
+            <small>КАРТА 2D · ПЕЛЕНГ И РАДИУСЫ</small>
+            <b>⌖ Гео-центр и Триангуляция</b>
+            <span>Точный поиск дома и улицы, пересечение кругов триангуляции, лучи азимута, секторы обзора камер и ретро-фото PastVu.</span>
+          </button>
+          <button type="button" class="ops-card" data-go="cases">
+            <small>КРИМИНАЛИСТИКА · ХОЛОДНЫЕ ДЕЛА</small>
+            <b>🕵️ Детективный Штаб v4.0</b>
+            <span>Стена улик с красными нитями, матрица алиби, поминутный таймлайн, схема двора и личные забытые дела из прошлого.</span>
+          </button>
+          <button type="button" class="ops-card" data-go="connections">
+            <small>СЕТЬ ОБЪЕКТОВ · OBSIDIAN</small>
+            <b>◈ Граф Связей и Цепочки</b>
+            <span>Тактическая сетка и радар, автоматическое выделение ключевых посредников и поиск кратчайшей цепочки между фигурантами.</span>
+          </button>
         </div>
 
         <div class="stats" id="dash-stats"></div>
@@ -2497,7 +2539,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
 'use strict';
 
 const GE = window.GE = window.GE || {};
-GE.VERSION = '3.2.0';
+GE.VERSION = '4.0.0';
 
 /* ─────────── Утилиты ─────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -3303,7 +3345,8 @@ GE.fetchJSON = async (url, ms = 9000, opts = {}) => {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), ms);
   try {
-    const r = await fetch(url, Object.assign({ signal: ctl.signal, referrerPolicy: 'no-referrer' }, opts));
+    const defRef = /openstreetmap\.org/i.test(String(url)) ? 'strict-origin-when-cross-origin' : 'no-referrer';
+    const r = await fetch(url, Object.assign({ signal: ctl.signal, referrerPolicy: defRef }, opts));
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.json();
   } finally { clearTimeout(t); }
@@ -12597,20 +12640,79 @@ const bearingDeg = (a, b) => {
   return deg(Math.atan2(y, x));
 };
 const icon = cls => window.L && L.divIcon({ className: '', html: `<div class="ge-marker ${cls || ''}"><i></i></div>`, iconSize: [18, 18], iconAnchor: [9, 9] });
+GEO.attachToCase = (lat, lon, label) => {
+  const cases = GE.db.byType('case');
+  let target = cases[0];
+  if (!target) {
+    target = GE.db.add('case', {
+      title: 'Расследование по адресу: ' + (label || `${lat.toFixed(5)}, ${lon.toFixed(5)}`),
+      case_no: GE.nextCaseNo ? GE.nextCaseNo() : 'CS-01',
+      case_type: 'Убийство',
+      status: 'Расследуется',
+      region: label || '',
+      retrieved: GE.today()
+    });
+  }
+  target.detective = target.detective || {};
+  target.detective.sceneLat = +lat.toFixed(6);
+  target.detective.sceneLon = +lon.toFixed(6);
+  target.detective.scenePlace = label || target.detective.scenePlace || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  if (GE.caseSet) GE.caseSet(target.id, { detective: target.detective, region: target.detective.scenePlace });
+  if (window.GECaseStudio && window.GECaseStudio.open) window.GECaseStudio.open(target.id, 'scene3d');
+  GE.toast('Адрес прикреплён к делу в Детективном Штабе');
+};
 GEO.pick = (lat, lon, name) => {
   lat = Number(lat); lon = Number(lon);
-  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90) return;
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || !GEO.map) return;
   lon = wrapLon(lon);
   if (GEO.tmp) GEO.map.removeLayer(GEO.tmp);
   const q = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
   GEO.tmp = L.marker([lat, lon], { icon: icon('tmp') }).addTo(GEO.map);
+  let curTitle = name ? name.split(',').slice(0, 2).join(',') : 'Точка осмотра';
   const div = document.createElement('div');
-  div.innerHTML = `<b>${esc(name ? name.split(',').slice(0, 2).join(',') : 'Точка')}</b><div class="mono" style="font-size:11.5px;margin:4px 0 10px;color:#a5a5af">${q}</div>
-    <div class="row" style="gap:6px"><button class="btn btn-sm btn-primary" data-a="add">+ Локация</button><button class="btn btn-sm" data-a="search">Поиск</button><button class="btn btn-sm" data-a="copy">Копировать</button></div>`;
-  div.querySelector('[data-a=add]').onclick = () => GE.editRecord('geo', null, { title: name ? name.split(',')[0] : 'Точка ' + q, lat: +lat.toFixed(6), lon: +lon.toFixed(6), place: name || '', retrieved: GE.today() });
+  div.style.minWidth = '248px';
+  div.innerHTML = `
+    <div class="mono" style="font-size:9.5px;letter-spacing:.18em;color:#e2232e;text-transform:uppercase;margin-bottom:2px">GEOINT ПАСПОРТ ТОЧКИ</div>
+    <b data-p-title>${esc(curTitle)}</b>
+    <div data-p-addr style="font-size:11.5px;color:#b8b8c2;margin-top:2px">${esc(name || 'Определяю улицу и дом…')}</div>
+    <div class="mono" style="font-size:11px;margin:5px 0 9px;color:#8b8b96">${q}</div>
+    <div class="row" style="gap:5px;flex-wrap:wrap;margin-bottom:6px">
+      <button class="btn btn-sm btn-primary" data-a="street3d" type="button">🚶 Улица 3D</button>
+      <button class="btn btn-sm" data-a="case" type="button">🕵️ В Дело</button>
+      <button class="btn btn-sm" data-a="add" type="button">+ Локация</button>
+      <button class="btn btn-sm" data-a="search" type="button">Поиск</button>
+      <button class="btn btn-sm" data-a="copy" type="button">Копир.</button>
+    </div>
+    <div class="row" style="gap:6px;font-size:11px;border-top:1px solid rgba(205,205,218,.14);padding-top:6px;flex-wrap:wrap">
+      <a href="https://yandex.ru/maps/?ll=${lon.toFixed(6)},${lat.toFixed(6)}&z=19&l=stv,sta&panorama%5Bpoint%5D=${lon.toFixed(6)},${lat.toFixed(6)}" target="_blank" rel="noopener noreferrer">Яндекс 360°</a>
+      <span>·</span>
+      <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat.toFixed(6)},${lon.toFixed(6)}" target="_blank" rel="noopener noreferrer">Street View</a>
+      <span>·</span>
+      <a href="https://pastvu.com/?g=${lat.toFixed(5)},${lon.toFixed(5)}&z=17" target="_blank" rel="noopener noreferrer">PastVu Ретро</a>
+    </div>`;
+  div.querySelector('[data-a=street3d]').onclick = () => window.GE3D && (window.GE3D.openStreet ? window.GE3D.openStreet(lat, lon, curTitle) : window.GE3D.openAt(lat, lon, curTitle, 18.8));
+  div.querySelector('[data-a=case]').onclick = () => GEO.attachToCase(lat, lon, curTitle);
+  div.querySelector('[data-a=add]').onclick = () => GE.editRecord('geo', null, { title: curTitle, lat: +lat.toFixed(6), lon: +lon.toFixed(6), place: name || curTitle, retrieved: GE.today() });
   div.querySelector('[data-a=search]').onclick = () => { location.hash = `#/search?q=${encodeURIComponent(q)}&t=coords`; };
   div.querySelector('[data-a=copy]').onclick = () => GE.copy(q);
-  GEO.tmp.bindPopup(div).openPopup();
+  GEO.tmp.bindPopup(div, { maxWidth: 320 }).openPopup();
+  if (!name) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat=${lat}&lon=${lon}&accept-language=ru&zoom=18`).then(r => r.json()).then(info => {
+      if (!info || !div.isConnected) return;
+      const ad = info.address || {};
+      const streetHouse = [ad.road || ad.pedestrian || ad.suburb, ad.house_number ? 'д. ' + ad.house_number : ''].filter(Boolean).join(', ');
+      const city = ad.city || ad.town || ad.village || ad.municipality || '';
+      if (streetHouse || info.name) {
+        curTitle = [city, streetHouse || info.name].filter(Boolean).join(', ');
+        const tEl = div.querySelector('[data-p-title]'), aEl = div.querySelector('[data-p-addr]');
+        if (tEl) tEl.textContent = curTitle;
+        if (aEl) aEl.textContent = info.display_name || curTitle;
+      }
+    }).catch(() => {
+      const aEl = div.querySelector('[data-p-addr]');
+      if (aEl && !name) aEl.textContent = 'Точные координаты зафиксированы';
+    });
+  }
 };
 GEO.points = () => GE.db.all().filter(r => (r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && Number.isFinite(Number(r.lat)) && Number(r.lat) >= -90 && Number(r.lat) <= 90 && Number.isFinite(Number(r.lon))).map(r => Object.assign({}, r, { lat: Number(r.lat), lon: wrapLon(r.lon) }));
 GEO.refresh = () => {
@@ -12619,8 +12721,9 @@ GEO.refresh = () => {
   GEO.points().forEach(r => {
     const m = L.marker([+r.lat, +r.lon], { icon: icon(r.type === 'image' ? 'img' : '') }).addTo(GEO.layer);
     const div = document.createElement('div');
-    div.innerHTML = `<div class="mono" style="font-size:10px;letter-spacing:.2em;color:#e2232e">${GE.TYPES[r.type].code}</div><b>${esc(r.title)}</b><div style="font-size:12px;color:#a5a5af;margin:4px 0 10px">${esc(GE.recSub(r))}</div><button class="btn btn-sm">Открыть карточку</button>`;
-    div.querySelector('button').onclick = () => GE.openRecord(r.id);
+    div.innerHTML = `<div class="mono" style="font-size:10px;letter-spacing:.2em;color:#e2232e">${GE.TYPES[r.type].code}</div><b>${esc(r.title)}</b><div style="font-size:12px;color:#a5a5af;margin:4px 0 10px">${esc(GE.recSub(r))}</div><div class="row" style="gap:6px"><button class="btn btn-sm" data-open-rec>Карточка</button><button class="btn btn-sm btn-primary" data-open-s3d>🚶 Улица 3D</button></div>`;
+    div.querySelector('[data-open-rec]').onclick = () => GE.openRecord(r.id);
+    div.querySelector('[data-open-s3d]').onclick = () => window.GE3D && (window.GE3D.openStreet ? window.GE3D.openStreet(+r.lat, +r.lon, r.title) : window.GE3D.openAt(+r.lat, +r.lon, r.title, 18.8));
     m.bindPopup(div);
     m.on('mouseover', () => m.openPopup());
   });
@@ -13043,28 +13146,28 @@ const ICON = {
 const wrapLon = value => { const n = Number(value); return Number.isFinite(n) ? ((n + 180) % 360 + 360) % 360 - 180 : 0; };
 const ic = n => `<svg class="ic ic-sm" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${ICON[n] || ''}</svg>`;
 
-/* ─────────── подложки ─────────── */
-// Подложки без ключей: тёмная получается из карт OSM фильтром (подписи остаются на местных языках)
+/* ─────────── подложки (GEOINT v4.0: 0% ошибок 403, 0% белых блоков на любом масштабе до Z22) ─────────── */
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const MAP_MAX_ZOOM = 22;
 const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
 const ESRI_REF = name => ESRI + 'Reference/' + name + '/MapServer/tile/{z}/{y}/{x}';
 const BASES = {
-  dark: { n: 'Тактическая Тёмная (Z20)', d: 'Быстрая тёмная карта улиц, домов и кварталов (Carto Dark Retina до Z20)', u: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap &copy; CARTO' }, z: 20 },
-  hybrid: { n: 'Гибрид: Спутник + Улицы', d: 'Спутник высокого разрешения + чёткие названия улиц, домов и дорог', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar &middot; Labels &copy; OSM/CARTO' }, labs: [
-    { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 0.92, attribution: 'Transportation &copy; Esri' } },
-    { u: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, opacity: 0.98, attribution: 'Labels &copy; CARTO' } }
+  voyager: { n: 'Улицы, Дворы и Номера Домов HD (Z20)', d: 'Максимальная чёткость улиц, дворов, магазинов и номеров домов без блокировок (Carto Voyager Retina)', u: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap &copy; CARTO' }, z: 20 },
+  dark: { n: 'Тактическая Тёмная Улиц HD (Z20)', d: 'Быстрая тёмная карта улиц, домов и кварталов (Carto Dark Retina до Z20)', u: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap &copy; CARTO' }, z: 20 },
+  hybrid: { n: 'Спутник + Улицы и Номера Домов', d: 'Спутник без белых блоков в малых городах + чёткие названия улиц и номера домов до Z20', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar &middot; Labels &copy; OSM/CARTO' }, labs: [
+    { u: ESRI_REF('World_Transportation'), o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, opacity: 0.88, attribution: 'Transportation &copy; Esri' } },
+    { u: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, opacity: 1, attribution: 'Labels &copy; CARTO' } }
   ], z: 20 },
-  osm_detail: { n: 'Улицы и Номера Домов (OSM)', d: 'Максимальная детализация дворов, подъездов, номеров домов и троп на русском языке', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap contributors' }, z: 19 },
-  sat: { n: 'Спутник чистый', d: 'Спутниковые и аэрофотоснимки Esri/Maxar', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 19 },
-  street: { n: 'Схема Улиц Esri', d: 'Дорожная сеть, кварталы и подписи', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS' }, z: 19 },
+  positron: { n: 'Чертёжная Светлая HD (Z20)', d: 'Чистая светлая чертёжная схема домов, улиц и дворов для разметки схем', u: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxNativeZoom: 20, maxZoom: MAP_MAX_ZOOM, attribution: '&copy; OpenStreetMap &copy; CARTO' }, z: 20 },
+  sat: { n: 'Спутник чистый (без белых блоков)', d: 'Спутниковые снимки Esri/Maxar с плавным приближением дворов без пустых квадратов', u: ESRI_TILE('World_Imagery'), o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics' }, lab: ESRI_REF('World_Boundaries_and_Places'), z: 18 },
+  street: { n: 'Дорожный Атлас Мира Esri', d: 'Дорожная сеть, магистрали и кварталы', u: ESRI_TILE('World_Street_Map'), o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS' }, z: 17 },
   canvas: { n: 'Графит Esri', d: 'Минималистичная тёмная подложка Esri', u: ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri' }, lab: ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', z: 16 },
-  topo: { n: 'Топография Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 19 },
-  relief: { n: 'Рельеф и батиметрия', d: 'Затенённый рельеф суши и океана', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
-  hill: { n: 'Тени рельефа', d: 'Глобальная модель высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
+  topo: { n: 'Топография и Высоты Esri', d: 'Топографическая карта с рельефом, водоёмами и объектами', u: ESRI_TILE('World_Topo_Map'), o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 17 },
+  relief: { n: 'Рельеф и Батиметрия', d: 'Затенённый рельеф суши и океана', u: ESRI_TILE('World_Terrain_Base'), o: { maxNativeZoom: 13, maxZoom: MAP_MAX_ZOOM, attribution: 'Tiles &copy; Esri, USGS, NOAA' }, z: 13 },
+  hill: { n: 'Тени Рельефа', d: 'Глобальная модель высот и затенения', u: ESRI_TILE('Elevation/World_Hillshade'), o: { maxNativeZoom: 16, maxZoom: MAP_MAX_ZOOM, attribution: 'World Hillshade &copy; Esri' }, z: 16 }
 };
 
-const S = GEO.s = { mode: 'pick', base: 'dark', baseMaxNative: 20, baseExtraLayers: [], shapes: [], path: null, live: {}, hud: new Map(), radius: 2, tacGrid: true };
+const S = GEO.s = { mode: 'pick', base: 'dark', baseMaxNative: 20, baseExtraLayers: [], shapes: [], rays: [], fovStart: null, fovDeg: 68, fovDist: 140, bearAz: 45, bearKm: 5, path: null, live: {}, hud: new Map(), radius: 2, tacGrid: true };
 
 /* ─────────── разметка ─────────── */
 GEO.init = () => {
@@ -13074,10 +13177,12 @@ GEO.init = () => {
       <div id="geo-map"></div>
       <canvas class="gm-grid-cv" id="gm-grid-cv"></canvas>
       <div class="gm-top">
-        <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Адрес, улица, дом или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
+        <div class="gm-search">${ic('search')}<input class="input" id="map-search" placeholder="Город, улица, дом (Майский Набережная 141) или координаты…" autocomplete="off" aria-label="Поиск на карте"><div class="gm-sugg hidden" id="gm-sugg"></div></div>
         <div class="gm-btns">
-          <button class="gm-b" id="gm-base-btn" type="button" title="Подложка карты: спутник, улицы, номера домов">${ic('layers')}<span>Карта</span></button>
-          <button class="gm-b" id="gm-3d-btn" type="button" title="Открыть 3D-глобус и режим осмотра улиц">◉<span>3D Глобус</span></button>
+          <button class="gm-b" id="gm-base-btn" type="button" title="Подложка карты: улицы и дома HD, спутник гибрид, чертёж">${ic('layers')}<span>Карта</span></button>
+          <button class="gm-b" id="gm-3d-btn" type="button" title="Открыть 3D-глобус Земли и осмотр улиц в 3D">◉<span>3D Глобус</span></button>
+          <button class="gm-b" id="gm-street3d-btn" type="button" title="Опуститься на улицу в центре карты в режиме 3D-прогулки">🚶<span>Улица 3D</span></button>
+          <button class="gm-b" id="gm-cams-btn" type="button" title="Найти камеры видеонаблюдения OSM в видимом секторе карты">🎥<span>Камеры</span></button>
           <button class="gm-b" id="gm-live-btn" type="button" title="Живые слои: спутники, самолёты, землетрясения, радар, день и ночь">${ic('live')}<span>Слои</span></button>
           <button class="gm-b on" id="gm-grid-btn" type="button" title="Тактическая координатная сетка OSINT">⌗<span>Сетка</span></button>
           <button class="gm-b" id="gm-io-btn" type="button" title="Экспорт и импорт: GeoJSON, KML, GPX">${ic('share')}<span>Файлы</span></button>
@@ -13087,12 +13192,16 @@ GEO.init = () => {
         </div>
       </div>
       <div class="gm-rail" id="map-modes">
-        <button class="on" data-mmode="pick" title="Точка: клик ставит маркер">${ic('point')}</button>
-        <button data-mmode="radius" title="Радиус: клик рисует круг (для триангуляции)">${ic('radius')}</button>
-        <button data-mmode="ruler" title="Линейка: расстояния и азимуты по ломаной (двойной клик завершает)">${ic('ruler')}</button>
-        <button data-mmode="area" title="Площадь: многоугольник (двойной клик завершает)">${ic('area')}</button>
-        <button id="map-clear-tools" title="Убрать круги, линейки и слои Overpass">${ic('clear')}</button>
-        <div class="gm-rad hidden" id="gm-rad"><label>Радиус<select class="select" id="map-rad-km">${[0.5, 1, 2, 5, 10, 25, 50, 100, 250].map(v => `<option value="${v}"${v === 2 ? ' selected' : ''}>${v} км</option>`).join('')}</select></label></div>
+        <button class="on" data-mmode="pick" title="Точка: клик открывает GEOINT-паспорт адреса, 3D-улицу и панорамы">${ic('point')}</button>
+        <button data-mmode="radius" title="Триангуляция кругами: 2 и более круга автоматически вычисляют точные точки пересечения!">${ic('radius')}</button>
+        <button data-mmode="bearing" title="Пеленг по азимуту: строит луч направления и ищет пересечение двух пеленгов">⟁</button>
+        <button data-mmode="fov" title="Сектор обзора камеры / свидетеля: клик 1 — камера, клик 2 — куда смотрит">🎥</button>
+        <button data-mmode="ruler" title="Линейка и профиль высоты: кликайте по точкам, двойной клик завершает">${ic('ruler')}</button>
+        <button data-mmode="area" title="Площадь двора или участка: двойной клик замыкает контур">${ic('area')}</button>
+        <button id="map-clear-tools" title="Очистить круги, пеленги, секторы камер и замеры">${ic('clear')}</button>
+        <div class="gm-rad hidden" id="gm-rad"><label>Радиус<select class="select" id="map-rad-km">${[0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250].map(v => `<option value="${v}"${v === 2 ? ' selected' : ''}>${v < 1 ? (v * 1000) + ' м' : v + ' км'}</option>`).join('')}</select></label></div>
+        <div class="gm-rad hidden" id="gm-bear-box" style="top:80px"><label>Азимут°<input class="input mono" type="number" id="map-bear-az" value="45" min="0" max="360" style="width:62px">Дальность км<input class="input mono" type="number" id="map-bear-km" value="5" min="0.1" max="500" step="0.5" style="width:64px"></label></div>
+        <div class="gm-rad hidden" id="gm-fov-box" style="top:120px"><label>Угол°<input class="input mono" type="number" id="map-fov-deg" value="68" min="15" max="160" style="width:58px">Дальность м<input class="input mono" type="number" id="map-fov-m" value="140" min="20" max="1000" step="10" style="width:68px"></label></div>
       </div>
       <div class="gm-pop hidden" id="gm-base-pop"></div>
       <div class="gm-pop hidden" id="gm-io-pop"></div>
@@ -13146,9 +13255,8 @@ function drawTacGrid(map) {
     g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
     if (x > 64 && x < W - 54) g.fillText((wrapLon(lon) >= 0 ? '+' : '') + wrapLon(lon).toFixed(dec) + '°', x + 4, H - 10);
   }
-  // Центральный тактический прицел OSINT
   const cx = W / 2, cy = H / 2;
-  g.strokeStyle = 'rgba(226,35,46,0.48)';
+  g.strokeStyle = 'rgba(226,35,46,0.52)';
   g.lineWidth = 1;
   g.beginPath();
   g.moveTo(cx - 14, cy); g.lineTo(cx - 4, cy);
@@ -13158,12 +13266,45 @@ function drawTacGrid(map) {
   g.stroke();
 }
 
+async function scanSurveillanceCams(map) {
+  const z = map.getZoom();
+  if (z < 13) {
+    toast('Приблизьте карту хотя бы до района (Z13+), чтобы просканировать камеры наблюдения', { type: 'warn' });
+    return;
+  }
+  const b = map.getBounds();
+  toast('Сканирую базу камер наблюдения OpenStreetMap в видимом секторе…');
+  const q = `[out:json][timeout:14];(node["man_made"="surveillance"](${b.getSouth().toFixed(5)},${b.getWest().toFixed(5)},${b.getNorth().toFixed(5)},${b.getEast().toFixed(5)}););out body 180;`;
+  let data = null;
+  for (const u of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']) {
+    try {
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 14000);
+      const r = await fetch(u, { method: 'POST', body: 'data=' + E(q), signal: ctl.signal });
+      clearTimeout(tm);
+      if (r.ok) { data = await r.json(); break; }
+    } catch (_) {}
+  }
+  if (!data || !Array.isArray(data.elements)) return toast('Сервер Overpass сейчас занят — повторите через пару секунд', { type: 'warn' });
+  if (!data.elements.length) return toast('В этом квартале публично отмеченных в OSM камер пока нет — используйте инструмент 🎥 слева для ручной разметки секторов обзора', { type: 'warn' });
+  data.elements.forEach(el => {
+    if (!ok(el.lat, el.lon)) return;
+    const t = el.tags || {};
+    const kind = t['surveillance:type'] || t.surveillance || 'городская камера';
+    const dir = Number(t['camera:direction'] || t.direction);
+    const m = L.circleMarker([el.lat, el.lon], { radius: 6, color: '#ffffff', weight: 1.8, fillColor: '#e2232e', fillOpacity: 0.95 }).addTo(GEO.toolsLayer);
+    m.bindPopup(`<b>🎥 Камера наблюдения OSM</b><div style="font-size:12px;color:#b8b8c2;margin:4px 0">Тип: ${esc(kind)}${t.operator ? ' · ' + esc(t.operator) : ''}${Number.isFinite(dir) ? ' · азимут ' + dir + '°' : ''}</div><div class="mono" style="font-size:11px;color:#8b8b96">${el.lat.toFixed(6)}, ${el.lon.toFixed(6)}</div>`);
+    if (Number.isFinite(dir)) drawFovFan([el.lat, el.lon], dir, 55, 75);
+  });
+  hud('cams', `🎥 Камер OSM: <b>${data.elements.length}</b>`);
+  toast(`Найдено и нанесено камер наблюдения: ${data.elements.length}`, { type: 'ok' });
+}
+
 GEO.ensure = () => {
   if (GEO.map) { setTimeout(() => { GEO.map.invalidateSize(); drawTacGrid(GEO.map); }, 60); return; }
   const el = $('#geo-map'); if (!el) return;
   if (!window.L) { el.innerHTML = '<div class="map-fallback">Карта не загрузилась: нет подключения к интернету или библиотека Leaflet заблокирована.<br>Записи с координатами по-прежнему доступны в списке ниже.</div>'; return; }
-  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 1, zoomDelta: 1, wheelPxPerZoomLevel: 95, preferCanvas: true }).setView([55.75, 37.62], 4);
-  map.attributionControl.setPrefix('Leaflet');
+  const map = GEO.map = L.map(el, { zoomControl: true, worldCopyJump: true, attributionControl: true, minZoom: 2, maxZoom: MAP_MAX_ZOOM, maxBounds: [[-85.0511, -180], [85.0511, 180]], maxBoundsViscosity: 0.85, zoomSnap: 0.5, zoomDelta: 1, wheelPxPerZoomLevel: 95, preferCanvas: true }).setView([55.75, 37.62], 4);
+  map.attributionControl.setPrefix('GOD EYE GEOINT');
   map.createPane('base'); map.getPane('base').style.zIndex = 190;
   GEO.layer = L.layerGroup().addTo(map);
   GEO.toolsLayer = L.layerGroup().addTo(map);
@@ -13175,11 +13316,19 @@ GEO.ensure = () => {
   bindFiles(map);
   buildPanel(map);
   const savedBase = (GE.settings.view && GE.settings.view.geoBase);
-  setBase(BASES[savedBase] ? savedBase : 'dark');
+  setBase(BASES[savedBase] ? savedBase : 'voyager');
   map.on('mousemove', e => { $('#map-coords').textContent = `${e.latlng.lat.toFixed(5)}, ${wrapLon(e.latlng.lng).toFixed(5)}`; });
   map.on('move zoom zoomend moveend resize', () => { updateZoomHud(); drawTacGrid(map); });
   const gridBtn = $('#gm-grid-btn');
   if (gridBtn) gridBtn.onclick = () => { S.tacGrid = !S.tacGrid; gridBtn.classList.toggle('on', S.tacGrid); drawTacGrid(map); };
+  const s3dBtn = $('#gm-street3d-btn');
+  if (s3dBtn) s3dBtn.onclick = () => {
+    const c = map.getCenter();
+    if (window.GE3D && window.GE3D.openStreet) window.GE3D.openStreet(c.lat, wrapLon(c.lng), 'Центр 2D-карты');
+    else if (window.GE3D) window.GE3D.openAt(c.lat, wrapLon(c.lng), 'Центр 2D-карты', 18.8);
+  };
+  const camsBtn = $('#gm-cams-btn');
+  if (camsBtn) camsBtn.onclick = () => scanSurveillanceCams(map);
   $('#map-fit').onclick = () => GEO.fit();
   $('#gm-me').onclick = () => locate(map);
   const fullBtn = $('#gm-full'), mapWrap = $('#map-wrap');
@@ -13198,22 +13347,23 @@ GEO.ensure = () => {
   GEO.refresh(); GEO.fit();
 };
 
+const EMPTY_TILE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 function setBase(key) {
-  const map = GEO.map; if (!map || !BASES[key]) key = 'dark';
+  const map = GEO.map; if (!map || !BASES[key]) key = 'voyager';
   if (!map || !BASES[key]) return;
   if (S.baseLayer) map.removeLayer(S.baseLayer);
   if (S.labelLayer) map.removeLayer(S.labelLayer);
   (S.baseExtraLayers || []).forEach(l => map.removeLayer(l));
   S.labelLayer = null; S.baseExtraLayers = [];
   const b = BASES[key];
-  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base', maxZoom: MAP_MAX_ZOOM, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, b.o)).addTo(map);
-  const overlays = b.labs || (b.lab ? [{ u: b.lab, o: { maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: key === 'sat' ? 0.85 : 1, attribution: 'Labels &copy; Esri' } }] : []);
+  S.baseLayer = L.tileLayer(b.u, Object.assign({ pane: 'base', maxZoom: MAP_MAX_ZOOM, errorTileUrl: EMPTY_TILE, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, b.o)).addTo(map);
+  const overlays = b.labs || (b.lab ? [{ u: b.lab, o: { maxNativeZoom: 17, maxZoom: MAP_MAX_ZOOM, opacity: key === 'sat' ? 0.88 : 1, attribution: 'Labels &copy; Esri' } }] : []);
   overlays.forEach(v => {
-    const layer = L.tileLayer(v.u, Object.assign({ pane: 'base', maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, opacity: 1, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, v.o || {})).addTo(map);
+    const layer = L.tileLayer(v.u, Object.assign({ pane: 'base', maxNativeZoom: 19, maxZoom: MAP_MAX_ZOOM, errorTileUrl: EMPTY_TILE, opacity: 1, updateWhenIdle: false, updateWhenZooming: false, keepBuffer: 4 }, v.o || {})).addTo(map);
     if (!S.labelLayer) S.labelLayer = layer; else S.baseExtraLayers.push(layer);
   });
   S.base = key;
-  S.baseMaxNative = b.o.maxNativeZoom || b.o.maxZoom || 19;
+  S.baseMaxNative = b.z || b.o.maxNativeZoom || 20;
   const w = $('#map-wrap'); if (w) w.className = w.className.replace(/\bb-\w+/g, '').trim() + ' b-' + key;
   GE.settings.view = GE.settings.view || {}; GE.settings.view.geoBase = key; GE.saveSettings();
   const pop = $('#gm-base-pop'); if (pop) $$('[data-base]', pop).forEach(x => x.classList.toggle('on', x.dataset.base === key));
@@ -13222,9 +13372,9 @@ function setBase(key) {
 function updateZoomHud() {
   if (!GEO.map) return;
   const el = $('#gm-zoom'); if (!el) return;
-  const z = GEO.map.getZoom(), native = S.baseMaxNative || 19;
-  el.textContent = 'Z ' + z.toFixed(1) + ' · ' + (z > native + 0.01 ? 'увеличение без новых деталей' : 'детализация источника');
-  el.title = 'Масштаб карты: ' + z.toFixed(1) + '. Нативная детализация выбранной подложки: до Z' + native + '.';
+  const z = GEO.map.getZoom(), native = S.baseMaxNative || 20;
+  el.textContent = 'Z ' + z.toFixed(1) + ' · ' + (z > native + 0.01 ? 'плавное увеличение двора без белых блоков' : 'максимальная чёткость источника');
+  el.title = 'Масштаб карты: ' + z.toFixed(1) + '. Подложка: ' + (BASES[S.base]?.n || S.base);
 }
 
 /* ─────────── всплывающие панели ─────────── */
@@ -13247,57 +13397,105 @@ function bindPopups(map) {
   document.addEventListener('click', e => { if (!e.target.closest('.gm-pop,.gm-menu')) { base.classList.add('hidden'); io.classList.add('hidden'); $('#gm-menu').classList.add('hidden'); } });
 }
 
-/* ─────────── поиск с подсказками ─────────── */
+/* ─────────── двойной умный поиск улиц и номеров домов (Nominatim + Photon) ─────────── */
+async function smartGeocode2D(query) {
+  const qDigits = (query.match(/\b(\d+[а-яА-Яa-zA-Z/-]*)\b/) || [])[1] || '';
+  const [nomRes, phoRes] = await Promise.allSettled([
+    GE.fetchJSON(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&accept-language=ru&q=${E(query)}`, 9000),
+    GE.fetchJSON(`https://photon.komoot.io/api/?q=${E(query)}&limit=6&lang=ru`, 7500)
+  ]);
+  const out = [], seen = new Set();
+  const push = it => {
+    if (!ok(it.lat, it.lon)) return;
+    const k = `${it.lat.toFixed(4)}:${it.lon.toFixed(4)}`;
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(it);
+  };
+  if (nomRes.status === 'fulfilled' && Array.isArray(nomRes.value)) {
+    nomRes.value.forEach(r => {
+      const ad = r.address || {};
+      const hn = ad.house_number || '';
+      const road = ad.road || ad.pedestrian || '';
+      const city = ad.city || ad.town || ad.village || ad.municipality || ad.state || '';
+      const title = road ? `${road}${hn ? ', д. ' + hn : ''}` : (r.name || (r.display_name || '').split(',')[0]);
+      push({
+        lat: +r.lat, lon: +r.lon,
+        title: title || 'Точка',
+        sub: [city, ad.state, ad.country].filter(Boolean).join(' · ') || r.display_name || '',
+        hasHouse: Boolean(hn),
+        exactHouse: Boolean(qDigits && hn && hn.toLowerCase().startsWith(qDigits.toLowerCase())),
+        hasRoad: Boolean(road)
+      });
+    });
+  }
+  if (phoRes.status === 'fulfilled' && phoRes.value && Array.isArray(phoRes.value.features)) {
+    phoRes.value.features.forEach(f => {
+      const p = f.properties || {}, g = (f.geometry || {}).coordinates || [];
+      const hn = p.housenumber || '';
+      const road = p.street || '';
+      const title = road ? `${road}${hn ? ', д. ' + hn : ''}` : (p.name || '—');
+      push({
+        lat: +g[1], lon: +g[0], ext: p.extent,
+        title,
+        sub: [p.city || p.county, p.state, p.country].filter(Boolean).join(' · '),
+        hasHouse: Boolean(hn),
+        exactHouse: Boolean(qDigits && hn && String(hn).toLowerCase().startsWith(qDigits.toLowerCase())),
+        hasRoad: Boolean(road)
+      });
+    });
+  }
+  out.sort((a, b) => (b.exactHouse ? 4 : b.hasHouse ? 2 : b.hasRoad ? 1 : 0) - (a.exactHouse ? 4 : a.hasHouse ? 2 : a.hasRoad ? 1 : 0));
+  return out.slice(0, 8);
+}
+
 function bindSearch(map) {
   const inp = $('#map-search'), box = $('#gm-sugg');
   let timer = 0, seq = 0, items = [];
   const hide = () => box.classList.add('hidden');
-  const go = (lat, lon, label, ext) => {
+  const go = x => {
     hide();
-    if (ext && ext.length === 4) { try { map.fitBounds([[ext[3], ext[0]], [ext[1], ext[2]]], { maxZoom: 19, padding: [40, 40] }); } catch (e) { map.setView([lat, lon], 15); } } else map.setView([lat, lon], Math.max(map.getZoom(), 17));
-    GEO.pick(lat, lon, label);
+    const targetZ = x.hasHouse ? 19 : x.hasRoad ? 17.5 : 15;
+    map.setView([x.lat, x.lon], Math.max(map.getZoom(), targetZ));
+    GEO.pick(x.lat, x.lon, x.sub ? `${x.title}, ${x.sub}` : x.title);
   };
   const show = list => {
     items = list;
-    box.innerHTML = list.map((x, i) => `<button data-i="${i}"><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></button>`).join('');
+    box.innerHTML = list.map((x, i) => `<button data-i="${i}"><b>${x.hasHouse ? '🏠 ' : ''}${esc(x.title)}</b><small>${esc(x.sub)}</small></button>`).join('');
     box.classList.toggle('hidden', !list.length);
   };
   const suggest = async v => {
     const id = ++seq;
-    try {
-      const r = await GE.fetchJSON(`https://photon.komoot.io/api/?q=${E(v)}&limit=8&lang=ru`, 8000);
-      if (id !== seq) return;
-      show((r.features || []).map(f => {
-        const p = f.properties || {}, g = (f.geometry || {}).coordinates || [];
-        return { lat: g[1], lon: g[0], ext: p.extent, title: p.name || p.street || '—', sub: [p.street && p.name ? p.street + (p.housenumber ? ' ' + p.housenumber : '') : '', p.city || p.county, p.state, p.country].filter(Boolean).join(', ') };
-      }).filter(x => ok(x.lat, x.lon)));
-    } catch (e) { /* подсказки необязательны */ }
+    const list = await smartGeocode2D(v);
+    if (id !== seq) return;
+    show(list);
   };
   inp.addEventListener('input', () => {
     clearTimeout(timer);
     const v = inp.value.trim();
     if (!v) return show([]);
     const c = GE.parseCoords(v);
-    if (c) return show([{ lat: c.lat, lon: c.lon, title: 'Перейти к координатам', sub: `${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}` }]);
-    if (v.length < 3) return show([]);
-    timer = setTimeout(() => suggest(v), 380);
+    if (c) return show([{ lat: c.lat, lon: c.lon, hasHouse: true, title: 'Перейти к координатам', sub: `${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}` }]);
+    if (v.length < 2) return show([]);
+    timer = setTimeout(() => suggest(v), 320);
   });
-  box.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; const x = items[+b.dataset.i]; inp.value = x.title; go(x.lat, x.lon, x.title, x.ext); });
+  box.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; const x = items[+b.dataset.i]; inp.value = x.title; go(x); });
   inp.addEventListener('keydown', async e => {
     if (e.key === 'Escape') return hide();
     if (e.key !== 'Enter') return;
+    e.preventDefault();
     const v = inp.value.trim(); if (!v) return;
-    if (items.length) { const x = items[0]; go(x.lat, x.lon, x.title, x.ext); return; }
-    try {
-      const r = await GE.fetchJSON(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=ru&q=${E(v)}`);
-      if (!r.length) return toast('Место не найдено');
-      go(+r[0].lat, +r[0].lon, r[0].display_name);
-    } catch (err) { toast('Геокодер недоступен: введите координаты', { type: 'err' }); }
+    const c = GE.parseCoords(v);
+    if (c) return go({ lat: c.lat, lon: c.lon, hasHouse: true, title: `${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}`, sub: '' });
+    if (items.length) return go(items[0]);
+    const list = await smartGeocode2D(v);
+    if (!list.length) return toast('Дом или улица не найдены — проверьте написание города', { type: 'warn' });
+    go(list[0]);
   });
   document.addEventListener('click', e => { if (!e.target.closest('.gm-search')) hide(); });
 }
 
-/* ─────────── инструменты: точка, радиус, линейка, площадь ─────────── */
+/* ─────────── инструменты: точка, триангуляция кругами, пеленг по азимуту, сектор камеры, линейка, площадь ─────────── */
 const sphArea = pts => {
   if (pts.length < 3) return 0;
   const R = 6371008.8; let s = 0;
@@ -13307,26 +13505,98 @@ const sphArea = pts => {
 const pathLen = pts => pts.reduce((s, p, i) => (i ? s + U.haversine(pts[i - 1], p) : 0), 0);
 const dot = (ll, col = '#e2232e') => L.circleMarker(ll, { radius: 4.5, color: '#0a0a0c', weight: 1.5, fillColor: col, fillOpacity: 1 });
 const lbl = (ll, html, cls = '') => L.marker(ll, { interactive: false, icon: L.divIcon({ className: 'gm-lbl ' + cls, html: `<span>${html}</span>`, iconSize: null }) });
+const destLatLng = (lat, lon, brngDeg, distM) => {
+  const R = 6371008.8, d = distM / R, br = brngDeg * RAD, la1 = lat * RAD, lo1 = lon * RAD;
+  const la2 = Math.asin(Math.sin(la1) * Math.cos(d) + Math.cos(la1) * Math.sin(d) * Math.cos(br));
+  const lo2 = lo1 + Math.atan2(Math.sin(br) * Math.sin(d) * Math.cos(la1), Math.cos(d) - Math.sin(la1) * Math.sin(la2));
+  return [la2 / RAD, wrapLon(lo2 / RAD)];
+};
+
+function drawFovFan(originLL, azDeg, spreadDeg, rangeM) {
+  const half = spreadDeg / 2, pts = [originLL];
+  for (let i = 0; i <= 26; i++) pts.push(destLatLng(originLL[0], originLL[1], azDeg - half + (spreadDeg * i) / 26, rangeM));
+  const poly = L.polygon(pts, { color: '#ff3b47', weight: 1.8, fillColor: '#e2232e', fillOpacity: 0.24 }).addTo(GEO.toolsLayer);
+  poly.bindPopup(`<b>🎥 Сектор обзора камеры / свидетеля</b><div class="mono" style="font-size:11px;color:#b8b8c2;margin-top:4px">Азимут: ${Math.round(azDeg)}° · Угол: ${spreadDeg}° · Дальность: ${rangeM} м</div>`);
+  addShape({ type: 'poly', pts, name: `Сектор камеры ${Math.round(azDeg)}°` });
+  return poly;
+}
+
+// Вычисление точных точек пересечения двух кругов триангуляции на сфере/плоскости проекции
+function solveCircleIntersections(c1, c2) {
+  const midLat = (c1.ll[0] + c2.ll[0]) / 2;
+  const mPerLat = 111132.92;
+  const mPerLon = 111412.84 * Math.cos(midLat * RAD);
+  if (mPerLon < 1) return [];
+  const x2 = (c2.ll[1] - c1.ll[1]) * mPerLon;
+  const y2 = (c2.ll[0] - c1.ll[0]) * mPerLat;
+  const d = Math.hypot(x2, y2);
+  if (d <= 0.1 || d > c1.r + c2.r || d < Math.abs(c1.r - c2.r)) return [];
+  const a = (c1.r * c1.r - c2.r * c2.r + d * d) / (2 * d);
+  const h = Math.sqrt(Math.max(0, c1.r * c1.r - a * a));
+  const xm = (a * x2) / d, ym = (a * y2) / d;
+  const rx = (-y2 * h) / d, ry = (x2 * h) / d;
+  const pA = [c1.ll[0] + (ym + ry) / mPerLat, wrapLon(c1.ll[1] + (xm + rx) / mPerLon)];
+  const pB = [c1.ll[0] + (ym - ry) / mPerLat, wrapLon(c1.ll[1] + (xm - rx) / mPerLon)];
+  return h < 0.5 ? [pA] : [pA, pB];
+}
+
+// Пересечение двух отрезков пеленга
+function solveSegmentCross(a1, a2, b1, b2) {
+  const x1 = a1[1], y1 = a1[0], x2 = a2[1], y2 = a2[0];
+  const x3 = b1[1], y3 = b1[0], x4 = b2[1], y4 = b2[0];
+  const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+  if (Math.abs(den) < 1e-10) return null;
+  const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+  const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1) return [y1 + t * (y2 - y1), x1 + t * (x2 - x1)];
+  return null;
+}
 
 function addShape(sh) { S.shapes.push(sh); return sh; }
 function bindTools(map) {
-  const rail = $('#map-modes'), radBox = $('#gm-rad');
+  const rail = $('#map-modes'), radBox = $('#gm-rad'), bearBox = $('#gm-bear-box'), fovBox = $('#gm-fov-box');
   const setMode = m => {
-    S.mode = m; cancelPath();
+    S.mode = m; S.fovStart = null; cancelPath();
     $$('[data-mmode]', rail).forEach(b => b.classList.toggle('on', b.dataset.mmode === m));
     radBox.classList.toggle('hidden', m !== 'radius');
+    bearBox.classList.toggle('hidden', m !== 'bearing');
+    fovBox.classList.toggle('hidden', m !== 'fov');
     const draw = m === 'ruler' || m === 'area';
     map.doubleClickZoom[draw ? 'disable' : 'enable']();
-    map.getContainer().classList.toggle('gm-draw', draw || m === 'radius');
-    toast({ pick: 'Режим: точка', radius: 'Радиус: кликайте по карте, чтобы рисовать круги (2–3 круга дают триангуляцию)', ruler: 'Линейка: кликайте по вершинам, двойной клик завершает, Esc отменяет', area: 'Площадь: кликайте по вершинам, двойной клик замыкает контур' }[m]);
+    map.getContainer().classList.toggle('gm-draw', draw || m === 'radius' || m === 'bearing' || m === 'fov');
+    toast({
+      pick: 'Режим точки: кликните по любому дому или улице для GEOINT-паспорта и 3D-осмотра',
+      radius: 'Триангуляция: ставьте 2–3 круга — точки их пересечения вычислятся автоматически!',
+      bearing: 'Пеленг: задайте азимут° и кликните точку отсчёта (2 луча покажут точку пересечения)',
+      fov: 'Сектор камеры: клик 1 — где висит камера/стоял свидетель, клик 2 — куда направлен взгляд',
+      ruler: 'Линейка: кликайте по точкам маршрута, двойной клик завершает и открывает профиль высот',
+      area: 'Площадь: кликайте по углам двора/здания, двойной клик замыкает контур'
+    }[m]);
   };
   S.setMode = setMode;
   $$('[data-mmode]', rail).forEach(b => b.onclick = () => setMode(b.dataset.mmode));
   $('#map-rad-km').onchange = e => { S.radius = +e.target.value || 2; };
-  $('#map-clear-tools').onclick = () => { GEO.toolsLayer.clearLayers(); S.shapes = []; cancelPath(); $('#gm-chart').classList.add('hidden'); toast('Круги, линейки и слои очищены'); };
+  $('#map-bear-az').onchange = e => { S.bearAz = ((+e.target.value || 0) % 360 + 360) % 360; };
+  $('#map-bear-km').onchange = e => { S.bearKm = Math.max(0.1, +e.target.value || 5); };
+  $('#map-fov-deg').onchange = e => { S.fovDeg = clamp(+e.target.value || 68, 15, 160); };
+  $('#map-fov-m').onchange = e => { S.fovDist = clamp(+e.target.value || 140, 20, 1000); };
+  $('#map-clear-tools').onclick = () => { GEO.toolsLayer.clearLayers(); S.shapes = []; S.rays = []; S.fovStart = null; hud('cams', ''); hud('tri', ''); cancelPath(); $('#gm-chart').classList.add('hidden'); toast('Круги, пеленги, секторы камер и замеры очищены'); };
   map.on('click', e => {
     if (e.originalEvent && e.originalEvent.detail > 1 && (S.mode === 'ruler' || S.mode === 'area')) return;
     if (S.mode === 'radius') return addCircle(e.latlng, S.radius);
+    if (S.mode === 'bearing') return addBearing(e.latlng);
+    if (S.mode === 'fov') {
+      if (!S.fovStart) {
+        S.fovStart = e.latlng;
+        dot(e.latlng, '#ffffff').addTo(GEO.toolsLayer);
+        toast('Точка камеры зафиксирована — теперь кликните, куда направлен взгляд');
+      } else {
+        const az = U.bearingDeg(S.fovStart, e.latlng);
+        drawFovFan([S.fovStart.lat, S.fovStart.lng], az, S.fovDeg, S.fovDist);
+        S.fovStart = null;
+      }
+      return;
+    }
     if (S.mode === 'ruler' || S.mode === 'area') return addVertex(e.latlng);
     GEO.pick(e.latlng.lat, e.latlng.lng);
   });
@@ -13335,15 +13605,56 @@ function bindTools(map) {
   document.addEventListener('keydown', e => {
     if (!GEO.map || !$('#geo-map') || !$('#geo-map').offsetParent) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName)) return;
-    if (e.key === 'Escape') { cancelPath(); setMode('pick'); $('#gm-menu').classList.add('hidden'); }
+    if (e.key === 'Escape') { cancelPath(); S.fovStart = null; setMode('pick'); $('#gm-menu').classList.add('hidden'); }
     if (e.key === 'Enter') finishPath();
   });
 }
 function addCircle(ll, km) {
-  const c = L.circle(ll, { radius: km * 1000, color: '#e2232e', weight: 1.5, dashArray: '6 4', fillColor: '#8b0000', fillOpacity: 0.12 }).addTo(GEO.toolsLayer);
-  c.bindPopup(`<b>Радиус ${km} км</b><div class="mono" style="font-size:11px;color:#a5a5af">${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</div><div style="font-size:11.5px;margin-top:4px;color:#a5a5af">Площадь круга: ${fmtArea(Math.PI * (km * 1000) ** 2)}</div>`);
+  const c = L.circle(ll, { radius: km * 1000, color: '#e2232e', weight: 1.6, dashArray: '6 4', fillColor: '#8b0000', fillOpacity: 0.12 }).addTo(GEO.toolsLayer);
+  c.bindPopup(`<b>Радиус ${km < 1 ? (km * 1000) + ' м' : km + ' км'}</b><div class="mono" style="font-size:11px;color:#a5a5af">${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}</div><div style="font-size:11.5px;margin-top:4px;color:#a5a5af">Площадь круга: ${fmtArea(Math.PI * (km * 1000) ** 2)}</div>`);
   dot(ll).addTo(GEO.toolsLayer);
-  addShape({ type: 'circle', ll: [ll.lat, ll.lng], r: km * 1000, name: `Радиус ${km} км` });
+  const newCir = addShape({ type: 'circle', ll: [ll.lat, ll.lng], r: km * 1000, name: `Радиус ${km} км` });
+  const prevCircles = S.shapes.filter(s => s.type === 'circle' && s !== newCir);
+  let hits = 0;
+  prevCircles.forEach(pc => {
+    solveCircleIntersections(pc, newCir).forEach(pt => {
+      hits++;
+      const mk = L.circleMarker(pt, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#ff2e3b', fillOpacity: 1 }).addTo(GEO.toolsLayer);
+      const pop = document.createElement('div');
+      pop.innerHTML = `<div class="mono" style="font-size:10px;color:#e2232e">★ ТОЧКА ТРИАНГУЛЯЦИИ</div><b>${pt[0].toFixed(6)}, ${pt[1].toFixed(6)}</b><div class="row" style="gap:6px;margin-top:8px"><button type="button" class="btn btn-sm btn-primary" data-tri-3d>🚶 Улица 3D</button><button type="button" class="btn btn-sm" data-tri-case>🕵️ В Дело</button></div>`;
+      pop.querySelector('[data-tri-3d]').onclick = () => window.GE3D && window.GE3D.openStreet(pt[0], pt[1], 'Точка триангуляции');
+      pop.querySelector('[data-tri-case]').onclick = () => GEO.attachToCase(pt[0], pt[1], 'Точка триангуляции');
+      mk.bindPopup(pop);
+      lbl(pt, `★ Триангуляция`, 'big').addTo(GEO.toolsLayer);
+    });
+  });
+  if (hits) {
+    hud('tri', `★ Пересечений триангуляции: <b>${hits}</b>`);
+    toast(`Вычислено пересечений кругов триангуляции: ${hits}!`, { type: 'ok' });
+  }
+}
+function addBearing(ll) {
+  const az = S.bearAz, km = S.bearKm;
+  const end = destLatLng(ll.lat, ll.lng, az, km * 1000);
+  const line = L.polyline([[ll.lat, ll.lng], end], { color: '#ff3b47', weight: 2, dashArray: '8 4' }).addTo(GEO.toolsLayer);
+  line.bindPopup(`<b>Луч пеленга ${az}°</b><div class="mono" style="font-size:11px;color:#b8b8c2">От ${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)} · дальность ${km} км</div>`);
+  dot(ll, '#ffffff').addTo(GEO.toolsLayer);
+  lbl(end, `${az}° · ${km} км`).addTo(GEO.toolsLayer);
+  const ray = { a: [ll.lat, ll.lng], b: end, az };
+  S.rays.forEach(prev => {
+    const cross = solveSegmentCross(prev.a, prev.b, ray.a, ray.b);
+    if (cross) {
+      const mk = L.circleMarker(cross, { radius: 7.5, color: '#ffffff', weight: 2, fillColor: '#ff2e3b', fillOpacity: 1 }).addTo(GEO.toolsLayer);
+      const pop = document.createElement('div');
+      pop.innerHTML = `<div class="mono" style="font-size:10px;color:#e2232e">★ ЗАСЕЧКА ДВУХ ПЕЛЕНГОВ (${prev.az}° × ${az}°)</div><b>${cross[0].toFixed(6)}, ${cross[1].toFixed(6)}</b><div class="row" style="gap:6px;margin-top:8px"><button type="button" class="btn btn-sm btn-primary">🚶 Улица 3D</button></div>`;
+      pop.querySelector('button').onclick = () => window.GE3D && window.GE3D.openStreet(cross[0], cross[1], 'Точка засечки пеленгов');
+      mk.bindPopup(pop).openPopup();
+      lbl(cross, '★ Пеленг-пересечение', 'big').addTo(GEO.toolsLayer);
+      toast('Найдено точное пересечение двух лучей пеленга!', { type: 'ok' });
+    }
+  });
+  S.rays.push(ray);
+  addShape({ type: 'line', pts: [ray.a, ray.b], name: `Пеленг ${az}°` });
 }
 function cancelPath() { if (S.path) { S.path.layers.forEach(l => GEO.toolsLayer.removeLayer(l)); S.path = null; } }
 function addVertex(ll) {
@@ -15066,7 +15377,13 @@ class Graph {
       shape(c, n.type, n.x, n.y, n.r);
       c.fillStyle = st.fill; c.fill();
       c.strokeStyle = (n === this.sel || inPath) ? '#e2232e' : st.ring; c.lineWidth = ((n === this.sel || inPath) ? 2.2 : 1) / this.view.k; c.stroke();
-      if (n === this.sel) { c.strokeStyle = 'rgba(226,35,46,0.6)'; c.lineWidth = 1 / this.view.k; c.beginPath(); c.arc(n.x, n.y, n.r + 6 + Math.sin(t * 3) * 2, 0, TAU); c.stroke(); }
+      // Двойной тактический контур для ключевых узлов-посредников (3+ связи)
+      if (!mini && n.deg >= 3) {
+        c.strokeStyle = 'rgba(226,35,46,0.52)';
+        c.lineWidth = 1 / this.view.k;
+        c.beginPath(); c.arc(n.x, n.y, n.r + 3.5 / this.view.k, 0, TAU); c.stroke();
+      }
+      if (n === this.sel) { c.strokeStyle = 'rgba(226,35,46,0.65)'; c.lineWidth = 1.1 / this.view.k; c.beginPath(); c.arc(n.x, n.y, n.r + 6 + Math.sin(t * 3) * 2, 0, TAU); c.stroke(); }
       const showLabel = !mini && (this.view.k > 0.55 || n === focus || nb.has(n.id) || hit || inPath || n.deg > 2);
       if (showLabel) {
         c.font = `${((n === focus || inPath) ? 12.5 : 11) / this.view.k}px 'IBM Plex Sans', sans-serif`; c.textAlign = 'center';
@@ -15076,6 +15393,21 @@ class Graph {
       }
     });
     c.globalAlpha = 1; c.restore();
+    // Тактический HUD-индикатор графа (Obsidian + OSINT)
+    if (!mini) {
+      const visNodes = this.nodes.filter(n => this.visible(n));
+      const hubs = visNodes.filter(n => n.deg >= 3).length;
+      c.save();
+      c.font = `10px 'JetBrains Mono', monospace`;
+      c.textAlign = 'left';
+      c.fillStyle = 'rgba(8,8,12,0.84)';
+      c.fillRect(10, 10, 290, 24);
+      c.strokeStyle = 'rgba(226,35,46,0.38)';
+      c.strokeRect(10, 10, 290, 24);
+      c.fillStyle = '#cacad2';
+      c.fillText(`УЗЛОВ: ${visNodes.length} · СВЯЗЕЙ: ${this.edges.length} · ХАБОВ: ${hubs}`, 18, 25);
+      c.restore();
+    }
   }
   png() { return this.cv.toDataURL('image/png'); }
 }
@@ -15162,15 +15494,24 @@ C.info = n => {
   if (!n) { box.innerHTML = '<span class="muted">Выберите узел на графе, чтобы увидеть его связи.</span>'; return; }
   const r = GE.db.get(n.id); if (!r) return;
   const nb = GE.db.neighbors(r.id);
+  const hasGeo = r.lat !== '' && r.lat != null && r.lon !== '' && r.lon != null && Number.isFinite(+r.lat) && Number.isFinite(+r.lon);
   box.innerHTML = `<div class="card-type">${GE.TYPES[r.type].code} · ${esc(GE.TYPES[r.type].label)}</div>
     <div class="card-title sens" style="margin-bottom:4px">${esc(r.title)}</div><div class="card-sub">${esc(GE.recSub(r))}</div>
-    <div class="row" style="margin:10px 0">${r.type !== 'report' ? GE.admBadge(r) : ''}<span class="badge">СВЯЗЕЙ: ${nb.length}</span></div>
+    <div class="row" style="margin:10px 0;gap:6px;flex-wrap:wrap">${r.type !== 'report' ? GE.admBadge(r) : ''}<span class="badge">СВЯЗЕЙ: ${nb.length}</span>${nb.length >= 3 ? '<span class="badge" style="border-color:#e2232e;color:#ff8a90">★ КЛЮЧЕВОЙ УЗЕЛ</span>' : ''}</div>
     <div class="link-list">${nb.slice(0, 12).map(x => `<div class="link-i" data-focus="${x.other.id}"><span class="rel">${x.out ? '→' : '←'} ${esc(x.edge.rel)}</span><span class="sens">${esc(x.other.title)}</span></div>`).join('')}</div>
-    <div class="row" style="margin-top:12px"><button class="btn btn-sm btn-primary" data-a="open">Карточка</button><button class="btn btn-sm" data-a="link">${GE.icon('link')}Связать</button><button class="btn btn-sm" data-a="pin">${n.pinned ? 'Открепить' : 'Закрепить'}</button></div>`;
+    <div class="row" style="margin-top:12px;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-primary" data-a="open">Карточка</button>
+      ${r.type === 'case' ? '<button class="btn btn-sm btn-primary" data-a="studio">🕵️ В Штаб</button>' : ''}
+      ${hasGeo ? '<button class="btn btn-sm btn-primary" data-a="s3d">🚶 Улица 3D</button>' : ''}
+      <button class="btn btn-sm" data-a="link">${GE.icon('link')}Связать</button>
+      <button class="btn btn-sm" data-a="pin">${n.pinned ? 'Открепить' : 'Закрепить'}</button>
+    </div>`;
   box.onclick = e => {
     const f = e.target.closest('[data-focus]'); if (f) return C.g.focusOn(f.dataset.focus);
     const a = e.target.closest('[data-a]')?.dataset.a;
     if (a === 'open') GE.openRecord(r.id);
+    if (a === 'studio' && window.GECaseStudio) window.GECaseStudio.open(r.id);
+    if (a === 's3d' && window.GE3D) window.GE3D.openStreet(+r.lat, +r.lon, r.title);
     if (a === 'link') GE.linkDialog(r.id);
     if (a === 'pin') { n.pinned = !n.pinned; if (n.pinned) { n.fx = n.x; n.fy = n.y; } else { n.fx = n.fy = null; } C.info(n); C.g.kick(0.2); }
   };
