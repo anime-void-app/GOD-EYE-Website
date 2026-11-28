@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cesium.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cesium.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com https://tiles.openfreemap.org; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <script id="diag-module">
 /* embedded: diag module — локальный журнал ошибок и отчёт для разработчика (ничего не отправляется наружу) */
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', paint);
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+SC:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+Runic&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
+<link rel="stylesheet" href="vendor/leaflet.min.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'">
 <style>
 /* ═══════════════════════════════════════════════════════════════
    GOD EYE — OSINT INTELLIGENCE · style.css
@@ -1796,6 +1796,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
       <button class="burger" id="burger" aria-label="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
       <div class="crumbs" id="crumbs">GOD EYE</div>
       <button class="cmd-trigger" id="cmd-trigger"><svg class="ic ic-sm"><use href="#i-search"/></svg><span class="lbl">Поиск по системе и командам…</span><span class="kbd">CTRL K</span></button>
+      <button class="btn btn-sm" id="top-3d-btn" title="Открыть интерактивный 3D-глобус Земли (Alt+G)" style="height:34px;border-color:rgba(226,35,46,.38);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;flex-shrink:0">◉ 3D EARTH</button>
       <div class="audio-ctl" id="audio-ctl">
         <button class="audio-btn" id="audio-toggle" title="Включить / выключить саундтрек (Alt+M)" aria-label="Саундтрек">
           <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -1871,6 +1872,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
               <button class="btn" data-new="org"><svg class="ic ic-sm"><use href="#i-org"/></svg>Организация</button>
               <button class="btn" data-new="source"><svg class="ic ic-sm"><use href="#i-source"/></svg>Источник</button>
               <button class="btn" data-new="geo"><svg class="ic ic-sm"><use href="#i-geo"/></svg>Локация</button>
+              <button class="btn btn-primary" data-open-3d="1" title="Интерактивный 3D-глобус Земли (Alt+G)">◉ 3D Глобус</button>
               <button class="btn" data-go="images"><svg class="ic ic-sm"><use href="#i-image"/></svg>Анализ фото</button>
               <button class="btn" data-new="report"><svg class="ic ic-sm"><use href="#i-report"/></svg>Исследование</button>
             </div>
@@ -2103,6 +2105,8 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
         </div>
         <div class="tabs" id="lab-tabs">
           <button data-tab="extract" class="on">Извлечение</button>
+          <button data-tab="cyber">Кибер и ID</button>
+          <button data-tab="socmint">Никнеймы и ФИО</button>
           <button data-tab="hash">Хеши</button>
           <button data-tab="codec">Кодировщик</button>
           <button data-tab="time">Время и ID</button>
@@ -2197,6 +2201,68 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
                 <label class="field"><span>Точка B</span><input class="input mono" id="dist-b" placeholder="59.9390, 30.3158"></label>
               </div>
               <dl class="kv" id="dist-out" style="margin-top:14px"></dl>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="cyber">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">Криминалистика ID и JWT<small>TikTok · Discord · X · UUID v1/v7 · ULID · ObjectId · JWT</small></div>
+              <label class="field"><span>Вставьте ID поста/видео, ссылку TikTok/Discord/X, UUID, ULID, ObjectId или JWT-токен</span>
+                <textarea class="textarea mono" id="cyb-id-in" rows="4" placeholder="Например:&#10;https://www.tiktok.com/@user/video/7349182041928371462&#10;1584567890123456789&#10;018f4b2c-7e10-7000-8000-1a2b3c4d5e6f&#10;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+              </label>
+              <div class="chips" style="margin-top:8px" id="cyb-id-samples">
+                <button class="chip" type="button" data-cybsmp="7349182041928371462">Пример TikTok ID</button>
+                <button class="chip" type="button" data-cybsmp="018f4b2c-7e10-7a12-9b34-1a2b3c4d5e6f">Пример UUIDv7</button>
+                <button class="chip" type="button" data-cybsmp="01HZY8J4K9R3M2N5P6Q7V8W9X0">Пример ULID</button>
+                <button class="chip" type="button" data-cybsmp="6650a4e8c9b12a0012ab34cd">Пример ObjectId</button>
+              </div>
+              <div id="cyb-id-out" style="margin-top:14px" class="muted">Мгновенно извлекает скрытую метку времени создания (до миллисекунды), внутренние биты шарда/узла и содержимое JWT полностью локально.</div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Подсети IPv4 / CIDR и Обезвреживание IOC<small>Defang / Refang</small></div>
+              <label class="field"><span>IPv4 или подсеть CIDR (расчёт диапазона, маски, PTR и класса сети)</span>
+                <input class="input mono" id="cyb-cidr-in" placeholder="185.220.101.42/24  или  100.64.12.5/10">
+              </label>
+              <div id="cyb-cidr-out" style="margin-top:10px"></div>
+              <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+              <label class="field"><span>Обезвреживание и восстановление индикаторов (IOC Defang ↔ Refang)</span>
+                <textarea class="textarea mono" id="cyb-ioc-in" rows="4" placeholder="hxxps://malicious-example[.]org/login?ip=185[.]220[.]101[.]42 · user[@]domain[.]com"></textarea>
+              </label>
+              <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-sm" type="button" id="cyb-defang">Обезвредить (Defang [.])</button>
+                <button class="btn btn-sm btn-primary" type="button" id="cyb-refang">Восстановить (Refang)</button>
+                <button class="btn btn-sm" type="button" id="cyb-ioc-batch">→ В пакетный скан</button>
+                <button class="btn btn-sm btn-ghost" type="button" id="cyb-ioc-copy">Копировать</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="socmint">
+          <div class="lab-grid">
+            <div class="panel">
+              <div class="panel-h">ФИО, Транслитерация и Генератор Никнеймов<small>SOCMINT</small></div>
+              <div class="stack">
+                <label class="field"><span>ФИО или Имя и Фамилия (кириллица или латиница)</span>
+                  <input class="input" id="soc-name" placeholder="Алексей Сергеевич Морозов">
+                </label>
+                <div class="form-grid">
+                  <label class="field"><span>Год или дата рождения</span><input class="input mono" id="soc-year" placeholder="1994 или 14.05.1994"></label>
+                  <label class="field"><span>Город / регион / домен</span><input class="input mono" id="soc-extra" placeholder="msk · spb · 77 · sec"></label>
+                </div>
+                <div class="row" style="gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-primary" type="button" id="soc-run">Сгенерировать варианты</button>
+                  <button class="btn btn-sm" type="button" id="soc-to-batch" disabled>→ Топ-25 ников в Пакетный скан</button>
+                  <button class="btn btn-sm" type="button" id="soc-add-person" disabled>+ Карточка персоны</button>
+                </div>
+              </div>
+              <div id="soc-trans-out" style="margin-top:14px"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">Вероятные никнеймы и почтовые шаблоны<span class="ph-right"><button class="btn btn-sm btn-ghost" type="button" id="soc-copy-all" disabled>Скопировать все</button></span></div>
+              <div id="soc-handles-out" class="muted" style="font-size:13px">Введите имя и фамилию слева: система построит стандарты транслитерации (загранпаспорт ИКАО, ГОСТ, Яндекс, старый МВД) и вероятные комбинации никнеймов для поиска аккаунтов.</div>
             </div>
           </div>
         </div>
@@ -2397,7 +2463,8 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
 <div id="toasts"></div>
 <input type="file" id="json-file" accept=".json,.gebackup,application/json" class="hidden">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
+<script src="vendor/leaflet.min.js"></script>
+<script>if(!window.L){document.write('<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></scr'+'ipt>');}</script>
 <script>
 /* embedded: js/core.js */
 /* ═══════════════════════════════════════════════════════════════
@@ -2407,7 +2474,7 @@ body.board-open .toast{max-width:min(520px,90vw);box-shadow:0 12px 34px rgba(0,0
 'use strict';
 
 const GE = window.GE = window.GE || {};
-GE.VERSION = '3.0.0';
+GE.VERSION = '3.1.0';
 
 /* ─────────── Утилиты ─────────── */
 const $ = (s, r = document) => r.querySelector(s);
@@ -7969,7 +8036,7 @@ GE.openRecord = (id, quiet) => {
       ${cv.top}
       ${isCase && GE.caseSummaryHtml ? GE.caseSummaryHtml(r) : ''}
       ${r.thumb ? `<img class="dr-thumb" src="${r.thumb}" alt="">` : ''}
-      ${r.type === 'geo' && r.lat !== '' && r.lat != null ? `<div class="row" style="margin-bottom:16px"><button class="btn btn-sm" data-act="map">${GE.icon('geo')}Показать на карте</button><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}">Google</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://yandex.ru/maps/?ll=${r.lon},${r.lat}&z=17&pt=${r.lon},${r.lat}">Яндекс</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}">OSM</a></div>` : ''}
+      ${(r.type === 'geo' || r.type === 'image') && r.lat !== '' && r.lat != null ? `<div class="row" style="margin-bottom:16px;flex-wrap:wrap"><button class="btn btn-sm" data-act="map">${GE.icon('geo')}На 2D-карте</button><button class="btn btn-sm btn-primary" data-act="map3d">◉ На 3D-глобусе</button><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lon}">Google</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://yandex.ru/maps/?ll=${r.lon},${r.lat}&z=17&pt=${r.lon},${r.lat}">Яндекс</a><a class="btn btn-sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=17/${r.lat}/${r.lon}">OSM</a></div>` : ''}
       ${GE.candidatePanel ? GE.candidatePanel(r) : ''}
       ${kv ? `<div class="dr-sec"><h6>Сведения</h6><dl class="kv">${kv}<dt>Создано</dt><dd>${esc(GE.fmtDate(r.created))}</dd><dt>Изменено</dt><dd>${esc(GE.fmtDate(r.updated))}</dd></dl></div>` : ''}
       ${text('objective', 'Цель исследования')}
@@ -8009,6 +8076,7 @@ GE.openRecord = (id, quiet) => {
   act('link').onclick = () => GE.linkDialog(id);
   act('md').onclick = () => GE.vault && GE.copy(GE.vault.recToMd(r));
   if (act('map')) act('map').onclick = () => { GE.closeDrawer(); location.hash = '#/geolocation'; setTimeout(() => GE.geo && GE.geo.focus(r), 250); };
+  if (act('map3d')) act('map3d').onclick = () => { GE.closeDrawer(); if (window.GE3D) window.GE3D.openAt(+r.lat, +r.lon, r.title, 16); };
   if (act('export')) act('export').onclick = () => GE.exportReportDialog(r);
   if (isCase) GE.wireCase(dr, id);
   if (isCase && GE.wireAnalysis) GE.wireAnalysis(dr, r);
@@ -11582,7 +11650,7 @@ L.extract = text => {
   Object.entries(out).forEach(([k, s]) => res[k] = Array.from(s));
   return res;
 };
-const TYPE_OF = { 'Ссылки': 'url', 'Email': 'email', 'IP-адреса': 'ip', 'Домены': 'domain', 'Хэштеги': 'text', 'Упоминания': 'username', 'Координаты': 'coords', 'Хеши': 'hash', 'Даты': 'text', 'CVE': 'cve', 'ASN': 'asn', 'Криптоадреса': 'crypto' };
+const TYPE_OF = { 'Ссылки': 'url', 'Email': 'email', 'IP-адреса': 'ip', 'Домены': 'domain', 'Хэштеги': 'text', 'Упоминания': 'username', 'Telegram': 'username', 'Координаты': 'coords', 'Хеши': 'hash', 'Даты': 'text', 'CVE': 'cve', 'ASN': 'asn', 'Криптоадреса': 'crypto', 'ИНН (проверен)': 'auto', 'ОГРН / ОГРНИП': 'auto', 'MAC-адреса': 'auto' };
 function initExtract() {
   const run = () => {
     const txt = $('#ex-in').value;
@@ -11591,7 +11659,7 @@ function initExtract() {
     $('#ex-stat').textContent = `${txt.length} символов · найдено ${total}`;
     if (!total) { box.innerHTML = '<div class="muted">Сущностей не найдено.</div>'; return; }
     box.innerHTML = Object.entries(r).map(([k, arr]) => `<div class="out-group"><h5>${esc(k)} <b>${arr.length}</b><button data-copy="${esc(k)}">копировать</button>${k === 'Ссылки' ? `<button data-save-urls="1">→ в источники</button>` : ''}</h5>
-      <div class="chips">${arr.slice(0, 200).map(v => `<button class="chip" data-v="${esc(v)}" data-t="${TYPE_OF[k]}" title="Искать"><span>${esc(v)}</span></button>`).join('')}</div></div>`).join('');
+      <div class="chips">${arr.slice(0, 200).map(v => `<button class="chip" data-v="${esc(v)}" data-t="${TYPE_OF[k] || 'auto'}" title="Искать"><span>${esc(v)}</span></button>`).join('')}</div></div>`).join('');
     box.onclick = e => {
       const c = e.target.closest('[data-copy]'); if (c) return GE.copy(r[c.dataset.copy].join('\n'));
       if (e.target.closest('[data-save-urls]')) {
@@ -13490,10 +13558,12 @@ LY.sat = {
   stop() { const st = this.st; if (!st) return; clearInterval(st.timer); clearInterval(st.trackT); GEO.map.removeLayer(st.layer); this.st = null; hud('sat'); lyStatus('sat', ''); },
   lib() {
     if (window.satellite) return Promise.resolve();
-    return new Promise((res, rej) => {
-      const s = document.createElement('script'); s.src = SAT_SRC; s.integrity = SAT_SRI; s.crossOrigin = 'anonymous';
-      s.onload = res; s.onerror = () => rej(new Error('не удалось загрузить satellite.js')); document.head.appendChild(s);
+    const trySrc = url => new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url;
+      if (!url.startsWith('vendor/')) { s.crossOrigin = 'anonymous'; if (url === SAT_SRC) s.integrity = SAT_SRI; }
+      s.onload = res; s.onerror = () => { s.remove(); rej(new Error('не удалось загрузить satellite.js')); }; document.head.appendChild(s);
     });
+    return trySrc('vendor/satellite.min.js').catch(() => trySrc(SAT_SRC)).catch(() => trySrc('https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js'));
   },
   async load(grp, custom) {
     const st = this.st; if (!st) return;
@@ -15537,6 +15607,7 @@ P.commands = () => [
   { g: 'Действия', icon: 'target', t: 'Плагины поиска (источники и переключатели)', run: () => { GE.go('search'); GE.search.setMode('plugins'); } },
   { g: 'Действия', icon: 'report', t: 'OSINT-плейбуки (сценарии проверки)', run: () => { GE.go('reports'); setTimeout(() => $('#playbooks-panel')?.scrollIntoView({ behavior: 'smooth' }), 100); } },
   { g: 'Действия', icon: 'settings', t: 'Настроить API-ключи Live Recon', run: () => { GE.go('settings'); setTimeout(() => $('#panel-api-keys')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); } },
+  { g: 'Действия', icon: 'geo', t: 'Открыть 3D-глобус Земли (GEOINT 3D Earth)', sub: 'ALT+G', run: () => window.GE3D && window.GE3D.open() },
   { g: 'Действия', icon: 'eye', t: 'Запустить заставку', run: () => GE.intro.run(true) },
   { g: 'Действия', icon: 'shield', t: 'Скопировать отчёт об ошибке (диагностика)', run: () => { const x = window.GEDiag; if (x) { GE.copy(x.report()); GE.toast('Отчёт скопирован', { type: 'ok' }); } } },
   { g: 'Действия', icon: 'bolt', t: 'Красный импульс ока', run: () => GE.GodEye.scanAll() },
@@ -15548,7 +15619,7 @@ P.commands = () => [
   { g: 'Звук', icon: 'spark', t: 'OST: GHOST TERMINAL (Cyber-Noir)', run: () => GE.audio && GE.audio.startOst('ghost') },
   { g: 'Звук', icon: 'spark', t: 'OST: RED SANCTUM (Crimson Ritual)', run: () => GE.audio && GE.audio.startOst('sanctum') },
   { g: 'Звук', icon: 'spark', t: 'OST: CASEFILE NOIR (нуар-джаз для дел)', run: () => GE.audio && GE.audio.startOst('noir') },
-  ...['extract', 'hash', 'codec', 'time', 'url', 'coords', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
+  ...['extract', 'cyber', 'socmint', 'hash', 'codec', 'time', 'url', 'coords', 'docs', 'catalog'].map(k => ({ g: 'Лаборатория', icon: 'tools', t: { extract: 'Извлечение сущностей из текста', cyber: 'Кибер и ID: декодер TikTok/UUIDv7/JWT, CIDR и Defang IOC', socmint: 'Никнеймы и ФИО: транслитерация ИКАО/ГОСТ и генератор алиасов', hash: 'Хеши файлов и текста', codec: 'Кодировщик Base64/URL/HEX', time: 'Конвертер времени и Snowflake', url: 'Анализ ссылки', coords: 'Координаты и расстояния', docs: 'Метаданные документов (PDF/DOCX/XLSX)', catalog: 'Каталог инструментов' }[k], run: () => { GE.go('tools'); setTimeout(() => GE.lab.tab(k), 50); } }))
 ];
 P.render = () => {
   const q = $('#pal-q').value.trim();
@@ -17881,6 +17952,465 @@ GE.closeBoard = close;
 GE.board = { open, close, state: () => S, graph: () => GR, addPhotos, exportPng, exportCanvas, assemble, runLayout, createThread };
 })();
 
+</script>
+<script id="recon-pro-module">
+/* ═══════════════════════════════════════════════════════════════
+   GOD EYE · recon-pro-module — расширенная лаборатория OSINT v3.1:
+   1) Криминалистика ID и JWT (TikTok, Discord/X/Mastodon Snowflake, UUID v1/v7, ULID, ObjectId, JWT)
+   2) Калькулятор подсетей IPv4/CIDR/PTR и Обезвреживание IOC (Defang ↔ Refang)
+   3) SOCMINT: транслитерация ФИО (ИКАО, ГОСТ, Яндекс, МВД) и генератор никнеймов
+   4) Расширенное извлечение сущностей (ИНН/ОГРН с контрольной суммой, Telegram, обезвреженные IOC) + мост на 3D-глобус
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+'use strict';
+const GE = window.GE;
+if (!GE) return;
+const $ = GE.$, $$ = GE.$$, esc = GE.esc;
+
+const fmtFullTime = ms => {
+  const d = new Date(Number(ms));
+  if (isNaN(d.getTime())) return '—';
+  const utc = d.toISOString().replace('T', ' ').replace('Z', ' UTC');
+  const msk = d.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' }) + ' МСК';
+  return `${utc} · ${msk} (${GE.ago(d.toISOString())})`;
+};
+
+/* ─────────── 1. Декодер ID и JWT ─────────── */
+const b64UrlDecode = str => {
+  const pad = str.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = pad + '='.repeat((4 - (pad.length % 4)) % 4);
+  const bin = atob(padded);
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+};
+
+function decodeIdOrToken(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const rows = [];
+  const flags = [];
+
+  // JWT
+  if (/^[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*$/.test(s)) {
+    try {
+      const parts = s.split('.');
+      const hdr = JSON.parse(b64UrlDecode(parts[0]));
+      const pay = JSON.parse(b64UrlDecode(parts[1]));
+      rows.push(['Формат', 'JSON Web Token (JWT)']);
+      rows.push(['Алгоритм (alg)', String(hdr.alg || '—') + (hdr.typ ? ' · ' + hdr.typ : '')]);
+      if (!parts[2] || /^none$/i.test(hdr.alg || '')) flags.push('Токен без криптографической подписи (alg: none) — подделать тривиально.');
+      if (pay.iss) rows.push(['Издатель (iss)', String(pay.iss)]);
+      if (pay.sub) rows.push(['Субъект (sub)', String(pay.sub)]);
+      if (pay.aud) rows.push(['Аудитория (aud)', JSON.stringify(pay.aud)]);
+      ['iat', 'nbf', 'exp', 'auth_time'].forEach(k => {
+        if (typeof pay[k] === 'number') {
+          const ms = pay[k] > 1e12 ? pay[k] : pay[k] * 1000;
+          const label = { iat: 'Выпущен (iat)', nbf: 'Действует с (nbf)', exp: 'Истекает (exp)', auth_time: 'Вход (auth_time)' }[k];
+          rows.push([label, fmtFullTime(ms)]);
+          if (k === 'exp' && ms < Date.now()) flags.push('Срок действия токена истёк.');
+        }
+      });
+      return `<dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(v)}</dd>`).join('')}</dl>` +
+        flags.map(f => `<div class="flag warn" style="margin-top:8px"><b>Внимание:</b>&nbsp;${esc(f)}</div>`).join('') +
+        `<div style="margin-top:10px"><div class="mono dim" style="font-size:10.5px;margin-bottom:4px">PAYLOAD JSON</div><pre class="mono" style="background:#08080b;border:1px solid var(--line);padding:8px 10px;font-size:11.5px;overflow:auto;max-height:200px">${esc(JSON.stringify(pay, null, 2))}</pre></div>`;
+    } catch (e) {
+      return `<div class="flag warn">Похоже на JWT, но не удалось декодировать Base64URL: ${esc(e.message)}</div>`;
+    }
+  }
+
+  // TikTok URL → числовой ID
+  const ttMatch = s.match(/tiktok\.com\/(?:@[^/]+\/(?:video|photo)|v)\/(\d{17,20})/i);
+  const numCandidate = ttMatch ? ttMatch[1] : (/^\d{15,20}$/.test(s) ? s : null);
+  if (numCandidate) {
+    try {
+      const id = BigInt(numCandidate);
+      const ttSec = Number(id >> 32n);
+      if (ttMatch || (ttSec >= 1451606400 && ttSec <= 2100000000 && id > (1n << 60n))) {
+        rows.push(['TikTok (видео / пост)', fmtFullTime(ttSec * 1000)]);
+        rows.push(['TikTok Unix (сек)', String(ttSec) + ' · младшие 32 бита: 0x' + (id & 0xffffffffn).toString(16)]);
+      }
+      const twMs = Number((id >> 22n) + 1288834974657n);
+      if (twMs >= 1288834974657 && twMs <= 2200000000000) {
+        rows.push(['X / Twitter Snowflake', fmtFullTime(twMs)]);
+        rows.push(['Шард X / Worker', `DC ${(id >> 17n) & 31n} · Worker ${(id >> 12n) & 31n} · Seq ${id & 4095n}`]);
+      }
+      const dcMs = Number((id >> 22n) + 1420070400000n);
+      if (dcMs >= 1420070400000 && dcMs <= 2200000000000) {
+        rows.push(['Discord Snowflake', fmtFullTime(dcMs)]);
+      }
+      const mastMs = Number(id >> 16n);
+      if (mastMs >= 1451606400000 && mastMs <= 2200000000000) {
+        rows.push(['Mastodon Snowflake', fmtFullTime(mastMs)]);
+      }
+      if (rows.length) {
+        return `<dl class="kv"><dt>Входной ID</dt><dd class="mono">${esc(numCandidate)}</dd>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(v)}</dd>`).join('')}</dl>`;
+      }
+    } catch (_) {}
+  }
+
+  // UUID v1 / v4 / v7
+  const uuidMatch = s.match(/^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$/i);
+  if (uuidMatch) {
+    const ver = parseInt(uuidMatch[3][0], 16);
+    rows.push(['Формат', `UUID v${ver}`]);
+    if (ver === 7) {
+      const hexTs = uuidMatch[1] + uuidMatch[2];
+      const ms = Number(BigInt('0x' + hexTs));
+      rows.push(['Время создания (UUIDv7)', fmtFullTime(ms)]);
+      rows.push(['Unix (мс)', String(ms)]);
+    } else if (ver === 1) {
+      const timeLow = BigInt('0x' + uuidMatch[1]);
+      const timeMid = BigInt('0x' + uuidMatch[2]);
+      const timeHi = BigInt('0x' + uuidMatch[3].slice(1));
+      const greg = (timeHi << 48n) | (timeMid << 32n) | timeLow;
+      const ms = Number((greg - 122192928000000000n) / 10000n);
+      const mac = uuidMatch[5].match(/../g).join(':').toUpperCase();
+      rows.push(['Время создания (UUIDv1)', fmtFullTime(ms)]);
+      rows.push(['Узел / MAC (48 бит)', mac]);
+    } else {
+      rows.push(['Метка времени', 'Отсутствует (случайный или хешевый UUID)']);
+    }
+    return `<dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(v)}</dd>`).join('')}</dl>`;
+  }
+
+  // ULID (26 символов Crockford Base32)
+  if (/^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i.test(s)) {
+    const ALPHA = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+    let ms = 0;
+    for (let i = 0; i < 10; i++) {
+      const idx = ALPHA.indexOf(s[i].toUpperCase());
+      if (idx < 0) return '<div class="muted">Некорректный символ ULID.</div>';
+      ms = ms * 32 + idx;
+    }
+    return `<dl class="kv"><dt>Формат</dt><dd class="mono">ULID (128 бит)</dd><dt>Время создания</dt><dd class="mono">${esc(fmtFullTime(ms))}</dd><dt>Unix (мс)</dt><dd class="mono">${ms}</dd><dt>Случайная часть</dt><dd class="mono">${esc(s.slice(10).toUpperCase())}</dd></dl>`;
+  }
+
+  // MongoDB ObjectId (24 hex)
+  if (/^[0-9a-f]{24}$/i.test(s)) {
+    const sec = parseInt(s.slice(0, 8), 16);
+    const randHex = s.slice(8, 18);
+    const cnt = parseInt(s.slice(18, 24), 16);
+    return `<dl class="kv"><dt>Формат</dt><dd class="mono">MongoDB ObjectId (12 байт)</dd><dt>Время создания</dt><dd class="mono">${esc(fmtFullTime(sec * 1000))}</dd><dt>Процесс / узел</dt><dd class="mono">0x${esc(randHex)}</dd><dt>Счётчик</dt><dd class="mono">${cnt} (0x${esc(s.slice(18, 24))})</dd></dl>`;
+  }
+
+  return '<div class="muted">Формат не распознан. Поддерживаются: ссылки и ID видео TikTok, Snowflake (X, Discord, Mastodon), UUID v1/v7, ULID, MongoDB ObjectId и JWT-токены.</div>';
+}
+
+/* ─────────── 2. Калькулятор IPv4 / CIDR и Defang / Refang ─────────── */
+const ipToInt = ip => {
+  const p = ip.trim().split('.');
+  if (p.length !== 4 || p.some(x => !/^\d{1,3}$/.test(x) || +x > 255)) return null;
+  return (((+p[0] << 24) | (+p[1] << 16) | (+p[2] << 8) | +p[3]) >>> 0);
+};
+const intToIp = n => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+function classifyIp(n) {
+  const a = (n >>> 24) & 255, b = (n >>> 16) & 255;
+  if (a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)) return 'Частная сеть (RFC 1918)';
+  if (a === 100 && b >= 64 && b <= 127) return 'Операторский NAT / CGNAT (RFC 6598)';
+  if (a === 127) return 'Loopback (локальный узел)';
+  if (a === 169 && b === 254) return 'Link-Local (APIPA)';
+  if (a >= 224 && a <= 239) return 'Multicast (групповая рассылка)';
+  if ((a === 192 && b === 0 && ((n >>> 8) & 255) === 2) || (a === 198 && b === 51 && ((n >>> 8) & 255) === 100) || (a === 203 && b === 0 && ((n >>> 8) & 255) === 113)) return 'Документационная сеть (TEST-NET)';
+  return 'Публичный маршрутизируемый IPv4';
+}
+
+function renderCidr(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const m = s.match(/^(\d+\.\d+\.\d+\.\d+)(?:\/(\d{1,2}))?$/);
+  if (!m) return '<div class="muted" style="font-size:12px">Введите IPv4 или CIDR, например 185.220.101.42/24</div>';
+  const ip = ipToInt(m[1]);
+  const bits = m[2] != null ? +m[2] : 32;
+  if (ip === null || bits < 0 || bits > 32) return '<div class="muted" style="font-size:12px">Некорректный адрес или префикс /0…/32</div>';
+  const mask = bits === 0 ? 0 : ((0xffffffff << (32 - bits)) >>> 0);
+  const net = (ip & mask) >>> 0;
+  const bcast = (net | (~mask >>> 0)) >>> 0;
+  const first = bits >= 31 ? net : (net + 1) >>> 0;
+  const last = bits >= 31 ? bcast : (bcast - 1) >>> 0;
+  const hosts = bits === 32 ? 1 : bits === 31 ? 2 : Math.pow(2, 32 - bits) - 2;
+  const ptr = m[1].split('.').reverse().join('.') + '.in-addr.arpa';
+  return `<dl class="kv" style="font-size:12px">
+    <dt>Класс адреса</dt><dd>${esc(classifyIp(ip))}</dd>
+    <dt>Сеть / Маска</dt><dd class="mono">${intToIp(net)}/${bits} · ${intToIp(mask)}</dd>
+    <dt>Диапазон узлов</dt><dd class="mono">${intToIp(first)} — ${intToIp(last)} (${hosts.toLocaleString('ru-RU')})</dd>
+    <dt>Broadcast</dt><dd class="mono">${intToIp(bcast)}</dd>
+    <dt>Reverse PTR</dt><dd class="mono">${esc(ptr)}</dd>
+  </dl>
+  <div class="row" style="margin-top:8px"><a class="btn btn-sm btn-primary" href="#/search?q=${encodeURIComponent(m[1])}&t=ip">Скан IP ${esc(m[1])}</a></div>`;
+}
+
+const defangText = s => String(s || '')
+  .replace(/\bhttps:\/\//gi, 'hxxps://')
+  .replace(/\bhttp:\/\//gi, 'hxxp://')
+  .replace(/@/g, '[@]')
+  .replace(/\.([a-z0-9])/gi, '[.]$1');
+
+const refangText = s => String(s || '')
+  .replace(/\bhxxps:\/\//gi, 'https://')
+  .replace(/\bhxxp:\/\//gi, 'http://')
+  .replace(/\[\.\]|\\\.\s*|\(\.\)|\{dot\}/gi, '.')
+  .replace(/\[@\]|\(@\)|\{at\}/gi, '@');
+
+/* ─────────── 3. SOCMINT: Транслитерация ФИО и Генератор Никнеймов ─────────── */
+const TR_ICAO = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'ie',ы:'y',ь:'',э:'e',ю:'iu',я:'ia' };
+const TR_GOST = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'j',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'x',ц:'cz',ч:'ch',ш:'sh',щ:'shh',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+const TR_YANDEX = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+const TR_MVD = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+
+const DIMINUTIVES = {
+  алексей: ['alex', 'alexey', 'leha', 'lesha'], александр: ['alex', 'sasha', 'shura', 'sanek'],
+  дмитрий: ['dima', 'dmitry', 'mitry'], сергей: ['serg', 'sergey', 'serega'],
+  иван: ['ivan', 'vanya'], владимир: ['vladimir', 'vova', 'vlad'], михаил: ['misha', 'mike', 'mikhail'],
+  николай: ['kolya', 'nick', 'nikolay'], павел: ['pasha', 'pavel', 'paul'], евгений: ['zhenya', 'evgeny', 'eugene'],
+  андрей: ['andrey', 'andrew', 'andryusha'], максим: ['max', 'maksim'], артём: ['artem', 'artyom', 'tema'], артем: ['artem', 'tema'],
+  денис: ['den', 'denis'], роман: ['roma', 'roman'], кирилл: ['kirill', 'kir'], илья: ['ilya'], антон: ['anton', 'tosha'],
+  екатерина: ['katya', 'kate', 'ekaterina'], мария: ['masha', 'maria', 'mary'], анна: ['anya', 'anna', 'ann'],
+  ольга: ['olya', 'olga'], татьяна: ['tanya', 'tatiana'], наталья: ['natasha', 'natalia'], елена: ['lena', 'elena', 'helen'],
+  дарья: ['dasha', 'daria'], юлия: ['yulia', 'julia', 'yulya'], светлана: ['sveta', 'svetlana'], виктория: ['vika', 'victoria']
+};
+
+const trWord = (w, map) => Array.from(String(w || '').toLowerCase()).map(ch => map[ch] !== undefined ? map[ch] : ch).join('').replace(/[^a-z0-9]/g, '');
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : '';
+
+function parseFio(raw) {
+  const parts = String(raw || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return null;
+  if (parts.length === 1) return { first: parts[0], last: '', mid: '' };
+  const isPatr = w => /(ович|евич|ич|овна|евна|ична|инична)$/i.test(w);
+  const isSurname = w => /(ов|ова|ев|ева|ёв|ёва|ин|ина|ын|ына|ский|ская|цкий|цкая|ко|ук|юк|чук|дзе|швили|ян|янц|их|ых)$/i.test(w);
+  if (parts.length >= 3) {
+    if (isPatr(parts[2])) return { last: parts[0], first: parts[1], mid: parts[2] };
+    if (isPatr(parts[1])) return { first: parts[0], mid: parts[1], last: parts[2] };
+  }
+  if (isSurname(parts[0]) && !isSurname(parts[1])) return { last: parts[0], first: parts[1], mid: parts[2] || '' };
+  return { first: parts[0], last: parts[1] || '', mid: parts[2] || '' };
+}
+
+function generateSocmint(rawName, rawYear, rawExtra) {
+  const fio = parseFio(rawName);
+  if (!fio) return null;
+  const standards = [
+    ['ИКАО / Загранпаспорт РФ', TR_ICAO],
+    ['ГОСТ 7.79-2000 (ISO 9)', TR_GOST],
+    ['Яндекс / Почта / Веб', TR_YANDEX],
+    ['МВД (старый образец)', TR_MVD]
+  ].map(([label, tbl]) => {
+    const f = trWord(fio.first, tbl), l = trWord(fio.last, tbl), m = trWord(fio.mid, tbl);
+    return { label, first: f, last: l, mid: m, full: [cap(f), cap(m), cap(l)].filter(Boolean).join(' ') };
+  });
+
+  const yrMatch = String(rawYear || '').match(/(19\d\d|20\d\d)/);
+  const yyyy = yrMatch ? yrMatch[1] : '';
+  const yy = yyyy ? yyyy.slice(2) : '';
+  const extra = trWord(rawExtra || '', TR_YANDEX);
+
+  const fSet = new Set(standards.map(s => s.first).filter(Boolean));
+  (DIMINUTIVES[fio.first.toLowerCase()] || []).forEach(d => fSet.add(d));
+  const lSet = new Set(standards.map(s => s.last).filter(Boolean));
+  const fArr = [...fSet], lArr = [...lSet];
+  const handles = new Set();
+  const add = h => { h = String(h || '').replace(/[^a-z0-9._-]/g, ''); if (h.length >= 4 && h.length <= 30) handles.add(h); };
+
+  const f0 = fArr[0] || '', l0 = lArr[0] || '';
+  lArr.forEach(l => {
+    fArr.forEach(f => {
+      add(f + l);
+      add(f + '.' + l);
+      add(f + '_' + l);
+      add(l + '.' + f);
+      add(l + '_' + f);
+      add(f[0] + l);
+      add(f[0] + '.' + l);
+      add(f[0] + '_' + l);
+      add(l + f[0]);
+      if (fio.mid) {
+        const mi = trWord(fio.mid, TR_YANDEX)[0] || '';
+        if (mi) { add(l + f[0] + mi); add(f[0] + mi + l); }
+      }
+      if (yy) { add(f + l + yy); add(f + '_' + l + yy); add(l + yy); add(f + yy); }
+      if (yyyy) { add(f + '.' + l + yyyy); add(l + yyyy); }
+      if (extra) { add(f + '_' + extra); add(l + '_' + extra); add(f + l + '_' + extra); }
+    });
+  });
+  if (!lArr.length && f0) {
+    fArr.forEach(f => {
+      add(f);
+      if (yy) { add(f + yy); add(f + '_' + yy); }
+      if (yyyy) add(f + yyyy);
+      if (extra) { add(f + '_' + extra); add(f + '.' + extra); }
+    });
+  }
+
+  const list = [...handles].slice(0, 48);
+  const emails = (f0 && l0 ? [`${f0}.${l0}@gmail.com`, `${f0[0]}${l0}@yandex.ru`, `${l0}.${f0}@mail.ru`, `${f0}.${l0}@proton.me`] : []);
+  return { fio, standards, handles: list, emails };
+}
+
+/* ─────────── 4. Проверка контрольных сумм ИНН и ОГРН + расширение Извлечения ─────────── */
+function validInn(s) {
+  if (!/^\d{10}$|^\d{12}$/.test(s) || /^0+$/.test(s)) return false;
+  const d = Array.from(s, Number);
+  const sum = w => w.reduce((acc, k, i) => acc + k * d[i], 0) % 11 % 10;
+  if (d.length === 10) return d[9] === sum([2, 4, 10, 3, 5, 9, 4, 6, 8]);
+  return d[10] === sum([7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) && d[11] === sum([3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]);
+}
+function validOgrn(s) {
+  if (/^\d{13}$/.test(s)) return Number(BigInt(s.slice(0, 12)) % 11n % 10n) === +s[12];
+  if (/^\d{15}$/.test(s)) return Number(BigInt(s.slice(0, 14)) % 13n % 10n) === +s[14];
+  return false;
+}
+
+if (GE.lab && typeof GE.lab.extract === 'function') {
+  const origExtract = GE.lab.extract;
+  GE.lab.extract = text => {
+    const normalized = refangText(text);
+    const res = origExtract(normalized);
+    const add = (k, v) => {
+      if (!res[k]) res[k] = [];
+      if (!res[k].includes(v)) res[k].push(v);
+    };
+    for (const m of normalized.matchAll(/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([A-Za-z0-9_]{4,64})/gi)) {
+      if (!/^(joinchat|share|addstickers|s)$/i.test(m[1])) add('Telegram', '@' + m[1]);
+    }
+    for (const m of normalized.matchAll(/\b(\d{10}|\d{12})\b/g)) {
+      if (validInn(m[1])) add('ИНН (проверен)', m[1]);
+    }
+    for (const m of normalized.matchAll(/\b([15]\d{12}|3\d{14})\b/g)) {
+      if (validOgrn(m[1])) add('ОГРН / ОГРНИП', m[1]);
+    }
+    for (const m of normalized.matchAll(/\b(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}\b/gi)) {
+      add('MAC-адреса', m[0].toUpperCase().replace(/-/g, ':'));
+    }
+    return res;
+  };
+}
+
+/* Привязка новых вкладок и кнопки 3D-глобуса для извлечённых координат */
+function wireProLab() {
+  const idIn = $('#cyb-id-in'), idOut = $('#cyb-id-out');
+  if (idIn && idOut) {
+    const upd = () => { const v = idIn.value.trim(); if (v) idOut.innerHTML = decodeIdOrToken(v); };
+    idIn.addEventListener('input', GE.debounce(upd, 120));
+    const smp = $('#cyb-id-samples');
+    if (smp) smp.addEventListener('click', e => {
+      const b = e.target.closest('[data-cybsmp]');
+      if (!b) return;
+      idIn.value = b.dataset.cybsmp;
+      upd();
+    });
+  }
+
+  const cidrIn = $('#cyb-cidr-in'), cidrOut = $('#cyb-cidr-out');
+  if (cidrIn && cidrOut) {
+    cidrIn.addEventListener('input', GE.debounce(() => { cidrOut.innerHTML = renderCidr(cidrIn.value); }, 120));
+  }
+
+  const iocIn = $('#cyb-ioc-in');
+  if (iocIn) {
+    $('#cyb-defang').onclick = () => { iocIn.value = defangText(iocIn.value); GE.toast('Индикаторы обезврежены ([.] / hxxps)'); };
+    $('#cyb-refang').onclick = () => { iocIn.value = refangText(iocIn.value); GE.toast('Индикаторы восстановлены'); };
+    $('#cyb-ioc-copy').onclick = () => GE.copy(iocIn.value);
+    $('#cyb-ioc-batch').onclick = () => {
+      const clean = refangText(iocIn.value).trim();
+      if (!clean) return GE.toast('Вставьте текст с индикаторами', { type: 'warn' });
+      GE.go('search');
+      if (GE.search && GE.search.setMode) GE.search.setMode('batch');
+      setTimeout(() => { const bi = $('#batch-in'); if (bi) { bi.value = clean; bi.focus(); } }, 80);
+    };
+  }
+
+  // SOCMINT
+  let lastSoc = null;
+  const runSoc = () => {
+    const res = generateSocmint($('#soc-name').value, $('#soc-year').value, $('#soc-extra').value);
+    lastSoc = res;
+    const tOut = $('#soc-trans-out'), hOut = $('#soc-handles-out');
+    $('#soc-to-batch').disabled = !res || !res.handles.length;
+    $('#soc-add-person').disabled = !res;
+    $('#soc-copy-all').disabled = !res || !res.handles.length;
+    if (!res) {
+      tOut.innerHTML = '';
+      hOut.innerHTML = '<div class="muted">Введите имя и фамилию для генерации вариантов.</div>';
+      return;
+    }
+    tOut.innerHTML = `<dl class="kv">${res.standards.map(s => `<dt>${esc(s.label)}</dt><dd class="mono">${esc(s.full)}</dd>`).join('')}</dl>`;
+    hOut.innerHTML = `<div class="out-group"><h5>Вероятные никнеймы <b>${res.handles.length}</b></h5>
+      <div class="chips">${res.handles.map(h => `<button class="chip" type="button" data-soc-h="${esc(h)}" title="Проверить @${esc(h)} в Поиске">@${esc(h)}</button>`).join('')}</div></div>` +
+      (res.emails.length ? `<div class="out-group" style="margin-top:12px"><h5>Почтовые шаблоны <b>${res.emails.length}</b></h5><div class="chips">${res.emails.map(em => `<button class="chip" type="button" data-soc-em="${esc(em)}">${esc(em)}</button>`).join('')}</div></div>` : '');
+  };
+  if ($('#soc-run')) {
+    $('#soc-run').onclick = runSoc;
+    $('#soc-name').addEventListener('keydown', e => { if (e.key === 'Enter') runSoc(); });
+    $('#soc-handles-out').addEventListener('click', e => {
+      const h = e.target.closest('[data-soc-h]');
+      if (h) { location.hash = `#/search?q=${encodeURIComponent('@' + h.dataset.socH)}&t=username`; return; }
+      const em = e.target.closest('[data-soc-em]');
+      if (em) { location.hash = `#/search?q=${encodeURIComponent(em.dataset.socEm)}&t=email`; }
+    });
+    $('#soc-copy-all').onclick = () => lastSoc && GE.copy(lastSoc.handles.map(h => '@' + h).join('\n'));
+    $('#soc-to-batch').onclick = () => {
+      if (!lastSoc) return;
+      GE.go('search');
+      if (GE.search && GE.search.setMode) GE.search.setMode('batch');
+      setTimeout(() => { const bi = $('#batch-in'); if (bi) bi.value = lastSoc.handles.slice(0, 25).map(h => '@' + h).join('\n'); }, 80);
+    };
+    $('#soc-add-person').onclick = () => {
+      if (!lastSoc) return;
+      GE.editRecord('person', null, {
+        title: $('#soc-name').value.trim(),
+        aliases: lastSoc.standards.map(s => s.full).concat(lastSoc.handles.slice(0, 6).map(h => '@' + h)).join(', '),
+        dob: $('#soc-year').value.trim()
+      });
+    };
+  }
+
+  // Кнопка «На 3D-глобус» в конвертере координат и результатах извлечения сущностей
+  const coOut = $('#co-out');
+  if (coOut) {
+    const obs = new MutationObserver(() => {
+      const saveBtn = coOut.querySelector('[data-co-save]');
+      if (saveBtn && !coOut.querySelector('[data-co-3d]')) {
+        const [lat, lon] = saveBtn.dataset.coSave.split(',').map(Number);
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm';
+        btn.type = 'button';
+        btn.dataset.co3d = '1';
+        btn.textContent = '◉ На 3D-глобус';
+        btn.onclick = () => window.GE3D && window.GE3D.openAt(lat, lon, `Координаты ${lat.toFixed(5)}, ${lon.toFixed(5)}`, 16);
+        saveBtn.parentElement.appendChild(btn);
+      }
+    });
+    obs.observe(coOut, { childList: true });
+  }
+
+  const exOut = $('#ex-out');
+  if (exOut) {
+    const obsEx = new MutationObserver(() => {
+      exOut.querySelectorAll('.out-group h5').forEach(h5 => {
+        if (/^Координаты\b/.test(h5.textContent) && !h5.querySelector('[data-ex-3d]')) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.ex3d = '1';
+          btn.textContent = '◉ на 3D-глобус';
+          btn.onclick = ev => {
+            ev.stopPropagation();
+            const chips = Array.from(h5.parentElement.querySelectorAll('[data-v]'));
+            const pts = chips.map((c, idx) => {
+              const p = GE.parseCoords(c.dataset.v);
+              return p ? { lat: p.lat, lon: p.lon, title: `Точка #${idx + 1} (${c.dataset.v})` } : null;
+            }).filter(Boolean);
+            if (pts.length && window.GE3D) window.GE3D.plotPoints(pts, 'Извлечённые координаты');
+          };
+          h5.appendChild(btn);
+        }
+      });
+    });
+    obsEx.observe(exOut, { childList: true });
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireProLab);
+else wireProLab();
+})();
 </script>
 <script src="geo3d.js"></script>
 </body>
