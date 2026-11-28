@@ -19,31 +19,41 @@ const ESRI_TILE = name => ESRI + name + '/MapServer/tile/{z}/{y}/{x}';
 
 const BASEMAPS = {
   hybrid: {
-    label: 'Гибрид + 3D Здания',
+    label: 'Спутник + Улицы и 3D Дома (Z21)',
     maxZoom: 19,
     tiles: [ESRI_TILE('World_Imagery')],
     overlays: [
-      ESRI + 'Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
-      ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
+      'https://a.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}@2x.png'
     ],
-    attr: 'Imagery © Esri, Maxar · 3D © OpenFreeMap / OSM'
+    attr: 'Imagery © Esri, Maxar · Labels © CARTO · 3D & Streets © OpenFreeMap / OSM'
+  },
+  tactical: {
+    label: 'Тактическая 3D Улицы (Тёмная Z20)',
+    maxZoom: 20,
+    tiles: [
+      'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+      'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+      'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+    ],
+    overlays: [],
+    attr: '© OpenStreetMap · © CARTO · 3D © OpenFreeMap'
+  },
+  osm: {
+    label: 'Дворы, Улицы и Номера Домов (OSM + 3D)',
+    maxZoom: 19,
+    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+    overlays: [],
+    attr: '© OpenStreetMap contributors · 3D © OpenFreeMap'
   },
   satellite: {
-    label: 'Спутник Esri',
+    label: 'Спутник чистый Esri',
     maxZoom: 19,
     tiles: [ESRI_TILE('World_Imagery')],
     overlays: [],
     attr: 'Imagery © Esri, Maxar, Earthstar Geographics'
   },
-  tactical: {
-    label: 'Тактическая 3D (Тёмная)',
-    maxZoom: 18,
-    tiles: [ESRI + 'Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
-    overlays: [ESRI + 'Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
-    attr: 'Tiles © Esri · Tactical 3D © OpenFreeMap'
-  },
   streets: {
-    label: 'Улицы Esri',
+    label: 'Схема Улиц Esri',
     maxZoom: 19,
     tiles: [ESRI_TILE('World_Street_Map')],
     overlays: [],
@@ -62,13 +72,6 @@ const BASEMAPS = {
     tiles: [ESRI_TILE('Elevation/World_Hillshade')],
     overlays: [ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
     attr: 'World Hillshade © Esri'
-  },
-  osm: {
-    label: 'Карта OSM',
-    maxZoom: 19,
-    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-    overlays: [],
-    attr: '© OpenStreetMap contributors'
   }
 };
 
@@ -96,8 +99,10 @@ const state = {
   open: false,
   engine: 'maplibre', // 'maplibre' | 'cesium' | 'tactical'
   base: 'hybrid',
-  terrain3d: true,
+  terrain3d: false, // выкл по умолчанию для мгновенной загрузки без задержек AWS DEM
   buildings3d: true,
+  grid3d: true,
+  streetMode: false,
   orbit: false,
   orbitRaf: 0,
   mode: 'pick', // 'pick' | 'ruler' | 'los'
@@ -425,6 +430,9 @@ function addStyles() {
 .maplibregl-ctrl-attrib{background:rgba(6,6,8,.72)!important;color:#8b8b96!important;font:10px 'IBM Plex Sans',sans-serif!important}
 .maplibregl-ctrl-attrib a{color:#cacad2!important}
 .cesium-viewer-bottom{opacity:.65}
+.ge3d-street-bar{position:absolute;z-index:19;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(7,7,10,.94);border:1px solid rgba(226,35,46,.45);box-shadow:0 18px 44px rgba(0,0,0,.85);backdrop-filter:blur(12px);flex-wrap:wrap;max-width:calc(100vw - 32px)}
+.ge3d-street-bar.hidden{display:none}
+.ge3d-street-tag{font:600 10px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#e2232e;margin-right:4px}
 @media(max-width:920px){
   .ge3d-head{flex-wrap:wrap;padding:7px 10px;gap:6px}
   .ge3d-sub{display:none}
@@ -447,12 +455,12 @@ function buildUi() {
     <div class="ge3d-head">
       <div class="ge3d-brand">
         <span class="ge3d-kicker">GOD EYE / GEOINT</span>
-        <strong>3D EARTH v2.0</strong>
-        <span class="ge3d-sub">Глобус · 3D-рельеф · 3D-здания · орбиты · тень и прямая видимость</span>
+        <strong>3D EARTH v3.2</strong>
+        <span class="ge3d-sub">Орбита · Улицы и Номера Домов · 3D-здания · Прогулка 360°</span>
       </div>
       <div class="ge3d-search-wrap">
         <svg class="ge3d-search-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3.5 3.5"/></svg>
-        <input id="ge3d-q" type="text" placeholder="Поиск места, адреса или координат…" autocomplete="off" aria-label="Поиск на 3D-глобусе">
+        <input id="ge3d-q" type="text" placeholder="Поиск улицы, дома, города или координат…" autocomplete="off" aria-label="Поиск на 3D-глобусе">
         <div id="ge3d-sugg" class="ge3d-sugg hidden"></div>
       </div>
       <div class="ge3d-actions">
@@ -464,11 +472,13 @@ function buildUi() {
         <select id="ge3d-base" title="Подложка глобуса" aria-label="Подложка">
           ${Object.entries(BASEMAPS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('')}
         </select>
-        <button id="ge3d-terrain" class="ge3d-btn on" type="button" title="Объёмный 3D-рельеф гор и высот (DEM)">▲ Рельеф 3D</button>
-        <button id="ge3d-bldg" class="ge3d-btn on" type="button" title="3D-контуры и высоты зданий при приближении (Z14+)">■ 3D Здания</button>
+        <button id="ge3d-street-btn" class="ge3d-btn" type="button" title="Опуститься на уровень улицы: 3D-здания, дворы, номера домов и панорамы 360°">🚶 Улица 3D</button>
+        <button id="ge3d-bldg" class="ge3d-btn on" type="button" title="3D-здания, векторные улицы и номера домов (Z14–Z21)">■ 3D Дома</button>
+        <button id="ge3d-grid" class="ge3d-btn on" type="button" title="Тактическая координатная сетка на 3D-глобусе">⌗ Сетка</button>
+        <button id="ge3d-terrain" class="ge3d-btn" type="button" title="Горный 3D-рельеф высот DEM (включайте для гор и расчёта видимости)">▲ Горы 3D</button>
         <button id="ge3d-orbit" class="ge3d-btn" type="button" title="Плавное орбитальное вращение камеры">↻ Орбита</button>
         <button id="ge3d-layers-btn" class="ge3d-btn" type="button" title="Живые слои OSINT и хронолокация">◈ Слои <b id="ge3d-ly-cnt">2</b></button>
-        <button id="ge3d-shot" class="ge3d-btn" type="button" title="Сохранить снимок 3D-сцены в PNG">Снимок PNG</button>
+        <button id="ge3d-shot" class="ge3d-btn" type="button" title="Сохранить снимок 3D-сцены в PNG">PNG</button>
         <button id="ge3d-close" class="ge3d-btn ge3d-close" type="button" aria-label="Закрыть">×</button>
       </div>
     </div>
@@ -482,7 +492,7 @@ function buildUi() {
         <hr>
         <button data-pitch="0" title="Вид строго сверху (надир 0°)">Надир 0°</button>
         <button data-pitch="58" title="Тактический наклон камеры 58°">Наклон 58°</button>
-        <button data-pitch="76" title="Вид у горизонта (76°)">Горизонт 76°</button>
+        <button data-pitch="76" title="Уровень улицы у горизонта (76°)">Улица 76°</button>
         <button id="ge3d-north" title="Выровнять камеру строго на Север">↑ Север</button>
         <button id="ge3d-sync2d" title="Перелететь в текущий центр 2D-карты">⇄ Центр 2D</button>
       </div>
@@ -549,6 +559,16 @@ function buildUi() {
       </aside>
 
       <div id="ge3d-card" class="ge3d-card hidden"></div>
+      <div id="ge3d-street-bar" class="ge3d-street-bar hidden" aria-label="Навигация по улице">
+        <span class="ge3d-street-tag">РЕЖИМ УЛИЦЫ · WASD</span>
+        <button type="button" class="ge3d-btn" data-swalk="fwd" title="Шаг вперёд по улице (W / ↑)">↑ Вперёд</button>
+        <button type="button" class="ge3d-btn" data-swalk="back" title="Шаг назад (S / ↓)">↓ Назад</button>
+        <button type="button" class="ge3d-btn" data-swalk="left" title="Повернуть камеру влево (A / ←)">↺ Влево</button>
+        <button type="button" class="ge3d-btn" data-swalk="right" title="Повернуть камеру вправо (D / →)">↻ Вправо</button>
+        <button type="button" class="ge3d-btn on" data-swalk="ya360" title="Открыть реальные фото улицы 360° в Яндекс.Панорамах по текущему взгляду">Яндекс 360°</button>
+        <button type="button" class="ge3d-btn on" data-swalk="gsv360" title="Открыть реальные фото улицы 360° в Google Street View по текущему азимуту">Street View 360°</button>
+        <button type="button" class="ge3d-btn" data-swalk="up" title="Подняться обратно к обзору квартала">↑ К небу</button>
+      </div>
       <div id="ge3d-los-box" class="ge3d-los-box hidden">
         <div class="ge3d-los-head"><span id="ge3d-los-verdict">—</span><button id="ge3d-los-x" class="ge3d-card-x" type="button">×</button></div>
         <canvas id="ge3d-los-cv" width="454" height="112" style="width:100%;height:112px;display:block"></canvas>
@@ -556,7 +576,7 @@ function buildUi() {
     </div>
     <div class="ge3d-foot">
       <span id="ge3d-status">Инициализация 3D-модуля…</span>
-      <span id="ge3d-telem">Перетаскивание — вращение · ПКМ / Ctrl+мышь — наклон 3D · Колесо — масштаб</span>
+      <span id="ge3d-telem">Перетаскивание — вращение · ПКМ / Ctrl+мышь — наклон 3D · Колесо — масштаб до дома</span>
     </div>`;
   document.body.appendChild(root);
   bindUiEvents(root);
@@ -576,22 +596,94 @@ function updateLayerBadge() {
   if (el) el.textContent = String(cnt);
 }
 
+function stepStreet(act) {
+  const c = getCameraCenter();
+  const brg = state.mlMap ? state.mlMap.getBearing() : 0;
+  if (act === 'ya360') {
+    window.open(`https://yandex.ru/maps/?ll=${c.lon.toFixed(6)},${c.lat.toFixed(6)}&z=18&l=stv,sta&panorama%5Bpoint%5D=${c.lon.toFixed(6)},${c.lat.toFixed(6)}&panorama%5Bdirection%5D=${((brg % 360) + 360) % 360},0`, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (act === 'gsv360') {
+    window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${c.lat.toFixed(6)},${c.lon.toFixed(6)}&heading=${Math.round(((brg % 360) + 360) % 360)}&pitch=0`, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (act === 'up') {
+    state.streetMode = false;
+    $('#ge3d-street-btn')?.classList.remove('on');
+    $('#ge3d-street-bar')?.classList.add('hidden');
+    flyTo(c.lat, c.lon, 15.2, 48);
+    setStatus('Возврат к обзору квартала');
+    return;
+  }
+  if (!state.mlMap) return;
+  if (act === 'left' || act === 'right') {
+    state.mlMap.easeTo({ bearing: brg + (act === 'left' ? -28 : 28), duration: 240 });
+    return;
+  }
+  const stepM = state.mlMap.getZoom() >= 18.5 ? 28 : 55;
+  const dir = (act === 'back' ? brg + 180 : brg) * RAD;
+  const dLat = (stepM * Math.cos(dir)) / 111320;
+  const dLon = (stepM * Math.sin(dir)) / (111320 * Math.max(0.15, Math.cos(c.lat * RAD)));
+  state.mlMap.easeTo({
+    center: [wrapLon(c.lon + dLon), clamp(c.lat + dLat, -85, 85)],
+    zoom: Math.max(state.mlMap.getZoom(), 18.4),
+    pitch: Math.max(state.mlMap.getPitch(), 74),
+    duration: 280
+  });
+}
+
+function toggleStreetMode(forceOn) {
+  state.streetMode = typeof forceOn === 'boolean' ? forceOn : !state.streetMode;
+  $('#ge3d-street-btn')?.classList.toggle('on', state.streetMode);
+  $('#ge3d-street-bar')?.classList.toggle('hidden', !state.streetMode);
+  if (state.streetMode) {
+    if (!state.buildings3d) {
+      state.buildings3d = true;
+      $('#ge3d-bldg')?.classList.add('on');
+      applyMapLibreBuildings();
+    }
+    const t = state.selected || getCameraCenter();
+    flyTo(t.lat, t.lon, Math.max(t.zoom || 3, 18.6), 76);
+    setStatus('Режим осмотра улицы активен · перемещайтесь клавишами W/A/S/D или кнопками внизу · панорамы 360° синхронизированы');
+  } else {
+    const c = getCameraCenter();
+    flyTo(c.lat, c.lon, Math.min(c.zoom || 15, 15.2), 52);
+    setStatus('Выход из режима улицы');
+  }
+}
+
 /* ─────────── Привязка событий UI ─────────── */
 function bindUiEvents(root) {
   $('#ge3d-close', root).onclick = close;
   $('#ge3d-engine', root).onchange = e => switchEngine(e.target.value);
   $('#ge3d-base', root).onchange = e => setBasemap(e.target.value);
+  $('#ge3d-street-btn', root).onclick = () => toggleStreetMode();
+  $('#ge3d-street-bar', root).onclick = e => {
+    const b = e.target.closest('[data-swalk]');
+    if (b) stepStreet(b.dataset.swalk);
+  };
+  $('#ge3d-grid', root).onclick = () => {
+    state.grid3d = !state.grid3d;
+    $('#ge3d-grid').classList.toggle('on', state.grid3d);
+    if (state.mlMap && state.mlMap.isStyleLoaded()) {
+      ['grat-lines', 'grat-major'].forEach(id => {
+        if (state.mlMap.getLayer(id)) state.mlMap.setLayoutProperty(id, 'visibility', state.grid3d ? 'visible' : 'none');
+      });
+    }
+    if (state.tac) state.tac.draw();
+    setStatus('Тактическая координатная сетка: ' + (state.grid3d ? 'включена' : 'выключена'));
+  };
   $('#ge3d-terrain', root).onclick = () => {
     state.terrain3d = !state.terrain3d;
     $('#ge3d-terrain').classList.toggle('on', state.terrain3d);
     applyMapLibreTerrain();
-    setStatus('3D-рельеф высот: ' + (state.terrain3d ? 'включён' : 'выключен'));
+    setStatus('Горный 3D-рельеф высот: ' + (state.terrain3d ? 'включён' : 'выключен (максимальная скорость улиц)'));
   };
   $('#ge3d-bldg', root).onclick = () => {
     state.buildings3d = !state.buildings3d;
     $('#ge3d-bldg').classList.toggle('on', state.buildings3d);
     applyMapLibreBuildings();
-    setStatus('3D-здания (Z14+): ' + (state.buildings3d ? 'включены (приблизьте город)' : 'выключены'));
+    setStatus('3D-дома, векторные улицы и номера домов: ' + (state.buildings3d ? 'включены' : 'выключены'));
   };
   $('#ge3d-orbit', root).onclick = () => toggleOrbit();
   $('#ge3d-layers-btn', root).onclick = () => {
@@ -795,8 +887,26 @@ function current2DCenter() {
   return { lat: 55.7539, lon: 37.6208, zoom: 3.4 };
 }
 
+let _graticuleCache = null;
+function buildGraticuleGeoJSON() {
+  if (_graticuleCache) return _graticuleCache;
+  const feats = [];
+  for (let lat = -75; lat <= 75; lat += 15) {
+    const coords = [];
+    for (let lon = -180; lon <= 180; lon += 5) coords.push([lon, lat]);
+    feats.push({ type: 'Feature', properties: { major: lat === 0 ? 1 : 0 }, geometry: { type: 'LineString', coordinates: coords } });
+  }
+  for (let lon = -180; lon < 180; lon += 15) {
+    const coords = [];
+    for (let lat = -85; lat <= 85; lat += 5) coords.push([lon, lat]);
+    feats.push({ type: 'Feature', properties: { major: lon === 0 ? 1 : 0 }, geometry: { type: 'LineString', coordinates: coords } });
+  }
+  _graticuleCache = { type: 'FeatureCollection', features: feats };
+  return _graticuleCache;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   ДВИЖОК 1: MapLibre GL JS v5 (3D Globe + 3D DEM + 3D Buildings)
+   ДВИЖОК 1: MapLibre GL JS v5 (3D Globe + 3D Город до Z21 + Улицы и Номера Домов)
    ═══════════════════════════════════════════════════════════════ */
 function buildMapLibreStyle(baseKey) {
   const cfg = BASEMAPS[baseKey] || BASEMAPS.hybrid;
@@ -808,33 +918,55 @@ function buildMapLibreStyle(baseKey) {
       maxzoom: cfg.maxZoom || 19,
       attribution: cfg.attr
     },
-    terrainDem: {
-      type: 'raster-dem',
-      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-      tileSize: 256,
-      maxzoom: 15,
-      encoding: 'terrarium'
-    },
+    graticuleGeo: { type: 'geojson', data: buildGraticuleGeoJSON() },
     terminator: { type: 'geojson', data: buildTerminatorGeoJSON(state.sunTime) },
+    dbGeo: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
     overlaysGeo: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
     measureGeo: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }
   };
+  if (state.terrain3d) {
+    sources.terrainDem = {
+      type: 'raster-dem',
+      tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      maxzoom: 14,
+      encoding: 'terrarium'
+    };
+  }
   const layers = [
     { id: 'bg', type: 'background', paint: { 'background-color': '#040406' } },
     {
       id: 'base-tiles',
       type: 'raster',
       source: 'base',
-      paint: baseKey === 'tactical'
-        ? { 'raster-contrast': 0.22, 'raster-brightness-max': 0.88, 'raster-saturation': -0.85 }
-        : { 'raster-fade-duration': 180 }
+      paint: { 'raster-fade-duration': 120 }
     }
   ];
   (cfg.overlays || []).forEach((u, idx) => {
     const sid = 'ov-' + idx;
-    sources[sid] = { type: 'raster', tiles: [u], tileSize: 256, maxzoom: 19 };
-    layers.push({ id: 'ov-ly-' + idx, type: 'raster', source: sid, paint: { 'raster-opacity': 0.92, 'raster-fade-duration': 150 } });
+    sources[sid] = { type: 'raster', tiles: [u], tileSize: 256, maxzoom: 20 };
+    layers.push({ id: 'ov-ly-' + idx, type: 'raster', source: sid, paint: { 'raster-opacity': 0.94, 'raster-fade-duration': 100 } });
   });
+
+  // Тактическая координатная сетка на 3D-глобусе
+  layers.push(
+    {
+      id: 'grat-lines',
+      type: 'line',
+      source: 'graticuleGeo',
+      filter: ['==', ['get', 'major'], 0],
+      layout: { visibility: state.grid3d ? 'visible' : 'none' },
+      paint: { 'line-color': '#cacad2', 'line-width': 0.7, 'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.16, 7, 0.08, 12, 0] }
+    },
+    {
+      id: 'grat-major',
+      type: 'line',
+      source: 'graticuleGeo',
+      filter: ['==', ['get', 'major'], 1],
+      layout: { visibility: state.grid3d ? 'visible' : 'none' },
+      paint: { 'line-color': '#e2232e', 'line-width': 1.1, 'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.34, 8, 0.15, 13, 0], 'line-dasharray': [3, 3] }
+    }
+  );
 
   // Солнечный терминатор (ночь + линия сумерек + зенит Солнца)
   layers.push(
@@ -844,7 +976,7 @@ function buildMapLibreStyle(baseKey) {
       source: 'terminator',
       filter: ['==', ['get', 'kind'], 'night'],
       layout: { visibility: state.layers.terminator ? 'visible' : 'none' },
-      paint: { 'fill-color': '#020204', 'fill-opacity': 0.44 }
+      paint: { 'fill-color': '#020204', 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 2, 0.44, 13, 0.18, 16, 0.05] }
     },
     {
       id: 'term-line',
@@ -861,6 +993,40 @@ function buildMapLibreStyle(baseKey) {
       filter: ['==', ['get', 'kind'], 'sun'],
       layout: { visibility: state.layers.terminator ? 'visible' : 'none' },
       paint: { 'circle-radius': 6, 'circle-color': '#f3f3f5', 'circle-stroke-color': '#e2232e', 'circle-stroke-width': 2 }
+    }
+  );
+
+  // Точки базы GOD EYE (аппаратный WebGL без задержек DOM)
+  layers.push(
+    {
+      id: 'db-pts',
+      type: 'circle',
+      source: 'dbGeo',
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 5.5, 14, 7.5, 18, 9],
+        'circle-color': ['case', ['==', ['get', 'kind'], 'tmp'], '#f3f3f5', '#e2232e'],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1.8
+      }
+    },
+    {
+      id: 'db-lbl',
+      type: 'symbol',
+      source: 'dbGeo',
+      minzoom: 4,
+      layout: {
+        'text-field': ['get', 'title'],
+        'text-font': ['Noto Sans Bold', 'Noto Sans Regular'],
+        'text-size': 11,
+        'text-offset': [0, 1.25],
+        'text-anchor': 'top',
+        'text-max-width': 14
+      },
+      paint: {
+        'text-color': '#ffffff',
+        'text-halo-color': '#050508',
+        'text-halo-width': 1.6
+      }
     }
   );
 
@@ -917,6 +1083,7 @@ function buildMapLibreStyle(baseKey) {
 
   return {
     version: 8,
+    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     projection: { type: 'globe' },
     sky: {
       'sky-color': '#040406',
@@ -927,7 +1094,7 @@ function buildMapLibreStyle(baseKey) {
       'fog-ground-blend': 0.45,
       'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 0.9, 5, 0.7, 9, 0.15, 11, 0]
     },
-    terrain: state.terrain3d ? { source: 'terrainDem', exaggeration: 1.45 } : undefined,
+    terrain: state.terrain3d ? { source: 'terrainDem', exaggeration: 1.35 } : undefined,
     sources,
     layers
   };
@@ -947,6 +1114,8 @@ async function checkOpenFreeMap() {
   return state.ofmReady;
 }
 
+const CITY_VECTOR_IDS = ['ge3d-vec-roads', 'ge3d-vec-paths', 'ge3d-buildings', 'ge3d-vec-street-lbl', 'ge3d-vec-housenum'];
+
 async function attach3DBuildingsLayer(map) {
   if (!map || !state.buildings3d) return;
   const ok = await checkOpenFreeMap();
@@ -955,27 +1124,101 @@ async function attach3DBuildingsLayer(map) {
     if (!map.getSource('ofm-planet')) {
       map.addSource('ofm-planet', { type: 'vector', url: 'https://tiles.openfreemap.org/planet' });
     }
+    const beforeId = map.getLayer('db-pts') ? 'db-pts' : (map.getLayer('ov-tracks') ? 'ov-tracks' : undefined);
+    // 1. Векторные улицы и проезды (резкие линии даже на Z20–Z21, где спутник уже размывается)
+    if (!map.getLayer('ge3d-vec-roads')) {
+      map.addLayer({
+        id: 'ge3d-vec-roads',
+        type: 'line',
+        source: 'ofm-planet',
+        'source-layer': 'transportation',
+        minzoom: 14.5,
+        filter: ['in', ['get', 'class'], ['literal', ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'minor', 'service', 'street']]],
+        paint: {
+          'line-color': state.base === 'osm' ? 'rgba(179,18,27,0.35)' : 'rgba(243,243,245,0.42)',
+          'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 14.5, 0.8, 17, 3.2, 20, 12]
+        }
+      }, beforeId);
+    }
+    // 2. Дворовые дорожки и тропы (для осмотра дворов и подходов к месту происшествия)
+    if (!map.getLayer('ge3d-vec-paths')) {
+      map.addLayer({
+        id: 'ge3d-vec-paths',
+        type: 'line',
+        source: 'ofm-planet',
+        'source-layer': 'transportation',
+        minzoom: 16,
+        filter: ['in', ['get', 'class'], ['literal', ['path', 'footway', 'pedestrian', 'steps', 'track']]],
+        paint: {
+          'line-color': 'rgba(226,35,46,0.52)',
+          'line-dasharray': [2, 2],
+          'line-width': ['interpolate', ['linear'], ['zoom'], 16, 1, 20, 2.8]
+        }
+      }, beforeId);
+    }
+    // 3. Объёмные 3D-здания
     if (!map.getLayer('ge3d-buildings')) {
-      const beforeId = map.getLayer('ov-tracks') ? 'ov-tracks' : undefined;
       map.addLayer({
         id: 'ge3d-buildings',
         type: 'fill-extrusion',
         source: 'ofm-planet',
         'source-layer': 'building',
-        minzoom: 13.5,
+        minzoom: 13.8,
         filter: ['!=', ['get', 'hide_3d'], true],
         paint: {
           'fill-extrusion-color': [
             'interpolate', ['linear'],
             ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
-            0, '#18181f',
-            35, '#2b2b35',
-            90, '#5a161c',
-            180, '#9e141d'
+            0, '#1a1a22',
+            30, '#2e2e38',
+            85, '#5a161c',
+            170, '#9e141d'
           ],
           'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
           'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
-          'fill-extrusion-opacity': 0.86
+          'fill-extrusion-opacity': state.base === 'osm' ? 0.62 : 0.82
+        }
+      }, beforeId);
+    }
+    // 4. Названия улиц и переулков на русском языке
+    if (!map.getLayer('ge3d-vec-street-lbl')) {
+      map.addLayer({
+        id: 'ge3d-vec-street-lbl',
+        type: 'symbol',
+        source: 'ofm-planet',
+        'source-layer': 'transportation_name',
+        minzoom: 15,
+        layout: {
+          'symbol-placement': 'line',
+          'text-field': ['coalesce', ['get', 'name:ru'], ['get', 'name']],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 15, 10.5, 19, 13.5]
+        },
+        paint: {
+          'text-color': '#f3f3f5',
+          'text-halo-color': '#050508',
+          'text-halo-width': 1.8
+        }
+      }, beforeId);
+    }
+    // 5. Номера домов прямо поверх зданий (Z16.4+)
+    if (!map.getLayer('ge3d-vec-housenum')) {
+      map.addLayer({
+        id: 'ge3d-vec-housenum',
+        type: 'symbol',
+        source: 'ofm-planet',
+        'source-layer': 'housenumber',
+        minzoom: 16.4,
+        layout: {
+          'text-field': ['get', 'housenumber'],
+          'text-font': ['Noto Sans Bold', 'Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 16.4, 10, 19.5, 13],
+          'text-allow-overlap': false
+        },
+        paint: {
+          'text-color': '#ff8a90',
+          'text-halo-color': '#050508',
+          'text-halo-width': 1.8
         }
       }, beforeId);
     }
@@ -986,8 +1229,17 @@ function applyMapLibreTerrain() {
   const map = state.mlMap;
   if (!map || !map.isStyleLoaded()) return;
   try {
-    if (state.terrain3d && map.getSource('terrainDem')) {
-      map.setTerrain({ source: 'terrainDem', exaggeration: 1.45 });
+    if (state.terrain3d) {
+      if (!map.getSource('terrainDem')) {
+        map.addSource('terrainDem', {
+          type: 'raster-dem',
+          tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          maxzoom: 14,
+          encoding: 'terrarium'
+        });
+      }
+      map.setTerrain({ source: 'terrainDem', exaggeration: 1.35 });
     } else {
       map.setTerrain(null);
     }
@@ -997,11 +1249,14 @@ function applyMapLibreTerrain() {
 function applyMapLibreBuildings() {
   const map = state.mlMap;
   if (!map || !map.isStyleLoaded()) return;
-  if (map.getLayer('ge3d-buildings')) {
-    map.setLayoutProperty('ge3d-buildings', 'visibility', state.buildings3d ? 'visible' : 'none');
-  } else if (state.buildings3d) {
-    attach3DBuildingsLayer(map);
-  }
+  let found = false;
+  CITY_VECTOR_IDS.forEach(id => {
+    if (map.getLayer(id)) {
+      found = true;
+      map.setLayoutProperty(id, 'visibility', state.buildings3d ? 'visible' : 'none');
+    }
+  });
+  if (!found && state.buildings3d) attach3DBuildingsLayer(map);
 }
 
 async function initMapLibreEngine(center) {
@@ -1015,9 +1270,10 @@ async function initMapLibreEngine(center) {
     zoom: center.zoom || 2.8,
     pitch: center.pitch != null ? center.pitch : 32,
     bearing: 0,
-    maxPitch: 82,
+    maxPitch: 83,
     minZoom: 0.8,
-    maxZoom: 21,
+    maxZoom: 21.5,
+    fadeDuration: 100,
     attributionControl: { compact: true },
     canvasContextAttributes: { antialias: true, preserveDrawingBuffer: true }
   });
@@ -1031,12 +1287,13 @@ async function initMapLibreEngine(center) {
     refreshOverlays();
     updateSolarOverlay();
     updateCameraHud();
-    setStatus('3D-глобус готов · ' + BASEMAPS[state.base].label + ' · правая кнопка мыши — наклон 3D');
+    setStatus('3D-глобус готов · приблизьте любой город или нажмите «🚶 Улица 3D» для осмотра домов и дворов');
   });
 
   map.on('style.load', () => {
     try { map.setProjection({ type: 'globe' }); } catch (_) {}
     attach3DBuildingsLayer(map);
+    refreshDbMarkers();
     refreshOverlays();
     updateSolarOverlay();
   });
@@ -1045,20 +1302,25 @@ async function initMapLibreEngine(center) {
 
   map.on('click', e => {
     if (!e.lngLat) return;
-    const feats = map.queryRenderedFeatures(e.point, { layers: ['ov-points'] });
-    if (feats && feats.length) {
-      const p = feats[0].properties || {};
-      const g = feats[0].geometry && feats[0].geometry.coordinates;
-      if (g) {
-        selectPoint(g[1], g[0], p.title || 'Объект живого слоя', null, p.desc || '');
-        return;
+    const checkLayers = ['db-pts', 'ov-points'].filter(id => map.getLayer(id));
+    if (checkLayers.length) {
+      const feats = map.queryRenderedFeatures(e.point, { layers: checkLayers });
+      if (feats && feats.length) {
+        const p = feats[0].properties || {};
+        const g = feats[0].geometry && feats[0].geometry.coordinates;
+        if (g) {
+          selectPoint(g[1], g[0], p.title || 'Объект', p.id || null, p.desc || '');
+          return;
+        }
       }
     }
     handleGlobeClick(e.lngLat.lat, wrapLon(e.lngLat.lng));
   });
 
-  map.on('mouseenter', 'ov-points', () => { map.getCanvas().style.cursor = 'pointer'; });
-  map.on('mouseleave', 'ov-points', () => { map.getCanvas().style.cursor = ''; });
+  ['db-pts', 'ov-points'].forEach(ly => {
+    map.on('mouseenter', ly, () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', ly, () => { map.getCanvas().style.cursor = ''; });
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1515,21 +1777,19 @@ function refreshDbMarkers() {
   const pts = getDbPoints();
   renderPointsSidebar(pts);
 
-  // MapLibre HTML markers
+  // MapLibre: аппаратный WebGL-слой для всех точек базы + 1 прицел выбранной цели
   state.mlMarkers.forEach(m => { try { m.remove(); } catch (_) {} });
   state.mlMarkers = [];
   if (state.mlMap && window.maplibregl) {
-    if (state.layers.db) {
-      pts.slice(0, 400).forEach(p => {
-        const el = document.createElement('div');
-        el.className = 'ge3d-marker' + (p.kind === 'tmp' ? ' tmp' : '');
-        el.innerHTML = `<span>${esc(p.title.slice(0, 26))}</span>`;
-        el.onclick = ev => {
-          ev.stopPropagation();
-          selectPoint(p.lat, p.lon, p.title, p.id, p.sub);
-        };
-        state.mlMarkers.push(new window.maplibregl.Marker({ element: el }).setLngLat([p.lon, p.lat]).addTo(state.mlMap));
-      });
+    if (state.mlMap.isStyleLoaded() && state.mlMap.getSource('dbGeo')) {
+      const dbFeatures = state.layers.db
+        ? pts.slice(0, 1200).map(p => ({
+            type: 'Feature',
+            properties: { id: p.id || '', title: p.title.slice(0, 32), desc: p.sub || '', kind: p.kind || 'geo' },
+            geometry: { type: 'Point', coordinates: [p.lon, p.lat] }
+          }))
+        : [];
+      state.mlMap.getSource('dbGeo').setData({ type: 'FeatureCollection', features: dbFeatures });
     }
     if (state.selected) {
       const el = document.createElement('div');
@@ -1791,17 +2051,18 @@ function renderSelectedCard() {
       <dt>Солнце / Тень</dt><dd>${sun.alt.toFixed(1)}° над гор. · азимут ${sun.az.toFixed(0)}°${sun.alt > 0.2 ? ` · тень → ${sun.shadowAz.toFixed(0)}°` : ' · ночь'}</dd>
     </dl>
     <div class="ge3d-row">
-      ${p.id ? `<button type="button" class="ge3d-btn on" data-ca="open-rec">Карточка в базе</button>` : `<button type="button" class="ge3d-btn on" data-ca="add-db">+ В локации</button>`}
+      <button type="button" class="ge3d-btn on" data-ca="street">🚶 Осмотреть улицу 3D</button>
+      ${p.id ? `<button type="button" class="ge3d-btn" data-ca="open-rec">Карточка в базе</button>` : `<button type="button" class="ge3d-btn" data-ca="add-db">+ В локации</button>`}
       <button type="button" class="ge3d-btn" data-ca="to2d">В 2D-карту</button>
       <button type="button" class="ge3d-btn" data-ca="scan">Скан OSINT</button>
       <button type="button" class="ge3d-btn" data-ca="copy">Копировать</button>
     </div>
     <div class="ge3d-links">
-      <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${qCompact}" target="_blank" rel="noopener noreferrer">Street View</a>
-      <a href="https://yandex.ru/maps/?ll=${p.lon},${p.lat}&z=17&l=stv,sta" target="_blank" rel="noopener noreferrer">Яндекс.Панорамы</a>
+      <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${qCompact}" target="_blank" rel="noopener noreferrer">Street View 360°</a>
+      <a href="https://yandex.ru/maps/?ll=${p.lon},${p.lat}&z=18&l=stv,sta&panorama%5Bpoint%5D=${p.lon},${p.lat}" target="_blank" rel="noopener noreferrer">Яндекс.Панорамы 360°</a>
+      <a href="https://www.mapillary.com/app/?lat=${p.lat}&lng=${p.lon}&z=17" target="_blank" rel="noopener noreferrer">Mapillary Фото</a>
       <a href="https://shademap.app/@${p.lat},${p.lon},16z" target="_blank" rel="noopener noreferrer">ShadeMap 3D</a>
       <a href="https://www.suncalc.org/#/${p.lat},${p.lon},16/" target="_blank" rel="noopener noreferrer">SunCalc</a>
-      <a href="https://earth.google.com/web/@${p.lat},${p.lon},300a,1100d,35y,0h,45t,0r" target="_blank" rel="noopener noreferrer">Google Earth</a>
     </div>`;
 
   card.onclick = e => {
@@ -1809,6 +2070,7 @@ function renderSelectedCard() {
     if (!b) return;
     const act = b.dataset.ca;
     if (act === 'close') { card.classList.add('hidden'); }
+    else if (act === 'street') { toggleStreetMode(true); }
     else if (act === 'copy') {
       if (window.GE && window.GE.copy) window.GE.copy(q);
       else if (navigator.clipboard) navigator.clipboard.writeText(q);
@@ -2149,6 +2411,12 @@ document.addEventListener('keydown', ev => {
     close();
     return;
   }
+  if (state.open && state.streetMode && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName)) {
+    if (ev.code === 'KeyW' || ev.key === 'ArrowUp') { ev.preventDefault(); stepStreet('fwd'); return; }
+    if (ev.code === 'KeyS' || ev.key === 'ArrowDown') { ev.preventDefault(); stepStreet('back'); return; }
+    if (ev.code === 'KeyA' || ev.key === 'ArrowLeft') { ev.preventDefault(); stepStreet('left'); return; }
+    if (ev.code === 'KeyD' || ev.key === 'ArrowRight') { ev.preventDefault(); stepStreet('right'); return; }
+  }
   if (ev.altKey && (ev.code === 'KeyG' || ev.key === 'g' || ev.key === 'G' || ev.key === 'п' || ev.key === 'П')) {
     if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName)) return;
     ev.preventDefault();
@@ -2163,5 +2431,10 @@ window.addEventListener('resize', () => {
   if (state.tac) state.tac.draw();
 });
 
-window.GE3D = { open, openAt, plotPoints, close, state };
+async function openStreet(lat, lon, title) {
+  await open({ lat, lon, title: title || 'Осмотр улицы', zoom: 18.6, pitch: 76 });
+  toggleStreetMode(true);
+}
+
+window.GE3D = { open, openAt, openStreet, plotPoints, close, state, flyTo };
 })();
